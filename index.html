@@ -10,7 +10,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#f8f7ff;color:#1a1830;overflow-x:hidden}
-:root{--navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#6b5fd4;--lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;--white:#ffffff;--text:#1a1830;--muted:#6b6882}
+:root{--navy:#0a1628;--deep:#0c2340;--mid:#1a4a8a;--purple:#2e7dd4;--lavender:#7eb8f0;--pale:#d4e8f8;--fog:#eef6fd;--white:#ffffff;--text:#0a1628;--muted:#4a6080}
 nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);letter-spacing:-.01em;text-decoration:none}
 .nav-links{display:flex;gap:2rem}
@@ -18,19 +18,21 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 .nav-links a:hover{color:var(--purple)}
 .nav-cta{background:var(--mid);color:var(--white);font-size:.75rem;font-weight:500;padding:.4rem 1rem;border-radius:100px;text-decoration:none;letter-spacing:.04em}
 .hero{min-height:88vh;background:var(--navy);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem 4rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-image:url('sky.jpg');background-size:cover;background-position:center 30%;opacity:.35;z-index:0}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,.85) 0%,rgba(10,22,40,.5) 60%,rgba(10,22,40,.3) 100%);z-index:1}
 .hero-orb{position:absolute;border-radius:50%;opacity:.18;pointer-events:none}
-.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#6b5fd4,transparent);top:-100px;right:-100px}
-.hero-orb-2{width:300px;height:300px;background:radial-gradient(circle,#a89fd8,transparent);bottom:0;left:200px}
-.hero-orb-3{width:200px;height:200px;background:radial-gradient(circle,#4a3fa8,transparent);top:30%;left:-50px}
+.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#2e7dd4,transparent);top:-100px;right:-100px}
+.hero-orb-2{width:300px;height:300px;background:radial-gradient(circle,#7eb8f0,transparent);bottom:0;left:200px}
+.hero-orb-3{width:200px;height:200px;background:radial-gradient(circle,#1a4a8a,transparent);top:30%;left:-50px}
 .hero-left{position:relative;z-index:2}
-.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(107,95,212,.2);border:1px solid rgba(107,95,212,.4);color:#c4bcf0;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
-.hero-dot{width:6px;height:6px;border-radius:50%;background:#a89fd8;animation:pulse 2s infinite;display:inline-block}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(46,125,212,.2);border:1px solid rgba(46,125,212,.4);color:#b8d8f5;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#7eb8f0;animation:pulse 2s infinite;display:inline-block}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
-h1 em{color:#a89fd8;font-style:italic}
+h1 em{color:#7eb8f0;font-style:italic}
 .hero-sub{font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:300}
-.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(107,95,212,.6);padding-left:1rem}
-.hero-affil{font-size:.82rem;color:#a89fd8;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
+.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
+.hero-affil{font-size:.82rem;color:#7eb8f0;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
 .hero-affil span{opacity:.4}
 .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
 .btn-primary{background:var(--purple);color:var(--white);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
@@ -38,10 +40,10 @@ h1 em{color:#a89fd8;font-style:italic}
 .btn-ghost{border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
 .btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--white)}
 .hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
-.photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(107,95,212,.3);position:relative;background:rgba(107,95,212,.1)}
+.photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(46,125,212,.4);position:relative;background:rgba(46,125,212,.1)}
 .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(107,95,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
-.badge-title{font-size:.65rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
+.photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(46,125,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
+.badge-title{font-size:.65rem;color:#7eb8f0;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
 .badge-text{font-size:.82rem;color:rgba(255,255,255,.8);font-weight:300}
 
 section{padding:5rem 4rem}
@@ -66,7 +68,7 @@ section{padding:5rem 4rem}
 .rcard-icon{width:48px;height:48px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem}
 .rcard h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);margin-bottom:.6rem}
 .rcard p{font-size:.85rem;color:var(--muted);line-height:1.65;font-weight:300}
-.rcard-tag{display:inline-block;margin-top:1rem;font-size:.68rem;font-weight:500;color:var(--purple);background:rgba(107,95,212,.08);padding:.3rem .75rem;border-radius:100px;letter-spacing:.04em}
+.rcard-tag{display:inline-block;margin-top:1rem;font-size:.68rem;font-weight:500;color:var(--purple);background:rgba(46,125,212,.08);padding:.3rem .75rem;border-radius:100px;letter-spacing:.04em}
 .publications{background:var(--white)}
 .pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem}
 .pub{background:var(--fog);border-radius:1rem;padding:1.5rem;border-left:3px solid var(--purple);transition:.2s}
@@ -79,13 +81,13 @@ section{padding:5rem 4rem}
 /* SCICOMM */
 .scicomm{background:var(--navy);color:var(--white)}
 .scicomm .section-title{color:var(--white)}
-.scicomm .section-label{color:#a89fd8}
+.scicomm .section-label{color:#7eb8f0}
 .scicomm-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
 .scicomm-text p{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.8;font-weight:300;margin-bottom:1rem}
 .scicomm-photos{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(107,95,212,.25)}
+.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(46,125,212,.25)}
 .scicomm-photo img{width:100%;height:200px;object-fit:cover;display:block}
-.scicomm-photo-wide{border-radius:1rem;overflow:hidden;border:1px solid rgba(107,95,212,.25);margin-top:0}
+.scicomm-photo-wide{border-radius:1rem;overflow:hidden;border:1px solid rgba(46,125,212,.25);margin-top:0}
 .scicomm-photo-wide img{width:100%;height:160px;object-fit:cover;object-position:center 30%;display:block}
 .scicomm-caption{font-size:.68rem;color:rgba(255,255,255,.35);padding:.5rem .75rem;text-align:center}
 /* VIDEO SECTION */
@@ -148,6 +150,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
 </nav>
 
 <section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
   <div class="hero-orb hero-orb-3"></div>
@@ -202,23 +206,23 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   </div>
   <div class="about-visual">
     <div class="atmo-diagram">
-      <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(107,95,212,.15);border:1.5px solid rgba(107,95,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
-      <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.2);padding-top:.4rem">
+      <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(46,125,212,.15);border:1.5px solid rgba(46,125,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
+      <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.2);padding-top:.4rem">
         <span class="atmo-layer-label">stratosphere</span>
       </div>
-      <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.4rem">
+      <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem">
         <span class="atmo-layer-label" style="opacity:.6">· · · · · · · · · ·</span>
       </div>
-      <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.4);padding-top:.4rem">
+      <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.4);padding-top:.4rem">
         <span class="atmo-layer-label">aerosol layer</span>
       </div>
-      <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(107,95,212,.06);border-radius:.5rem;text-align:center">
+      <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(46,125,212,.06);border-radius:.5rem;text-align:center">
         <span style="font-size:.65rem;color:var(--muted);letter-spacing:.04em">· · · · · · · · · · · · · · · · · ·</span>
       </div>
-      <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.4rem">
+      <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem">
         <span class="atmo-layer-label">boundary layer</span>
       </div>
-      <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(107,95,212,.2);border-radius:4px"></div>
+      <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(46,125,212,.2);border-radius:4px"></div>
       <div style="position:absolute;bottom:4px;left:1rem;font-size:.65rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
     </div>
     <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;letter-spacing:.03em">Schematic: aerosol distribution across atmospheric layers</p>
@@ -235,7 +239,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   </div>
   <div class="research-grid">
     <div class="rcard">
-      <div class="rcard-icon" style="background:rgba(107,95,212,.1)">🌫️</div>
+      <div class="rcard-icon" style="background:rgba(46,125,212,.1)">🌫️</div>
       <h3>Aerosol properties & distribution</h3>
       <p>Understanding the physical and optical properties of aerosols — how they scatter, absorb, and interact with solar radiation. My work integrates retrievals from satellites and ground-based instruments to constrain these properties at scale.</p>
       <span class="rcard-tag">Radiative Transfer</span>
@@ -311,8 +315,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
       <p>In 2025 I served as opening host for the <strong style="color:rgba(255,255,255,.8)">100-Hour Weather & Climate Livestream</strong> — a continuous global outreach event that reached <strong style="color:rgba(255,255,255,.8)">180,000+ live viewers</strong> and was featured in The New York Times.</p>
       <p>After completing my walk from New York City to Washington D.C., I spoke at a <strong style="color:rgba(255,255,255,.8)">press conference on the steps of the U.S. Capitol</strong> about the importance of climate science funding.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem">
-        <a href="https://www.tiktok.com/@syl_foisy" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">TikTok →</a>
-        <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">Read about the walk →</a>
+        <a href="https://www.tiktok.com/@syl_foisy" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#7eb8f0;font-size:.85rem;font-weight:500;text-decoration:none">TikTok →</a>
+        <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#7eb8f0;font-size:.85rem;font-weight:500;text-decoration:none">Read about the walk →</a>
       </div>
     </div>
     <div>
