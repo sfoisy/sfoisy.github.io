@@ -68,7 +68,7 @@ section{padding:2.5rem 4rem}
 .chamber-text p strong{color:var(--text);font-weight:500}
 .pub-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:3rem;align-items:start}
 .pub-left{display:flex;flex-direction:column}
-.pub-right img{border-radius:1rem;width:100%;display:block;position:sticky;top:80px}
+.pub-right{}
 .pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem;max-width:800px}
 .pub{background:var(--white);border-radius:1rem;padding:1.5rem 1.75rem;border-left:3px solid var(--purple);transition:.2s}
 .pub:hover{background:var(--pale)}
@@ -228,9 +228,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <!-- PUBLICATIONS -->
 <section class="publications" id="publications" style="background:#d4e9f7">
   <div class="pub-layout">
-    <div class="pub-right">
-      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white);position:sticky;top:80px">
-        <img src="sky_composite.png" alt="Sky photos" style="width:100%;display:block">
+    <div class="pub-right" style="position:sticky;top:80px">
+      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
+        <img src="sky_composite.png" alt="Sky photos" style="width:100%;display:block;margin-top:0">
         <p style="font-size:.75rem;color:var(--muted);padding:.75rem 1rem;line-height:1.6;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Some random cloud photos I've taken that I love. The sky is full of beauty!!</p>
       </div>
     </div>
@@ -245,7 +245,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     </div>
     <div class="pub">
       <p class="pub-year">2024 · Highest Honors</p>
-      <p class="pub-title">Liquid-Liquid Phase Separation: Exploring the Effects of Hofmeister Salts and Organonitrates</p>
+      <p class="pub-title"><a href="https://librarysearch.williams.edu/discovery/fulldisplay?docid=alma991014147706402786&context=L&vid=01WIL_INST:01WIL_SPECIAL&lang=en&search_scope=MyInst_and_CI&adaptor=Local%20Search%20Engine&tab=Everything&query=any,contains,Liquid-Liquid%20Phase%20Separation:%20Exploring%20the%20Effects%20of%20Hofmeister%20Salts%20and%20Organonitrates&offset=0" target="_blank" style="color:var(--deep);text-decoration:underline;text-decoration-color:var(--lavender)">Liquid-Liquid Phase Separation: Exploring the Effects of Hofmeister Salts and Organonitrates</a></p>
       <p class="pub-authors">Foisy, S.</p>
       <p class="pub-journal">B.A. Thesis · Williams College, Department of Geosciences</p>
     </div>
