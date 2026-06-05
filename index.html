@@ -28,7 +28,8 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
 h1 em{color:#a89fd8;font-style:italic}
-.hero-sub{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.7;max-width:440px;margin-bottom:1rem;font-weight:300}
+.hero-sub{font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:300}
+.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(107,95,212,.6);padding-left:1rem}
 .hero-affil{font-size:.82rem;color:#a89fd8;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
 .hero-affil span{opacity:.4}
 .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
@@ -42,11 +43,7 @@ h1 em{color:#a89fd8;font-style:italic}
 .photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(107,95,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
 .badge-title{font-size:.65rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
 .badge-text{font-size:.82rem;color:rgba(255,255,255,.8);font-weight:300}
-.ticker{background:var(--purple);padding:.6rem 0;overflow:hidden;white-space:nowrap}
-.ticker-inner{display:inline-flex;gap:3rem;animation:scroll 28s linear infinite}
-.ticker-item{font-size:.75rem;font-weight:500;color:rgba(255,255,255,.85);letter-spacing:.06em;text-transform:uppercase}
-.ticker-sep{color:rgba(255,255,255,.3)}
-@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
 section{padding:5rem 4rem}
 .section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:1rem;display:block}
 .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem}
@@ -154,8 +151,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
       <span class="hero-dot"></span>
       NASA GISS · Columbia University
     </div>
-    <h1>The tiny particles<br>shaping our <em>climate</em></h1>
-    <p class="hero-sub">PhD researcher using satellites and fieldwork to understand aerosols — and why they matter for Earth's future.</p>
+    <h1>Understanding the <em>invisible</em><br>particles in our air</h1>
+    <p class="hero-sub">I'm a PhD candidate at NASA GISS and Columbia University studying aerosols — tiny liquid and solid particles in the atmosphere that have an outsized influence on our climate, our weather, and the air we breathe. Using cutting-edge satellites and global climate simulations, I work to understand their microphysical properties across the globe.</p>
+    <p class="hero-sub2">I believe great science is science that benefits people and informs policy. That's why I'm passionate about reducing uncertainty in climate forecasts — and making sure the science is understood far beyond the lab.</p>
     <p class="hero-affil">Syl Foisy (he/him) <span>·</span> PhD Candidate in Atmospheric Science</p>
     <div class="hero-btns">
       <a href="#research" class="btn-primary">Explore my research</a>
@@ -173,30 +171,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   </div>
 </section>
 
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-inner">
-    <span class="ticker-item">Aerosol Science</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">NASA PACE</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Climate Modeling</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Science Communication</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">NASA FINESST Fellow</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">2.4B TikTok Views</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Giant Snowmen</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Columbia University</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Chesapeake Bay Fieldwork</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Invited Speaker NASA Goddard</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Aerosol Science</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">NASA PACE</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Climate Modeling</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Science Communication</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">NASA FINESST Fellow</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">2.4B TikTok Views</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Giant Snowmen</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Columbia University</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Chesapeake Bay Fieldwork</span><span class="ticker-sep">·</span>
-    <span class="ticker-item">Invited Speaker NASA Goddard</span><span class="ticker-sep">·</span>
-  </div>
-</div>
+
 
 <section class="about" id="about">
   <div class="about-text">
