@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Syl Foisy — PhD Candidate in Atmospheric Science at NASA GISS / Columbia University. Researching aerosols, satellite remote sensing, and climate modeling.">
+<title>Syl Foisy — Atmospheric Scientist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f8f7ff;color:#1a1830;overflow-x:hidden}
+:root{
+  --navy:#0d0b2e;
+  --deep:#1a1760;
+  --mid:#2e2a8a;
+  --purple:#6b5fd4;
+  --lavender:#a89fd8;
+  --pale:#e8e5f8;
+  --fog:#f4f2ff;
+  --white:#ffffff;
+  --text:#1a1830;
+  --muted:#6b6882;
+}
+
+/* NAV */
+nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);letter-spacing:-.01em}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{font-size:.8rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.nav-links a:hover{color:var(--purple)}
+.nav-cta{background:var(--mid);color:var(--white);font-size:.75rem;font-weight:500;padding:.4rem 1rem;border-radius:100px;text-decoration:none;letter-spacing:.04em}
+
+/* HERO */
+.hero{min-height:88vh;background:var(--navy);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem 4rem;position:relative;overflow:hidden}
+.hero-orb{position:absolute;border-radius:50%;opacity:.18;pointer-events:none}
+.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#6b5fd4,transparent);top:-100px;right:-100px}
+.hero-orb-2{width:300px;height:300px;background:radial-gradient(circle,#a89fd8,transparent);bottom:0;left:200px}
+.hero-orb-3{width:200px;height:200px;background:radial-gradient(circle,#4a3fa8,transparent);top:30%;left:-50px}
+.hero-left{position:relative;z-index:2}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(107,95,212,.2);border:1px solid rgba(107,95,212,.4);color:#c4bcf0;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#a89fd8;animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
+h1 em{color:#a89fd8;font-style:italic}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.7;max-width:440px;margin-bottom:1rem;font-weight:300}
+.hero-affil{font-size:.82rem;color:#a89fd8;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
+.hero-affil span{opacity:.4}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{background:var(--purple);color:var(--white);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-primary:hover{background:#7a6fdf}
+.btn-ghost{border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--white)}
+.hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
+.photo-frame{width:320px;height:380px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(107,95,212,.3);position:relative;background:rgba(107,95,212,.1)}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(107,95,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
+.badge-title{font-size:.65rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
+.badge-text{font-size:.82rem;color:rgba(255,255,255,.8);font-weight:300}
+
+/* TICKER */
+.ticker{background:var(--purple);padding:.6rem 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-flex;gap:3rem;animation:scroll 22s linear infinite}
+.ticker-item{font-size:.75rem;font-weight:500;color:rgba(255,255,255,.85);letter-spacing:.06em;text-transform:uppercase}
+.ticker-sep{color:rgba(255,255,255,.3)}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{padding:5rem 4rem}
+.section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:1rem;display:block}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem}
+.section-sub{font-size:1rem;color:var(--muted);line-height:1.7;max-width:560px;font-weight:300}
+
+/* ABOUT */
+.about{background:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center}
+.about-text p{font-size:1rem;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:1rem}
+.about-text p strong{color:var(--text);font-weight:500}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+.stat{background:var(--fog);border-radius:.75rem;padding:1.25rem}
+.stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--deep);line-height:1}
+.stat-label{font-size:.72rem;color:var(--muted);font-weight:400;margin-top:.25rem;letter-spacing:.02em}
+.about-visual{background:var(--fog);border-radius:1.5rem;padding:2rem;position:relative}
+.atmo-diagram{position:relative;height:280px}
+.atmo-layer-label{position:absolute;left:0;font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.atmo-line{flex:1;height:1px;background:var(--pale)}
+
+/* RESEARCH */
+.research{background:var(--fog)}
+.research-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:3rem;flex-wrap:wrap;gap:1rem}
+.research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.rcard{background:var(--white);border-radius:1.25rem;padding:2rem;border:1px solid var(--pale);transition:.2s}
+.rcard:hover{border-color:var(--lavender);transform:translateY(-3px)}
+.rcard-icon{width:48px;height:48px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem}
+.rcard h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);margin-bottom:.6rem}
+.rcard p{font-size:.85rem;color:var(--muted);line-height:1.65;font-weight:300}
+.rcard-tag{display:inline-block;margin-top:1rem;font-size:.68rem;font-weight:500;color:var(--purple);background:rgba(107,95,212,.08);padding:.3rem .75rem;border-radius:100px;letter-spacing:.04em}
+
+/* PUBLICATIONS */
+.publications{background:var(--white)}
+.pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem}
+.pub{background:var(--fog);border-radius:1rem;padding:1.5rem;border-left:3px solid var(--purple);transition:.2s}
+.pub:hover{background:var(--pale)}
+.pub-year{font-size:.7rem;font-weight:500;color:var(--purple);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem}
+.pub-title{font-size:.95rem;font-weight:500;color:var(--deep);margin-bottom:.35rem;line-height:1.4}
+.pub-authors{font-size:.82rem;color:var(--muted);font-weight:300}
+.pub-journal{font-size:.78rem;color:var(--purple);font-weight:400;margin-top:.4rem;font-style:italic}
+
+/* SCICOMM */
+.scicomm{background:var(--navy);color:var(--white)}
+.scicomm .section-title{color:var(--white)}
+.scicomm .section-label{color:#a89fd8}
+.scicomm-inner{display:grid;grid-template-columns:1fr 1.2fr;gap:5rem;align-items:center}
+.scicomm-text p{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.8;font-weight:300;margin-bottom:1rem}
+.scicomm-cards{display:flex;flex-direction:column;gap:1rem}
+.scard{background:rgba(255,255,255,.05);border:1px solid rgba(107,95,212,.25);border-radius:1rem;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;transition:.2s;text-decoration:none}
+.scard:hover{background:rgba(107,95,212,.12);border-color:rgba(107,95,212,.5)}
+.scard-icon{width:40px;height:40px;border-radius:.6rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.scard-label{font-size:.7rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem}
+.scard-title{font-size:.9rem;color:rgba(255,255,255,.85);font-weight:400}
+
+/* CONTACT */
+.contact{background:var(--fog);text-align:center}
+.contact .section-label{justify-content:center}
+.contact .section-title{margin:0 auto 1rem}
+.contact .section-sub{margin:0 auto 2.5rem}
+.contact-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.clink{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s;border:1px solid var(--pale);color:var(--text);background:var(--white)}
+.clink:hover{border-color:var(--lavender)}
+.clink-primary{background:var(--deep);color:var(--white);border-color:var(--deep)}
+.clink-primary:hover{background:var(--mid)}
+
+/* FOOTER */
+footer{background:var(--navy);padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.6);font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02em}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}
+  .hero-right{display:none}
+  .about{grid-template-columns:1fr;gap:2rem;padding:3rem 2rem}
+  .research-grid{grid-template-columns:1fr;padding:3rem 2rem}
+  .scicomm-inner{grid-template-columns:1fr;gap:2rem}
+  section{padding:3rem 2rem}
+  nav{padding:0 1.5rem}
+  .nav-links{display:none}
+  footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-name">Syl Foisy</span>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#research">Research</a>
+    <a href="#publications">Publications</a>
+    <a href="#outreach">Outreach</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta">Get in touch</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-left">
+    <div class="hero-tag">
+      <span class="hero-dot"></span>
+      NASA GISS · Columbia University
+    </div>
+    <h1>The tiny particles<br>shaping our <em>climate</em></h1>
+    <p class="hero-sub">PhD researcher using satellites and fieldwork to understand aerosols — and why they matter for Earth's future.</p>
+    <p class="hero-affil">Syl Foisy <span>·</span> PhD Candidate in Atmospheric Science</p>
+    <div class="hero-btns">
+      <a href="#research" class="btn-primary">Explore my research</a>
+      <a href="#outreach" class="btn-ghost">Watch my videos</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="photo-frame">
+      <!-- REPLACE src below with your actual photo file name, e.g. src="photo.jpg" -->
+      <!-- Upload your photo to the same GitHub folder as index.html -->
+      <img src="photo.jpg" alt="Syl Foisy" onerror="this.style.display='none'">
+      <div class="photo-badge">
+        <p class="badge-title">Currently studying</p>
+        <p class="badge-text">Aerosol properties over the Chesapeake Bay using NASA PACE data</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-inner">
+    <span class="ticker-item">Aerosol Science</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Satellite Remote Sensing</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">NASA PACE</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Climate Modeling</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Science Communication</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">NASA GISS</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Columbia University</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Chesapeake Bay Fieldwork</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Aerosol Science</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Satellite Remote Sensing</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">NASA PACE</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Climate Modeling</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Science Communication</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">NASA GISS</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Columbia University</span><span class="ticker-sep">·</span>
+    <span class="ticker-item">Chesapeake Bay Fieldwork</span><span class="ticker-sep">·</span>
+  </div>
+</div>
+
+<section class="about" id="about">
+  <div class="about-text">
+    <span class="section-label">About</span>
+    <h2 class="section-title">Scientist.<br>Storyteller.<br>Sky watcher.</h2>
+    <p>I'm a PhD candidate at <strong>Columbia University / NASA GISS</strong> studying atmospheric aerosols — the tiny particles suspended in the air that scatter sunlight, seed clouds, and quietly steer Earth's climate.</p>
+    <p>My work uses <strong>satellite data from NASA's PACE mission</strong> and ground-based fieldwork to understand how aerosols behave, where they come from, and how we should represent them in the models we use to project our future climate.</p>
+    <p>I believe science only matters if people understand it — so alongside my research, I make videos, write, and talk to anyone who will listen about what's happening in our atmosphere.</p>
+    <div class="about-stats">
+      <div class="stat">
+        <p class="stat-num">PACE</p>
+        <p class="stat-label">NASA satellite data</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num">GISS</p>
+        <p class="stat-label">Earth system modeling</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num">Bay</p>
+        <p class="stat-label">Chesapeake fieldwork</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num">ESM</p>
+        <p class="stat-label">Climate projection</p>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual">
+    <div class="atmo-diagram">
+      <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(107,95,212,.15);border:1.5px solid rgba(107,95,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
+      <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.2);padding-top:.4rem">
+        <span class="atmo-layer-label">stratosphere</span>
+      </div>
+      <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.4rem">
+        <span class="atmo-layer-label" style="opacity:.6">· · · · · · · · · ·</span>
+      </div>
+      <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.4);padding-top:.4rem">
+        <span class="atmo-layer-label">aerosol layer</span>
+      </div>
+      <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(107,95,212,.06);border-radius:.5rem;text-align:center">
+        <span style="font-size:.65rem;color:var(--muted);letter-spacing:.04em">· · · · · · · · · · · · · · · · · ·</span>
+      </div>
+      <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.4rem">
+        <span class="atmo-layer-label">boundary layer</span>
+      </div>
+      <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(107,95,212,.2);border-radius:4px"></div>
+      <div style="position:absolute;bottom:4px;left:1rem;font-size:.65rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;letter-spacing:.03em">Schematic: aerosol distribution across atmospheric layers</p>
+  </div>
+</section>
+
+<section class="research" id="research">
+  <div class="research-header">
+    <div>
+      <span class="section-label">Research</span>
+      <h2 class="section-title">What I work on</h2>
+    </div>
+    <a href="#publications" style="font-size:.82rem;color:var(--purple);font-weight:500;text-decoration:none">View all publications →</a>
+  </div>
+  <div class="research-grid">
+    <div class="rcard">
+      <div class="rcard-icon" style="background:rgba(107,95,212,.1)">🌫️</div>
+      <h3>Aerosol properties & distribution</h3>
+      <p>Understanding the physical and optical properties of aerosols across the atmosphere — how they scatter, absorb, and interact with solar radiation.</p>
+      <span class="rcard-tag">Radiative Transfer</span>
+    </div>
+    <div class="rcard">
+      <div class="rcard-icon" style="background:rgba(55,138,221,.1)">🛰️</div>
+      <h3>Satellite remote sensing</h3>
+      <p>Using NASA's PACE satellite and ground-based instruments to observe aerosol properties at scale across the Chesapeake Bay and beyond.</p>
+      <span class="rcard-tag">NASA PACE</span>
+    </div>
+    <div class="rcard">
+      <div class="rcard-icon" style="background:rgba(29,158,117,.1)">🌍</div>
+      <h3>Earth system modeling</h3>
+      <p>Improving how aerosols are represented in the NASA GISS climate model — connecting observations to projections of our future climate.</p>
+      <span class="rcard-tag">NASA GISS ESM</span>
+    </div>
+  </div>
+</section>
+
+<section class="publications" id="publications">
+  <span class="section-label">Publications</span>
+  <h2 class="section-title">Selected work</h2>
+  <p class="section-sub">Add your papers below — replace the placeholder entries with your actual publications.</p>
+  <div class="pub-list">
+    <!-- REPLACE THESE with your actual publications -->
+    <div class="pub">
+      <p class="pub-year">2024</p>
+      <p class="pub-title">Your paper title goes here</p>
+      <p class="pub-authors">Foisy, S., et al.</p>
+      <p class="pub-journal">Journal of Geophysical Research · Atmospheres</p>
+    </div>
+    <div class="pub">
+      <p class="pub-year">2023</p>
+      <p class="pub-title">Your second paper title goes here</p>
+      <p class="pub-authors">Foisy, S., et al.</p>
+      <p class="pub-journal">Atmospheric Chemistry and Physics</p>
+    </div>
+  </div>
+  <a href="YOUR_GOOGLE_SCHOLAR_URL" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">View full list on Google Scholar →</a>
+</section>
+
+<section class="scicomm" id="outreach">
+  <div class="scicomm-inner">
+    <div class="scicomm-text">
+      <span class="section-label">Science Communication</span>
+      <h2 class="section-title">Bringing the<br>atmosphere to you</h2>
+      <p>I believe the best science is science that reaches people. I make YouTube videos, write accessible explainers, and build interactive tools to help anyone — not just scientists — understand what's happening in our atmosphere and why it matters.</p>
+      <a href="YOUR_YOUTUBE_URL" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">Visit my YouTube channel →</a>
+    </div>
+    <div class="scicomm-cards">
+      <a href="YOUR_YOUTUBE_URL" class="scard" target="_blank">
+        <div class="scard-icon" style="background:rgba(255,80,80,.12)">▶️</div>
+        <div>
+          <p class="scard-label">YouTube</p>
+          <p class="scard-title">Video essays on aerosols, climate & atmospheric science</p>
+        </div>
+      </a>
+      <a href="#" class="scard">
+        <div class="scard-icon" style="background:rgba(107,95,212,.15)">✍️</div>
+        <div>
+          <p class="scard-label">Blog</p>
+          <p class="scard-title">Long-form writing on research, science life & outreach</p>
+        </div>
+      </a>
+      <a href="#" class="scard">
+        <div class="scard-icon" style="background:rgba(55,138,221,.12)">🔬</div>
+        <div>
+          <p class="scard-label">Interactive tools</p>
+          <p class="scard-title">Explainers & visualizations built to teach the science</p>
+        </div>
+      </a>
+      <a href="#" class="scard">
+        <div class="scard-icon" style="background:rgba(29,158,117,.12)">🎙️</div>
+        <div>
+          <p class="scard-label">Outreach & talks</p>
+          <p class="scard-title">Public lectures, school visits & science events</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <span class="section-label" style="display:block;text-align:center">Get in touch</span>
+  <h2 class="section-title" style="text-align:center">Let's talk about<br>the atmosphere</h2>
+  <p class="section-sub" style="text-align:center;margin:0 auto 2.5rem">Whether you're a collaborator, a curious person, a journalist, or a student — I'd love to hear from you.</p>
+  <div class="contact-links">
+    <!-- REPLACE href values with your actual links -->
+    <a href="mailto:YOUR_EMAIL@columbia.edu" class="clink clink-primary">✉️ Email me</a>
+    <a href="YOUR_GOOGLE_SCHOLAR_URL" target="_blank" class="clink">🎓 Google Scholar</a>
+    <a href="YOUR_YOUTUBE_URL" target="_blank" class="clink">▶️ YouTube</a>
+    <a href="YOUR_LINKEDIN_URL" target="_blank" class="clink">in LinkedIn</a>
+    <a href="YOUR_CV_URL" target="_blank" class="clink">📄 CV</a>
+  </div>
+</section>
+
+<footer>
+  <span class="fname">Syl Foisy</span>
+  <span class="fcredit">PhD Candidate · NASA GISS / Columbia University</span>
+</footer>
+
+</body>
+</html>
