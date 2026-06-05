@@ -62,7 +62,10 @@ section{padding:2.5rem 4rem}
 .about-right p strong{color:var(--text);font-weight:500}
 
 /* PUBLICATIONS */
-.publications{background:var(--fog)}
+.chamber{background:var(--fog)}
+.chamber-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
+.chamber-text p strong{color:var(--text);font-weight:500}
 .pub-layout{display:grid;grid-template-columns:1.4fr 1fr;gap:3rem;align-items:start}
 .pub-left{display:flex;flex-direction:column}
 .pub-right img{border-radius:1rem;width:100%;display:block;position:sticky;top:80px}
@@ -139,7 +142,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}.hero-right{display:none}
-  .about,.scicomm,.pub-layout{grid-template-columns:1fr;gap:2rem}
+  .about,.scicomm,.pub-layout,.chamber-inner{grid-template-columns:1fr;gap:2rem}
   .about-left{position:static;max-height:260px}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
   .gallery{grid-template-columns:repeat(2,1fr)}
@@ -196,10 +199,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
         </video>
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Aerosol composition across the globe for one week in April 2024, as simulated by NASA GISS ModelE. Each column of atmosphere is colored by its volume-dominant aerosol species.</p>
       </div>
-      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
-        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;display:block">
-        <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Super-coarse aerosol droplets undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form. Images taken using an optical microscope at the Carrasquillo lab at Williams College.</p>
-      </div>
+
     </div>
   </div>
   <div class="about-right">
