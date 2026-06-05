@@ -55,7 +55,7 @@ section{padding:2.5rem 4rem}
 
 /* ABOUT */
 .about{background:var(--white);display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start;padding:2.5rem 4rem}
-.about-left{border-radius:1.25rem;overflow:hidden;height:600px}
+.about-left{display:flex;flex-direction:column;gap:1rem}
 .about-left img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .about-right{display:flex;flex-direction:column;gap:1rem}
 .about-right p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:.25rem}
@@ -139,7 +139,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}.hero-right{display:none}
-  .about,.scicomm{grid-template-columns:1fr;gap:2rem}
+  .about,.scicomm,.pub-layout{grid-template-columns:1fr;gap:2rem}
   .about-left{position:static;max-height:260px}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
   .gallery{grid-template-columns:repeat(2,1fr)}
@@ -191,14 +191,14 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   <div class="about-left">
     <div style="display:flex;flex-direction:column;gap:1rem">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
-        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;display:block">
-        <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Super-coarse aerosol droplets undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form. Images taken using an optical microscope at the Carrasquillo lab at Williams College.</p>
-      </div>
-      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
         <video autoplay loop muted playsinline style="width:100%;display:block">
           <source src="animation_fixed.mp4" type="video/mp4">
         </video>
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Aerosol composition across the globe for one week in April 2024, as simulated by NASA GISS ModelE. Each column of atmosphere is colored by its volume-dominant aerosol species.</p>
+      </div>
+      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
+        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;display:block">
+        <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Super-coarse aerosol droplets undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form. Images taken using an optical microscope at the Carrasquillo lab at Williams College.</p>
       </div>
     </div>
   </div>
@@ -223,27 +223,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
       <div class="pub-list">
     <div class="pub">
       <p class="pub-year">In Preparation</p>
-      <p class="pub-title">Leveraging co-located PACE SPEXone data and NASA ModelE-MATRIX to determine atmospheric composition</p>
+      <p class="pub-title">Mutual Constraints on Global Aerosol Composition from Novel PACE Data and ModelE</p>
       <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
       <span class="pub-badge">In prep</span>
-    </div>
-    <div class="pub">
-      <p class="pub-year">March 2026 · Invited Talk</p>
-      <p class="pub-title">Leveraging co-located PACE SPEXone data and NASA ModelE-MATRIX to determine atmospheric composition</p>
-      <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
-      <p class="pub-journal">NASA Goddard Ocean Ecology Lab Special Seminar · Greenbelt, MD</p>
-    </div>
-    <div class="pub">
-      <p class="pub-year">December 2025 · Oral</p>
-      <p class="pub-title">Leveraging co-located PACE SPEXone data and NASA ModelE-MATRIX to determine atmospheric composition</p>
-      <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
-      <p class="pub-journal">American Geophysical Union Fall Meeting · New Orleans, LA</p>
-    </div>
-    <div class="pub">
-      <p class="pub-year">October 2025 · Oral</p>
-      <p class="pub-title">Leveraging co-located PACE SPEXone data and NASA ModelE-MATRIX to determine atmospheric composition</p>
-      <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
-      <p class="pub-journal">AeroCom · Institut Pascal, Université Paris-Saclay, France</p>
     </div>
     <div class="pub">
       <p class="pub-year">2024 · Highest Honors</p>
