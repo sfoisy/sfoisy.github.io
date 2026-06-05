@@ -141,15 +141,22 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}
-  .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}.hero-right{display:none}
+  .hero{grid-template-columns:1fr;padding:2rem;gap:1.5rem}
+  .hero-right{display:flex;justify-content:center;order:1}
+  .hero-left{order:2}
+  .photo-frame{width:160px;height:190px;border-radius:1.5rem 1.5rem 4rem 1.5rem}
+  h1{font-size:2.2rem}
+  .hero-sub,.hero-sub2{max-width:100%}
   .about,.scicomm,.pub-layout,.chamber-inner{grid-template-columns:1fr;gap:2rem}
   .about-left{position:static;max-height:260px}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
   .gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-photos{grid-template-columns:1fr}
-  section{padding:3rem 2rem}
+  section{padding:2rem 1.5rem}
+  .about{padding:2rem 1.5rem}
   footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
-  .sky-divider{height:140px}
+  .sky-divider{height:60px}
+  .pub-right{position:static !important}
 }
 </style>
 </head>
@@ -174,7 +181,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <section class="hero">
   <div class="hero-left">
     <h1>Syl Foisy</h1>
-    <p class="hero-sub">I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">aerosols</a> — tiny liquid and solid particles in the atmosphere — which have an outsized influence on our climate, our weather, and the air we breathe.</p>
+    <p class="hero-sub"><strong style="color:rgba(255,255,255,.95)">Hi!</strong> I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">aerosols</a> — tiny liquid and solid particles in the atmosphere — which have an outsized influence on our climate, our weather, and the air we breathe.</p>
     <p class="hero-sub2">Outside of research, I have many interests, ranging from <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">filmmaking</a> and <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">snow sculpture</a> to <a href="https://en.wikipedia.org/wiki/Pedestrianism" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">long-distance walking</a>, which occasionally, and delightfully, <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">collide with my science</a>.</p>
     <div class="hero-btns">
       <a href="#about" class="btn-primary">My research</a>
