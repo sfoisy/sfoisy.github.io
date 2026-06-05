@@ -18,7 +18,7 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 .nav-links a:hover{color:var(--purple)}
 .nav-cta{background:var(--mid);color:var(--white);font-size:.75rem;font-weight:500;padding:.4rem 1rem;border-radius:100px;text-decoration:none;letter-spacing:.04em}
 .hero{min-height:88vh;background:var(--navy);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem 4rem;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background-image:url('sky.jpg');background-size:cover;background-position:center 30%;opacity:1;z-index:0}
+.hero-bg{display:none}
 .hero-overlay{display:none}
 .hero-orb{position:absolute;border-radius:50%;opacity:.18;pointer-events:none}
 .hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#2e7dd4,transparent);top:-100px;right:-100px}
@@ -28,17 +28,17 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 .hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(46,125,212,.2);border:1px solid rgba(46,125,212,.4);color:#b8d8f5;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:#7eb8f0;animation:pulse 2s infinite;display:inline-block}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:#0a1628;line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
-h1 em{color:#2e7dd4;font-style:italic}
-.hero-sub{font-size:.95rem;color:#1a2a3a;line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:400}
-.hero-sub2{font-size:.95rem;color:#1a2a3a;line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:400;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
+h1 em{color:#7eb8f0;font-style:italic}
+.hero-sub{font-size:.95rem;color:rgba(255,255,255,.8);line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:400}
+.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.9);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
 .hero-affil{font-size:.82rem;color:#2e7dd4;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
 .hero-affil span{opacity:.4}
 .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
 .btn-primary{background:var(--purple);color:var(--white);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
 .btn-primary:hover{background:#7a6fdf}
-.btn-ghost{border:1px solid rgba(10,22,40,.3);color:#0a1628;padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
-.btn-ghost:hover{border-color:rgba(10,22,40,.6);color:#0a1628}
+.btn-ghost{border:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.9);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.8);color:var(--white)}
 .hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
 .photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(46,125,212,.4);position:relative;background:rgba(46,125,212,.1)}
 .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
@@ -124,6 +124,8 @@ section{padding:5rem 4rem}
 footer{background:var(--navy);padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.6);font-size:.9rem}
 footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02em}
+.section-break{width:100%;overflow:hidden;line-height:0}
+.section-break img{width:100%;display:block;object-fit:cover;height:80px}
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}
   .hero-right{display:none}
@@ -221,7 +223,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     </div>
   </div>
 </section>
-
+<div class="section-break"><img src="break.png" alt="" aria-hidden="true"></div>
 <section class="research" id="research">
   <div class="research-header">
     <div>
