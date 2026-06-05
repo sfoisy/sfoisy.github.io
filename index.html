@@ -55,16 +55,11 @@ section{padding:5rem 4rem}
 .section-sub{font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;max-width:640px}
 
 /* ABOUT */
-.about{background:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
-.about-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:1.1rem}
-.about-text p strong{color:var(--text);font-weight:500}
-.about-right{display:flex;flex-direction:column;gap:1.5rem}
-.aerosol-box{border-radius:1.25rem;overflow:hidden;border:1px solid var(--pale)}
-.aerosol-box img{width:100%;display:block}
-.aerosol-caption{font-size:.78rem;color:var(--muted);padding:1rem 1.25rem;line-height:1.6;font-weight:300;font-style:italic}
-.atmo-box{background:var(--fog);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale)}
-.atmo-diagram{position:relative;height:260px}
-.atmo-layer-label{position:absolute;left:0;font-size:.62rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.about{background:var(--white);display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start}
+.about-left{position:sticky;top:80px;border-radius:1.25rem;overflow:hidden;max-height:85vh}
+.about-right{display:flex;flex-direction:column;gap:1rem}
+.about-right p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:.25rem}
+.about-right p strong{color:var(--text);font-weight:500}
 
 /* PUBLICATIONS */
 .publications{background:var(--fog)}
@@ -142,6 +137,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   nav{padding:0 1.5rem}.nav-links{display:none}
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}.hero-right{display:none}
   .about,.scicomm{grid-template-columns:1fr;gap:2rem}
+  .about-left{position:static;max-height:260px}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
   .gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-photos{grid-template-columns:1fr}
@@ -183,38 +179,26 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   </div>
 </section>
 
-<!-- SKY COMPOSITE -->
-<div class="sky-divider sky-divider-composite">
-  <img src="sky_composite.png" alt="Sky composite" style="object-position:center top">
+<!-- BREAK 1: sunset landscapes -->
+<div class="sky-divider sky-divider-tall">
+  <img src="break_sunset.jpg" alt="Sunset landscape collage" style="object-position:center 30%">
 </div>
 
 <!-- ABOUT -->
 <section class="about" id="about">
-  <div class="about-text">
+  <div class="about-left">
+    <img src="sky_composite.png" alt="Sky photos collage" style="width:100%;height:100%;object-fit:cover;border-radius:1.25rem;display:block">
+  </div>
+  <div class="about-right">
     <span class="section-label">Research</span>
     <h2 class="section-title">All things<br>aerosols & clouds</h2>
     <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from <strong>NASA's PACE mission</strong> and <strong>NASA GISS ModelE</strong> climate model simulations to study the evolution of aerosols in the atmosphere and how they facilitate cloud formation, at Columbia University.</p>
     <p>I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
     <p>Before starting my PhD, I built a cloud chamber at Williams College alongside <strong>Prof. Anthony Carrasquillo</strong> to study how aerosols respond to changes in humidity. Many undergo a striking transformation — separating into two distinct liquid phases, much like oil and water — with real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today.</p>
     <p style="margin-top:1rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
-  </div>
-  <div class="about-right">
-    <div class="aerosol-box">
-      <img src="aerosol_photos.png" alt="Microscopy images of aerosol droplets undergoing liquid-liquid phase separation">
-      <p class="aerosol-caption">Aerosol droplets captured under a microscope, undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form.</p>
-    </div>
-    <div class="atmo-box">
-      <div class="atmo-diagram">
-        <div style="position:absolute;top:.5rem;right:.75rem;width:30px;height:30px;border-radius:50%;background:rgba(107,95,212,.15);border:1.5px solid rgba(107,95,212,.4);display:flex;align-items:center;justify-content:center;font-size:.8rem">🛰</div>
-        <div style="position:absolute;top:2rem;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.2);padding-top:.35rem"><span class="atmo-layer-label">stratosphere</span></div>
-        <div style="position:absolute;top:70px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.35rem"><span class="atmo-layer-label" style="opacity:.5">· · · · · · · · ·</span></div>
-        <div style="position:absolute;top:115px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.4);padding-top:.35rem"><span class="atmo-layer-label">aerosol layer</span></div>
-        <div style="position:absolute;top:155px;left:0;right:0;padding:.35rem;background:rgba(107,95,212,.05);border-radius:.4rem;text-align:center"><span style="font-size:.6rem;color:var(--muted)">· · · · · · · · · · · · · ·</span></div>
-        <div style="position:absolute;top:185px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.35rem"><span class="atmo-layer-label">boundary layer</span></div>
-        <div style="position:absolute;bottom:18px;left:0;right:0;height:2px;background:rgba(107,95,212,.2);border-radius:4px"></div>
-        <div style="position:absolute;bottom:4px;left:0;font-size:.6rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
-      </div>
-      <p style="font-size:.7rem;color:var(--muted);margin-top:.75rem;letter-spacing:.03em">Schematic: aerosol layers in the atmosphere</p>
+    <div style="margin-top:1.5rem;border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
+      <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;display:block">
+      <p style="font-size:.75rem;color:var(--muted);padding:.85rem 1rem;line-height:1.6;font-weight:300;font-style:italic">Aerosol droplets undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form.</p>
     </div>
   </div>
 </section>
@@ -222,6 +206,11 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <!-- SKY 2: fire rainbow -->
 <div class="sky-divider">
   <img src="sky_rainbow.jpg" alt="Circumzenithal arc in the sky" style="object-position:center 20%">
+</div>
+
+<!-- BREAK 2: clouds -->
+<div class="sky-divider sky-divider-tall">
+  <img src="break_pg.png" alt="Cloud break" style="object-position:center top">
 </div>
 
 <!-- MODEL ANIMATION -->
