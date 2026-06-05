@@ -66,7 +66,7 @@ section{padding:2.5rem 4rem}
 .chamber-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
 .chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
 .chamber-text p strong{color:var(--text);font-weight:500}
-.pub-layout{display:grid;grid-template-columns:1.4fr 1fr;gap:3rem;align-items:start}
+.pub-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:3rem;align-items:start}
 .pub-left{display:flex;flex-direction:column}
 .pub-right img{border-radius:1rem;width:100%;display:block;position:sticky;top:80px}
 .pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem;max-width:800px}
@@ -217,7 +217,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     </div>
     <div class="chamber-img">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
-        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;display:block">
+        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;height:280px;object-fit:cover;object-position:center;display:block">
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Super-coarse aerosol droplets undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form. Images taken using an optical microscope at the Carrasquillo lab at Williams College.</p>
       </div>
     </div>
@@ -227,6 +227,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <!-- PUBLICATIONS -->
 <section class="publications" id="publications">
   <div class="pub-layout">
+    <div class="pub-right">
+      <img src="sky_composite.png" alt="Sky photos" style="width:100%;border-radius:1rem;display:block;position:sticky;top:80px">
+    </div>
     <div class="pub-left">
       <span class="section-label">Publications & Presentations</span>
       <h2 class="section-title">Scholarly work</h2>
@@ -246,16 +249,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   </div>
       <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">View full list on Google Scholar →</a>
     </div>
-    <div class="pub-right">
-      <img src="sky_composite.png" alt="Sky photos" style="width:100%;border-radius:1rem;display:block">
-    </div>
   </div>
 </section>
-
-<!-- SKY 4: city/central park -->
-<div class="sky-divider">
-  <img src="sky_city.jpg" alt="Sky over New York City" style="object-position:center 15%">
-</div>
 
 <!-- SCICOMM -->
 <section class="scicomm" id="outreach">
