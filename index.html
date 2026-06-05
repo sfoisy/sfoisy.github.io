@@ -3,144 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Syl Foisy — PhD Candidate in Atmospheric Science at NASA GISS / Columbia University. NASA FINESST Fellow researching aerosols, satellite remote sensing, and climate modeling.">
+<meta name="description" content="Syl Foisy — PhD Candidate in Atmospheric Science at NASA GISS / Columbia University.">
 <title>Syl Foisy — Atmospheric Scientist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#e8f4fd;color:#1a1830;overflow-x:hidden}
-:root{--navy:#0a1628;--deep:#0c2340;--mid:#1a4a8a;--purple:#2e7dd4;--lavender:#7eb8f0;--pale:#c5e0f5;--fog:#ddeef9;--white:#ffffff;--text:#0a1628;--muted:#4a6080}
-nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
-.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);letter-spacing:-.01em;text-decoration:none}
-.nav-links{display:flex;gap:2rem}
-.nav-links a{font-size:.8rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.nav-links a:hover{color:var(--purple)}
-.nav-cta{background:var(--mid);color:var(--white);font-size:.75rem;font-weight:500;padding:.4rem 1rem;border-radius:100px;text-decoration:none;letter-spacing:.04em}
-.hero{min-height:88vh;background:linear-gradient(135deg,#0a1628 0%,#0d2a4a 30%,#1a4a8a 70%,#2e7dd4 100%);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem 4rem;position:relative;overflow:hidden}
-.hero-bg{display:none}
-.hero-overlay{display:none}
-.hero-orb{display:none}
-.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#2e7dd4,transparent);top:-100px;right:-100px}
-.hero-orb-2{width:300px;height:300px;background:radial-gradient(circle,#7eb8f0,transparent);bottom:0;left:200px}
-.hero-orb-3{width:200px;height:200px;background:radial-gradient(circle,#1a4a8a,transparent);top:30%;left:-50px}
-.hero-left{position:relative;z-index:2}
-.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(46,125,212,.2);border:1px solid rgba(46,125,212,.4);color:#b8d8f5;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
-.hero-dot{width:6px;height:6px;border-radius:50%;background:#7eb8f0;animation:pulse 2s infinite;display:inline-block}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
-h1 em{color:#7eb8f0;font-style:italic}
-.hero-sub{font-size:.95rem;color:rgba(255,255,255,.8);line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:400}
-.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.9);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
-.hero-affil{font-size:.82rem;color:#2e7dd4;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
-.hero-affil span{opacity:.4}
-.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
-.btn-primary{background:var(--purple);color:var(--white);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
-.btn-primary:hover{background:#7a6fdf}
-.btn-ghost{border:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.9);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
-.btn-ghost:hover{border-color:rgba(255,255,255,.8);color:var(--white)}
-.hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
-.photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(46,125,212,.4);position:relative;background:rgba(46,125,212,.1)}
-.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(46,125,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
-.badge-title{font-size:.65rem;color:#7eb8f0;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
-.badge-text{font-size:.82rem;color:rgba(255,255,255,.8);font-weight:300}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
+:root{
+  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#6b5fd4;
+  --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
+  --white:#fff;--text:#1a1830;--muted:#6b6882
+}
 
+/* NAV */
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
+.nav-links{display:flex;gap:2.5rem}
+.nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
+.nav-links a:hover{color:var(--purple)}
+.nav-cta{background:var(--purple);color:var(--white);font-size:.75rem;font-weight:500;padding:.45rem 1.1rem;border-radius:100px;text-decoration:none;transition:.2s}
+.nav-cta:hover{background:var(--mid)}
+
+/* HERO */
+.hero{min-height:92vh;background:linear-gradient(135deg,#0d0b2e 0%,#1a1760 35%,#2e2a8a 70%,#6b5fd4 100%);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem;position:relative;overflow:hidden}
+.hero-left{position:relative;z-index:2}
+h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,5.5vw,5rem);font-weight:700;color:var(--white);line-height:1.05;letter-spacing:-.02em;margin-bottom:1.75rem}
+h1 em{color:#a89fd8;font-style:italic}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.75);line-height:1.8;max-width:500px;margin-bottom:.85rem;font-weight:300}
+.hero-sub2{font-size:1rem;color:rgba(255,255,255,.85);line-height:1.8;max-width:500px;margin-bottom:2rem;font-weight:300;border-left:2px solid rgba(168,159,216,.6);padding-left:1.25rem}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{background:var(--purple);color:var(--white);padding:.8rem 1.8rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-primary:hover{background:#7a6fdf}
+.btn-ghost{border:1px solid rgba(255,255,255,.35);color:rgba(255,255,255,.85);padding:.8rem 1.8rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.7);color:var(--white)}
+.hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
+.photo-frame{width:340px;height:400px;border-radius:2.5rem 2.5rem 8rem 2.5rem;overflow:hidden;border:1px solid rgba(168,159,216,.3);position:relative}
+.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+
+/* SKY DIVIDERS */
+.sky-divider{width:100%;overflow:hidden;display:block;line-height:0}
+.sky-divider img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
+.sky-divider-tall{height:420px}
+.sky-divider-composite{height:520px}
+
+/* SECTIONS */
 section{padding:5rem 4rem}
-.section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:1rem;display:block}
-.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem}
-.section-sub{font-size:1rem;color:var(--muted);line-height:1.7;max-width:560px;font-weight:300}
-.about{background:var(--white);padding:0}
-.about-banner{display:grid;grid-template-columns:1fr 1fr;min-height:500px}
-.about-banner-img{overflow:hidden}
-.about-banner-img img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
-.about-banner-text{padding:4rem;display:flex;flex-direction:column;justify-content:center;background:var(--white)}
-.about-banner-text p{font-size:1rem;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:1rem}
-.about-banner-text p strong{color:var(--text);font-weight:500}
-.about-lower{display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding:4rem}
-.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
-.stat{background:var(--fog);border-radius:.75rem;padding:1.25rem}
-.stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--deep);line-height:1}
-.stat-label{font-size:.72rem;color:var(--muted);font-weight:400;margin-top:.25rem;letter-spacing:.02em}
-.about-visual{background:var(--fog);border-radius:1.5rem;padding:2rem;position:relative}
-.atmo-diagram{position:relative;height:280px}
-.atmo-layer-label{position:absolute;left:0;font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.research{background:var(--fog)}
-.research-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:3rem;flex-wrap:wrap;gap:1rem}
-.research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-.rcard{background:var(--white);border-radius:1.25rem;padding:2rem;border:1px solid var(--pale);transition:.2s}
-.rcard:hover{border-color:var(--lavender);transform:translateY(-3px)}
-.rcard-icon{width:48px;height:48px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.5rem}
-.rcard h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);margin-bottom:.6rem}
-.rcard p{font-size:.85rem;color:var(--muted);line-height:1.65;font-weight:300}
-.rcard-tag{display:inline-block;margin-top:1rem;font-size:.68rem;font-weight:500;color:var(--purple);background:rgba(46,125,212,.08);padding:.3rem .75rem;border-radius:100px;letter-spacing:.04em}
-.publications{background:var(--white)}
-.pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem}
-.pub{background:var(--fog);border-radius:1rem;padding:1.5rem;border-left:3px solid var(--purple);transition:.2s}
+.section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:.75rem;display:block}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:1rem}
+.section-sub{font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;max-width:640px}
+
+/* ABOUT */
+.about{background:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.about-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:1.1rem}
+.about-text p strong{color:var(--text);font-weight:500}
+.about-right{display:flex;flex-direction:column;gap:1.5rem}
+.aerosol-box{border-radius:1.25rem;overflow:hidden;border:1px solid var(--pale)}
+.aerosol-box img{width:100%;display:block}
+.aerosol-caption{font-size:.78rem;color:var(--muted);padding:1rem 1.25rem;line-height:1.6;font-weight:300;font-style:italic}
+.atmo-box{background:var(--fog);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale)}
+.atmo-diagram{position:relative;height:260px}
+.atmo-layer-label{position:absolute;left:0;font-size:.62rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* PUBLICATIONS */
+.publications{background:var(--fog)}
+.pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2.5rem;max-width:800px}
+.pub{background:var(--white);border-radius:1rem;padding:1.5rem 1.75rem;border-left:3px solid var(--purple);transition:.2s}
 .pub:hover{background:var(--pale)}
-.pub-year{font-size:.7rem;font-weight:500;color:var(--purple);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem}
-.pub-title{font-size:.95rem;font-weight:500;color:var(--deep);margin-bottom:.35rem;line-height:1.4}
+.pub-year{font-size:.68rem;font-weight:500;color:var(--purple);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem}
+.pub-title{font-size:.95rem;font-weight:500;color:var(--deep);margin-bottom:.3rem;line-height:1.4}
 .pub-authors{font-size:.82rem;color:var(--muted);font-weight:300}
-.pub-journal{font-size:.78rem;color:var(--purple);font-weight:400;margin-top:.4rem;font-style:italic}
-.pub-badge{display:inline-block;margin-top:.5rem;font-size:.65rem;font-weight:500;color:#0f6e56;background:rgba(29,158,117,.1);padding:.2rem .6rem;border-radius:100px;letter-spacing:.04em}
+.pub-journal{font-size:.78rem;color:var(--purple);font-weight:400;margin-top:.35rem;font-style:italic}
+.pub-badge{display:inline-block;margin-top:.4rem;font-size:.62rem;font-weight:500;color:#0f6e56;background:rgba(29,158,117,.1);padding:.2rem .6rem;border-radius:100px}
+
 /* SCICOMM */
-.scicomm{background:var(--navy);color:var(--white)}
+.scicomm{background:var(--navy);color:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.scicomm .section-label{color:#a89fd8}
 .scicomm .section-title{color:var(--white)}
-.scicomm .section-label{color:#7eb8f0}
-.scicomm-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
-.scicomm-text p{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.8;font-weight:300;margin-bottom:1rem}
+.scicomm-text p{font-size:1rem;color:rgba(255,255,255,.6);line-height:1.85;font-weight:300;margin-bottom:1rem}
+.scicomm-text p strong{color:rgba(255,255,255,.9)}
 .scicomm-photos{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(46,125,212,.25)}
-.scicomm-photo img{width:100%;height:200px;object-fit:cover;display:block}
-.scicomm-photo-wide{border-radius:1rem;overflow:hidden;border:1px solid rgba(46,125,212,.25);margin-top:0}
-.scicomm-photo-wide img{width:100%;height:160px;object-fit:cover;object-position:center 30%;display:block}
-.scicomm-caption{font-size:.68rem;color:rgba(255,255,255,.35);padding:.5rem .75rem;text-align:center}
-/* VIDEO SECTION */
+.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2)}
+.scicomm-photo img{width:100%;height:190px;object-fit:cover;display:block}
+.scicomm-caption{font-size:.67rem;color:rgba(255,255,255,.3);padding:.5rem .75rem;text-align:center}
+.scicomm-links{display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem}
+.scicomm-link{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;background:rgba(255,255,255,.05);border:1px solid rgba(168,159,216,.2);border-radius:.85rem;text-decoration:none;transition:.2s}
+.scicomm-link:hover{background:rgba(107,95,212,.15);border-color:rgba(168,159,216,.4)}
+.scicomm-link-icon{font-size:1.2rem;width:36px;text-align:center}
+.scicomm-link-label{font-size:.68rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.15rem}
+.scicomm-link-title{font-size:.88rem;color:rgba(255,255,255,.8);font-weight:300}
+
+/* VIDEO */
 .videos{background:var(--fog)}
 .video-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem}
-.video-wrap{border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)}
-.video-wrap iframe{width:100%;height:240px;display:block;border:none}
-.video-label{padding:.75rem 1rem;font-size:.78rem;color:var(--muted);font-weight:400}
+.video-wrap{border-radius:1.25rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)}
+.video-wrap iframe{width:100%;height:230px;display:block;border:none}
+.video-label{padding:.85rem 1.1rem;font-size:.78rem;color:var(--muted)}
 .video-label strong{color:var(--text);font-weight:500;display:block;margin-bottom:.2rem}
+
+/* RESEARCH / ANIMATION */
+.research-anim{background:var(--white)}
+.anim-box{margin-top:2.5rem;border-radius:1.25rem;overflow:hidden;border:1px solid var(--pale)}
+.anim-box video{width:100%;display:block;max-height:480px;background:#000}
+.anim-caption{padding:1rem 1.5rem;border-top:1px solid var(--pale);font-size:.82rem;color:var(--muted);line-height:1.6}
+.anim-caption strong{color:var(--text);font-weight:500}
+
 /* BEYOND */
-.beyond{background:var(--white)}
-.photo-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
-.gallery-item{border-radius:.75rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
-.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
-.gallery-item:hover img{transform:scale(1.04)}
+.beyond{background:var(--fog)}
 .beyond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
-.bcard{background:var(--fog);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale);transition:.2s;text-decoration:none;display:block;color:inherit}
+.bcard{background:var(--white);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale);transition:.2s;text-decoration:none;display:block;color:inherit}
 .bcard:hover{border-color:var(--lavender);transform:translateY(-3px)}
-.bcard-emoji{font-size:2rem;margin-bottom:1rem;display:block}
+.bcard-emoji{font-size:1.8rem;margin-bottom:1rem;display:block}
 .bcard h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--deep);margin-bottom:.5rem}
 .bcard p{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300}
-.bcard-link{font-size:.75rem;color:var(--purple);font-weight:500;margin-top:.75rem;display:inline-block}
-.contact{background:var(--fog);text-align:center}
+.bcard-link{font-size:.74rem;color:var(--purple);font-weight:500;margin-top:.75rem;display:inline-block}
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2.5rem}
+.gallery-item{border-radius:.85rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
+.gallery-item:hover img{transform:scale(1.05)}
+
+/* CONTACT */
+.contact{background:var(--navy);text-align:center;padding:5rem 4rem}
+.contact .section-label{color:#a89fd8}
+.contact .section-title{color:var(--white);margin:0 auto 1rem}
+.contact-sub{font-size:1rem;color:rgba(255,255,255,.5);max-width:480px;margin:0 auto 2.5rem;line-height:1.7;font-weight:300}
 .contact-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
-.clink{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s;border:1px solid var(--pale);color:var(--text);background:var(--white)}
-.clink:hover{border-color:var(--lavender)}
-.clink-primary{background:var(--deep);color:var(--white);border-color:var(--deep)}
-.clink-primary:hover{background:var(--mid)}
-footer{background:var(--navy);padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
-footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.6);font-size:.9rem}
-footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02em}
-.section-break{width:100%;overflow:hidden;line-height:0}
-.section-break img{width:100%;display:block;object-fit:cover;height:80px}
+.clink{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s;border:1px solid rgba(168,159,216,.25);color:rgba(255,255,255,.75);background:rgba(255,255,255,.05)}
+.clink:hover{border-color:rgba(168,159,216,.5);background:rgba(107,95,212,.15);color:var(--white)}
+.clink-primary{background:var(--purple);color:var(--white);border-color:var(--purple)}
+.clink-primary:hover{background:#7a6fdf}
+
+footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+
 @media(max-width:900px){
-  .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}
-  .hero-right{display:none}
-  .about-banner{grid-template-columns:1fr}
-  .about-banner-img{height:260px}
-  .about-banner-text{padding:2rem}
-  .about-lower{grid-template-columns:1fr;padding:2rem}
-  .research-grid,.beyond-grid,.video-grid{grid-template-columns:1fr}
-  .photo-gallery{grid-template-columns:repeat(2,1fr)}
-  .scicomm-inner{grid-template-columns:1fr;gap:2rem}
+  nav{padding:0 1.5rem}.nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}.hero-right{display:none}
+  .about,.scicomm{grid-template-columns:1fr;gap:2rem}
+  .beyond-grid,.video-grid{grid-template-columns:1fr}
+  .gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-photos{grid-template-columns:1fr}
   section{padding:3rem 2rem}
-  nav{padding:0 1.5rem}
-  .nav-links{display:none}
   footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
+  .sky-divider{height:140px}
 }
 </style>
 </head>
@@ -150,7 +157,6 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   <a href="#" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="#about">About</a>
-    <a href="#research">Research</a>
     <a href="#publications">Publications</a>
     <a href="#outreach">Outreach</a>
     <a href="#beyond">Beyond</a>
@@ -159,113 +165,87 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   <a href="#contact" class="nav-cta">Get in touch</a>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-orb hero-orb-1"></div>
-  <div class="hero-orb hero-orb-2"></div>
-  <div class="hero-orb hero-orb-3"></div>
   <div class="hero-left">
     <h1>Syl Foisy</h1>
     <p class="hero-sub">I'm a PhD candidate at NASA GISS and Columbia University studying aerosols — tiny liquid and solid particles in the atmosphere — which have an outsized influence on our climate, our weather, and the air we breathe. Using cutting-edge satellite datasets and global climate simulations, I work to understand their microphysical properties across the globe.</p>
     <p class="hero-sub2">Outside of research, I have many interests, ranging from filmmaking and snow sculpture to long-distance walking, which occasionally, and delightfully, collide with my science.</p>
     <div class="hero-btns">
-      <a href="#research" class="btn-primary">Explore my research</a>
+      <a href="#about" class="btn-primary">My research</a>
       <a href="#beyond" class="btn-ghost">Beyond the lab</a>
     </div>
   </div>
   <div class="hero-right">
     <div class="photo-frame">
-      <img src="photo.jpg" alt="Syl Foisy smiling in Central Park in winter">
+      <img src="photo.jpg" alt="Syl Foisy">
     </div>
   </div>
 </section>
 
+<!-- SKY COMPOSITE -->
+<div class="sky-divider sky-divider-composite">
+  <img src="sky_composite.png" alt="Sky composite" style="object-position:center top">
+</div>
 
-
+<!-- ABOUT -->
 <section class="about" id="about">
-  <div class="about-banner">
-    <div class="about-banner-img">
-      <img src="sky.jpg" alt="Sky with contrails and cirrus clouds">
-    </div>
-    <div class="about-banner-text">
-      <span class="section-label">About</span>
-      <h2 class="section-title">Scientist.<br>Storyteller.<br>Sky watcher.</h2>
-      <p>I'm a PhD candidate at <strong>Columbia University / NASA GISS</strong> studying atmospheric aerosols — the tiny particles suspended in the air that scatter sunlight, seed clouds, and quietly steer Earth's climate.</p>
-      <p>My work uses <strong>satellite data from NASA's PACE mission</strong> and ground-based fieldwork to understand how aerosols behave, where they come from, and how we should represent them in the models we use to project our future climate. I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
-      <p>I believe science only matters if people understand it — so alongside my research, I make videos, build interactive explainers, and talk to anyone who will listen about what's happening in our atmosphere.</p>
-      <p style="margin-top:.5rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
-      <div class="about-stats">
-        <div class="stat"><p class="stat-num">PACE</p><p class="stat-label">NASA satellite data</p></div>
-        <div class="stat"><p class="stat-num">GISS</p><p class="stat-label">Earth system modeling</p></div>
-        <div class="stat"><p class="stat-num">2.4B</p><p class="stat-label">TikTok views</p></div>
-        <div class="stat"><p class="stat-num">24ft</p><p class="stat-label">Tallest snowman</p></div>
-      </div>
-    </div>
+  <div class="about-text">
+    <span class="section-label">Research</span>
+    <h2 class="section-title">All things<br>aerosols & clouds</h2>
+    <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from <strong>NASA's PACE mission</strong> and <strong>NASA GISS ModelE</strong> climate model simulations to study the evolution of aerosols in the atmosphere and how they facilitate cloud formation, at Columbia University.</p>
+    <p>I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
+    <p>Before starting my PhD, I built a cloud chamber at Williams College alongside <strong>Prof. Anthony Carrasquillo</strong> to study how aerosols respond to changes in humidity. Many undergo a striking transformation — separating into two distinct liquid phases, much like oil and water — with real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today.</p>
+    <p style="margin-top:1rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
   </div>
-  <div class="about-lower">
-    <div style="background:var(--fog);border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
-      <img src="aerosol_photos.png" alt="Microscopy images of aerosol droplets undergoing liquid-liquid phase separation" style="width:100%;display:block">
-      <p style="font-size:.78rem;color:var(--muted);padding:1rem;line-height:1.6;font-weight:300">"During my undergraduate thesis at Williams College, I built a cloud chamber alongside Prof. Anthony Carrasquillo to study how aerosols respond to changes in humidity. Many undergo a striking transformation, separating into two distinct liquid phases, much like oil and water. These phase changes have real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today."</p>
+  <div class="about-right">
+    <div class="aerosol-box">
+      <img src="aerosol_photos.png" alt="Microscopy images of aerosol droplets undergoing liquid-liquid phase separation">
+      <p class="aerosol-caption">Aerosol droplets captured under a microscope, undergoing liquid-liquid phase separation — a process with real consequences for how light scatters and clouds form.</p>
     </div>
-    <div class="about-visual">
+    <div class="atmo-box">
       <div class="atmo-diagram">
-        <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(46,125,212,.15);border:1.5px solid rgba(46,125,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
-        <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.2);padding-top:.4rem"><span class="atmo-layer-label">stratosphere</span></div>
-        <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem"><span class="atmo-layer-label" style="opacity:.6">· · · · · · · · · ·</span></div>
-        <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.4);padding-top:.4rem"><span class="atmo-layer-label">aerosol layer</span></div>
-        <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(46,125,212,.06);border-radius:.5rem;text-align:center"><span style="font-size:.65rem;color:var(--muted);letter-spacing:.04em">· · · · · · · · · · · · · · · · · ·</span></div>
-        <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem"><span class="atmo-layer-label">boundary layer</span></div>
-        <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(46,125,212,.2);border-radius:4px"></div>
-        <div style="position:absolute;bottom:4px;left:1rem;font-size:.65rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
+        <div style="position:absolute;top:.5rem;right:.75rem;width:30px;height:30px;border-radius:50%;background:rgba(107,95,212,.15);border:1.5px solid rgba(107,95,212,.4);display:flex;align-items:center;justify-content:center;font-size:.8rem">🛰</div>
+        <div style="position:absolute;top:2rem;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.2);padding-top:.35rem"><span class="atmo-layer-label">stratosphere</span></div>
+        <div style="position:absolute;top:70px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.35rem"><span class="atmo-layer-label" style="opacity:.5">· · · · · · · · ·</span></div>
+        <div style="position:absolute;top:115px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.4);padding-top:.35rem"><span class="atmo-layer-label">aerosol layer</span></div>
+        <div style="position:absolute;top:155px;left:0;right:0;padding:.35rem;background:rgba(107,95,212,.05);border-radius:.4rem;text-align:center"><span style="font-size:.6rem;color:var(--muted)">· · · · · · · · · · · · · ·</span></div>
+        <div style="position:absolute;top:185px;left:0;right:2.5rem;border-top:1px dashed rgba(107,95,212,.3);padding-top:.35rem"><span class="atmo-layer-label">boundary layer</span></div>
+        <div style="position:absolute;bottom:18px;left:0;right:0;height:2px;background:rgba(107,95,212,.2);border-radius:4px"></div>
+        <div style="position:absolute;bottom:4px;left:0;font-size:.6rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
       </div>
-      <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;letter-spacing:.03em">Schematic: aerosol distribution across atmospheric layers</p>
+      <p style="font-size:.7rem;color:var(--muted);margin-top:.75rem;letter-spacing:.03em">Schematic: aerosol layers in the atmosphere</p>
     </div>
   </div>
 </section>
-<div class="section-break"><img src="break.png" alt="" aria-hidden="true"></div>
-<section class="research" id="research">
-  <div class="research-header">
-    <div>
-      <span class="section-label">Research</span>
-      <h2 class="section-title">What I work on</h2>
-    </div>
-    <a href="#publications" style="font-size:.82rem;color:var(--purple);font-weight:500;text-decoration:none">View publications →</a>
-  </div>
-  <div class="research-grid">
-    <div class="rcard">
-      <div class="rcard-icon" style="background:rgba(46,125,212,.1)">🌫️</div>
-      <h3>Aerosol properties & distribution</h3>
-      <p>Understanding the physical and optical properties of aerosols — how they scatter, absorb, and interact with solar radiation. My work integrates retrievals from satellites and ground-based instruments to constrain these properties at scale.</p>
-      <span class="rcard-tag">Radiative Transfer</span>
-    </div>
-    <div class="rcard">
-      <div class="rcard-icon" style="background:rgba(55,138,221,.1)">🛰️</div>
-      <h3>NASA PACE SPEXone</h3>
-      <p>Leveraging co-located data from NASA's PACE satellite — specifically the SPEXone polarimeter — alongside NASA ModelE-MATRIX to determine atmospheric composition and improve aerosol retrievals.</p>
-      <span class="rcard-tag">NASA PACE</span>
-    </div>
-    <div class="rcard">
-      <div class="rcard-icon" style="background:rgba(29,158,117,.1)">🌍</div>
-      <h3>Earth system modeling</h3>
-      <p>Advancing NASA's CMIP-class climate model, GISS ModelE3.1, by integrating aerosol retrievals from satellites and ground-based observations — connecting real-world measurements to projections of our future climate.</p>
-      <span class="rcard-tag">NASA GISS ModelE</span>
-    </div>
-  </div>
-  <div style="margin-top:3rem;background:var(--white);border-radius:1.25rem;overflow:hidden;border:1px solid var(--pale)">
-    <video controls loop muted autoplay playsinline style="width:100%;display:block;max-height:500px;background:#000">
+
+<!-- SKY 2: fire rainbow -->
+<div class="sky-divider">
+  <img src="sky_rainbow.jpg" alt="Circumzenithal arc in the sky" style="object-position:center 20%">
+</div>
+
+<!-- MODEL ANIMATION -->
+<section class="research-anim" id="research">
+  <span class="section-label">Simulation</span>
+  <h2 class="section-title">Aerosols in motion</h2>
+  <p class="section-sub">A week of simulated atmosphere — NASA GISS ModelE in action.</p>
+  <div class="anim-box">
+    <video controls loop muted autoplay playsinline>
       <source src="matrix-animation.mp4" type="video/mp4">
     </video>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--pale)">
-      <p style="font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300"><strong style="color:var(--text);font-weight:500">ModelE aerosol simulation</strong> — Aerosol composition across the globe for one week in April 2024, from a NASA GISS ModelE simulation. Each column of atmosphere is colored by its volume-dominant aerosol species.</p>
-    </div>
+    <p class="anim-caption"><strong>ModelE aerosol simulation</strong> — Aerosol composition across the globe for one week in April 2024. Each column of atmosphere is colored by its volume-dominant aerosol species.</p>
   </div>
 </section>
 
+<!-- SKY 3: wide cirrus field -->
+<div class="sky-divider">
+  <img src="sky_wide.jpg" alt="Cirrus clouds over open field">
+</div>
+
+<!-- PUBLICATIONS -->
 <section class="publications" id="publications">
   <span class="section-label">Publications & Presentations</span>
   <h2 class="section-title">Scholarly work</h2>
-  <p class="section-sub">Selected publications and conference presentations.</p>
   <div class="pub-list">
     <div class="pub">
       <p class="pub-year">In Preparation</p>
@@ -301,125 +281,135 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">View full list on Google Scholar →</a>
 </section>
 
+<!-- SKY 4: city/central park -->
+<div class="sky-divider">
+  <img src="sky_city.jpg" alt="Sky over New York City" style="object-position:center 15%">
+</div>
+
+<!-- SCICOMM -->
 <section class="scicomm" id="outreach">
-  <div class="scicomm-inner">
-    <div class="scicomm-text">
-      <span class="section-label">Science Communication</span>
-      <h2 class="section-title">Bringing the<br>atmosphere to you</h2>
-      <p>I believe the best science is science that reaches people. I build interactive explainers, host science events, and create content to help anyone — not just scientists — understand what's happening in our atmosphere.</p>
-      <p>In 2025 I served as opening host for the <strong style="color:rgba(255,255,255,.8)">100-Hour Weather & Climate Livestream</strong> — a continuous global outreach event that reached <strong style="color:rgba(255,255,255,.8)">180,000+ live viewers</strong> and was featured in The New York Times.</p>
-      <p>After completing my walk from New York City to Washington D.C., I spoke at a <strong style="color:rgba(255,255,255,.8)">press conference on the steps of the U.S. Capitol</strong> about the importance of climate science funding.</p>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem">
-        <a href="https://www.tiktok.com/@syl_foisy" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#7eb8f0;font-size:.85rem;font-weight:500;text-decoration:none">TikTok →</a>
-        <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#7eb8f0;font-size:.85rem;font-weight:500;text-decoration:none">Read about the walk →</a>
-      </div>
+  <div class="scicomm-text">
+    <span class="section-label">Science Communication</span>
+    <h2 class="section-title">Bringing the<br>atmosphere<br>to people</h2>
+    <p>I believe science only matters if people understand it. I build interactive explainers, host events, and create content to help anyone — not just scientists — understand what's happening in our atmosphere.</p>
+    <p>In 2025 I served as opening host for the <strong>100-Hour Weather & Climate Livestream</strong> — reaching <strong>180,000+ live viewers</strong>, featured in The New York Times.</p>
+    <p>After walking from New York City to Washington D.C., I spoke at a <strong>press conference on the steps of the U.S. Capitol</strong> about the importance of climate science funding.</p>
+    <div class="scicomm-links">
+      <a href="https://www.tiktok.com/@syl_foisy" class="scicomm-link" target="_blank">
+        <span class="scicomm-link-icon">🎵</span>
+        <div><p class="scicomm-link-label">TikTok · @syl_foisy</p><p class="scicomm-link-title">2.0M followers · 2.4B views</p></div>
+      </a>
+      <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" class="scicomm-link" target="_blank">
+        <span class="scicomm-link-icon">🥾</span>
+        <div><p class="scicomm-link-label">NYC → DC Walk</p><p class="scicomm-link-title">Climate science outreach on foot</p></div>
+      </a>
     </div>
-    <div>
-      <div class="scicomm-photos">
-        <div class="scicomm-photo">
-          <img src="capitol.png" alt="Syl speaking at the U.S. Capitol">
-          <p class="scicomm-caption">Speaking at the U.S. Capitol after walking NYC → DC</p>
-        </div>
-        <div class="scicomm-photo">
-          <img src="speech.png" alt="Syl at the podium at the Capitol">
-          <p class="scicomm-caption">At the podium on Capitol Hill</p>
-        </div>
+  </div>
+  <div>
+    <div class="scicomm-photos">
+      <div class="scicomm-photo">
+        <img src="capitol.png" alt="Syl speaking at the U.S. Capitol">
+        <p class="scicomm-caption">Capitol Hill press conference</p>
+      </div>
+      <div class="scicomm-photo">
+        <img src="speech.png" alt="Syl at the podium">
+        <p class="scicomm-caption">At the podium</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- SKY 5: sunset -->
+<div class="sky-divider sky-divider-tall">
+  <img src="sky_sunset.jpg" alt="Hudson River sunset sky" style="object-position:center 20%">
+</div>
+
+<!-- VIDEOS -->
 <section class="videos" id="videos">
-  <span class="section-label">Videos</span>
-  <h2 class="section-title">Koehler•Foisy Films</h2>
-  <p class="section-sub">Violin music videos made with my mom, filmed across the North Country of upstate New York. A pandemic project that became something real.</p>
+  <span class="section-label">Koehler•Foisy Films</span>
+  <h2 class="section-title">Violin & film</h2>
+  <p class="section-sub">Music videos made with my mom across the North Country of upstate New York — a pandemic project that became something real.</p>
   <div class="video-grid">
     <div class="video-wrap">
-      <iframe src="https://www.youtube.com/embed/tpxZ6RjfPOc" title="Adventure of a Lifetime - Coldplay violin cover" allowfullscreen loading="lazy"></iframe>
-      <div class="video-label">
-        <strong>Adventure of a Lifetime · Coldplay</strong>
-        Filmed at Lehman Park, Stone Valley & the Grasse River, NY
-      </div>
+      <iframe src="https://www.youtube.com/embed/tpxZ6RjfPOc" title="Adventure of a Lifetime" allowfullscreen loading="lazy"></iframe>
+      <div class="video-label"><strong>Adventure of a Lifetime · Coldplay</strong>Lehman Park, Stone Valley & the Grasse River, NY</div>
     </div>
     <div class="video-wrap">
-      <iframe src="https://www.youtube.com/embed/KQnz93e5F6o" title="Here Comes the Sun violin cover" allowfullscreen loading="lazy"></iframe>
-      <div class="video-label">
-        <strong>Here Comes the Sun · The Beatles</strong>
-        Featuring Coney Mountain, Tupper Lake & Raquette River, NY
-      </div>
+      <iframe src="https://www.youtube.com/embed/KQnz93e5F6o" title="Here Comes the Sun" allowfullscreen loading="lazy"></iframe>
+      <div class="video-label"><strong>Here Comes the Sun · The Beatles</strong>Coney Mountain, Tupper Lake & Raquette River, NY</div>
     </div>
   </div>
-  <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">More videos on the <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:var(--purple);font-weight:500;text-decoration:none">Koehler•Foisy Films page →</a></p>
+  <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">More on the <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:var(--purple);font-weight:500;text-decoration:none">Koehler•Foisy Films page →</a></p>
 </section>
 
+<!-- BEYOND -->
 <section class="beyond" id="beyond">
   <span class="section-label">Beyond the lab</span>
   <h2 class="section-title">A few other things<br>I'm known for</h2>
-  <p class="section-sub">Science is the day job. Here's what keeps things interesting.</p>
   <div class="beyond-grid">
     <a href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" class="bcard" target="_blank">
       <span class="bcard-emoji">⛄</span>
       <h3>Giant snow sculptor</h3>
-      <p>15-foot snowman at Williams College. 24-foot snowman stopping traffic in Potsdam, NY. Columbia University's tallest ever snowperson, Buster. Snow forts, castles, igloos. There's a pattern here.</p>
+      <p>15-foot snowman at Williams. 24-foot snowman in Potsdam. Columbia's tallest ever snowperson. Snow forts, castles, igloos. There's a pattern.</p>
       <span class="bcard-link">Read about Buster →</span>
     </a>
     <a href="https://www.tiktok.com/@syl_foisy" class="bcard" target="_blank">
       <span class="bcard-emoji">🎵</span>
       <h3>TikTok creator</h3>
-      <p>2.0M followers. 2.4B views. Ranked #73 globally for views in November 2022 with 355M monthly views. Paper-folding tutorials, musical quizzes, and science content.</p>
+      <p>2.0M followers. 2.4B views. #73 globally in November 2022 with 355M monthly views. Paper-folding, music, science.</p>
       <span class="bcard-link">Follow @syl_foisy →</span>
     </a>
     <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
       <span class="bcard-emoji">🎻</span>
       <h3>Violinist & filmmaker</h3>
-      <p>Violin music videos made with my mom across the North Country of upstate New York — waterfalls, murals, mountains, and frozen rivers.</p>
-      <span class="bcard-link">Watch the videos →</span>
+      <p>Violin films with my mom across upstate New York's North Country — waterfalls, murals, mountains, frozen rivers.</p>
+      <span class="bcard-link">Watch the films →</span>
     </a>
     <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" class="bcard" target="_blank">
       <span class="bcard-emoji">🥾</span>
       <h3>Long-distance walker</h3>
-      <p>Walked from New York City to Washington D.C. for climate science outreach, stopping along the way to speak with students, scientists, and anyone curious about the atmosphere.</p>
+      <p>Walked NYC to D.C. for climate outreach — speaking with students and scientists along the way, ending at the Capitol.</p>
       <span class="bcard-link">Read about the walk →</span>
     </a>
     <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" class="bcard" target="_blank">
       <span class="bcard-emoji">📰</span>
-      <h3>In the news</h3>
-      <p>Featured in the New York Times, Columbia Spectator, New York Upstate, North Country Public Radio, News10, and the Williams Record for various snow-related incidents.</p>
-      <span class="bcard-link">NY Upstate coverage →</span>
+      <h3>In the press</h3>
+      <p>Featured in The New York Times, Columbia Spectator, NY Upstate, North Country Public Radio, and News10.</p>
+      <span class="bcard-link">NY Upstate →</span>
     </a>
-    <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
+    <a href="https://www.tiktok.com/@syl_foisy" class="bcard" target="_blank">
       <span class="bcard-emoji">🐦</span>
-      <h3>Paper folding</h3>
-      <p>Origami artist and TikTok paper-folding educator. Including large-scale installations — like a curtain of 1,000 purple cranes hung from a driftwood branch.</p>
+      <h3>Origami & paper folding</h3>
+      <p>Large-scale origami installations — including a curtain of 1,000 purple cranes hung from a driftwood branch.</p>
       <span class="bcard-link">See the videos →</span>
     </a>
   </div>
-
   <div style="margin-top:3rem">
     <p class="section-label">Gallery</p>
-    <div class="photo-gallery">
-      <div class="gallery-item"><img src="snow3.png" alt="Giant snowman in Potsdam NY with group photo"></div>
-      <div class="gallery-item"><img src="snow7.png" alt="Syl with large snowman at Williams College"></div>
-      <div class="gallery-item"><img src="snow5.png" alt="Snow structure lit up with Christmas lights 2021"></div>
-      <div class="gallery-item"><img src="snow6.png" alt="Illuminated ice castle at Williams College"></div>
+    <div class="gallery">
+      <div class="gallery-item"><img src="snow3.png" alt="Giant snowman in Potsdam NY"></div>
+      <div class="gallery-item"><img src="snow7.png" alt="Syl with snowman at Williams"></div>
+      <div class="gallery-item"><img src="snow5.png" alt="Snow sculpture with Christmas lights"></div>
+      <div class="gallery-item"><img src="snow6.png" alt="Ice castle at Williams College"></div>
       <div class="gallery-item"><img src="snow1.png" alt="Illuminated snow fort at night"></div>
-      <div class="gallery-item"><img src="snow2.png" alt="Giant snowman lit up at night on campus"></div>
-      <div class="gallery-item"><img src="snow4.png" alt="Snow castle lit with blue lights at Columbia"></div>
+      <div class="gallery-item"><img src="snow2.png" alt="Snowman on campus"></div>
+      <div class="gallery-item"><img src="snow4.png" alt="Snow castle lit blue at Columbia"></div>
       <div class="gallery-item"><img src="origami.png" alt="Purple origami crane installation"></div>
     </div>
   </div>
 </section>
 
+<!-- CONTACT -->
 <section class="contact" id="contact">
-  <span class="section-label" style="display:block;text-align:center">Get in touch</span>
-  <h2 class="section-title" style="text-align:center;margin:0 auto 1rem">Let's talk about<br>the atmosphere</h2>
-  <p class="section-sub" style="text-align:center;margin:0 auto 2.5rem">Whether you're a collaborator, a curious person, a journalist, or a student — I'd love to hear from you.</p>
+  <span class="section-label">Get in touch</span>
+  <h2 class="section-title">Let's talk about<br>the atmosphere</h2>
+  <p class="contact-sub">Whether you're a collaborator, a curious person, a journalist, or a student — I'd love to hear from you.</p>
   <div class="contact-links">
     <a href="mailto:sylfoisy@gmail.com" class="clink clink-primary">✉️ Email me</a>
     <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" class="clink">🎓 Google Scholar</a>
     <a href="https://www.tiktok.com/@syl_foisy" target="_blank" class="clink">🎵 TikTok</a>
     <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" class="clink">in LinkedIn</a>
-    <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" class="clink">🎓 Columbia Profile</a>
+    <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" class="clink">🎓 Columbia</a>
     <a href="Foisy_CV_long.pdf" target="_blank" class="clink">📄 CV</a>
   </div>
 </section>
