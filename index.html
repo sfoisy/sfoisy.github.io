@@ -12,7 +12,7 @@
 body{font-family:'DM Sans',sans-serif;background:#f8f7ff;color:#1a1830;overflow-x:hidden}
 :root{--navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#6b5fd4;--lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;--white:#ffffff;--text:#1a1830;--muted:#6b6882}
 nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
-.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);letter-spacing:-.01em}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);letter-spacing:-.01em;text-decoration:none}
 .nav-links{display:flex;gap:2rem}
 .nav-links a{font-size:.8rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .nav-links a:hover{color:var(--purple)}
@@ -97,6 +97,10 @@ section{padding:5rem 4rem}
 .video-label strong{color:var(--text);font-weight:500;display:block;margin-bottom:.2rem}
 /* BEYOND */
 .beyond{background:var(--white)}
+.photo-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+.gallery-item{border-radius:.75rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
+.gallery-item:hover img{transform:scale(1.04)}
 .beyond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
 .bcard{background:var(--fog);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale);transition:.2s;text-decoration:none;display:block;color:inherit}
 .bcard:hover{border-color:var(--lavender);transform:translateY(-3px)}
@@ -118,6 +122,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   .hero-right{display:none}
   .about{grid-template-columns:1fr;gap:2rem;padding:3rem 2rem}
   .research-grid,.beyond-grid,.video-grid{grid-template-columns:1fr}
+  .photo-gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-inner{grid-template-columns:1fr;gap:2rem}
   .scicomm-photos{grid-template-columns:1fr}
   section{padding:3rem 2rem}
@@ -130,7 +135,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
 <body>
 
 <nav>
-  <span class="nav-name">Syl Foisy</span>
+  <a href="#" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="#about">About</a>
     <a href="#research">Research</a>
@@ -150,7 +155,6 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     <h1>Syl Foisy</h1>
     <p class="hero-sub">I'm a PhD candidate at NASA GISS and Columbia University studying aerosols — tiny liquid and solid particles in the atmosphere — which have an outsized influence on our climate, our weather, and the air we breathe. Using cutting-edge satellite datasets and global climate simulations, I work to understand their microphysical properties across the globe.</p>
     <p class="hero-sub2">Outside of research, I have many interests, ranging from filmmaking and snow sculpture to long-distance walking, which occasionally, and delightfully, collide with my science.</p>
-    <p class="hero-affil">Syl Foisy (he/him) <span>·</span> PhD Candidate in Atmospheric Science</p>
     <div class="hero-btns">
       <a href="#research" class="btn-primary">Explore my research</a>
       <a href="#beyond" class="btn-ghost">Beyond the lab</a>
@@ -344,8 +348,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   <div class="beyond-grid">
     <a href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" class="bcard" target="_blank">
       <span class="bcard-emoji">⛄</span>
-      <h3>Giant snowman builder</h3>
-      <p>15-foot snowman at Williams College. 24-foot snowman stopping traffic in Potsdam, NY. Columbia University's tallest ever snowperson, Buster. There's a pattern here.</p>
+      <h3>Giant snow sculptor</h3>
+      <p>15-foot snowman at Williams College. 24-foot snowman stopping traffic in Potsdam, NY. Columbia University's tallest ever snowperson, Buster. Snow forts, castles, igloos. There's a pattern here.</p>
       <span class="bcard-link">Read about Buster →</span>
     </a>
     <a href="https://www.tiktok.com/@syl_foisy" class="bcard" target="_blank">
@@ -357,9 +361,41 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
       <span class="bcard-emoji">🎻</span>
       <h3>Violinist & filmmaker</h3>
-      <p>Creates violin music videos with his mom Gretchen Koehler, filmed across the stunning landscapes of upstate New York's North Country.</p>
+      <p>Violin music videos made with my mom across the North Country of upstate New York — waterfalls, murals, mountains, and frozen rivers.</p>
       <span class="bcard-link">Watch the videos →</span>
     </a>
+    <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" class="bcard" target="_blank">
+      <span class="bcard-emoji">🥾</span>
+      <h3>Long-distance walker</h3>
+      <p>Walked from New York City to Washington D.C. for climate science outreach, stopping along the way to speak with students, scientists, and anyone curious about the atmosphere.</p>
+      <span class="bcard-link">Read about the walk →</span>
+    </a>
+    <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" class="bcard" target="_blank">
+      <span class="bcard-emoji">📰</span>
+      <h3>In the news</h3>
+      <p>Featured in the New York Times, Columbia Spectator, New York Upstate, North Country Public Radio, News10, and the Williams Record for various snow-related incidents.</p>
+      <span class="bcard-link">NY Upstate coverage →</span>
+    </a>
+    <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
+      <span class="bcard-emoji">🐦</span>
+      <h3>Paper folding</h3>
+      <p>Origami artist and TikTok paper-folding educator. Including large-scale installations — like a curtain of 1,000 purple cranes hung from a driftwood branch.</p>
+      <span class="bcard-link">See the videos →</span>
+    </a>
+  </div>
+
+  <div style="margin-top:3rem">
+    <p class="section-label">Gallery</p>
+    <div class="photo-gallery">
+      <div class="gallery-item"><img src="snow3.png" alt="Giant snowman in Potsdam NY with group photo"></div>
+      <div class="gallery-item"><img src="snow7.png" alt="Syl with large snowman at Williams College"></div>
+      <div class="gallery-item"><img src="snow5.png" alt="Snow structure lit up with Christmas lights 2021"></div>
+      <div class="gallery-item"><img src="snow6.png" alt="Illuminated ice castle at Williams College"></div>
+      <div class="gallery-item"><img src="snow1.png" alt="Illuminated snow fort at night"></div>
+      <div class="gallery-item"><img src="snow2.png" alt="Giant snowman lit up at night on campus"></div>
+      <div class="gallery-item"><img src="snow4.png" alt="Snow castle lit with blue lights at Columbia"></div>
+      <div class="gallery-item"><img src="origami.png" alt="Purple origami crane installation"></div>
+    </div>
   </div>
 </section>
 
