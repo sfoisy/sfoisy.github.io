@@ -37,13 +37,13 @@ h1 em{color:#a89fd8;font-style:italic}
 .btn-ghost{border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
 .btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--white)}
 .hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
-.photo-frame{width:320px;height:380px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(107,95,212,.3);position:relative;background:rgba(107,95,212,.1)}
-.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(107,95,212,.3);position:relative;background:rgba(107,95,212,.1)}
+.photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .photo-badge{position:absolute;bottom:1.5rem;left:1.5rem;right:1.5rem;background:rgba(10,8,40,.85);border:1px solid rgba(107,95,212,.3);border-radius:.75rem;padding:.75rem 1rem;backdrop-filter:blur(8px)}
 .badge-title{font-size:.65rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.25rem}
 .badge-text{font-size:.82rem;color:rgba(255,255,255,.8);font-weight:300}
 .ticker{background:var(--purple);padding:.6rem 0;overflow:hidden;white-space:nowrap}
-.ticker-inner{display:inline-flex;gap:3rem;animation:scroll 26s linear infinite}
+.ticker-inner{display:inline-flex;gap:3rem;animation:scroll 28s linear infinite}
 .ticker-item{font-size:.75rem;font-weight:500;color:rgba(255,255,255,.85);letter-spacing:.06em;text-transform:uppercase}
 .ticker-sep{color:rgba(255,255,255,.3)}
 @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -79,28 +79,37 @@ section{padding:5rem 4rem}
 .pub-authors{font-size:.82rem;color:var(--muted);font-weight:300}
 .pub-journal{font-size:.78rem;color:var(--purple);font-weight:400;margin-top:.4rem;font-style:italic}
 .pub-badge{display:inline-block;margin-top:.5rem;font-size:.65rem;font-weight:500;color:#0f6e56;background:rgba(29,158,117,.1);padding:.2rem .6rem;border-radius:100px;letter-spacing:.04em}
+/* SCICOMM */
 .scicomm{background:var(--navy);color:var(--white)}
 .scicomm .section-title{color:var(--white)}
 .scicomm .section-label{color:#a89fd8}
-.scicomm-inner{display:grid;grid-template-columns:1fr 1.2fr;gap:5rem;align-items:center}
+.scicomm-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
 .scicomm-text p{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.8;font-weight:300;margin-bottom:1rem}
-.scicomm-cards{display:flex;flex-direction:column;gap:1rem}
-.scard{background:rgba(255,255,255,.05);border:1px solid rgba(107,95,212,.25);border-radius:1rem;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;transition:.2s;text-decoration:none}
-.scard:hover{background:rgba(107,95,212,.12);border-color:rgba(107,95,212,.5)}
-.scard-icon{width:40px;height:40px;border-radius:.6rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-.scard-label{font-size:.7rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem}
-.scard-title{font-size:.9rem;color:rgba(255,255,255,.85);font-weight:400}
-.beyond{background:var(--fog)}
+.scicomm-photos{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(107,95,212,.25)}
+.scicomm-photo img{width:100%;height:200px;object-fit:cover;display:block}
+.scicomm-photo-wide{border-radius:1rem;overflow:hidden;border:1px solid rgba(107,95,212,.25);margin-top:0}
+.scicomm-photo-wide img{width:100%;height:160px;object-fit:cover;object-position:center 30%;display:block}
+.scicomm-caption{font-size:.68rem;color:rgba(255,255,255,.35);padding:.5rem .75rem;text-align:center}
+/* VIDEO SECTION */
+.videos{background:var(--fog)}
+.video-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem}
+.video-wrap{border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)}
+.video-wrap iframe{width:100%;height:240px;display:block;border:none}
+.video-label{padding:.75rem 1rem;font-size:.78rem;color:var(--muted);font-weight:400}
+.video-label strong{color:var(--text);font-weight:500;display:block;margin-bottom:.2rem}
+/* BEYOND */
+.beyond{background:var(--white)}
 .beyond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
-.bcard{background:var(--white);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale);transition:.2s;text-decoration:none;display:block;color:inherit}
+.bcard{background:var(--fog);border-radius:1.25rem;padding:1.75rem;border:1px solid var(--pale);transition:.2s;text-decoration:none;display:block;color:inherit}
 .bcard:hover{border-color:var(--lavender);transform:translateY(-3px)}
 .bcard-emoji{font-size:2rem;margin-bottom:1rem;display:block}
 .bcard h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--deep);margin-bottom:.5rem}
 .bcard p{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300}
 .bcard-link{font-size:.75rem;color:var(--purple);font-weight:500;margin-top:.75rem;display:inline-block}
-.contact{background:var(--white);text-align:center}
+.contact{background:var(--fog);text-align:center}
 .contact-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
-.clink{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s;border:1px solid var(--pale);color:var(--text);background:var(--fog)}
+.clink{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s;border:1px solid var(--pale);color:var(--text);background:var(--white)}
 .clink:hover{border-color:var(--lavender)}
 .clink-primary{background:var(--deep);color:var(--white);border-color:var(--deep)}
 .clink-primary:hover{background:var(--mid)}
@@ -111,8 +120,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}
   .hero-right{display:none}
   .about{grid-template-columns:1fr;gap:2rem;padding:3rem 2rem}
-  .research-grid,.beyond-grid{grid-template-columns:1fr}
+  .research-grid,.beyond-grid,.video-grid{grid-template-columns:1fr}
   .scicomm-inner{grid-template-columns:1fr;gap:2rem}
+  .scicomm-photos{grid-template-columns:1fr}
   section{padding:3rem 2rem}
   nav{padding:0 1.5rem}
   .nav-links{display:none}
@@ -154,7 +164,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
   </div>
   <div class="hero-right">
     <div class="photo-frame">
-      <img src="photo.jpg" alt="Syl Foisy" onerror="this.style.display='none'">
+      <img src="photo.jpg" alt="Syl Foisy smiling in Central Park in winter">
       <div class="photo-badge">
         <p class="badge-title">Currently studying</p>
         <p class="badge-text">Aerosol properties over the Chesapeake Bay using NASA PACE SPEXone data</p>
@@ -195,6 +205,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     <p>I'm a PhD candidate at <strong>Columbia University / NASA GISS</strong> studying atmospheric aerosols — the tiny particles suspended in the air that scatter sunlight, seed clouds, and quietly steer Earth's climate.</p>
     <p>My work uses <strong>satellite data from NASA's PACE mission</strong> and ground-based fieldwork to understand how aerosols behave, where they come from, and how we should represent them in the models we use to project our future climate. I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
     <p>I believe science only matters if people understand it — so alongside my research, I make videos, build interactive explainers, and talk to anyone who will listen about what's happening in our atmosphere.</p>
+    <p style="margin-top:.5rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
     <div class="about-stats">
       <div class="stat">
         <p class="stat-num">PACE</p>
@@ -314,40 +325,49 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
       <span class="section-label">Science Communication</span>
       <h2 class="section-title">Bringing the<br>atmosphere to you</h2>
       <p>I believe the best science is science that reaches people. I build interactive explainers, host science events, and create content to help anyone — not just scientists — understand what's happening in our atmosphere.</p>
-      <p>In 2025 I served as opening host for the <strong style="color:rgba(255,255,255,.8)">100-Hour Weather & Climate Livestream</strong> — a continuous global outreach event that reached 180,000+ live viewers and was featured in The New York Times.</p>
-      <a href="https://www.tiktok.com/@syl_foisy" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">Find me on TikTok →</a>
+      <p>In 2025 I served as opening host for the <strong style="color:rgba(255,255,255,.8)">100-Hour Weather & Climate Livestream</strong> — a continuous global outreach event that reached <strong style="color:rgba(255,255,255,.8)">180,000+ live viewers</strong> and was featured in The New York Times.</p>
+      <p>After completing my walk from New York City to Washington D.C., I spoke at a <strong style="color:rgba(255,255,255,.8)">press conference on the steps of the U.S. Capitol</strong> about the importance of climate science funding.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem">
+        <a href="https://www.tiktok.com/@syl_foisy" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">TikTok →</a>
+        <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;color:#a89fd8;font-size:.85rem;font-weight:500;text-decoration:none">Read about the walk →</a>
+      </div>
     </div>
-    <div class="scicomm-cards">
-      <a href="https://www.tiktok.com/@syl_foisy" class="scard" target="_blank">
-        <div class="scard-icon" style="background:rgba(255,255,255,.08)">🎵</div>
-        <div>
-          <p class="scard-label">TikTok · @syl_foisy</p>
-          <p class="scard-title">2.0M followers · 2.4B views · science & music content</p>
+    <div>
+      <div class="scicomm-photos">
+        <div class="scicomm-photo">
+          <img src="capitol.png" alt="Syl speaking at the U.S. Capitol">
+          <p class="scicomm-caption">Speaking at the U.S. Capitol after walking NYC → DC</p>
         </div>
-      </a>
-      <a href="https://www.gretchenkoehlermusic.com/video-projects" class="scard" target="_blank">
-        <div class="scard-icon" style="background:rgba(107,95,212,.15)">🎻</div>
-        <div>
-          <p class="scard-label">Violin videos</p>
-          <p class="scard-title">Music videos highlighting upstate NY, the Adirondacks & local mural art</p>
+        <div class="scicomm-photo">
+          <img src="speech.png" alt="Syl at the podium at the Capitol">
+          <p class="scicomm-caption">At the podium on Capitol Hill</p>
         </div>
-      </a>
-      <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" class="scard" target="_blank">
-        <div class="scard-icon" style="background:rgba(29,158,117,.12)">🥾</div>
-        <div>
-          <p class="scard-label">NYC → DC Walk</p>
-          <p class="scard-title">Walked from New York City to Washington D.C. for climate science outreach</p>
-        </div>
-      </a>
-      <a href="#" class="scard">
-        <div class="scard-icon" style="background:rgba(55,138,221,.12)">🔬</div>
-        <div>
-          <p class="scard-label">Interactive tools</p>
-          <p class="scard-title">Explainers & visualizations built to teach atmospheric science</p>
-        </div>
-      </a>
+      </div>
     </div>
   </div>
+</section>
+
+<section class="videos" id="videos">
+  <span class="section-label">Videos</span>
+  <h2 class="section-title">Koehler•Foisy Films</h2>
+  <p class="section-sub">Violin music videos made with my mom, filmed across the North Country of upstate New York. A pandemic project that became something real.</p>
+  <div class="video-grid">
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/tpxZ6RjfPOc" title="Adventure of a Lifetime - Coldplay violin cover" allowfullscreen loading="lazy"></iframe>
+      <div class="video-label">
+        <strong>Adventure of a Lifetime · Coldplay</strong>
+        Filmed at Lehman Park, Stone Valley & the Grasse River, NY
+      </div>
+    </div>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/KQnz93e5F6o" title="Here Comes the Sun violin cover" allowfullscreen loading="lazy"></iframe>
+      <div class="video-label">
+        <strong>Here Comes the Sun · The Beatles</strong>
+        Featuring Coney Mountain, Tupper Lake & Raquette River, NY
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">More videos on the <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:var(--purple);font-weight:500;text-decoration:none">Koehler•Foisy Films page →</a></p>
 </section>
 
 <section class="beyond" id="beyond">
@@ -370,7 +390,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
       <span class="bcard-emoji">🎻</span>
       <h3>Violinist & filmmaker</h3>
-      <p>Creates violin music videos highlighting upstate NY towns, Adirondack mountains, mural art, and the joys of winter.</p>
+      <p>Creates violin music videos with his mom Gretchen Koehler, filmed across the stunning landscapes of upstate New York's North Country.</p>
       <span class="bcard-link">Watch the videos →</span>
     </a>
   </div>
@@ -385,6 +405,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
     <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" class="clink">🎓 Google Scholar</a>
     <a href="https://www.tiktok.com/@syl_foisy" target="_blank" class="clink">🎵 TikTok</a>
     <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" class="clink">in LinkedIn</a>
+    <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" class="clink">🎓 Columbia Profile</a>
     <a href="Foisy_CV_long.pdf" target="_blank" class="clink">📄 CV</a>
   </div>
 </section>
