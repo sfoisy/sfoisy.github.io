@@ -18,8 +18,8 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 .nav-links a:hover{color:var(--purple)}
 .nav-cta{background:var(--mid);color:var(--white);font-size:.75rem;font-weight:500;padding:.4rem 1rem;border-radius:100px;text-decoration:none;letter-spacing:.04em}
 .hero{min-height:88vh;background:var(--navy);display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:5rem 4rem 4rem;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background-image:url('sky.jpg');background-size:cover;background-position:center 30%;opacity:.6;z-index:0}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,.7) 0%,rgba(10,22,40,.35) 60%,rgba(10,22,40,.2) 100%);z-index:1}
+.hero-bg{position:absolute;inset:0;background-image:url('sky.jpg');background-size:cover;background-position:center 30%;opacity:1;z-index:0}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.6) 60%,rgba(255,255,255,.2) 100%);z-index:1}
 .hero-orb{position:absolute;border-radius:50%;opacity:.18;pointer-events:none}
 .hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,#2e7dd4,transparent);top:-100px;right:-100px}
 .hero-orb-2{width:300px;height:300px;background:radial-gradient(circle,#7eb8f0,transparent);bottom:0;left:200px}
@@ -28,17 +28,17 @@ nav{background:var(--white);border-bottom:1px solid var(--pale);padding:0 2.5rem
 .hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(46,125,212,.2);border:1px solid rgba(46,125,212,.4);color:#b8d8f5;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .9rem;border-radius:100px;margin-bottom:2rem}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:#7eb8f0;animation:pulse 2s infinite;display:inline-block}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:var(--white);line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
-h1 em{color:#7eb8f0;font-style:italic}
-.hero-sub{font-size:.95rem;color:rgba(255,255,255,.55);line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:300}
-.hero-sub2{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:300;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
-.hero-affil{font-size:.82rem;color:#7eb8f0;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:700;color:#0a1628;line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem}
+h1 em{color:#2e7dd4;font-style:italic}
+.hero-sub{font-size:.95rem;color:#1a2a3a;line-height:1.75;max-width:480px;margin-bottom:.75rem;font-weight:400}
+.hero-sub2{font-size:.95rem;color:#1a2a3a;line-height:1.75;max-width:480px;margin-bottom:1.5rem;font-weight:400;border-left:2px solid rgba(46,125,212,.7);padding-left:1rem}
+.hero-affil{font-size:.82rem;color:#2e7dd4;font-weight:500;margin-bottom:2.5rem;display:flex;align-items:center;gap:.5rem}
 .hero-affil span{opacity:.4}
 .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
 .btn-primary{background:var(--purple);color:var(--white);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
 .btn-primary:hover{background:#7a6fdf}
-.btn-ghost{border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
-.btn-ghost:hover{border-color:rgba(255,255,255,.5);color:var(--white)}
+.btn-ghost{border:1px solid rgba(10,22,40,.3);color:#0a1628;padding:.75rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-ghost:hover{border-color:rgba(10,22,40,.6);color:#0a1628}
 .hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
 .photo-frame{width:320px;height:390px;border-radius:2rem 2rem 8rem 2rem;overflow:hidden;border:1px solid rgba(46,125,212,.4);position:relative;background:rgba(46,125,212,.1)}
 .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
@@ -50,9 +50,14 @@ section{padding:5rem 4rem}
 .section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:1rem;display:block}
 .section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem}
 .section-sub{font-size:1rem;color:var(--muted);line-height:1.7;max-width:560px;font-weight:300}
-.about{background:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center}
-.about-text p{font-size:1rem;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:1rem}
-.about-text p strong{color:var(--text);font-weight:500}
+.about{background:var(--white);padding:0}
+.about-banner{display:grid;grid-template-columns:1fr 1fr;min-height:500px}
+.about-banner-img{overflow:hidden}
+.about-banner-img img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
+.about-banner-text{padding:4rem;display:flex;flex-direction:column;justify-content:center;background:var(--white)}
+.about-banner-text p{font-size:1rem;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:1rem}
+.about-banner-text p strong{color:var(--text);font-weight:500}
+.about-lower{display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding:4rem}
 .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
 .stat{background:var(--fog);border-radius:.75rem;padding:1.25rem}
 .stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--deep);line-height:1}
@@ -122,7 +127,10 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding:3rem 2rem;min-height:auto}
   .hero-right{display:none}
-  .about{grid-template-columns:1fr;gap:2rem;padding:3rem 2rem}
+  .about-banner{grid-template-columns:1fr}
+  .about-banner-img{height:260px}
+  .about-banner-text{padding:2rem}
+  .about-lower{grid-template-columns:1fr;padding:2rem}
   .research-grid,.beyond-grid,.video-grid{grid-template-columns:1fr}
   .photo-gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-inner{grid-template-columns:1fr;gap:2rem}
@@ -174,58 +182,43 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.02e
 
 
 <section class="about" id="about">
-  <div class="about-text">
-    <span class="section-label">About</span>
-    <h2 class="section-title">Scientist.<br>Storyteller.<br>Sky watcher.</h2>
-    <p>I'm a PhD candidate at <strong>Columbia University / NASA GISS</strong> studying atmospheric aerosols — the tiny particles suspended in the air that scatter sunlight, seed clouds, and quietly steer Earth's climate.</p>
-    <p>My work uses <strong>satellite data from NASA's PACE mission</strong> and ground-based fieldwork to understand how aerosols behave, where they come from, and how we should represent them in the models we use to project our future climate. I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
-    <p>I believe science only matters if people understand it — so alongside my research, I make videos, build interactive explainers, and talk to anyone who will listen about what's happening in our atmosphere.</p>
-    <div style="margin-top:1.5rem;background:var(--fog);border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
-      <img src="aerosol_photos.png" alt="Microscopy images of aerosol droplets undergoing liquid-liquid phase separation" style="width:100%;display:block">
-      <p style="font-size:.78rem;color:var(--muted);padding:1rem;line-height:1.6;font-weight:300">"During my undergraduate thesis at Williams College, I built a cloud chamber alongside Prof. Anthony Carrasquillo to study how aerosols respond to changes in humidity. Many undergo a striking transformation, separating into two distinct liquid phases, much like oil and water. These phase changes have real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today."</p>
+  <div class="about-banner">
+    <div class="about-banner-img">
+      <img src="sky.jpg" alt="Sky with contrails and cirrus clouds">
     </div>
-    <p style="margin-top:1rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
-    <div class="about-stats">
-      <div class="stat">
-        <p class="stat-num">PACE</p>
-        <p class="stat-label">NASA satellite data</p>
-      </div>
-      <div class="stat">
-        <p class="stat-num">GISS</p>
-        <p class="stat-label">Earth system modeling</p>
-      </div>
-      <div class="stat">
-        <p class="stat-num">2.4B</p>
-        <p class="stat-label">TikTok views</p>
-      </div>
-      <div class="stat">
-        <p class="stat-num">24ft</p>
-        <p class="stat-label">Tallest snowman</p>
+    <div class="about-banner-text">
+      <span class="section-label">About</span>
+      <h2 class="section-title">Scientist.<br>Storyteller.<br>Sky watcher.</h2>
+      <p>I'm a PhD candidate at <strong>Columbia University / NASA GISS</strong> studying atmospheric aerosols — the tiny particles suspended in the air that scatter sunlight, seed clouds, and quietly steer Earth's climate.</p>
+      <p>My work uses <strong>satellite data from NASA's PACE mission</strong> and ground-based fieldwork to understand how aerosols behave, where they come from, and how we should represent them in the models we use to project our future climate. I'm advised by <strong>Dr. Susanne Bauer and Dr. Kostas Tsigaridis</strong>, and supported by a <strong>NASA FINESST Graduate Fellowship</strong>.</p>
+      <p>I believe science only matters if people understand it — so alongside my research, I make videos, build interactive explainers, and talk to anyone who will listen about what's happening in our atmosphere.</p>
+      <p style="margin-top:.5rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
+      <div class="about-stats">
+        <div class="stat"><p class="stat-num">PACE</p><p class="stat-label">NASA satellite data</p></div>
+        <div class="stat"><p class="stat-num">GISS</p><p class="stat-label">Earth system modeling</p></div>
+        <div class="stat"><p class="stat-num">2.4B</p><p class="stat-label">TikTok views</p></div>
+        <div class="stat"><p class="stat-num">24ft</p><p class="stat-label">Tallest snowman</p></div>
       </div>
     </div>
   </div>
-  <div class="about-visual">
-    <div class="atmo-diagram">
-      <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(46,125,212,.15);border:1.5px solid rgba(46,125,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
-      <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.2);padding-top:.4rem">
-        <span class="atmo-layer-label">stratosphere</span>
-      </div>
-      <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem">
-        <span class="atmo-layer-label" style="opacity:.6">· · · · · · · · · ·</span>
-      </div>
-      <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.4);padding-top:.4rem">
-        <span class="atmo-layer-label">aerosol layer</span>
-      </div>
-      <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(46,125,212,.06);border-radius:.5rem;text-align:center">
-        <span style="font-size:.65rem;color:var(--muted);letter-spacing:.04em">· · · · · · · · · · · · · · · · · ·</span>
-      </div>
-      <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem">
-        <span class="atmo-layer-label">boundary layer</span>
-      </div>
-      <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(46,125,212,.2);border-radius:4px"></div>
-      <div style="position:absolute;bottom:4px;left:1rem;font-size:.65rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
+  <div class="about-lower">
+    <div style="background:var(--fog);border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
+      <img src="aerosol_photos.png" alt="Microscopy images of aerosol droplets undergoing liquid-liquid phase separation" style="width:100%;display:block">
+      <p style="font-size:.78rem;color:var(--muted);padding:1rem;line-height:1.6;font-weight:300">"During my undergraduate thesis at Williams College, I built a cloud chamber alongside Prof. Anthony Carrasquillo to study how aerosols respond to changes in humidity. Many undergo a striking transformation, separating into two distinct liquid phases, much like oil and water. These phase changes have real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today."</p>
     </div>
-    <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;letter-spacing:.03em">Schematic: aerosol distribution across atmospheric layers</p>
+    <div class="about-visual">
+      <div class="atmo-diagram">
+        <div style="position:absolute;top:.5rem;right:1rem;width:32px;height:32px;border-radius:50%;background:rgba(46,125,212,.15);border:1.5px solid rgba(46,125,212,.4);display:flex;align-items:center;justify-content:center;font-size:.85rem">🛰</div>
+        <div style="position:absolute;top:2.5rem;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.2);padding-top:.4rem"><span class="atmo-layer-label">stratosphere</span></div>
+        <div style="position:absolute;top:80px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem"><span class="atmo-layer-label" style="opacity:.6">· · · · · · · · · ·</span></div>
+        <div style="position:absolute;top:130px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.4);padding-top:.4rem"><span class="atmo-layer-label">aerosol layer</span></div>
+        <div style="position:absolute;top:170px;left:1rem;right:1rem;padding:.4rem;background:rgba(46,125,212,.06);border-radius:.5rem;text-align:center"><span style="font-size:.65rem;color:var(--muted);letter-spacing:.04em">· · · · · · · · · · · · · · · · · ·</span></div>
+        <div style="position:absolute;top:200px;left:1rem;right:3rem;border-top:1px dashed rgba(46,125,212,.3);padding-top:.4rem"><span class="atmo-layer-label">boundary layer</span></div>
+        <div style="position:absolute;bottom:20px;left:0;right:0;height:3px;background:rgba(46,125,212,.2);border-radius:4px"></div>
+        <div style="position:absolute;bottom:4px;left:1rem;font-size:.65rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">surface</div>
+      </div>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;letter-spacing:.03em">Schematic: aerosol distribution across atmospheric layers</p>
+    </div>
   </div>
 </section>
 
