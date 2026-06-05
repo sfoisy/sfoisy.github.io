@@ -45,7 +45,8 @@ h1 em{color:#a89fd8;font-style:italic}
 /* SKY DIVIDERS */
 .sky-divider{width:100%;overflow:hidden;display:block;line-height:0;height:80px}
 .sky-divider img{width:100%;height:100%;object-fit:cover;display:block}
-.sky-divider-tall{height:160px}
+.sky-divider-tall{height:auto}
+.sky-divider-tall img{height:auto;object-fit:unset}
 
 /* SECTIONS */
 section{padding:2.5rem 4rem}
@@ -156,7 +157,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   .about{padding:2rem 1.5rem}
   footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
   .sky-divider{height:60px}
-  .sky-divider-tall{height:160px}
+  .sky-divider-tall{height:auto;max-height:120px}
+  .sky-divider-tall img{object-fit:cover;height:120px}
   .hero{grid-template-columns:1fr 1fr;padding:2rem 1.5rem;gap:1rem;align-items:center}
   .hero-right{display:flex;justify-content:flex-end}
   .photo-frame{width:130px;height:155px;border-radius:1.25rem 1.25rem 3rem 1.25rem}
