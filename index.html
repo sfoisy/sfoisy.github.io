@@ -197,7 +197,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .tiktok-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
 .tiktok-thumb{display:block;text-decoration:none;border-radius:1rem;overflow:hidden;border:1px solid var(--pale);transition:.2s}
 .tiktok-thumb:hover{transform:translateY(-3px);border-color:var(--lavender)}
-.tiktok-thumb-img{position:relative;aspect-ratio:9/16;background:#000}
+.tiktok-thumb-img{position:relative;aspect-ratio:358/430;background:#000}
 .tiktok-thumb-img img{width:100%;height:100%;object-fit:cover;display:block}
 .tiktok-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);color:#fff;font-size:2.5rem;opacity:0;transition:opacity .2s}
 .tiktok-thumb:hover .tiktok-play{opacity:1}
@@ -205,7 +205,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .gallery-item{position:relative;cursor:pointer;border-radius:.85rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
 .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
 .gallery-item:hover img{transform:scale(1.05)}
-.gallery-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(13,11,46,.75);color:#fff;font-size:.75rem;padding:.5rem .75rem;transform:translateY(100%);transition:.25s;line-height:1.4;text-align:center}
+.gallery-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(13,11,46,.75);color:#fff;font-size:.75rem;padding:.5rem .75rem;transform:translateY(100%);transition:.25s;line-height:1.4;text-align:center;text-decoration:none;display:block}
+a.gallery-caption:hover{text-decoration:underline;background:rgba(46,125,212,.85)}
 .gallery-item:hover .gallery-caption{transform:translateY(0)}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center}
 .lightbox.open{display:flex}
@@ -226,8 +227,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <a href="#about">About</a>
     <a href="#publications">Publications</a>
     <a href="#outreach">Outreach</a>
-    <a href="#beyond">Beyond</a>
+    <a href="#videos">Beyond</a>
     <a href="#contact">Contact</a>
+    <a href="Foisy_CV_long.pdf" target="_blank">CV</a>
   </div>
   <a href="#contact" class="nav-cta nav-cta-desktop">Get in touch</a>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -238,8 +240,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   <a href="#about" onclick="toggleMenu()">About</a>
   <a href="#publications" onclick="toggleMenu()">Publications</a>
   <a href="#outreach" onclick="toggleMenu()">Outreach</a>
-  <a href="#beyond" onclick="toggleMenu()">Beyond</a>
+  <a href="#videos" onclick="toggleMenu()">Beyond</a>
   <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="Foisy_CV_long.pdf" target="_blank" onclick="toggleMenu()">CV</a>
   <a href="#contact" onclick="toggleMenu()" class="nav-mobile-cta">Get in touch</a>
 </div>
 <script>
@@ -367,7 +370,7 @@ function toggleMenu(){
 <section class="videos" id="videos">
   <span class="section-label">Koehler•Foisy Films</span>
   <h2 class="section-title">Violin & film</h2>
-  <p class="section-sub">Music videos made with my mom across the North Country of upstate New York — a pandemic project that became something real.</p>
+  <p class="section-sub">Music videos made with my mom in the St. Lawrence River valley of upstate New York — the gorgeous place where I grew up.</p>
   <div class="video-grid">
     <div class="video-wrap"><div class="video-frame"><iframe src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgretchenkoehlermusic%2Fvideos%2F2470669033241387%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden;width:100%;height:320px" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe></div>
       <div class="video-label"><strong>Viva La Vida · Coldplay</strong>The Munter Trail, Potsdam, NY</div>
@@ -383,6 +386,7 @@ function toggleMenu(){
 <section class="tiktok-section" id="tiktok">
   <span class="section-label">TikTok · @syl_foisy</span>
   <h2 class="section-title">2.0M followers · 2.4B views</h2>
+  <p class="section-sub">Paper folding videos and musical quizzes, created in between classes in undergrad!</p>
   <div class="tiktok-grid">
     <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" target="_blank">
       <div class="tiktok-thumb-img">
@@ -408,16 +412,15 @@ function toggleMenu(){
 <!-- BEYOND -->
 <section class="beyond" id="beyond">
   <span class="section-label">Photo Gallery</span>
-  <h2 class="section-title">Beyond the lab</h2>
   <div class="gallery" id="photoGallery">
-    <div class="gallery-item" data-caption="Giant snowman in Potsdam, NY" data-idx="0"><img src="snow3.png" alt="Giant snowman in Potsdam NY"><div class="gallery-caption">Giant snowman in Potsdam, NY</div></div>
-    <div class="gallery-item" data-caption="Syl with snowman at Williams" data-idx="1"><img src="snow7.png" alt="Syl with snowman at Williams"><div class="gallery-caption">Syl with snowman at Williams</div></div>
-    <div class="gallery-item" data-caption="Snow sculpture with Christmas lights" data-idx="2"><img src="snow5.png" alt="Snow sculpture with Christmas lights"><div class="gallery-caption">Snow sculpture with Christmas lights</div></div>
-    <div class="gallery-item" data-caption="Ice castle at Williams College" data-idx="3"><img src="snow6.png" alt="Ice castle at Williams College"><div class="gallery-caption">Ice castle at Williams College</div></div>
-    <div class="gallery-item" data-caption="Illuminated snow fort at night" data-idx="4"><img src="snow1.png" alt="Illuminated snow fort at night"><div class="gallery-caption">Illuminated snow fort at night</div></div>
-    <div class="gallery-item" data-caption="Snowman on campus" data-idx="5"><img src="snow2.png" alt="Snowman on campus"><div class="gallery-caption">Snowman on campus</div></div>
-    <div class="gallery-item" data-caption="Snow castle lit blue at Columbia" data-idx="6"><img src="snow4.png" alt="Snow castle lit blue at Columbia"><div class="gallery-caption">Snow castle lit blue at Columbia</div></div>
-    <div class="gallery-item" data-caption="Purple origami crane installation" data-idx="7"><img src="origami.png" alt="Purple origami crane installation"><div class="gallery-caption">Purple origami crane installation</div></div>
+    <div class="gallery-item" data-idx="0"><img src="snow3.png" alt="Giant snowman in Potsdam, NY"><a class="gallery-caption" href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman" target="_blank" onclick="event.stopPropagation()">Giant snowman in Potsdam, NY · 2021</a></div>
+    <div class="gallery-item" data-idx="1"><img src="snow7.png" alt="Giant snowman in Williamstown, MA"><a class="gallery-caption" href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/" target="_blank" onclick="event.stopPropagation()">Giant snowman in Williamstown, MA · 2022</a></div>
+    <div class="gallery-item" data-idx="2"><img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA"><a class="gallery-caption" href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/" target="_blank" onclick="event.stopPropagation()">Commissioned ice throne in Williamstown, MA · 2024</a></div>
+    <div class="gallery-item" data-idx="3"><img src="snow6.png" alt="Snow castle in Williamstown, MA"><div class="gallery-caption">Snow castle in Williamstown, MA · 2023</div></div>
+    <div class="gallery-item" data-idx="4"><img src="snow1.png" alt="Snow castle in Potsdam, NY"><div class="gallery-caption">Snow castle in Potsdam, NY · 2021</div></div>
+    <div class="gallery-item" data-idx="5"><img src="snow2.png" alt="Giant snowman in Manhattan, NY"><a class="gallery-caption" href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" target="_blank" onclick="event.stopPropagation()">Giant snowman in Manhattan, NY · 2026</a></div>
+    <div class="gallery-item" data-idx="6"><img src="snow4.png" alt="Giant snowman in Potsdam, NY"><a class="gallery-caption" href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" onclick="event.stopPropagation()">Giant snowman in Potsdam, NY · 2025</a></div>
+    <div class="gallery-item" data-idx="7"><img src="origami.png" alt="1,000 paper cranes in Williamstown, MA"><a class="gallery-caption" href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/" target="_blank" onclick="event.stopPropagation()">1,000 paper cranes in Williamstown, MA · 2020</a></div>
   </div>
 </section>
 
@@ -439,11 +442,8 @@ function toggleMenu(){
   <p class="contact-sub">Whether you're a collaborator, a curious person, a journalist, or a student — I'd love to hear from you.</p>
   <div class="contact-links">
     <a href="mailto:sylfoisy@gmail.com" class="clink clink-primary">✉️ Email me</a>
-    <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" class="clink">🎓 Google Scholar</a>
-    <a href="https://www.tiktok.com/@syl_foisy" target="_blank" class="clink">🎵 TikTok</a>
-    <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" class="clink">in LinkedIn</a>
-    <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" class="clink">🎓 Columbia</a>
-    <a href="Foisy_CV_long.pdf" target="_blank" class="clink">📄 CV</a>
+    <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" class="clink">Google Scholar</a>
+    <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" class="clink">LinkedIn</a>
   </div>
 </section>
 
@@ -454,14 +454,14 @@ function toggleMenu(){
 
 <script>
 const photos = [
-  {src:'snow3.png', cap:'Giant snowman in Potsdam, NY'},
-  {src:'snow7.png', cap:'Syl with snowman at Williams'},
-  {src:'snow5.png', cap:'Snow sculpture with Christmas lights'},
-  {src:'snow6.png', cap:'Ice castle at Williams College'},
-  {src:'snow1.png', cap:'Illuminated snow fort at night'},
-  {src:'snow2.png', cap:'Snowman on campus'},
-  {src:'snow4.png', cap:'Snow castle lit blue at Columbia'},
-  {src:'origami.png', cap:'Purple origami crane installation'}
+  {src:'snow3.png', cap:'Giant snowman in Potsdam, NY · 2021', link:'https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman'},
+  {src:'snow7.png', cap:'Giant snowman in Williamstown, MA · 2022', link:'https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/'},
+  {src:'snow5.png', cap:'Commissioned ice throne in Williamstown, MA · 2024', link:'https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/'},
+  {src:'snow6.png', cap:'Snow castle in Williamstown, MA · 2023', link:null},
+  {src:'snow1.png', cap:'Snow castle in Potsdam, NY · 2021', link:null},
+  {src:'snow2.png', cap:'Giant snowman in Manhattan, NY · 2026', link:'https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/'},
+  {src:'snow4.png', cap:'Giant snowman in Potsdam, NY · 2025', link:'https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html'},
+  {src:'origami.png', cap:'1,000 paper cranes in Williamstown, MA · 2020', link:'https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/'}
 ];
 let currentIdx = 0;
 document.querySelectorAll('.gallery-item').forEach(item => {
@@ -472,7 +472,12 @@ document.querySelectorAll('.gallery-item').forEach(item => {
 });
 function openLightbox(idx) {
   document.getElementById('lbImg').src = photos[idx].src;
-  document.getElementById('lbCaption').textContent = photos[idx].cap;
+  var capEl = document.getElementById('lbCaption');
+  if (photos[idx].link) {
+    capEl.innerHTML = '<a href="' + photos[idx].link + '" target="_blank" style="color:#a89fd8;text-decoration:underline" onclick="event.stopPropagation()">' + photos[idx].cap + ' →</a>';
+  } else {
+    capEl.textContent = photos[idx].cap;
+  }
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
