@@ -192,10 +192,15 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .nav-mobile-menu a:hover{background:var(--fog)}
 .nav-mobile-cta{background:var(--purple) !important;color:var(--white) !important;margin:1rem 1.5rem;border-radius:100px;text-align:center;border:none !important}
 
+/* TIKTOK THUMBNAILS */
 .tiktok-section{background:var(--white)}
 .tiktok-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
-.tiktok-wrap{display:flex;justify-content:center}
-.tiktok-wrap .tiktok-embed{margin:0 !important;min-width:0 !important;max-width:100% !important;width:100% !important}
+.tiktok-thumb{display:block;text-decoration:none;border-radius:1rem;overflow:hidden;border:1px solid var(--pale);transition:.2s}
+.tiktok-thumb:hover{transform:translateY(-3px);border-color:var(--lavender)}
+.tiktok-thumb-img{position:relative;aspect-ratio:9/16;background:#000}
+.tiktok-thumb-img img{width:100%;height:100%;object-fit:cover;display:block}
+.tiktok-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);color:#fff;font-size:2.5rem;opacity:0;transition:opacity .2s}
+.tiktok-thumb:hover .tiktok-play{opacity:1}
 
 .gallery-item{position:relative;cursor:pointer;border-radius:.85rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
 .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
@@ -343,7 +348,6 @@ function toggleMenu(){
     <p>I believe science only matters as much as it is understood.</p>
     <p>In 2025, I served as opening host for the <strong><a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">100-Hour Weather &amp; Climate Livestream</a></strong>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
     <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">walked 270 miles from New York City to Washington D.C.</a></strong>, visiting 20 climate and weather scientists from 12 institutions along the way. I interviewed each of them about their research — and finished with a press conference on the steps of the U.S. Capitol, where I spoke to <strong>seven members of Congress</strong> about the importance of weather and climate science funding.</p>
-
   </div>
   <div>
     <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2)">
@@ -358,8 +362,6 @@ function toggleMenu(){
     </div>
   </div>
 </section>
-
-
 
 <!-- VIDEOS -->
 <section class="videos" id="videos">
@@ -382,24 +384,25 @@ function toggleMenu(){
   <span class="section-label">TikTok · @syl_foisy</span>
   <h2 class="section-title">2.0M followers · 2.4B views</h2>
   <div class="tiktok-grid">
-    <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" data-video-id="7278141576805715231" data-autoplay="0">
-        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
-      </blockquote>
-    </div>
-    <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7203503563442703662" data-video-id="7203503563442703662" data-autoplay="0">
-        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
-      </blockquote>
-    </div>
-    <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7303305233936207146" data-video-id="7303305233936207146" data-autoplay="0">
-        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
-      </blockquote>
-    </div>
-
+    <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" target="_blank">
+      <div class="tiktok-thumb-img">
+        <img src="helicop.png" alt="TikTok: paper helicopter">
+        <div class="tiktok-play">▶</div>
+      </div>
+    </a>
+    <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7203503563442703662" target="_blank">
+      <div class="tiktok-thumb-img">
+        <img src="best.png" alt="TikTok: lecture hall">
+        <div class="tiktok-play">▶</div>
+      </div>
+    </a>
+    <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7303305233936207146" target="_blank">
+      <div class="tiktok-thumb-img">
+        <img src="bat.png" alt="TikTok: flying paper butterfly">
+        <div class="tiktok-play">▶</div>
+      </div>
+    </a>
   </div>
-  <script async src="https://www.tiktok.com/embed.js"></script>
 </section>
 
 <!-- BEYOND -->
@@ -448,7 +451,6 @@ function toggleMenu(){
   <span class="fname">Syl Foisy</span>
   <span class="fcredit">PhD Candidate · NASA GISS / Columbia University · NASA FINESST Fellow</span>
 </footer>
-
 
 <script>
 const photos = [
@@ -506,6 +508,9 @@ if (aerosolVideo) {
     aerosolTooltip.style.top = (e.clientY - 10) + 'px';
   });
 }
+
+// Photo frame easter egg tooltip
+const tooltip = document.createElement('div');
 tooltip.style.cssText = 'position:fixed;background:rgba(13,11,46,.9);color:#fff;padding:.5rem 1rem;border-radius:.75rem;font-size:.8rem;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s;max-width:220px;text-align:center;border:1px solid rgba(168,159,216,.4)';
 tooltip.innerHTML = 'hello! <em>you found this super not secret easter egg, yayz!</em>';
 document.body.appendChild(tooltip);
