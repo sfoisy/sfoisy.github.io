@@ -161,6 +161,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   .scicomm-text{order:1}
   .scicomm .scicomm-photos{order:2}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
+  .tiktok-grid{grid-template-columns:repeat(2,1fr)}
   .gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-photos{grid-template-columns:1fr}
   section{padding:2rem 1.5rem}
@@ -190,6 +191,26 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
 .nav-mobile-menu a:hover{background:var(--fog)}
 .nav-mobile-cta{background:var(--purple) !important;color:var(--white) !important;margin:1rem 1.5rem;border-radius:100px;text-align:center;border:none !important}
+
+.tiktok-section{background:var(--white)}
+.tiktok-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:2rem}
+.tiktok-wrap{display:flex;justify-content:center}
+.tiktok-wrap .tiktok-embed{margin:0 !important;min-width:0 !important;max-width:100% !important;width:100% !important}
+
+.gallery-item{position:relative;cursor:pointer;border-radius:.85rem;overflow:hidden;aspect-ratio:1;background:var(--fog)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s}
+.gallery-item:hover img{transform:scale(1.05)}
+.gallery-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(13,11,46,.75);color:#fff;font-size:.75rem;padding:.5rem .75rem;transform:translateY(100%);transition:.25s;line-height:1.4;text-align:center}
+.gallery-item:hover .gallery-caption{transform:translateY(0)}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lb-content{max-width:90vw;max-height:90vh;text-align:center}
+.lb-content img{max-width:90vw;max-height:80vh;border-radius:1rem;object-fit:contain;display:block}
+.lb-content p{color:rgba(255,255,255,.7);margin-top:.75rem;font-size:.85rem}
+.lb-close{position:fixed;top:1.5rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;z-index:1001;line-height:1}
+.lb-prev,.lb-next{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:#fff;font-size:3rem;cursor:pointer;z-index:1001;padding:.25rem 1rem;border-radius:.5rem;line-height:1;transition:.2s}
+.lb-prev{left:1rem}.lb-next{right:1rem}
+.lb-prev:hover,.lb-next:hover{background:rgba(255,255,255,.25)}
 </style>
 </head>
 <body>
@@ -356,62 +377,61 @@ function toggleMenu(){
   <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">More on the <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:var(--purple);font-weight:500;text-decoration:none">Koehler•Foisy Films page →</a></p>
 </section>
 
-<!-- BEYOND -->
-<section class="beyond" id="beyond">
-  <span class="section-label">Other interests</span>
-  <h2 class="section-title">A few other things<br>I'm known for</h2>
-  <div class="beyond-grid">
-    <a href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" class="bcard" target="_blank">
-      <span class="bcard-emoji">⛄</span>
-      <h3>Giant snow sculptor</h3>
-      <p>15-foot snowman at Williams. 24-foot snowman in Potsdam. Columbia's tallest ever snowperson. Snow forts, castles, igloos. There's a pattern.</p>
-      <span class="bcard-link">Read about Buster →</span>
-    </a>
-    <a href="https://www.tiktok.com/@syl_foisy" class="bcard" target="_blank">
-      <span class="bcard-emoji">🎵</span>
-      <h3>TikTok creator</h3>
-      <p>2.0M followers. 2.4B views. #73 globally in November 2022 with 355M monthly views. Paper-folding, music, science.</p>
-      <span class="bcard-link">Follow @syl_foisy →</span>
-    </a>
-    <a href="https://www.gretchenkoehlermusic.com/video-projects" class="bcard" target="_blank">
-      <span class="bcard-emoji">🎻</span>
-      <h3>Violinist & filmmaker</h3>
-      <p>Violin films with my mom across upstate New York's North Country — waterfalls, murals, mountains, frozen rivers.</p>
-      <span class="bcard-link">Watch the films →</span>
-    </a>
-    <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" class="bcard" target="_blank">
-      <span class="bcard-emoji">🥾</span>
-      <h3>Long-distance walker</h3>
-      <p>Walked NYC to D.C. for climate outreach — speaking with students and scientists along the way, ending at the Capitol.</p>
-      <span class="bcard-link">Read about the walk →</span>
-    </a>
-    <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" class="bcard" target="_blank">
-      <span class="bcard-emoji">📰</span>
-      <h3>In the press</h3>
-      <p>Featured in The New York Times, Columbia Spectator, NY Upstate, North Country Public Radio, and News10.</p>
-      <span class="bcard-link">NY Upstate →</span>
-    </a>
-    <a href="https://www.tiktok.com/@syl_foisy" class="bcard" target="_blank">
-      <span class="bcard-emoji">🐦</span>
-      <h3>Origami & paper folding</h3>
-      <p>Large-scale origami installations — including a curtain of 1,000 purple cranes hung from a driftwood branch.</p>
-      <span class="bcard-link">See the videos →</span>
-    </a>
-  </div>
-  <div style="margin-top:3rem">
-    <p class="section-label">Gallery</p>
-    <div class="gallery">
-      <div class="gallery-item"><img src="snow3.png" alt="Giant snowman in Potsdam NY"></div>
-      <div class="gallery-item"><img src="snow7.png" alt="Syl with snowman at Williams"></div>
-      <div class="gallery-item"><img src="snow5.png" alt="Snow sculpture with Christmas lights"></div>
-      <div class="gallery-item"><img src="snow6.png" alt="Ice castle at Williams College"></div>
-      <div class="gallery-item"><img src="snow1.png" alt="Illuminated snow fort at night"></div>
-      <div class="gallery-item"><img src="snow2.png" alt="Snowman on campus"></div>
-      <div class="gallery-item"><img src="snow4.png" alt="Snow castle lit blue at Columbia"></div>
-      <div class="gallery-item"><img src="origami.png" alt="Purple origami crane installation"></div>
+<!-- TIKTOK -->
+<section class="tiktok-section" id="tiktok">
+  <span class="section-label">TikTok · @syl_foisy</span>
+  <h2 class="section-title">2.0M followers · 2.4B views</h2>
+  <div class="tiktok-grid">
+    <div class="tiktok-wrap">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" data-video-id="7278141576805715231">
+        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
+      </blockquote>
+    </div>
+    <div class="tiktok-wrap">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7203503563442703662" data-video-id="7203503563442703662">
+        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
+      </blockquote>
+    </div>
+    <div class="tiktok-wrap">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7303305233936207146" data-video-id="7303305233936207146">
+        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
+      </blockquote>
+    </div>
+    <div class="tiktok-wrap">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7284869153276595498" data-video-id="7284869153276595498">
+        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
+      </blockquote>
     </div>
   </div>
+  <script async src="https://www.tiktok.com/embed.js"></script>
 </section>
+
+<!-- BEYOND -->
+<section class="beyond" id="beyond">
+  <span class="section-label">Photo Gallery</span>
+  <h2 class="section-title">Beyond the lab</h2>
+  <div class="gallery" id="photoGallery">
+    <div class="gallery-item" data-caption="Giant snowman in Potsdam, NY" data-idx="0"><img src="snow3.png" alt="Giant snowman in Potsdam NY"><div class="gallery-caption">Giant snowman in Potsdam, NY</div></div>
+    <div class="gallery-item" data-caption="Syl with snowman at Williams" data-idx="1"><img src="snow7.png" alt="Syl with snowman at Williams"><div class="gallery-caption">Syl with snowman at Williams</div></div>
+    <div class="gallery-item" data-caption="Snow sculpture with Christmas lights" data-idx="2"><img src="snow5.png" alt="Snow sculpture with Christmas lights"><div class="gallery-caption">Snow sculpture with Christmas lights</div></div>
+    <div class="gallery-item" data-caption="Ice castle at Williams College" data-idx="3"><img src="snow6.png" alt="Ice castle at Williams College"><div class="gallery-caption">Ice castle at Williams College</div></div>
+    <div class="gallery-item" data-caption="Illuminated snow fort at night" data-idx="4"><img src="snow1.png" alt="Illuminated snow fort at night"><div class="gallery-caption">Illuminated snow fort at night</div></div>
+    <div class="gallery-item" data-caption="Snowman on campus" data-idx="5"><img src="snow2.png" alt="Snowman on campus"><div class="gallery-caption">Snowman on campus</div></div>
+    <div class="gallery-item" data-caption="Snow castle lit blue at Columbia" data-idx="6"><img src="snow4.png" alt="Snow castle lit blue at Columbia"><div class="gallery-caption">Snow castle lit blue at Columbia</div></div>
+    <div class="gallery-item" data-caption="Purple origami crane installation" data-idx="7"><img src="origami.png" alt="Purple origami crane installation"><div class="gallery-caption">Purple origami crane installation</div></div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-prev" onclick="changePhoto(-1)">‹</button>
+  <button class="lb-next" onclick="changePhoto(1)">›</button>
+  <div class="lb-content">
+    <img id="lbImg" src="" alt="">
+    <p id="lbCaption"></p>
+  </div>
+</div>
 
 <!-- CONTACT -->
 <section class="contact" id="contact">
@@ -433,5 +453,63 @@ function toggleMenu(){
   <span class="fcredit">PhD Candidate · NASA GISS / Columbia University · NASA FINESST Fellow</span>
 </footer>
 
+
+<script>
+const photos = [
+  {src:'snow3.png', cap:'Giant snowman in Potsdam, NY'},
+  {src:'snow7.png', cap:'Syl with snowman at Williams'},
+  {src:'snow5.png', cap:'Snow sculpture with Christmas lights'},
+  {src:'snow6.png', cap:'Ice castle at Williams College'},
+  {src:'snow1.png', cap:'Illuminated snow fort at night'},
+  {src:'snow2.png', cap:'Snowman on campus'},
+  {src:'snow4.png', cap:'Snow castle lit blue at Columbia'},
+  {src:'origami.png', cap:'Purple origami crane installation'}
+];
+let currentIdx = 0;
+document.querySelectorAll('.gallery-item').forEach(item => {
+  item.addEventListener('click', () => {
+    currentIdx = parseInt(item.dataset.idx);
+    openLightbox(currentIdx);
+  });
+});
+function openLightbox(idx) {
+  document.getElementById('lbImg').src = photos[idx].src;
+  document.getElementById('lbCaption').textContent = photos[idx].cap;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+  if (!e || e.target === document.getElementById('lightbox') || e.target.classList.contains('lb-close')) {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+function changePhoto(dir) {
+  currentIdx = (currentIdx + dir + photos.length) % photos.length;
+  openLightbox(currentIdx);
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowRight') changePhoto(1);
+    if (e.key === 'ArrowLeft') changePhoto(-1);
+    if (e.key === 'Escape') closeLightbox({target: document.getElementById('lightbox')});
+  }
+});
+
+// Easter egg
+const tooltip = document.createElement('div');
+tooltip.style.cssText = 'position:fixed;background:rgba(13,11,46,.9);color:#fff;padding:.5rem 1rem;border-radius:.75rem;font-size:.8rem;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s;max-width:220px;text-align:center;border:1px solid rgba(168,159,216,.4)';
+tooltip.innerHTML = 'hello! <em>you found this super not secret easter egg, yayz!</em>';
+document.body.appendChild(tooltip);
+const photo = document.querySelector('.photo-frame');
+if (photo) {
+  photo.addEventListener('mouseenter', () => tooltip.style.opacity = '1');
+  photo.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+  photo.addEventListener('mousemove', e => {
+    tooltip.style.left = (e.clientX + 15) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+  });
+}
+</script>
 </body>
 </html>
