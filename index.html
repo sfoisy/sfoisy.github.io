@@ -12,7 +12,7 @@
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
 :root{
-  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#6b5fd4;
+  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
   --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
   --white:#fff;--text:#1a1830;--muted:#6b6882
 }
@@ -34,8 +34,8 @@ h1 em{color:#a89fd8;font-style:italic}
 .hero-sub{font-size:1rem;color:rgba(255,255,255,.75);line-height:1.8;max-width:500px;margin-bottom:.85rem;font-weight:300}
 .hero-sub2{font-size:1rem;color:rgba(255,255,255,.85);line-height:1.8;max-width:500px;margin-bottom:2rem;font-weight:300;border-left:2px solid rgba(168,159,216,.6);padding-left:1.25rem}
 .hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
-.btn-primary{background:var(--purple);color:var(--white);padding:.8rem 1.8rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
-.btn-primary:hover{background:#7a6fdf}
+.btn-primary{background:#2e7dd4;color:var(--white);padding:.8rem 1.8rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
+.btn-primary:hover{background:#1a6abf}
 .btn-ghost{border:1px solid rgba(255,255,255,.35);color:rgba(255,255,255,.85);padding:.8rem 1.8rem;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:.2s}
 .btn-ghost:hover{border-color:rgba(255,255,255,.7);color:var(--white)}
 .hero-right{position:relative;z-index:2;display:flex;justify-content:flex-end;align-items:center}
@@ -63,7 +63,7 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .about-right p strong{color:var(--text);font-weight:500}
 
 /* PUBLICATIONS */
-.chamber{background:var(--fog)}
+.chamber{background:#fef3e8}
 .chamber-inner{display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:center}
 .chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
 .chamber-text p strong{color:var(--text);font-weight:500}
@@ -149,8 +149,15 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   .photo-frame{width:160px;height:190px;border-radius:1.5rem 1.5rem 4rem 1.5rem}
   h1{font-size:2.2rem}
   .hero-sub,.hero-sub2{max-width:100%}
-  .about,.scicomm,.pub-layout,.chamber-inner{grid-template-columns:1fr;gap:2rem}
-  .about-left{position:static;max-height:260px}
+  .about,.scicomm,.pub-layout,.chamber-inner{grid-template-columns:1fr;gap:2rem;display:flex;flex-direction:column}
+  .about-left{position:static;max-height:none;order:2}
+  .about-right{order:1}
+  .pub-right{order:2}
+  .pub-left{order:1}
+  .chamber-text{order:1}
+  .chamber-img{order:2}
+  .scicomm-text{order:1}
+  .scicomm .scicomm-photos{order:2}
   .beyond-grid,.video-grid{grid-template-columns:1fr}
   .gallery{grid-template-columns:repeat(2,1fr)}
   .scicomm-photos{grid-template-columns:1fr}
@@ -185,9 +192,6 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   </div>
   <a href="#contact" class="nav-cta">Get in touch</a>
 </nav>
-<div class="sky-divider sky-divider-tall">
-  <img src="break_sunset_2.png" alt="Sunset landscape" style="object-position:center 35%">
-</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -312,6 +316,10 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <!-- SKY 5: sunset -->
 <div class="sky-divider sky-divider-tall">
   <img src="sky_sunset.jpg" alt="Hudson River sunset sky" style="object-position:center 20%">
+</div>
+
+<div class="sky-divider sky-divider-tall">
+  <img src="break_sunset_2.png" alt="Sunset landscape" style="object-position:center 35%">
 </div>
 
 <!-- VIDEOS -->
