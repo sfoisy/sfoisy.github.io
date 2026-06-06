@@ -143,6 +143,8 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .nav-cta-desktop{display:none}
   .hero{grid-template-columns:1fr;padding:2rem;gap:1.5rem}
   .hero-right{display:flex;justify-content:center;order:1}
   .hero-left{order:2}
@@ -177,6 +179,17 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   .hero-btns{justify-content:center}
   .pub-right{position:static !important}
 }
+
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--deep);border-radius:2px;transition:.3s}
+.nav-hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-hamburger.active span:nth-child(2){opacity:0}
+.nav-hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-mobile-menu{display:none;flex-direction:column;background:var(--white);border-bottom:1px solid var(--pale);padding:.5rem 0;position:sticky;top:58px;z-index:99}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
+.nav-mobile-menu a:hover{background:var(--fog)}
+.nav-mobile-cta{background:var(--purple) !important;color:var(--white) !important;margin:1rem 1.5rem;border-radius:100px;text-align:center;border:none !important}
 </style>
 </head>
 <body>
@@ -190,8 +203,27 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <a href="#beyond">Beyond</a>
     <a href="#contact">Contact</a>
   </div>
-  <a href="#contact" class="nav-cta">Get in touch</a>
+  <a href="#contact" class="nav-cta nav-cta-desktop">Get in touch</a>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#publications" onclick="toggleMenu()">Publications</a>
+  <a href="#outreach" onclick="toggleMenu()">Outreach</a>
+  <a href="#beyond" onclick="toggleMenu()">Beyond</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="#contact" onclick="toggleMenu()" class="nav-mobile-cta">Get in touch</a>
+</div>
+<script>
+function toggleMenu(){
+  var m=document.getElementById('mobileMenu');
+  var b=document.querySelector('.nav-hamburger');
+  m.classList.toggle('open');
+  b.classList.toggle('active');
+}
+</script>
 
 <!-- HERO -->
 <section class="hero">
