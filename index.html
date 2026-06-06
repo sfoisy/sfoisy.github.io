@@ -193,7 +193,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .nav-mobile-cta{background:var(--purple) !important;color:var(--white) !important;margin:1rem 1.5rem;border-radius:100px;text-align:center;border:none !important}
 
 .tiktok-section{background:var(--white)}
-.tiktok-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:2rem}
+.tiktok-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
 .tiktok-wrap{display:flex;justify-content:center}
 .tiktok-wrap .tiktok-embed{margin:0 !important;min-width:0 !important;max-width:100% !important;width:100% !important}
 
@@ -383,25 +383,21 @@ function toggleMenu(){
   <h2 class="section-title">2.0M followers · 2.4B views</h2>
   <div class="tiktok-grid">
     <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" data-video-id="7278141576805715231">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" data-video-id="7278141576805715231" data-autoplay="0">
         <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
       </blockquote>
     </div>
     <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7203503563442703662" data-video-id="7203503563442703662">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7203503563442703662" data-video-id="7203503563442703662" data-autoplay="0">
         <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
       </blockquote>
     </div>
     <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7303305233936207146" data-video-id="7303305233936207146">
+      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7303305233936207146" data-video-id="7303305233936207146" data-autoplay="0">
         <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
       </blockquote>
     </div>
-    <div class="tiktok-wrap">
-      <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@syl_foisy/video/7284869153276595498" data-video-id="7284869153276595498">
-        <section><a target="_blank" title="@syl_foisy" href="https://www.tiktok.com/@syl_foisy?refer=embed">@syl_foisy</a></section>
-      </blockquote>
-    </div>
+
   </div>
   <script async src="https://www.tiktok.com/embed.js"></script>
 </section>
@@ -496,8 +492,20 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Easter egg
-const tooltip = document.createElement('div');
+// Aerosol video tooltip
+const aerosolTooltip = document.createElement('div');
+aerosolTooltip.style.cssText = 'position:fixed;background:rgba(13,11,46,.9);color:#fff;padding:.5rem 1rem;border-radius:.75rem;font-size:.8rem;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s;max-width:220px;text-align:center;border:1px solid rgba(168,159,216,.4)';
+aerosolTooltip.textContent = 'Did you know that we would have no rain without aerosols?';
+document.body.appendChild(aerosolTooltip);
+const aerosolVideo = document.querySelector('.about-left video');
+if (aerosolVideo) {
+  aerosolVideo.addEventListener('mouseenter', () => aerosolTooltip.style.opacity = '1');
+  aerosolVideo.addEventListener('mouseleave', () => aerosolTooltip.style.opacity = '0');
+  aerosolVideo.addEventListener('mousemove', e => {
+    aerosolTooltip.style.left = (e.clientX + 15) + 'px';
+    aerosolTooltip.style.top = (e.clientY - 10) + 'px';
+  });
+}
 tooltip.style.cssText = 'position:fixed;background:rgba(13,11,46,.9);color:#fff;padding:.5rem 1rem;border-radius:.75rem;font-size:.8rem;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s;max-width:220px;text-align:center;border:1px solid rgba(168,159,216,.4)';
 tooltip.innerHTML = 'hello! <em>you found this super not secret easter egg, yayz!</em>';
 document.body.appendChild(tooltip);
