@@ -11,8 +11,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
-:root{--navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;--lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;--white:#fff;--text:#1a1830;--muted:#6b6882;--strava:#fc5200;--ferry:#0e6ba8}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:#000;overflow-x:hidden}
+:root{--navy:#fff;--deep:#000;--mid:#000;--purple:#000;--lavender:#000;--pale:#e9e9e9;--fog:#fff;--white:#fff;--text:#000;--muted:#000;--strava:#fc5200;--ferry:#0e6ba8}
 
 nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
@@ -28,39 +28,39 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .nav-mobile-menu.open{display:flex}
 .nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
 
-.article-hero{background:linear-gradient(rgba(13,11,46,.45),rgba(13,11,46,.82)), url('walk_hero.jpg') center 40% / cover no-repeat, var(--navy);color:var(--white);padding:6rem 2rem 4.5rem;text-align:center}
+.article-hero{background:#fff;color:#000;padding:4.5rem 2rem 2rem;text-align:center}
 .article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
 .article-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,6vw,4.6rem);font-weight:700;line-height:1.05;letter-spacing:-.02em;max-width:13ch;margin:0 auto 1.25rem}
 .article-title em{font-style:italic;color:var(--lavender)}
-.article-dek{font-size:1.05rem;font-weight:300;line-height:1.7;color:rgba(255,255,255,.8);max-width:560px;margin:0 auto 1.75rem}
-.article-meta{font-size:.78rem;letter-spacing:.05em;color:rgba(255,255,255,.5)}
-.article-meta a{color:rgba(255,255,255,.7);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)}
+.article-dek{font-size:1.05rem;font-weight:300;line-height:1.7;color:#000;max-width:560px;margin:0 auto 1.75rem}
+.article-meta{font-size:.78rem;letter-spacing:.05em;color:#000}
+.article-meta a{color:#000;text-decoration:underline;text-decoration-color:#e9e9e9}
 
-.stat-strip{background:var(--navy);border-top:1px solid rgba(168,159,216,.18);display:grid;grid-template-columns:repeat(4,1fr)}
-.stat{padding:1.6rem 1rem;text-align:center;border-right:1px solid rgba(168,159,216,.14)}
+.stat-strip{background:var(--navy);border-top:1px solid #e9e9e9;display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:1.6rem 1rem;text-align:center;border-right:1px solid #e9e9e9}
 .stat:last-child{border-right:none}
-.stat-num{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--white);line-height:1}
+.stat-num{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#000;line-height:1}
 .stat-label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lavender);margin-top:.55rem}
 
 .journey{background:var(--fog)}
 .journey-inner{max-width:900px;margin:0 auto;display:block;padding:0 1.75rem}
 .j-narrative{padding:0 0 5rem;max-width:100%}
-.j-lead .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--strava);display:block;margin-bottom:.5rem}
+.j-lead .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#000;display:block;margin-bottom:.5rem}
 .j-lead p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.25rem}
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
 
 .j-travel{height:64vh}
-.j-step{margin-bottom:1.5rem}
-.j-card{background:var(--white);border:1px solid var(--pale);border-left:3px solid var(--lavender);border-radius:1rem;padding:1.5rem 1.6rem;transition:border-color .3s, box-shadow .3s}
-.j-card.active{border-left-color:var(--strava);box-shadow:0 10px 30px -18px rgba(252,82,0,.5)}
-.j-card .stopnum{font-size:.66rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--strava);display:block;margin-bottom:.45rem}
-.j-card h3{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--deep);line-height:1.15;margin-bottom:.5rem}
-.j-card .met{font-size:.95rem;color:var(--text);font-weight:500;line-height:1.6;margin-bottom:.5rem}
-.j-card .ph-note{font-size:.95rem;color:var(--muted);font-weight:300;line-height:1.75}
+.j-step{margin-bottom:2.5rem}
+.j-card{background:transparent;border:none;border-radius:0;padding:0}
+.j-card.active{box-shadow:none}
+.stop-head{font-family:'DM Sans',sans-serif;font-size:1.9rem;font-weight:700;color:#000;line-height:1.12;letter-spacing:-.01em;margin-bottom:.35rem}
+.j-card .met{margin-top:.1rem}
+.j-card .met{font-size:1rem;color:#000;font-weight:600;line-height:1.6;margin-bottom:.5rem}
+.j-card .ph-note{font-size:1.02rem;color:#000;font-weight:400;line-height:1.75}
 .j-closing{padding:1rem 0 2rem}
 .j-closing h3{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--deep);margin-bottom:.75rem}
 .j-closing p{font-size:1.02rem;line-height:1.85;font-weight:300;color:var(--text)}
-.back-link{display:inline-block;font-size:.78rem;color:var(--strava);text-decoration:none;margin-bottom:1.5rem;letter-spacing:.03em}
+.back-link{display:inline-block;font-size:.78rem;color:#000;text-decoration:none;margin-bottom:1.5rem;letter-spacing:.03em}
 .back-link:hover{text-decoration:underline}
 
 .j-map{position:fixed;top:70px;right:22px;width:360px;height:290px;z-index:60;padding:0}
@@ -85,17 +85,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #activeLabel{font-family:'DM Sans',sans-serif;font-weight:700;fill:#15181f;pointer-events:none;opacity:0;transition:opacity .35s}
 #walker{fill:#fff;stroke:var(--strava);stroke-width:2.5;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
 .map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none}
-.map-readout{background:rgba(255,255,255,.74);backdrop-filter:blur(2px);padding:.5rem .8rem .45rem;border-radius:.7rem;line-height:1}
-.map-readout .mi{font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:#14233a;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
-.map-readout .mi-unit{font-size:1.56rem;color:#14233a}
-.map-readout .lbl{font-size:1.2rem;letter-spacing:.12em;text-transform:uppercase;color:#4f6a45;margin-top:.15rem}
-.map-readout .town{font-size:1.48rem;font-weight:700;color:#14233a;margin-top:.3rem;letter-spacing:.01em;white-space:nowrap}
+.map-readout{background:rgba(255,255,255,.8);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
+.map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#000;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
+.map-readout .mi-unit{font-size:.78rem;color:#000}
+.map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#000;margin-top:.15rem}
+.map-readout .town{font-size:.74rem;font-weight:700;color:#000;margin-top:.28rem;letter-spacing:.01em;white-space:nowrap}
 #walkerFig{background-repeat:no-repeat;flex:none}
-#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:108px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:54px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
 
-footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
-footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
-footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+footer{background:#fff;border-top:1px solid #e9e9e9;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:#000;font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 
 /* small fixed map: title sits to its left at the top of the article */
 .article-top{padding:2.25rem 0 .5rem;max-width:540px}
@@ -107,7 +107,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}.nav-hamburger{display:flex}
   .article-hero{padding:4rem 1.5rem 3rem}
-  .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid rgba(168,159,216,.14)}
+  .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner{display:block;padding:0 1.25rem}
   .j-map{position:fixed;top:62px;right:10px;width:150px;height:124px;z-index:60;padding:0}
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
@@ -172,8 +172,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 <div class="j-travel"></div>
     <div class="j-step" data-i="0">
       <div class="j-card">
-        <span class="stopnum">Stop 01 &middot; New York, NY</span>
-        <h3>Central Park</h3>
+        <h3 class="stop-head">Stop 1: Central Park</h3>
         <p class="met">The starting line.</p>
         <p class="ph-note" style="margin-bottom:1rem;">
           Write your opening thoughts here. For example: Setting out from Central Park was a deliberate choice, standing at the heart of the city before taking the first steps of a 270-mile journey. The energy during the send-off was incredible.
@@ -191,8 +190,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="1">
       <div class="j-card">
-        <span class="stopnum">Stop 02 &middot; New York, NY</span>
-        <h3>City Hall Park</h3>
+        <h3 class="stop-head">Stop 2: City Hall Park</h3>
         <p class="met">Met Allegra LeGrande and Hikaru Hayakawa.</p>
         <p class="ph-note" style="margin-bottom:1rem;">
           Add a few sentences about this stop: the conversation, what you saw, what stuck with you as you met up with Allegra and Hikaru.
@@ -210,16 +208,14 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="2">
       <div class="j-card">
-        <span class="stopnum">Stop 03 &middot; Mile 30.8</span>
-        <h3>Sayreville, NJ</h3>
+        <h3 class="stop-head">Stop 3: Sayreville, NJ</h3>
         <p class="ph-note">[Add a note about passing through Sayreville, NJ — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="3">
       <div class="j-card">
-        <span class="stopnum">Stop 04 &middot; Freehold, NJ</span>
-        <h3>Monmouth Battle Monument</h3>
+        <h3 class="stop-head">Stop 4: Monmouth Battle Monument</h3>
         <p class="met">Met Alan Robock.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -227,24 +223,21 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="4">
       <div class="j-card">
-        <span class="stopnum">Stop 05 &middot; Mile 44.5</span>
-        <h3>North Brunswick Township, NJ</h3>
+        <h3 class="stop-head">Stop 5: North Brunswick Township, NJ</h3>
         <p class="ph-note">[Add a note about passing through North Brunswick Township, NJ — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="5">
       <div class="j-card">
-        <span class="stopnum">Stop 06 &middot; Mile 47.7</span>
-        <h3>South Brunswick Township, NJ</h3>
+        <h3 class="stop-head">Stop 6: South Brunswick Township, NJ</h3>
         <p class="ph-note">[Add a note about passing through South Brunswick Township, NJ — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="6">
       <div class="j-card">
-        <span class="stopnum">Stop 07 &middot; Princeton, NJ</span>
-        <h3>NOAA GFDL</h3>
+        <h3 class="stop-head">Stop 7: NOAA GFDL</h3>
         <p class="met">Met Nadir Jeevanjee, Mitch Bushuk, Timothy Merlis, and Bernadette Woods Placky.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -252,32 +245,28 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="7">
       <div class="j-card">
-        <span class="stopnum">Stop 08 &middot; Mile 64.7</span>
-        <h3>Lawrence Township, NJ</h3>
+        <h3 class="stop-head">Stop 8: Lawrence Township, NJ</h3>
         <p class="ph-note">[Add a note about passing through Lawrence Township, NJ — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="8">
       <div class="j-card">
-        <span class="stopnum">Stop 09 &middot; Mile 70.9</span>
-        <h3>Trenton, NJ</h3>
+        <h3 class="stop-head">Stop 9: Trenton, NJ</h3>
         <p class="ph-note">[Add a note about passing through Trenton, NJ — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="9">
       <div class="j-card">
-        <span class="stopnum">Stop 10 &middot; Mile 91.0</span>
-        <h3>Bensalem, PA</h3>
+        <h3 class="stop-head">Stop 10: Bensalem, PA</h3>
         <p class="ph-note">[Add a note about passing through Bensalem, PA — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="10">
       <div class="j-card">
-        <span class="stopnum">Stop 11 &middot; Philadelphia, PA</span>
-        <h3>Temple University</h3>
+        <h3 class="stop-head">Stop 11: Temple University</h3>
         <p class="met">Met Rebecca Beadling.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -285,16 +274,14 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="11">
       <div class="j-card">
-        <span class="stopnum">Stop 12 &middot; Mile 115.1</span>
-        <h3>Chester, PA</h3>
+        <h3 class="stop-head">Stop 12: Chester, PA</h3>
         <p class="ph-note">[Add a note about passing through Chester, PA — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="12">
       <div class="j-card">
-        <span class="stopnum">Stop 13 &middot; Glassboro, NJ</span>
-        <h3>Rowan University</h3>
+        <h3 class="stop-head">Stop 13: Rowan University</h3>
         <p class="met">Met Charles Schutte.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -302,8 +289,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="13">
       <div class="j-card">
-        <span class="stopnum">Stop 14 &middot; Claymont, DE</span>
-        <h3>Radnor Green Park</h3>
+        <h3 class="stop-head">Stop 14: Radnor Green Park</h3>
         <p class="met">Met Andra J. Garner and Lauren Kipp.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -311,16 +297,14 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="14">
       <div class="j-card">
-        <span class="stopnum">Stop 15 &middot; Mile 140.3</span>
-        <h3>Wilmington Fire Station</h3>
+        <h3 class="stop-head">Stop 15: Wilmington Fire Station</h3>
         <p class="ph-note">[Add a note about passing through Wilmington Fire Station — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="15">
       <div class="j-card">
-        <span class="stopnum">Stop 16 &middot; Newark, DE</span>
-        <h3>University of Delaware</h3>
+        <h3 class="stop-head">Stop 16: University of Delaware</h3>
         <p class="met">Met Kelsey Malloy.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -328,48 +312,42 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="16">
       <div class="j-card">
-        <span class="stopnum">Stop 17 &middot; Mile 162.5</span>
-        <h3>North East, MD</h3>
+        <h3 class="stop-head">Stop 17: North East, MD</h3>
         <p class="ph-note">[Add a note about passing through North East, MD — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="17">
       <div class="j-card">
-        <span class="stopnum">Stop 18 &middot; Mile 174.6</span>
-        <h3>Aberdeen, MD</h3>
+        <h3 class="stop-head">Stop 18: Aberdeen, MD</h3>
         <p class="ph-note">[Add a note about passing through Aberdeen, MD — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="18">
       <div class="j-card">
-        <span class="stopnum">Stop 19 &middot; Mile 209.7</span>
-        <h3>White Marsh, MD</h3>
+        <h3 class="stop-head">Stop 19: White Marsh, MD</h3>
         <p class="ph-note">[Add a note about passing through White Marsh, MD — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="19">
       <div class="j-card">
-        <span class="stopnum">Stop 20 &middot; Mile 220.3</span>
-        <h3>Baltimore, MD</h3>
+        <h3 class="stop-head">Stop 20: Baltimore, MD</h3>
         <p class="ph-note">[Add a note about passing through Baltimore, MD — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="20">
       <div class="j-card">
-        <span class="stopnum">Stop 21 &middot; Mile 230.2</span>
-        <h3>Grist Mill Walking Bridge</h3>
+        <h3 class="stop-head">Stop 21: Grist Mill Walking Bridge</h3>
         <p class="ph-note">[Add a note about passing through Grist Mill Walking Bridge — what you saw, who you met, what stuck with you.]</p>
       </div>
     </div>
     <div class="j-travel"></div>
     <div class="j-step" data-i="21">
       <div class="j-card">
-        <span class="stopnum">Stop 22 &middot; College Park, MD</span>
-        <h3>University of Maryland</h3>
+        <h3 class="stop-head">Stop 22: University of Maryland</h3>
         <p class="met">Met Ross Salawitch and Rob Levy.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
       </div>
@@ -377,8 +355,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <div class="j-travel"></div>
     <div class="j-step" data-i="22">
       <div class="j-card">
-        <span class="stopnum">Stop 23 &middot; Washington, DC</span>
-        <h3>U.S. Capitol</h3>
+        <h3 class="stop-head">Stop 23: U.S. Capitol</h3>
         <p class="met">Press conference on the steps, with seven members of Congress.</p>
         <p class="ph-note">[The arrival. After 270 miles on foot, the press conference and the speeches. Write the ending here.]</p>
       </div>
