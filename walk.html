@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="270.4 miles on foot from New York City to Washington, D.C., for weather and climate science. By Syl Foisy.">
+<title>270 Miles on Foot · Syl Foisy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
+:root{
+  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
+  --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
+  --white:#fff;--text:#1a1830;--muted:#6b6882
+}
+
+/* NAV (matches homepage) */
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
+.nav-links{display:flex;gap:2.5rem}
+.nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
+.nav-links a:hover{color:var(--purple)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--deep);border-radius:2px;transition:.3s}
+.nav-hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-hamburger.active span:nth-child(2){opacity:0}
+.nav-hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-mobile-menu{display:none;flex-direction:column;background:var(--white);border-bottom:1px solid var(--pale);padding:.5rem 0;position:sticky;top:58px;z-index:99}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
+.nav-mobile-menu a:hover{background:var(--fog)}
+
+/* ARTICLE HERO */
+.article-hero{
+  /* Drop a wide road/landscape photo here named walk_hero.jpg. Until then, the navy shows through. */
+  background:linear-gradient(rgba(13,11,46,.45),rgba(13,11,46,.82)), url('walk_hero.jpg') center 40% / cover no-repeat, var(--navy);
+  color:var(--white);padding:6rem 2rem 4.5rem;text-align:center;position:relative
+}
+.article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
+.article-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,6vw,4.6rem);font-weight:700;line-height:1.05;letter-spacing:-.02em;max-width:13ch;margin:0 auto 1.25rem}
+.article-title em{font-style:italic;color:var(--lavender)}
+.article-dek{font-size:1.05rem;font-weight:300;line-height:1.7;color:rgba(255,255,255,.8);max-width:560px;margin:0 auto 1.75rem}
+.article-meta{font-size:.78rem;letter-spacing:.05em;color:rgba(255,255,255,.5)}
+.article-meta a{color:rgba(255,255,255,.7);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)}
+
+/* STAT STRIP (real numbers from the walk) */
+.stat-strip{background:var(--navy);border-top:1px solid rgba(168,159,216,.18);display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:1.6rem 1rem;text-align:center;border-right:1px solid rgba(168,159,216,.14)}
+.stat:last-child{border-right:none}
+.stat-num{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--white);line-height:1}
+.stat-label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lavender);margin-top:.55rem}
+
+/* ARTICLE BODY */
+.article-body{max-width:720px;margin:0 auto;padding:3.5rem 1.75rem 4rem}
+.back-link{display:inline-block;font-size:.78rem;color:var(--purple);text-decoration:none;margin-bottom:2rem;letter-spacing:.03em}
+.back-link:hover{text-decoration:underline}
+.article-body p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.5rem}
+.article-body p a{color:var(--mid);text-decoration:underline;text-decoration-color:var(--lavender)}
+.article-body p strong{font-weight:500;color:var(--text)}
+.lede::first-letter{font-family:'Playfair Display',serif;font-size:3.6rem;font-weight:700;float:left;line-height:.78;margin:.4rem .65rem 0 0;color:var(--deep)}
+.article-body h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,2.6vw,2.1rem);font-weight:700;color:var(--deep);line-height:1.2;letter-spacing:-.01em;margin:3rem 0 1rem}
+.section-eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);display:block;margin:3rem 0 .35rem}
+.section-eyebrow + h2{margin-top:0}
+
+/* PULL QUOTE (copy this block to add more) */
+.pullquote{font-family:'Playfair Display',serif;font-style:italic;font-size:1.5rem;line-height:1.4;color:var(--deep);border-left:3px solid var(--purple);padding:.25rem 0 .25rem 1.5rem;margin:2.5rem 0}
+
+/* FIGURE / PHOTO (swap .ph for a real <img> when you have one) */
+figure{margin:2.5rem 0}
+figure img{width:100%;display:block;border-radius:1rem;border:1px solid var(--pale)}
+figure figcaption{font-size:.78rem;color:var(--muted);font-style:italic;font-weight:300;line-height:1.55;padding-top:.65rem}
+.ph{border:1px dashed var(--lavender);border-radius:1rem;background:rgba(168,159,216,.08);min-height:240px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.85rem;padding:2rem}
+
+/* WORK IN PROGRESS note (delete this block + its markup when the piece is done) */
+.wip{background:rgba(46,125,212,.08);border:1px solid rgba(46,125,212,.25);border-radius:.85rem;padding:.85rem 1.1rem;font-size:.82rem;color:var(--mid);margin-bottom:2.5rem;line-height:1.55}
+
+footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+
+@media(max-width:900px){
+  nav{padding:0 1.5rem}.nav-links{display:none}.nav-hamburger{display:flex}
+  .article-hero{padding:4rem 1.5rem 3rem}
+  .stat-strip{grid-template-columns:1fr 1fr}
+  .stat:nth-child(2){border-right:none}
+  .stat{border-bottom:1px solid rgba(168,159,216,.14)}
+  footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-name">Syl Foisy</a>
+  <div class="nav-links">
+    <a href="/#about">About</a>
+    <a href="/#publications">Publications</a>
+    <a href="/#outreach">Outreach</a>
+    <a href="/#videos">Beyond</a>
+    <a href="/#contact">Contact</a>
+    <a href="Foisy_CV_long.pdf" target="_blank">CV</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <a href="/#about" onclick="toggleMenu()">About</a>
+  <a href="/#publications" onclick="toggleMenu()">Publications</a>
+  <a href="/#outreach" onclick="toggleMenu()">Outreach</a>
+  <a href="/#videos" onclick="toggleMenu()">Beyond</a>
+  <a href="/#contact" onclick="toggleMenu()">Contact</a>
+  <a href="Foisy_CV_long.pdf" target="_blank" onclick="toggleMenu()">CV</a>
+</div>
+
+<!-- HERO -->
+<header class="article-hero">
+  <p class="eyebrow">A walk for weather &amp; climate science</p>
+  <h1 class="article-title">270 Miles <em>on Foot</em></h1>
+  <p class="article-dek">From New York City to the steps of the U.S. Capitol, one stride at a time, to make the case that weather and climate science is worth funding.</p>
+  <p class="article-meta">By Syl Foisy &middot; 2025 &middot; <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank">as covered by UMD</a></p>
+</header>
+
+<!-- STAT STRIP -->
+<div class="stat-strip">
+  <div class="stat"><div class="stat-num">270.4</div><div class="stat-label">Miles walked</div></div>
+  <div class="stat"><div class="stat-num">20</div><div class="stat-label">Scientists met</div></div>
+  <div class="stat"><div class="stat-num">12</div><div class="stat-label">Institutions</div></div>
+  <div class="stat"><div class="stat-num">7</div><div class="stat-label">Members of Congress</div></div>
+</div>
+
+<!-- ARTICLE -->
+<article class="article-body">
+  <a href="/#outreach" class="back-link">&larr; Back to home</a>
+
+  <!-- Delete this note when the article is ready to publish -->
+  <div class="wip">This story is still being written. Check back soon for the full account.</div>
+
+  <p class="lede">Last spring, I walked from New York City to Washington, D.C. On foot, the whole way: 270.4 miles, to carry one simple message to the people who set its budget. Weather and climate science is worth funding.</p>
+
+  <p>Along the route I stopped to meet 20 climate and weather scientists at 12 institutions, sitting down with each of them to talk about the work they do and why it matters to anyone who checks a forecast, breathes the air, or lives near a coast. The walk ended on the steps of the U.S. Capitol, where I held a press conference and spoke with seven members of Congress.</p>
+
+  <p>This is the story of that walk, and the people I met along the way.</p>
+
+  <!-- ===================================================================
+       WRITE BELOW. Each section is a stub. Patterns you can reuse:
+         <span class="section-eyebrow">Label</span> before an <h2>
+         <blockquote class="pullquote">...</blockquote> for a pull quote
+         <figure> ... </figure> for a photo (swap the .ph div for an <img>)
+       Remove any stubs you do not need.
+  ==================================================================== -->
+
+  <span class="section-eyebrow">The idea</span>
+  <h2>Why I started walking</h2>
+  <p>[Tell the origin story here. What made you decide to do this, and why walking instead of any other form of advocacy?]</p>
+
+  <span class="section-eyebrow">The route</span>
+  <h2>From the Hudson to the Potomac</h2>
+  <p>[Set the scene of the journey itself: the days on the road, the terrain, the weather, what it felt like to cover the distance step by step. A route map could live here later.]</p>
+
+  <figure>
+    <div class="ph">Add a photo from the road here<br>(replace this box with an &lt;img&gt;)</div>
+    <figcaption>Caption goes here.</figcaption>
+  </figure>
+
+  <span class="section-eyebrow">The people</span>
+  <h2>The scientists I met</h2>
+  <p>[Introduce the 20 scientists across 12 institutions. You could highlight a few standout conversations, or walk through them institution by institution.]</p>
+
+  <blockquote class="pullquote">A line worth pulling out of the story goes here, something a scientist said or a moment that stuck with you.</blockquote>
+
+  <span class="section-eyebrow">The destination</span>
+  <h2>On the Capitol steps</h2>
+  <p>[The press conference, the seven members of Congress, the speech. What did you say, and what was it like to arrive after 270 miles?]</p>
+
+  <span class="section-eyebrow">After</span>
+  <h2>What comes next</h2>
+  <p>[Reflection and forward look: what the walk changed, what you hope it sparked, where the fight for science funding goes from here.]</p>
+
+</article>
+
+<footer>
+  <span class="fname">Syl Foisy</span>
+  <span class="fcredit">Last updated June 11, 2026</span>
+</footer>
+
+<script>
+function toggleMenu(){
+  var m=document.getElementById('mobileMenu');
+  var b=document.querySelector('.nav-hamburger');
+  m.classList.toggle('open');
+  b.classList.toggle('active');
+}
+</script>
+</body>
+</html>
