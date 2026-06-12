@@ -28,11 +28,41 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .nav-mobile-menu.open{display:flex}
 .nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
 
-.article-hero{background:#fff;color:#000;padding:4.5rem 2rem 2rem;text-align:center}
+/* Replace your old .article-hero with this: */
+.article-hero {
+  background: #fff;
+  color: #000;
+  padding: 4.5rem 1.75rem 2rem;
+  text-align: left;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
-.article-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,6vw,4.6rem);font-weight:700;line-height:1.05;letter-spacing:-.02em;max-width:13ch;margin:0 auto 1.25rem}
+
+/* Replace your old .article-title with this: */
+.article-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  max-width: 13ch;
+  margin: 0 0 1.25rem 0;
+}
+
 .article-title em{font-style:italic;color:var(--lavender)}
-.article-dek{font-size:1.05rem;font-weight:300;line-height:1.7;color:#000;max-width:560px;margin:0 auto 1.75rem}
+
+/* Replace your old .article-dek with this: */
+.article-dek {
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #000;
+  max-width: 500px;
+  margin: 0 0 1.75rem 0;
+}
+
 .article-meta{font-size:.78rem;letter-spacing:.05em;color:#000}
 .article-meta a{color:#000;text-decoration:underline;text-decoration-color:#e9e9e9}
 
@@ -114,7 +144,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 .j-card-video{width:100%;max-width:100%;border-radius:.75rem;margin-top:1rem;box-shadow:0 4px 12px rgba(0,0,0,.08);display:block;border:0}
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}.nav-hamburger{display:flex}
-  .article-hero{padding:4rem 1.5rem 3rem}
+  .article-hero{padding:4rem 1.25rem 3rem}
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner{display:block;padding:0 1.25rem}
   .j-map{position:fixed;top:62px;right:10px;width:150px;height:124px;z-index:60;padding:0}
