@@ -63,8 +63,23 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   margin: 0 0 1.75rem 0;
 }
 
-.article-meta{font-size:.78rem;letter-spacing:.05em;color:#000}
-.article-meta a{color:#000;text-decoration:underline;text-decoration-color:#e9e9e9}
+.article-meta {
+  font-size: .78rem;
+  letter-spacing: .05em;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.meta-headshot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
 
 .stat-strip{background:var(--navy);border-top:1px solid #e9e9e9;display:grid;grid-template-columns:repeat(4,1fr)}
 .stat{padding:1.6rem 1rem;text-align:center;border-right:1px solid #e9e9e9}
@@ -188,7 +203,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <p class="eyebrow">An interactive documentation of my adventures along the way :)</p>
   <h1 class="article-title"><strong>A Walk for Science</strong></h1>
   <p class="article-dek">From May 23 to June 3, I walked 250+ miles from NYC to DC, to make the case that US weather and climate science is worth funding.</p>
-  <p class="article-meta">By Syl Foisy &middot; June 12, 2026</p>
+  <p class="article-meta">
+  <span>By Syl Foisy &middot; June 12, 2026</span>
+  <img src="head_shot.jpg" alt="Syl Foisy" class="meta-headshot">
+</p>
 </header>
 
 <section class="journey">
