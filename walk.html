@@ -43,8 +43,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .stat-label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lavender);margin-top:.55rem}
 
 .journey{background:var(--fog)}
-.journey-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2.75rem;padding:0 1.75rem;align-items:start}
-.j-narrative{padding:3rem 0 4rem;max-width:560px}
+.journey-inner{max-width:900px;margin:0 auto;display:block;padding:0 1.75rem}
+.j-narrative{padding:0 0 5rem;max-width:100%}
 .j-lead .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--strava);display:block;margin-bottom:.5rem}
 .j-lead p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.25rem}
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
@@ -63,8 +63,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .back-link{display:inline-block;font-size:.78rem;color:var(--strava);text-decoration:none;margin-bottom:1.5rem;letter-spacing:.03em}
 .back-link:hover{text-decoration:underline}
 
-.j-map{position:sticky;top:74px;height:calc(100vh - 96px);display:flex;flex-direction:column;padding:1.5rem 0}
-.mapwrap{position:relative;flex:1;border:1px solid #cdddc0;border-radius:1.25rem;overflow:hidden;background:#a3c7e0}
+.j-map{position:fixed;top:70px;right:22px;width:360px;height:290px;z-index:60;padding:0}
+.mapwrap{position:relative;width:100%;height:100%;border:1px solid #cdddc0;border-radius:1rem;overflow:hidden;background:#a3c7e0;box-shadow:0 12px 32px -14px rgba(13,11,46,.5)}
 .mapwrap svg{width:100%;height:100%;display:block}
 .land{fill:#bcd9a6;stroke:#8caf78;stroke-width:1;stroke-linejoin:round}
 .state-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:#34402a;opacity:.62;letter-spacing:2px;text-anchor:middle;pointer-events:none}
@@ -85,46 +85,45 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #activeLabel{font-family:'DM Sans',sans-serif;font-weight:700;fill:#15181f;pointer-events:none;opacity:0;transition:opacity .35s}
 #walker{fill:#fff;stroke:var(--strava);stroke-width:2.5;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
 .map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none}
-.map-readout{background:rgba(255,255,255,.66);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
-.map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#14233a;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
-.map-readout .mi-unit{font-size:.78rem;color:#14233a}
-.map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#4f6a45;margin-top:.15rem}
-.map-readout .town{font-size:.74rem;font-weight:700;color:#14233a;margin-top:.28rem;letter-spacing:.01em;white-space:nowrap}
+.map-readout{background:rgba(255,255,255,.74);backdrop-filter:blur(2px);padding:.5rem .8rem .45rem;border-radius:.7rem;line-height:1}
+.map-readout .mi{font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:#14233a;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
+.map-readout .mi-unit{font-size:1.56rem;color:#14233a}
+.map-readout .lbl{font-size:1.2rem;letter-spacing:.12em;text-transform:uppercase;color:#4f6a45;margin-top:.15rem}
+.map-readout .town{font-size:1.48rem;font-weight:700;color:#14233a;margin-top:.3rem;letter-spacing:.01em;white-space:nowrap}
 #walkerFig{background-repeat:no-repeat;flex:none}
-#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:62px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:108px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
 
 footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
 footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
 
-/* Custom styling for journey card images */
-.j-card-img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.75rem;
-  margin-top: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Custom styling for journey card embedded videos */
-.j-card-video {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 0.75rem;
-  margin-top: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
+/* small fixed map: title sits to its left at the top of the article */
+.article-top{padding:2.25rem 0 .5rem;max-width:540px}
+.article-top-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4.2vw,3.1rem);font-weight:700;line-height:1.04;letter-spacing:-.02em;color:var(--deep)}
+.article-top-title em{font-style:italic;color:var(--purple)}
+.article-top-sub{font-size:.92rem;line-height:1.6;font-weight:300;color:var(--muted);margin-top:.55rem;max-width:34ch}
+.j-card-img{width:100%;max-width:100%;height:auto;border-radius:.75rem;margin-top:1rem;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.j-card-video{width:100%;max-width:100%;border-radius:.75rem;margin-top:1rem;box-shadow:0 4px 12px rgba(0,0,0,.08);display:block;border:0}
 @media(max-width:900px){
   nav{padding:0 1.5rem}.nav-links{display:none}.nav-hamburger{display:flex}
   .article-hero{padding:4rem 1.5rem 3rem}
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid rgba(168,159,216,.14)}
-  .journey-inner{grid-template-columns:1fr;gap:0;padding:0 1.25rem}
-  .j-map{position:sticky;top:58px;height:44vh;order:-1;padding:.75rem 0;z-index:50;background:var(--fog)}
-  .j-narrative{padding:1.5rem 0 3rem;max-width:100%}
+  .journey-inner{display:block;padding:0 1.25rem}
+  .j-map{position:fixed;top:62px;right:10px;width:150px;height:124px;z-index:60;padding:0}
+  .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
+  .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
+  .map-readout .mi{font-size:1.4rem;min-width:2.8em}
+  .map-readout .mi-unit{font-size:.72rem}
+  .map-readout .lbl{font-size:.52rem}
+  .map-readout .town{font-size:.62rem;margin-top:.12rem}
+  #walkerFig{display:none}
+  #mapLogo{height:44px;right:.4rem;bottom:.4rem}
+  .article-top{max-width:100%;padding:1.25rem 0 .25rem}
+  .article-top-title{font-size:1.55rem}
+  .article-top-sub{font-size:.82rem}
+  .j-narrative{padding:0 0 3rem;max-width:100%}
   .j-travel{height:48vh}
-  #mapLogo{height:42px}
+
   footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
 }
 </style>
@@ -158,6 +157,10 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 
 <section class="journey">
   <div class="journey-inner">
+    <div class="article-top">
+      <h1 class="article-top-title">270 Miles <em>on Foot</em></h1>
+      <p class="article-top-sub">New York City to the U.S. Capitol &middot; on foot for weather &amp; climate science.</p>
+    </div>
     <div class="j-narrative">
       <a href="/#outreach" class="back-link">&larr; Back to home</a>
       <div class="j-lead">
@@ -167,77 +170,44 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
       </div>
 
 <div class="j-travel"></div>
-    <!-- <div class="j-step" data-i="0">
-      <div class="j-card">
-        <span class="stopnum">Stop 01 &middot; New York, NY</span>
-        <h3>Central Park</h3>
-        <p class="met">The starting line.</p>
-        <p class="ph-note">[Setting out from Central Park: the send-off, the first steps, why you chose to begin here.]</p>
-      </div>
-    </div> -->
-      
     <div class="j-step" data-i="0">
       <div class="j-card">
         <span class="stopnum">Stop 01 &middot; New York, NY</span>
         <h3>Central Park</h3>
         <p class="met">The starting line.</p>
-        
-        <!-- 1. TEXT BEFORE THE PHOTO -->
-        <p class="ph-note" style="margin-bottom: 1rem;">
-          Write your opening thoughts here. For example: Setting out from Central Park was a deliberate choice—standing at the heart of the city before taking the first steps of a 270-mile journey. The energy during the send-off was incredible.
+        <p class="ph-note" style="margin-bottom:1rem;">
+          Write your opening thoughts here. For example: Setting out from Central Park was a deliberate choice, standing at the heart of the city before taking the first steps of a 270-mile journey. The energy during the send-off was incredible.
         </p>
-        
-        <!-- Your Photo -->
         <img src="walk_1.jpg" alt="Syl, Allegra, and Hikaru at Central Park" class="j-card-img">
-        
-        <!-- 2. TEXT BETWEEN PHOTO AND VIDEO (Optional) -->
-        <p class="ph-note" style="margin-top: 1rem;">
+        <p class="ph-note" style="margin-top:1rem;">
           You can add a quick caption or transition text here if you want to introduce the video recap below.
         </p>
-        
-        <!-- Your Pristine Vimeo Video Player -->
-        <iframe class="j-card-video" style="aspect-ratio: 16/9;" src="https://player.vimeo.com/video/1200815158?title=0&byline=0&portrait=0&badge=0&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        
-        <!-- 3. TEXT AFTER EVERYTHING -->
-        <p class="ph-note" style="margin-top: 1rem;">
+        <iframe class="j-card-video" style="aspect-ratio:16/9;" src="https://player.vimeo.com/video/1200815158?title=0&byline=0&portrait=0&badge=0&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <p class="ph-note" style="margin-top:1rem;">
           Write your concluding thoughts for this stop here. Talk about what stuck with you, the conversations you had right before hitting the pavement, or a teaser for heading toward Stop 02.
         </p>
       </div>
     </div>
-
     <div class="j-travel"></div>
-      
     <div class="j-step" data-i="1">
       <div class="j-card">
         <span class="stopnum">Stop 02 &middot; New York, NY</span>
         <h3>City Hall Park</h3>
         <p class="met">Met Allegra LeGrande and Hikaru Hayakawa.</p>
-        
-        <!-- Text Before Media -->
-        <p class="ph-note" style="margin-bottom: 1rem;">
+        <p class="ph-note" style="margin-bottom:1rem;">
           Add a few sentences about this stop: the conversation, what you saw, what stuck with you as you met up with Allegra and Hikaru.
         </p>
-        
-        <!-- Your Photo -->
         <img src="walk_2.jpg" alt="Interviewing Allegra LeGrande under an umbrella at City Hall Park" class="j-card-img">
-        
-        <!-- Text Between Media (Optional) -->
-        <p class="ph-note" style="margin-top: 1rem;">
+        <p class="ph-note" style="margin-top:1rem;">
           You can include a brief caption or extra context about filming in the rain here before the video layout.
         </p>
-        
-        <!-- Placeholder Vimeo Video Player -->
-        <iframe class="j-card-video" style="aspect-ratio: 16/9;" src="https://player.vimeo.com/video/1200815158?title=0&byline=0&portrait=0&badge=0&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        
-        <!-- Text After Media -->
-        <p class="ph-note" style="margin-top: 1rem;">
+        <iframe class="j-card-video" style="aspect-ratio:16/9;" src="https://player.vimeo.com/video/1200815158?title=0&byline=0&portrait=0&badge=0&autopause=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <p class="ph-note" style="margin-top:1rem;">
           Write any concluding thoughts for City Hall Park here before the narrative moves on to the next leg of the trek.
         </p>
       </div>
     </div>
-      
     <div class="j-travel"></div>
-      
     <div class="j-step" data-i="2">
       <div class="j-card">
         <span class="stopnum">Stop 03 &middot; Mile 30.8</span>
