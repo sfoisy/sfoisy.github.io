@@ -562,25 +562,24 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // 1. COMPRESSED OVERLAY FADE: Goes from 1 to 0 over the first 30% of scroll
+    // 1. COMPRESSED OVERLAY FADE: open_it fades smoothly in place over the first 30% of scroll
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
-    // 2. STAGGERED INTRO FACTOR: Map waits until introCur reaches 0.3, then ramps up from 0 to 1
+    // 2. STAGGERED INTRO INTENSITY FACTOR: Triggers map zoom & component fade-ins right at 30% scroll
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
     
-    // 3. Dynamic Fade In of Map Components tied to the zoom curve
+    // 3. Apply smooth fade opacity directly to map assets
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     document.querySelector('.route-bright').style.opacity = mapIntroFactor;
     document.querySelector('.map-hud').style.opacity = mapIntroFactor;
     
-    // Make sure map pins follow the transition base curves
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    // 4. Interpolate and apply the SVG Map ViewBox Zoom
+    // 4. Interpolate and apply the SVG Map ViewBox Zoom transition path
     var vb=[
       lerp(WIDE[0], NORM[0], mapIntroFactor),
       lerp(WIDE[1], NORM[1], mapIntroFactor),
@@ -589,10 +588,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     
-    // 5. State Text Labels: Fade in beautifully alongside the zooming geometry
+    // 5. Hardlock regional state label text arrays to zoom progress
     gStateLabels.style.opacity = mapIntroFactor;
     
-    // (Existing requestAnimationFrame link and tracking math continues safely below...)
+    // 6. Native pathway tracking math continues safely below...
     var walkFrac=interp(WCUM,cur)/wcumMax;
     bright.setAttribute('d', revealedD(cur));
     miNum.textContent=(walkFrac*TOTAL).toFixed(1);
