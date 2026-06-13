@@ -202,7 +202,10 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   align-items: center;
   gap: .55rem;
   pointer-events: none;
-  opacity: 0; /* Added to fade the counter/town readout in with the map */
+  opacity: 0;
+  
+  /* ADD THIS LINE */
+  z-index: 60; /* Ensures that when it fades in, it sits perfectly on top of the map background layer */
 }
 .map-readout{background:rgba(255,255,255,.8);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
 .map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#000;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
@@ -218,8 +221,19 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   pointer-events: none;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
 }
-#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:54px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
-
+#mapLogo {
+  position: absolute;
+  right: .7rem;
+  bottom: .7rem;
+  height: 54px;
+  width: auto;
+  opacity: .96;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.35));
+  
+  /* ADD THIS LINE */
+  z-index: 60; /* Higher than the opening overlay (55), keeping it on top from the start */
+}
 footer{background:#fff;border-top:1px solid #e9e9e9;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:#000;font-size:.9rem}
 footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
