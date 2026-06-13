@@ -109,17 +109,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  /* Lock base dimensions to the 125% opening size */
   width: 450px;
   height: 362px;
   z-index: 60;
   padding: 0;
-  
-  /* Set the origin point of the shrink to the top-right corner */
   transform-origin: top right;
-  
-  /* Remove ALL transitions so there is zero micro-lag when scrolling starts */
-  transition: none !important;
+  transition: none !important; /* Crucial: stops the browser from lagging the scale change */
 }
 
 .mapwrap {
@@ -583,15 +578,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // Calculate shrink scale instantly using raw, zero-lag targetIntro input
-    // 1.0 is full opening size (125%). 0.64 is exactly 80% of that size.
-    var shrinkProgress = clamp(targetIntro * 8, 0, 1);
-    var currentScale = lerp(1.0, 0.64, shrinkProgress);
+    // Calculate a pure, zero-delay factor starting from scroll pixel 0
+    // Change '150' to make it shrink faster (lower number) or slower (higher number)
+    var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
+    var currentScale = lerp(1.0, 0.64, instantScrollFactor);
     
-    // Apply the transformation directly to the GPU
+    // Apply the transformation directly to the GPU instantly
     document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
     
-    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth fade over the first 30%
+    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth, lazy fade over the section timeline
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
