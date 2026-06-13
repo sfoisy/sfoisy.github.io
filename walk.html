@@ -109,20 +109,18 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  /* Base dimensions representing the "scrolled" mini-state (80% of original 360x290) */
   --mini-w: 288px;
   --mini-h: 232px;
-  /* Starting dimensions representing the new opening state (125% of original 360x290) */
   --hero-w: 450px;
   --hero-h: 362px;
   
-  /* Interpolate width and height based on the --map-zoom variable (0 = Hero, 1 = Scrolled) */
   width: calc(var(--hero-w) - (var(--hero-w) - var(--mini-w)) * var(--map-zoom, 0));
   height: calc(var(--hero-h) - (var(--hero-h) - var(--mini-h)) * var(--map-zoom, 0));
   
   z-index: 60;
   padding: 0;
-  transition: top 0.1s linear;
+  /* Remove width/height transition delays so the scaling directly matches user scroll physics */
+  transition: top 0.1s linear; 
 }
 
 .mapwrap {
@@ -588,8 +586,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // ADD THIS LINE HERE: Maps the 0 -> 1 scroll timeline to our sizing width variables
-    document.querySelector('.j-map').style.setProperty('--map-zoom', clamp((introCur - 0.3) / 0.7, 0, 1));
+    // UPDATED LINE: The panel will now dynamically shrink over the first 30% of scroll progress
+    document.querySelector('.j-map').style.setProperty('--map-zoom', clamp(introCur * 3.3, 0, 1));
     
     // 1. COMPRESSED OVERLAY FADE: open_it fades smoothly in place over the first 30% of scroll
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
