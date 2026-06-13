@@ -578,32 +578,32 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // Calculate a pure, zero-delay factor starting from scroll pixel 0
-    // Change '150' to make it shrink faster (lower number) or slower (higher number)
+    // 1. Calculate immediate shrink factor from pixel 0
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     var currentScale = lerp(1.0, 0.64, instantScrollFactor);
     
-    // Apply the transformation directly to the GPU instantly
+    // Apply instant scale change to the map container
     document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
     
-    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth, lazy fade over the section timeline
+    // 2. NEW: Fade the mile counter box IN natively as the container shrinks
+    document.querySelector('.map-hud').style.opacity = instantScrollFactor;
+    
+    // 3. COMPRESSED OVERLAY FADE: open_it keeps its smooth fade over the section timeline
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
-    // 2. STAGGERED INTRO INTENSITY FACTOR: Triggers map zoom & component fade-ins right at 30% scroll
+    // 4. STAGGERED INTRO: Map zoom features fade in over the standard timeline
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
-    
-    // 3. Apply smooth fade opacity directly to map assets
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     document.querySelector('.route-bright').style.opacity = mapIntroFactor;
-    document.querySelector('.map-hud').style.opacity = mapIntroFactor;
+    // (Note: Removed .map-hud from here so it doesn't fight the instant fade above)
     
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    // 4. Interpolate and apply the SVG Map ViewBox Zoom transition path
+    // 5. Interpolate and apply the SVG Map ViewBox Zoom transition path
     var vb=[
       lerp(WIDE[0], NORM[0], mapIntroFactor),
       lerp(WIDE[1], NORM[1], mapIntroFactor),
@@ -612,10 +612,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     
-    // 5. Hardlock regional state label text arrays to zoom progress
     gStateLabels.style.opacity = mapIntroFactor;
     
-    // 6. Native pathway tracking math continues safely below...
     var walkFrac=interp(WCUM,cur)/wcumMax;
     bright.setAttribute('d', revealedD(cur));
     miNum.textContent=(walkFrac*TOTAL).toFixed(1);
