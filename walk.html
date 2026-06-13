@@ -578,25 +578,24 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // 1. Calculate immediate shrink factor from pixel 0
+    // 1. Calculate immediate factor from pixel 0 to 150
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     var currentScale = lerp(1.0, 0.64, instantScrollFactor);
     
     // Apply instant scale change to the map container
     document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
     
-    // 2. NEW: Fade the mile counter box IN natively as the container shrinks
+    // 2. Fade the mile counter box IN natively as the container shrinks
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     
-    // 3. COMPRESSED OVERLAY FADE: open_it keeps its smooth fade over the section timeline
-    var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
+    // 3. UPDATED: Fade the opening overlay image OUT natively as the container shrinks
+    var overlayOpacity = 1 - instantScrollFactor;
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
-    // 4. STAGGERED INTRO: Map zoom features fade in over the standard timeline
+    // 4. STAGGERED INTRO: Inner map elements zoom and materialize over the standard timeline
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     document.querySelector('.route-bright').style.opacity = mapIntroFactor;
-    // (Note: Removed .map-hud from here so it doesn't fight the instant fade above)
     
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
