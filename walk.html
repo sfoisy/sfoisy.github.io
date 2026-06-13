@@ -110,15 +110,20 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 
 .j-map{position:fixed;top:70px;right:22px;width:360px;height:290px;z-index:60;padding:0}
 /* Find .mapwrap and change the background from #a3c7e0 to transparent */
-.mapwrap{
-  position:relative;
-  width:100%;
-  height:100%;
-  border:1px solid #cdddc0;
-  border-radius:1rem;
-  overflow:hidden;
-  background: transparent; /* Changed to remove the blue water background */
-  box-shadow:0 12px 32px -14px rgba(13,11,46,.5)
+.mapwrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Optional: a faint white border looks great over satellite imagery */
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 12px 32px -14px rgba(13, 11, 46, 0.5);
+  
+  /* Add the satellite background image */
+  background-image: url('background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Find .land and change fill to transparent and stroke to none (or keep a faint outline if desired) */
