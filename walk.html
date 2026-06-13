@@ -109,18 +109,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  --mini-w: 288px;
-  --mini-h: 232px;
-  --hero-w: 450px;
-  --hero-h: 362px;
-  
-  width: calc(var(--hero-w) - (var(--hero-w) - var(--mini-w)) * var(--map-zoom, 0));
-  height: calc(var(--hero-h) - (var(--hero-h) - var(--mini-h)) * var(--map-zoom, 0));
-  
+  /* Lock base dimensions to the 125% opening size */
+  width: 450px;
+  height: 362px;
   z-index: 60;
   padding: 0;
-  /* Remove width/height transition delays so the scaling directly matches user scroll physics */
-  transition: top 0.1s linear; 
+  
+  /* Set the origin point of the shrink to the top-right corner */
+  transform-origin: top right;
+  
+  /* Remove ALL transitions so there is zero micro-lag when scrolling starts */
+  transition: none !important;
 }
 
 .mapwrap {
@@ -215,10 +214,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-map {
     top: 62px;
     right: 10px;
-    --mini-w: 120px;
-    --mini-h: 99px;
-    --hero-w: 180px;
-    --hero-h: 148px;
+    width: 180px;
+    height: 148px;
   }
 }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
@@ -586,10 +583,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // CHANGE THIS LINE: Uses targetIntro (instant mouse/trackpad input) instead of eased introCur
-    document.querySelector('.j-map').style.setProperty('--map-zoom', clamp(targetIntro * 8, 0, 1));
+    // Calculate shrink scale instantly using raw, zero-lag targetIntro input
+    // 1.0 is full opening size (125%). 0.64 is exactly 80% of that size.
+    var shrinkProgress = clamp(targetIntro * 8, 0, 1);
+    var currentScale = lerp(1.0, 0.64, shrinkProgress);
     
-    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth, organic fade over the first 30%
+    // Apply the transformation directly to the GPU
+    document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
+    
+    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth fade over the first 30%
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
