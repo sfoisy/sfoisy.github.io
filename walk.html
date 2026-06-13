@@ -590,7 +590,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var overlayOpacity = clamp(1 - (introCur * 2), 0, 1);
     
     // 2. ZOOM IN MATCH: Starts at 1.0, expands out to 1.20 as you scroll forward into the map
-    var overlayScale = lerp(1.0, 1.20, introCur);
+    var overlayScale = lerp(1.0, 1.40, introCur);
     
     // 3. Apply both properties to the overlay element smoothly
     var overlayEl = document.getElementById('openingOverlay');
