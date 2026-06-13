@@ -129,22 +129,46 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   stroke-linejoin:round
 }
 .state-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:#34402a;opacity:.62;letter-spacing:2px;text-anchor:middle;pointer-events:none}
-.route-faint{fill:none;stroke:rgba(252,82,0,.25);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
-.route-bright{fill:none;stroke:var(--strava);stroke-width:3.8;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(252,82,0,.7))}
+.route-faint {
+  fill: none;
+  stroke: rgba(255, 235, 59, 0.2); /* Faint track line changed to yellow with low opacity */
+  stroke-width: 6;                 /* Doubled from 3 */
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.route-bright {
+  fill: none;
+  stroke: #ffeb3b;                 /* Main tracking line changed to vibrant yellow */
+  stroke-width: 7.6;               /* Doubled from 3.8 */
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.8)); /* Updated glow color to match */
+}
 .ferry-line{fill:none;stroke:var(--ferry);stroke-width:2.8;stroke-dasharray:7 6;stroke-linecap:round;opacity:.4;transition:opacity .5s}
 .ferry-line.on{opacity:1}
 .ferry-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:var(--ferry);opacity:0;transition:opacity .5s;pointer-events:none}
 .ferry-label.on{opacity:.97}
 .tether{stroke:var(--strava);stroke-width:1.6;stroke-dasharray:6 5;opacity:0;transition:opacity .5s}
 .tether.on{opacity:.85}
-.pin-dot{fill:rgba(26,24,48,.32);transition:fill .3s}
-.pin .ring{fill:none;stroke:#fff;stroke-width:2;opacity:0;transition:opacity .3s}
-.pin.reached .pin-dot{fill:#1a1830}
-.pin.reached .ring{opacity:.95}
-.pin.active .pin-dot{fill:var(--strava)}
-.pin.active .ring{stroke:#fff;opacity:1}
+.pin-dot {
+  fill: rgba(26, 24, 48, 0.32);
+  transition: fill .3s, transform 0.3s;
+  transform-origin: center;
+}
+/* When a star is reached on scroll, turn it bright yellow */
+.pin.reached .pin-dot {
+  fill: #ffeb3b; 
+}
+/* When a star is actively selected, give it a yellow glow */
+.pin.active .pin-dot {
+  fill: #ffeb3b;
+  filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.9));
+}
 #activeLabel{font-family:'DM Sans',sans-serif;font-weight:700;fill:#15181f;pointer-events:none;opacity:0;transition:opacity .35s}
-#walker{fill:#fff;stroke:var(--strava);stroke-width:2.5;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+
+/* Tweaked the moving dot to stand out beautifully on top of the thicker yellow line */
+#walker{fill:#ffffff;stroke:#ffeb3b;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
 .map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none}
 .map-readout{background:rgba(255,255,255,.8);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
 .map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#000;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
