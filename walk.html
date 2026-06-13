@@ -113,7 +113,6 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   height: 362px;
   z-index: 60;
   padding: 0;
-  /* Transform origin pinned to the corner handles frame scaling */
   transform-origin: top right;
   transition: none !important; 
 }
@@ -124,19 +123,20 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
-  /* Crucial: changed to visible so the map extends outside the frame during zoom */
-  overflow: visible; 
+  /* Cuts off any part of the map spilling outside the upright rectangle */
+  overflow: hidden; 
   box-shadow: 0 12px 32px -14px rgba(13, 11, 46, 0.5);
-  background: transparent;
+  background: #1a1830; /* Fallback dark background color behind map asset */
 }
 
 #map {
   width: 100%;
   height: 100%;
-  /* Origin centered so rotation and internal zoom scale uniformly */
+  /* Center the pivot point so rotation and scaling happen uniformly from the middle */
   transform-origin: center center; 
   transition: none !important;
 }
+
 
 .land{
   fill: transparent; 
@@ -586,29 +586,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // Calculates a smooth 0 to 1 progression directly right off the bat (first 150px)
+    // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     
-    var startWidth = mq.matches ? 180 : 450;
-    var startHeight = mq.matches ? 148 : 362;
-    var endWidth = mq.matches ? 140 : 320;
-    var endHeight = mq.matches ? 300 : 600;
-    
-    var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
-    var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
-    var currentScale = lerp(1.0, 0.64, instantScrollFactor);
-    
-    // Combine zoom and rotate concurrently by computing transformations simultaneously
-    var currentRotation = lerp(0, -55, instantScrollFactor); 
-    
+    // 1. TRANSITION THE OUTER FRAME 
+    // This transitions the outer upright container size/scale smoothly
+    var currentFrameScale = lerp(1.0, 0.64, instantScrollFactor);
     var mapBox = document.querySelector('.j-map');
-    mapBox.style.width = computedWidth + 'px';
-    mapBox.style.height = computedHeight + 'px';
-    mapBox.style.transform = 'scale(' + currentScale + ')';
+    mapBox.style.transform = 'scale(' + currentFrameScale + ')';
     
-    // Applies rotation smoothly alongside container changes
-    document.getElementById('map').style.transform = 'rotate(' + currentRotation + 'deg)';
+    // 2. ANIMATE INTERNAL SATELLITE MAP (Behind the mask)
+    // To prevent empty corners showing while rotating from 0 to -55deg, 
+    // we scale the map up slightly (~1.4x) during the turn so it fills the mask window.
+    var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
+    var mapInternalScale = lerp(1.0, 1.45, instantScrollFactor); 
     
+    // Combining scale and rotate here keeps the aspect ratio perfectly locked
+    document.getElementById('map').style.transform = 
+      'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
+    
+    // --- Rest of your rendering logic stays exactly the same ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     
     var overlayOpacity = 1 - instantScrollFactor;
