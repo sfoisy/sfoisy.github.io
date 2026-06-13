@@ -122,7 +122,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   background: transparent;
 }
 
-/* The new visual fade layer positioned precisely over your map area */
+/* The visual fade layer positioned precisely over your map area */
 .map-opening-overlay {
   position: absolute;
   top: 0;
@@ -132,9 +132,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   background-image: url('opening.png');
   background-size: cover;
   background-position: center;
-  z-index: 55; /* Sits directly on top of the SVG, underneath the HUD metrics */
-  pointer-events: none; /* Prevents blocking clicks if necessary */
-  transition: opacity 0.2s ease-out; /* Keeps the manual window calculation silky smooth */
+  z-index: 55; 
+  pointer-events: none; 
+  transform-origin: center; /* Ensures it zooms straight out toward the center */
 }
 
 /* Find .land and change fill to transparent and stroke to none (or keep a faint outline if desired) */
@@ -580,14 +580,31 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var zEnd=travels[0].getBoundingClientRect().bottom+window.scrollY;
     targetIntro=clamp((anchor-lt)/Math.max(1,zEnd-lt),0,1);
   }
+
   function render(){
     cur += (target-cur)*0.18; if(Math.abs(target-cur)<0.05) cur=target;
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
-    document.getElementById('openingOverlay').style.opacity = clamp(1 - (introCur * 2), 0, 1);
+    
+    // 1. Calculate the smooth fade (goes from 1 down to 0)
+    var overlayOpacity = clamp(1 - (introCur * 2), 0, 1);
+    
+    // 2. Calculate the smooth zoom out (starts at 1.0, scales down to 0.85 as you scroll)
+    var overlayScale = lerp(1.0, 0.85, introCur);
+    
+    // 3. Apply both properties to the overlay element smoothly
+    var overlayEl = document.getElementById('openingOverlay');
+    overlayEl.style.opacity = overlayOpacity;
+    overlayEl.style.transform = 'scale(' + overlayScale + ')';
+    
+    // 4. Interpolate and apply the SVG Map ViewBox Zoom
     var vb=[lerp(WIDE[0],NORM[0],introCur),lerp(WIDE[1],NORM[1],introCur),lerp(WIDE[2],NORM[2],introCur),lerp(WIDE[3],NORM[3],introCur)];
     svg.setAttribute('viewBox',vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
+    
+    // 5. Smoothly handle state text labels visibility
     gStateLabels.style.opacity=clamp(1-(introCur-0.15)/0.6,0,1);
+    
+    // (Existing requestAnimationFrame link continues safely below)
     var walkFrac=interp(WCUM,cur)/wcumMax;
     bright.setAttribute('d', revealedD(cur));
     miNum.textContent=(walkFrac*TOTAL).toFixed(1);
