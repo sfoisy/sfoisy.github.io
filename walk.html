@@ -82,7 +82,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .stat{padding:1.6rem 1rem;text-align:center;border-right:1px solid #e9e9e9}
 .stat:last-child{border-right:none}
 .stat-num{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#000;line-height:1}
-.stat-label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lavender);margin-top:.55rem}
+.stat-strip .stat-label{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--lavender);margin-top:.55rem}
 
 .journey{background:var(--fog)}
 .journey-inner{max-width:900px;margin:0 auto;display:block;padding:0 1.75rem}
@@ -109,8 +109,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  width: 320px; /* Super thin, elongated structural width */
-  height: 600px; /* Elongated layout structural height */
+  width: 320px;
+  height: 600px;
   z-index: 60;
   padding: 0;
   transform-origin: center right;
@@ -123,9 +123,16 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
-  overflow: hidden;
+  overflow: hidden; /* Masking boundary container */
   box-shadow: 0 12px 32px -14px rgba(13, 11, 46, 0.5);
   background: transparent;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center; /* Target point for independent mapping spin cycles */
+  transition: none !important;
 }
 
 .land{
@@ -182,7 +189,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.95));
 }
 #walker{fill:#ffffff;stroke:#ffeb3b;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
-.map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 60;}
+.map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
 .map-readout{background:rgba(255,255,255,.8);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
 .map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#000;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
 .map-readout .mi-unit{font-size:.78rem;color:#000}
@@ -197,7 +204,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   pointer-events: none;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
 }
-#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:54px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));z-index: 60;}
+#mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:54px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));z-index: 65;}
 
 footer{background:#fff;border-top:1px solid #e9e9e9;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:#000;font-size:.9rem}
@@ -510,7 +517,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const R=DATA.route, CUM=DATA.cum, WCUM=DATA.wcum, S=DATA.stops, TOTAL=DATA.totalMiles; const TOWNSEGS=DATA.townSegs||[];
   const wcumMax=WCUM[WCUM.length-1];
   const NS='http://www.w3.org/2000/svg', svg=document.getElementById('map');
-  const WIDE=DATA.wideVB, NORM=[-100, 300, 1100, 550], STEPS=520; // Highly narrow view port crop configuration tightly constrained along route axis boundary lines
+  const WIDE=DATA.wideVB, NORM=[-100, 300, 1100, 550], STEPS=520; 
   const FS = DATA.ferry?DATA.ferry.fs:-1, FE = DATA.ferry?DATA.ferry.fe:-1;
 
   const faint=document.getElementById('routeFaint'), bright=document.getElementById('routeBright');
@@ -589,10 +596,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     var currentScale = lerp(1.0, 0.64, instantScrollFactor);
-    var currentRotation = lerp(0, -55, instantScrollFactor); // Calculate dynamic leftward angular pivot tracking window distance metric
+    var currentRotation = lerp(0, -55, instantScrollFactor); 
     
-    // Apply combined scaling factor and the targeted 55 degrees leftward rotation transform matrices natively onto wrapper node elements
-    document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ') rotate(' + currentRotation + 'deg)';
+    // Scale the boundary frame structure without introducing rotation parameters
+    document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
+    
+    // Rotate the inside map element independently beneath the perpendicular frame mask
+    document.getElementById('map').style.transform = 'rotate(' + currentRotation + 'deg)';
     
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     
