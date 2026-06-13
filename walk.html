@@ -109,9 +109,25 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .back-link:hover{text-decoration:underline}
 
 .j-map{position:fixed;top:70px;right:22px;width:360px;height:290px;z-index:60;padding:0}
-.mapwrap{position:relative;width:100%;height:100%;border:1px solid #cdddc0;border-radius:1rem;overflow:hidden;background:#a3c7e0;box-shadow:0 12px 32px -14px rgba(13,11,46,.5)}
-.mapwrap svg{width:100%;height:100%;display:block}
-.land{fill:#bcd9a6;stroke:#8caf78;stroke-width:1;stroke-linejoin:round}
+/* Find .mapwrap and change the background from #a3c7e0 to transparent */
+.mapwrap{
+  position:relative;
+  width:100%;
+  height:100%;
+  border:1px solid #cdddc0;
+  border-radius:1rem;
+  overflow:hidden;
+  background: transparent; /* Changed to remove the blue water background */
+  box-shadow:0 12px 32px -14px rgba(13,11,46,.5)
+}
+
+/* Find .land and change fill to transparent and stroke to none (or keep a faint outline if desired) */
+.land{
+  fill: transparent; /* Changed to remove green landmass color */
+  stroke: none;       /* Changed to remove the dark green borders around states */
+  stroke-width:1;
+  stroke-linejoin:round
+}
 .state-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:#34402a;opacity:.62;letter-spacing:2px;text-anchor:middle;pointer-events:none}
 .route-faint{fill:none;stroke:rgba(252,82,0,.25);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
 .route-bright{fill:none;stroke:var(--strava);stroke-width:3.8;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(252,82,0,.7))}
