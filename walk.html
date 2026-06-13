@@ -586,10 +586,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     
-    // UPDATED LINE: Multiplied by 20 so it snaps to 80% size over the first ~1-2% of scroll
-    document.querySelector('.j-map').style.setProperty('--map-zoom', clamp(introCur * 20, 0, 1));
+    // CHANGE THIS LINE: Uses targetIntro (instant mouse/trackpad input) instead of eased introCur
+    document.querySelector('.j-map').style.setProperty('--map-zoom', clamp(targetIntro * 8, 0, 1));
     
-    // 1. COMPRESSED OVERLAY FADE: open_it fades smoothly over the first 30% of scroll
+    // 1. COMPRESSED OVERLAY FADE: open_it keeps its smooth, organic fade over the first 30%
     var overlayOpacity = clamp(1 - (introCur * 3.3), 0, 1);
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     
