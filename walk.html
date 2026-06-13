@@ -112,9 +112,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   /* Base dimensions representing the "scrolled" mini-state (80% of original 360x290) */
   --mini-w: 288px;
   --mini-h: 232px;
-  /* Starting dimensions representing the "hero" state (150% of original 360x290) */
-  --hero-w: 540px;
-  --hero-h: 435px;
+  /* Starting dimensions representing the new opening state (125% of original 360x290) */
+  --hero-w: 450px;
+  --hero-h: 362px;
   
   /* Interpolate width and height based on the --map-zoom variable (0 = Hero, 1 = Scrolled) */
   width: calc(var(--hero-w) - (var(--hero-w) - var(--mini-w)) * var(--map-zoom, 0));
@@ -219,8 +219,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     right: 10px;
     --mini-w: 120px;
     --mini-h: 99px;
-    --hero-w: 220px;
-    --hero-h: 181px;
+    --hero-w: 180px;
+    --hero-h: 148px;
   }
 }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
