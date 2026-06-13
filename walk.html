@@ -109,11 +109,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  width: 320px;
-  height: 600px;
+  /* Dimensions will start wide (450x362) and animate dynamically to thin slot (320x600) via JS */
+  width: 450px;
+  height: 362px;
   z-index: 60;
   padding: 0;
-  transform-origin: center right;
+  transform-origin: top right;
   transition: none !important; 
 }
 
@@ -123,7 +124,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
-  overflow: hidden; /* Masking boundary container */
+  overflow: hidden; /* This masks the inner map graphic as the frame changes shapes */
   box-shadow: 0 12px 32px -14px rgba(13, 11, 46, 0.5);
   background: transparent;
 }
@@ -131,7 +132,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #map {
   width: 100%;
   height: 100%;
-  transform-origin: center center; /* Target point for independent mapping spin cycles */
+  transform-origin: center center; /* Dial spin root anchor */
   transition: none !important;
 }
 
@@ -221,12 +222,6 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .article-hero{padding:4rem 1.25rem 3rem}
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner{display:block;padding:0 1.25rem}
-  .j-map {
-    top: 62px;
-    right: 10px;
-    width: 140px;
-    height: 300px;
-  }
 }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
   .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
@@ -595,13 +590,25 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     active=targetActive;
     
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
+    
+    // Dynamic Frame Dimension Calculations
+    var startWidth = mq.matches ? 180 : 450;
+    var startHeight = mq.matches ? 148 : 362;
+    var endWidth = mq.matches ? 140 : 320;
+    var endHeight = mq.matches ? 300 : 600;
+    
+    var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
+    var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
     var currentScale = lerp(1.0, 0.64, instantScrollFactor);
     var currentRotation = lerp(0, -55, instantScrollFactor); 
     
-    // Scale the boundary frame structure without introducing rotation parameters
-    document.querySelector('.j-map').style.transform = 'scale(' + currentScale + ')';
+    // Apply dynamic dimension shifts directly onto parent node box styles
+    var mapBox = document.querySelector('.j-map');
+    mapBox.style.width = computedWidth + 'px';
+    mapBox.style.height = computedHeight + 'px';
+    mapBox.style.transform = 'scale(' + currentScale + ')';
     
-    // Rotate the inside map element independently beneath the perpendicular frame mask
+    // Independent inner coordinate spinning logic inside square frames
     document.getElementById('map').style.transform = 'rotate(' + currentRotation + 'deg)';
     
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
