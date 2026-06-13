@@ -130,11 +130,14 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   width: 100%;
   height: 100%;
   background-image: url('opening.png');
-  background-size: cover;
-  background-position: center;
+  background-position: center center; /* Forces the graphic to anchor perfectly to the absolute middle */
+  background-repeat: no-repeat;
+  
+  /* Use our dynamic script value, defaulting to cover if it fails */
+  background-size: var(--overlay-scale, cover); 
+  
   z-index: 55; 
   pointer-events: none; 
-  transform-origin: center; /* Ensures it zooms straight out toward the center */
 }
 
 /* Find .land and change fill to transparent and stroke to none (or keep a faint outline if desired) */
@@ -589,13 +592,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 1. Calculate the smooth fade (goes from 1 down to 0)
     var overlayOpacity = clamp(1 - (introCur * 2), 0, 1);
     
-    // 2. ZOOM IN MATCH: Starts at 1.0, expands out to 1.20 as you scroll forward into the map
-    var overlayScale = lerp(1.0, 1.40, introCur);
+    // 2. Calculate the zoom factor (starts at 100%, grows to 120%)
+    var overlayScale = lerp(100, 120, introCur);
     
-    // 3. Apply both properties to the overlay element smoothly
+    // 3. Apply opacity and pass the zoom percentage safely to CSS
     var overlayEl = document.getElementById('openingOverlay');
     overlayEl.style.opacity = overlayOpacity;
-    overlayEl.style.transform = 'scale(' + overlayScale + ')';
+    overlayEl.style.setProperty('--overlay-scale', overlayScale + '%');
     
     // 4. Interpolate and apply the SVG Map ViewBox Zoom
     var vb=[lerp(WIDE[0],NORM[0],introCur),lerp(WIDE[1],NORM[1],introCur),lerp(WIDE[2],NORM[2],introCur),lerp(WIDE[3],NORM[3],introCur)];
