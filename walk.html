@@ -589,8 +589,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 1. Calculate the smooth fade (goes from 1 down to 0)
     var overlayOpacity = clamp(1 - (introCur * 2), 0, 1);
     
-    // 2. Calculate the smooth zoom out (starts at 1.0, scales down to 0.85 as you scroll)
-    var overlayScale = lerp(1.0, 0.85, introCur);
+    // 2. ZOOM IN MATCH: Starts at 1.0, expands out to 1.20 as you scroll forward into the map
+    var overlayScale = lerp(1.0, 1.20, introCur);
     
     // 3. Apply both properties to the overlay element smoothly
     var overlayEl = document.getElementById('openingOverlay');
