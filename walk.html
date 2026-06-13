@@ -109,8 +109,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
-  width: 450px;
-  height: 362px;
+  /* Removed hardcoded width/height to let JS fluidly morph the aspect ratio */
   z-index: 60;
   padding: 0;
   transform-origin: top right;
@@ -123,16 +122,15 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
-  /* Cuts off any part of the map spilling outside the upright rectangle */
+  /* Perfect masking constraint */
   overflow: hidden; 
   box-shadow: 0 12px 32px -14px rgba(13, 11, 46, 0.5);
-  background: #1a1830; /* Fallback dark background color behind map asset */
+  background: #1a1830;
 }
 
 #map {
   width: 100%;
   height: 100%;
-  /* Center the pivot point so rotation and scaling happen uniformly from the middle */
   transform-origin: center center; 
   transition: none !important;
 }
@@ -589,23 +587,32 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     
-    // 1. TRANSITION THE OUTER FRAME 
-    // This transitions the outer upright container size/scale smoothly
-    var currentFrameScale = lerp(1.0, 0.64, instantScrollFactor);
+    // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
+    // Starting dimensions (Initial Landscape)
+    var startWidth = mq.matches ? 180 : 450;
+    var startHeight = mq.matches ? 148 : 362;
+    
+    // Target dimensions (Thin rectangle stretching down the right margin)
+    // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
+    var endWidth = mq.matches ? 120 : 260;
+    var endHeight = mq.matches ? 340 : window.innerHeight * 0.82; 
+    
+    var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
+    var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
+    
     var mapBox = document.querySelector('.j-map');
-    mapBox.style.transform = 'scale(' + currentFrameScale + ')';
+    mapBox.style.width = computedWidth + 'px';
+    mapBox.style.height = computedHeight + 'px';
     
-    // 2. ANIMATE INTERNAL SATELLITE MAP (Behind the mask)
-    // To prevent empty corners showing while rotating from 0 to -55deg, 
-    // we scale the map up slightly (~1.4x) during the turn so it fills the mask window.
+    // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
+    // Rotates the satellite track while slightly scaling up to keep map corners covered
     var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
-    var mapInternalScale = lerp(1.0, 1.45, instantScrollFactor); 
+    var mapInternalScale = lerp(1.0, 1.65, instantScrollFactor); 
     
-    // Combining scale and rotate here keeps the aspect ratio perfectly locked
     document.getElementById('map').style.transform = 
       'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
     
-    // --- Rest of your rendering logic stays exactly the same ---
+    // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     
     var overlayOpacity = 1 - instantScrollFactor;
