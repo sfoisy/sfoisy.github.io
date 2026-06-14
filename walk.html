@@ -687,12 +687,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    // Fixed: Width and height now morph fluidly with the initial scroll, ignoring the secondary element fade-in timeline
+    // FIXED: Every viewport parameter now relies strictly on instantScrollFactor.
+    // This locks focal tracking to the route area and kills late-stage X/Y jitter entirely.
     var vb=[
-      lerp(WIDE[0], NORM[0], mapIntroFactor) + (50 * instantScrollFactor), 
-      lerp(WIDE[1], NORM[1], mapIntroFactor) + (450 * instantScrollFactor),  
-      lerp(WIDE[2], NORM[2], instantScrollFactor), // Tied strictly to instantScrollFactor to prevent secondary zoom
-      lerp(WIDE[3], NORM[3], instantScrollFactor)  // Tied strictly to instantScrollFactor to prevent secondary zoom
+      lerp(WIDE[0], NORM[0], instantScrollFactor) + (50 * instantScrollFactor), 
+      lerp(WIDE[1], NORM[1], instantScrollFactor) + (450 * instantScrollFactor),  
+      lerp(WIDE[2], NORM[2], instantScrollFactor), 
+      lerp(WIDE[3], NORM[3], instantScrollFactor)  
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     gStateLabels.style.opacity = mapIntroFactor;
