@@ -205,12 +205,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.95));
 }
 #walker{fill:#ffffff;stroke:#ffeb3b;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
-.map-hud{position:absolute;top:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
-.map-readout{background:rgba(255,255,255,.8);backdrop-filter:blur(2px);padding:.35rem .65rem .3rem;border-radius:.6rem;line-height:1}
-.map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#000;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
-.map-readout .mi-unit{font-size:.78rem;color:#000}
-.map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#000;margin-top:.15rem}
-.map-readout .town{font-size:.74rem;font-weight:700;color:#000;margin-top:.28rem;letter-spacing:.01em;white-space:nowrap}
+.map-hud{position:absolute;bottom:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
+.map-readout{background:transparent;padding:.35rem .2rem .3rem;border-radius:.6rem;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.75)}
+.map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
+.map-readout .mi-unit{font-size:.78rem;color:#fff}
+.map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
+.map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#000;background:#7cb342;padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 #walkerFig {
   position: fixed;
   z-index: 101;
@@ -510,7 +510,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <div class="j-map">
     <div class="mapwrap">
       <div class="map-hud">
-        <div class="map-readout"><span class="mi" id="miNum">0.0</span><span class="mi-unit"> mi</span><div class="lbl">walked</div><div class="town" id="townName">Manhattan, NY</div></div>
+        <div class="map-readout"><span class="mi" id="miNum">0.0</span><span class="mi-unit"> mi</span><div class="lbl">walked</div></div>
       </div>
       <svg id="map" viewBox="-1749 -1457 3796 3064" preserveAspectRatio="xMidYMid meet">
         <image href="background.jpg" x="-1749" y="-1445" width="3796" height="3064" preserveAspectRatio="none" />
@@ -528,6 +528,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       </svg>
       <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     </div>
+    <div class="map-town" id="townName">Manhattan, NY</div>
   </div>
 </div>
 </section>
@@ -681,6 +682,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
+    document.querySelector('.map-town').style.opacity = instantScrollFactor;
     
     var overlayOpacity = 1 - instantScrollFactor;
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
