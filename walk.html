@@ -688,8 +688,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     }
     
     var vb=[
-      NORM[0] + (50 * instantScrollFactor), 
-      NORM[1] + (300 * instantScrollFactor),
+      lerp(WIDE[0], NORM[0], mapIntroFactor) + (50 * instantScrollFactor), 
+      lerp(WIDE[1], NORM[1], mapIntroFactor) + (350 * instantScrollFactor),  
       NORM[2], // Instantly locks camera width to NORM baseline to prevent the shrink-zoom
       NORM[3]  // Instantly locks camera height to NORM baseline to prevent the shrink-zoom
     ];
