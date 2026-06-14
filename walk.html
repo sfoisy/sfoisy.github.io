@@ -648,7 +648,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapInternalScale = lerp(1.0, 1.65, instantScrollFactor); 
     
     document.getElementById('map').style.transform = 
-      'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
+      'rotate(' + mapInternalRotation + 'deg)';
     
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
@@ -665,13 +665,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    var vb=[
-      lerp(WIDE[0], NORM[0], mapIntroFactor),
-      lerp(WIDE[1], NORM[1], mapIntroFactor),
-      lerp(WIDE[2], NORM[2], mapIntroFactor),
-      lerp(WIDE[3], NORM[3], mapIntroFactor)
-    ];
-    svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
+    // Calculate a physical zoom multiplier based on scroll depth
+    // 1.0 at start, shrinking down to 0.5 at full scroll (smaller viewBox = physically larger elements)
+    var physicalZoomFactor = lerp(1.0, 0.5, instantScrollFactor);
+
+    var baseW = lerp(WIDE[2], NORM[2], mapIntroFactor);
+    var baseH = lerp(WIDE[3], NORM[3], mapIntroFactor);
+    var zoomedW = baseW * physicalZoomFactor;
+    var zoomedH = baseH * physicalZoomFactor;
+
+    // Center the viewBox adjustment so it scales evenly from the middle
+    var baseX = lerp(WIDE[0], NORM[0], mapIntroFactor);
+    var baseY = lerp(WIDE[1], NORM[1], mapIntroFactor);
+    var zoomedX = baseX + (baseW - zoomedW) / 2;
+    var zoomedY = baseY + (baseH - zoomedH) / 2;
+
+    svg.setAttribute('viewBox', zoomedX.toFixed(1)+' '+zoomedY.toFixed(1)+' '+zoomedW.toFixed(1)+' '+zoomedH.toFixed(1));
     
     gStateLabels.style.opacity = mapIntroFactor;
     
