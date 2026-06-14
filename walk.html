@@ -545,7 +545,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const R=DATA.route, CUM=DATA.cum, WCUM=DATA.wcum, S=DATA.stops, TOTAL=DATA.totalMiles; const TOWNSEGS=DATA.townSegs||[];
   const wcumMax=WCUM[WCUM.length-1];
   const NS='http://www.w3.org/2000/svg', svg=document.getElementById('map');
-  const WIDE=DATA.wideVB, NORM=[-100, 300, 1760, 880], STEPS=520; // Expanded width/height by 60% to cool down the view box zoom
+  const WIDE=DATA.wideVB, NORM=[-100, 300, 2090, 1045], STEPS=520; // Expanded width/height by 90% to drop zoom depth dramatically
   const FS = DATA.ferry?DATA.ferry.fs:-1, FE = DATA.ferry?DATA.ferry.fe:-1;
 
   const faint=document.getElementById('routeFaint'), bright=document.getElementById('routeBright');
