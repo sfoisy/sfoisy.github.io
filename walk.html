@@ -664,7 +664,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     // Change the first argument from 0 to 8 to start with an 8-degree clockwise tilt
     var mapInternalRotation = lerp(1, -52, instantScrollFactor); 
-    var mapInternalScale = lerp(1.12, 2.3, instantScrollFactor); // Bumps maximum zoom level up to 400%
+    var mapInternalScale = lerp(1.12, 3.3, instantScrollFactor); // Bumps maximum zoom level up to 400%
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
     var shiftX = lerp(-23, 0, instantScrollFactor);
@@ -692,8 +692,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // - Shifted right by altering the X tracking calculation to keep the route centered
     // - Pushed down slightly via Y tracking to avoid clipping the northern leg
     var vb=[
-      lerp(WIDE[0], NORM[0] - 500, instantScrollFactor), 
-      lerp(WIDE[1], NORM[1] + 400, instantScrollFactor),  
+      lerp(WIDE[0], NORM[0] - 800, instantScrollFactor), 
+      lerp(WIDE[1], NORM[1] + 800, instantScrollFactor),  
       lerp(WIDE[2], NORM[2] * 0.8, instantScrollFactor), 
       lerp(WIDE[3], NORM[3] * 0.8, instantScrollFactor)  
     ];
