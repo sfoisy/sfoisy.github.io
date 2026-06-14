@@ -624,9 +624,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var instantScrollFactor = clamp(window.scrollY / 150, 0, 1);
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
-    // Starting dimensions (Initial Landscape)
-    var startWidth = mq.matches ? 165 : 414;
-    var startHeight = mq.matches ? 148 : 362;
+    // Starting dimensions (Initial Landscape) - Scaled to 110% of original baseline design
+    var startWidth = mq.matches ? 198 : 495;
+    var startHeight = mq.matches ? 163 : 398;
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
@@ -663,7 +663,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
-    var mapInternalScale = lerp(1.0, 3.2, instantScrollFactor); 
+    var mapInternalScale = lerp(1.1, 3.2, instantScrollFactor); // Bumped starting internal zoom up to 110%
     
     document.getElementById('map').style.transform = 
       'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
