@@ -98,7 +98,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 }
 .j-narrative{padding:0 0 5rem;max-width:100%}
 .j-lead .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#000;display:block;margin-bottom:.5rem}
-.j-lead p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.25rem}
+.j-lead p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.25rem;max-width:520px}
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
 
 .j-travel{height:64vh}
@@ -667,8 +667,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapInternalScale = lerp(1.1, 3.2, instantScrollFactor); // Zoom in map inside original frame to 115%
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
-    var shiftX = lerp(-19, 0, instantScrollFactor);
-    var shiftY = lerp(5, 0, instantScrollFactor);
+    var shiftX = lerp(-23, 0, instantScrollFactor);
+    var shiftY = lerp(9, 0, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
