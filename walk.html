@@ -197,7 +197,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #activeLabel {
   font-family: 'Playfair Display', serif;
   font-weight: 700;
-  font-style: italic; 
+  font-style: normal;
   fill: #ffffff;
   pointer-events: none;
   opacity: 0;
@@ -592,11 +592,18 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const af=function(){return mq.matches?0.66:0.5;};
   const clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
 
-  function buildLabel(lab){
-    label.setAttribute('x',lab.lx); label.setAttribute('y',lab.ly);
-    label.setAttribute('text-anchor',lab.anc); label.setAttribute('font-size',lab.fs);
+  function buildLabel(lab, sx, sy){
+    var RAD=52*Math.PI/180;
+    var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
+    var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
+    var FS=32, LH=38, off=40;                  // text size, line height, gap right of the dot
+    var n=lab.lines.length, up=(n-1)*LH/2;
+    var ax=sx+rx*off+ux*up, ay=sy+ry*off+uy*up;
+    label.setAttribute('x',ax); label.setAttribute('y',ay);
+    label.setAttribute('text-anchor','start'); label.setAttribute('font-size',FS);
+    label.setAttribute('transform','rotate(52 '+ax+' '+ay+')');
     label.textContent='';
-    lab.lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',lab.lx);ts.setAttribute('dy',i===0?0:lab.lh);ts.textContent=ln;label.appendChild(ts);});
+    lab.lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
   var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9; var lastTown='';
@@ -667,7 +674,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapInternalScale = lerp(1.12, 3.3, instantScrollFactor); // Bumps maximum zoom level up to 400%
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
-    var shiftX = lerp(-23, 0, instantScrollFactor);
+    var shiftX = lerp(-23, -70, instantScrollFactor);
     var shiftY = lerp(9, 0, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
@@ -713,7 +720,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
     cards.forEach(function(c,i){c.classList.toggle('active',i===active);});
-    if(active>=0){ if(active!==shownLabel){ buildLabel(S[active].lab); shownLabel=active; } label.style.opacity=1; }
+    if(active>=0){ if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; } label.style.opacity=1; }
     else { label.style.opacity=0; shownLabel=-9; }
     requestAnimationFrame(render);
   }
