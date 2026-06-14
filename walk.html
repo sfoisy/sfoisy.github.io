@@ -662,7 +662,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
-    var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
+    // Change the first argument from 0 to 8 to start with an 8-degree clockwise tilt
+    var mapInternalRotation = lerp(8, -55, instantScrollFactor); 
     var mapInternalScale = lerp(1.1, 4.4, instantScrollFactor); // Bumps maximum zoom level up to 400%
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
@@ -671,7 +672,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
-    
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     
