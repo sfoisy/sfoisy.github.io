@@ -667,7 +667,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
     var shiftX = lerp(-19, 0, instantScrollFactor);
-    var shiftY = lerp(-37, 0, instantScrollFactor);
+    var shiftY = lerp(5, 0, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
