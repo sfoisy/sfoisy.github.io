@@ -640,23 +640,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
     // Glide the animation figure from the title line to the bottom corner
-    var titleEl = document.querySelector('.article-title');
-    if (titleEl) {
-      var titleRect = titleEl.getBoundingClientRect();
+    var stop1Header = document.querySelector('.j-step[data-i="0"]');
+    if (stop1Header) {
+      var stop1Rect = stop1Header.getBoundingClientRect();
       
-      // Starting positions (Aligned with the header title)
-      var startX = titleRect.left;
-      var startY = titleRect.top + (titleRect.height / 2) - (DISP / 2); // Perfectly centered on the title line text
+      // Keep X constant to where he will rest in the bottom left corner
+      var constantX = mq.matches ? 15 : 20;
       
-      // Target destination positions (Bottom left corner)
-      var endX = mq.matches ? 15 : 20;
+      // Calculate a custom factor that reaches 1.0 exactly when Stop 1 hits the top of the screen
+      var totalScrollDistanceToStop1 = window.scrollY + stop1Rect.top;
+      var stop1Progress = totalScrollDistanceToStop1 > 0 ? clamp(window.scrollY / totalScrollDistanceToStop1, 0, 1) : 1;
+      
+      // Start Y at the title height context, glide down to the bottom corner
+      var titleEl = document.querySelector('.article-title');
+      var titleTop = titleEl ? titleEl.getBoundingClientRect().top + window.scrollY : 150;
+      var startY = titleTop - window.scrollY; 
       var endY = window.innerHeight - DISP - (mq.matches ? 15 : 20);
       
-      // Interpolate based on the map scroll rotation
-      var currentX = lerp(startX, endX, instantScrollFactor);
-      var currentY = lerp(startY, endY, instantScrollFactor);
+      var currentY = lerp(startY, endY, stop1Progress);
       
-      wk.style.left = currentX + 'px';
+      wk.style.left = constantX + 'px';
       wk.style.top = currentY + 'px';
     }
     
