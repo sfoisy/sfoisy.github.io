@@ -692,7 +692,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // - Shifted right by altering the X tracking calculation to keep the route centered
     // - Pushed down slightly via Y tracking to avoid clipping the northern leg
     var vb=[
-      lerp(WIDE[0], NORM[0] - 700, instantScrollFactor), 
+      lerp(WIDE[0], NORM[0] + 300, instantScrollFactor), 
       lerp(WIDE[1], NORM[1] - 80, instantScrollFactor),  
       lerp(WIDE[2], NORM[2] * 0.8, instantScrollFactor), 
       lerp(WIDE[3], NORM[3] * 0.8, instantScrollFactor)  
