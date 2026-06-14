@@ -666,10 +666,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
-    var mapInternalScale = lerp(1.13, 3.2, instantScrollFactor); // Zoom in map inside original frame to 115%
+    var mapInternalScale = lerp(1.1, 3.2, instantScrollFactor); // Zoom in map inside original frame to 115%
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
-    var shiftX = lerp(3, 0, instantScrollFactor);
+    var shiftX = lerp(-7, 0, instantScrollFactor);
     var shiftY = lerp(-3, 0, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
