@@ -650,7 +650,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var stop1Progress = totalScrollDistanceToStop1 > 0 ? clamp(window.scrollY / totalScrollDistanceToStop1, 0, 1) : 1;
       
       // Static onscreen view coordinates (No viewport subtraction)
-      var startY = mq.matches ? 180 : 260; // Starting height context near your header title text line
+      // Static onscreen view coordinates (No viewport subtraction)
+      var startY = mq.matches ? 105 : 125; // Adjusted starting height to align with the eyebrow tagline
       var endY = window.innerHeight - DISP - (mq.matches ? 15 : 20); // Destination corner
       
       // Direct translation downward with absolutely no backwards bounce
