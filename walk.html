@@ -687,12 +687,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    // Replaced WIDE with NORM to kill the secondary out-to-in camera scaling
     var vb=[
-      NORM[0] + (50 * instantScrollFactor), 
-      NORM[1] + (450 * instantScrollFactor),  
-      NORM[2],
-      NORM[3]
+      lerp(WIDE[0], NORM[0], mapIntroFactor) + (50 * instantScrollFactor), 
+      lerp(WIDE[1], NORM[1], mapIntroFactor) + (450 * instantScrollFactor),  
+      lerp(WIDE[2], NORM[2], mapIntroFactor),
+      lerp(WIDE[3], NORM[3], mapIntroFactor)
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     
