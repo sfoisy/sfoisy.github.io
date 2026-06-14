@@ -687,11 +687,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
+    // Replaced WIDE with NORM to kill the secondary out-to-in camera scaling
     var vb=[
-      lerp(WIDE[0], NORM[0], mapIntroFactor) + (50 * instantScrollFactor), // Doubled horizontal shift to move map further left
-      lerp(WIDE[1], NORM[1], mapIntroFactor) + (450 * instantScrollFactor),  // Actively moves the map 50px up during the scroll transition
-      lerp(WIDE[2], NORM[2], mapIntroFactor),
-      lerp(WIDE[3], NORM[3], mapIntroFactor)
+      NORM[0] + (50 * instantScrollFactor), 
+      NORM[1] + (450 * instantScrollFactor),  
+      NORM[2],
+      NORM[3]
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     
