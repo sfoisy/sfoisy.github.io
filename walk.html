@@ -213,8 +213,6 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .town{font-size:.74rem;font-weight:700;color:#000;margin-top:.28rem;letter-spacing:.01em;white-space:nowrap}
 #walkerFig {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
   z-index: 101;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -641,6 +639,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
+    // Glide the animation figure from the title line to the bottom corner
+    var titleEl = document.querySelector('.article-title');
+    if (titleEl) {
+      var titleRect = titleEl.getBoundingClientRect();
+      
+      // Starting positions (Aligned with the header title)
+      var startX = titleRect.left;
+      var startY = titleRect.top + (titleRect.height / 2) - (DISP / 2); // Perfectly centered on the title line text
+      
+      // Target destination positions (Bottom left corner)
+      var endX = mq.matches ? 15 : 20;
+      var endY = window.innerHeight - DISP - (mq.matches ? 15 : 20);
+      
+      // Interpolate based on the map scroll rotation
+      var currentX = lerp(startX, endX, instantScrollFactor);
+      var currentY = lerp(startY, endY, instantScrollFactor);
+      
+      wk.style.left = currentX + 'px';
+      wk.style.top = currentY + 'px';
+    }
     
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
