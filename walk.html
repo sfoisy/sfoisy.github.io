@@ -104,7 +104,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 
 .j-travel{height:64vh}
 .j-step{margin-bottom:2.5rem}
-.j-card{background:transparent;border:none;border-radius:0;padding:0}
+.j-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 2rem 0 0; /* Adds 2rem of right-side breathing room for text blocks */
+}
 .j-card.active{box-shadow:none}
 .stop-head{font-family:'DM Sans',sans-serif;font-size:1.9rem;font-weight:700;color:#000;line-height:1.12;letter-spacing:-.01em;margin-bottom:.35rem}
 .j-card .met{margin-top:.1rem}
@@ -218,10 +223,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 }
 #mapLogo{position:absolute;right:.7rem;bottom:.7rem;height:54px;width:auto;opacity:.96;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));z-index: 65;}
 
-footer{background:#fff;border-top:1px solid #e9e9e9;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer {
+  background: #fff;
+  border-top: 1px solid #e9e9e9;
+  padding: 2rem 0; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 footer .fname{font-family:'Playfair Display',serif;color:#000;font-size:.9rem}
 footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
-
+  
 .article-top{padding:2.25rem 0 .5rem;max-width:540px}
 .article-top-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4.2vw,3.1rem);font-weight:700;line-height:1.04;letter-spacing:-.02em;color:var(--deep)}
 .article-top-title em{font-style:italic;color:var(--purple)}
@@ -255,7 +267,14 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .article-top-sub{font-size:.82rem}
   .j-narrative{padding:0 0 3rem;max-width:100%}
   .j-travel{height:48vh}
-  footer{padding:1.5rem 2rem;flex-direction:column;gap:.5rem;text-align:center}
+  footer {
+    background: #fff;
+    border-top: 1px solid #e9e9e9;
+    padding: 2rem 1.25rem; 
+    flex-direction: column;
+    gap: .5rem;
+    text-align: center;
+  }
 }
 </style>
 </head>
