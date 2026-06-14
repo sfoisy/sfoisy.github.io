@@ -639,7 +639,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
-    // Smooth, continuous downward vertical glide locked to the scrollbar timeline
+    // True continuous downward vertical glide from the very first pixel of scroll
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
       var stop1Rect = stop1Header.getBoundingClientRect();
@@ -649,13 +649,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var totalScrollDistanceToStop1 = window.scrollY + stop1Rect.top;
       var stop1Progress = totalScrollDistanceToStop1 > 0 ? clamp(window.scrollY / totalScrollDistanceToStop1, 0, 1) : 1;
       
-      // Calculate static global Y positions so he can only track downwards
-      var startY = mq.matches ? 180 : 220; // Static top fallback near the header title height line
-      var endY = window.innerHeight - DISP - (mq.matches ? 15 : 20);
+      // Static onscreen view coordinates (No viewport subtraction)
+      var startY = mq.matches ? 180 : 260; // Starting height context near your header title text line
+      var endY = window.innerHeight - DISP - (mq.matches ? 15 : 20); // Destination corner
       
-      // Subtract window.scrollY from the initial static position so he rolls down naturally
-      var adjustedStartY = startY - window.scrollY;
-      var currentY = lerp(adjustedStartY, endY, stop1Progress);
+      // Direct translation downward with absolutely no backwards bounce
+      var currentY = lerp(startY, endY, stop1Progress);
       
       wk.style.left = constantX + 'px';
       wk.style.top = currentY + 'px';
