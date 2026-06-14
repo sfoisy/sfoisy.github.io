@@ -693,9 +693,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // - Pushed down slightly via Y tracking to avoid clipping the northern leg
     var vb=[
       lerp(WIDE[0], NORM[0] - 500, instantScrollFactor), 
-      lerp(WIDE[1], NORM[1] + 150, instantScrollFactor),  
-      lerp(WIDE[2], NORM[2] * 0.5, instantScrollFactor), 
-      lerp(WIDE[3], NORM[3] * 0.5, instantScrollFactor)  
+      lerp(WIDE[1], NORM[1] + 400, instantScrollFactor),  
+      lerp(WIDE[2], NORM[2] * 0.8, instantScrollFactor), 
+      lerp(WIDE[3], NORM[3] * 0.8, instantScrollFactor)  
     ];
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     gStateLabels.style.opacity = mapIntroFactor;
