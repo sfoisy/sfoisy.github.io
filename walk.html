@@ -144,11 +144,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 }
 
 #map {
-  width: 320%; /* Expanded to allow rotation without exposing canvas corners */
-  height: 320%;
-  position: absolute;
-  top: -110%; /* Center the over-indexed canvas inside the window */
-  left: -110%;
+  width: 100%;
+  height: 100%;
   transform-origin: center center; 
   transition: none !important;
 }
@@ -646,12 +643,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     mapBox.style.height = computedHeight + 'px';
     
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
-    // Rotates the satellite track while slightly scaling up to keep map corners covered
+    // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
-    var mapInternalScale = lerp(1.0, 1.65, instantScrollFactor); 
+    var mapInternalScale = lerp(1.0, 3.2, instantScrollFactor); 
     
     document.getElementById('map').style.transform = 
-      'rotate(' + mapInternalRotation + 'deg)';
+      'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
     
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
@@ -668,13 +665,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       pins[pIdx].style.opacity = mapIntroFactor;
     }
     
-    // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
-    var mapInternalRotation = lerp(0, -55, instantScrollFactor); 
-    var mapInternalScale = lerp(1.0, 1.45, instantScrollFactor); 
-
-    document.getElementById('map').style.transform = 
-      'scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
-
     var vb=[
       lerp(WIDE[0], NORM[0], mapIntroFactor),
       lerp(WIDE[1], NORM[1], mapIntroFactor),
