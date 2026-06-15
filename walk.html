@@ -820,7 +820,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(active>=0 && S[active] && S[active].townOverride){ tn=S[active].townOverride; }
     else { for(var ti=0;ti<TOWNSEGS.length;ti++){ if(miNow>=TOWNSEGS[ti][0] && miNow<=TOWNSEGS[ti][1]){ tn=TOWNSEGS[ti][2]; break; } } if(!tn && TOWNSEGS.length) tn=(miNow<=0?TOWNSEGS[0][2]:TOWNSEGS[TOWNSEGS.length-1][2]); }
     if(townEl && tn!==lastTown){ townEl.textContent=tn; lastTown=tn; }
-    var stepMul = (segIdx === 0 && chartSvg && rawP > 0 && rawP < 1) ? 2 : 1;   // 2x leg speed on the red line
+    var stepMul = (segIdx === 0 && chartSvg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(cur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
     if(FERRY){ ferryLine.classList.toggle('on',cur>=FS-0.5); ferryLabel.classList.toggle('on',cur>=FS-0.5 && cur<FE); }
