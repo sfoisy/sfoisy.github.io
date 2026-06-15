@@ -102,7 +102,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
 
 .j-travel{height:64vh}
-#travelChart{height:auto;padding:20vh 0}
+#travelChart{height:auto;padding:20vh 0 50vh 0}
 #tempChart{max-width:100%;margin:0 auto}
 .j-step{margin-bottom:2.5rem}
 .j-card {
@@ -621,7 +621,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       xticks + yticks +
       '<text x="'+(AX+88)+'" y="'+midY+'" font-size="40" text-anchor="middle" fill="#000">\u00B0F</text>'+
       '<text x="'+((mL+AX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
-      '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>'+
+      '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       '</svg>';
     chartSvg=document.getElementById('tempChartSvg');
   }
@@ -741,26 +741,27 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var currentX = lerp(fromX, toX, segFrac);
       var flip = goingRight ? 'none' : 'scaleX(-1)';
 
-      // POC: first leg — stand still until the red line reaches his feet, then walk it.
+      // POC: first leg — wait until the line hits his feet, then walk it until the LAST point reaches the top.
       if (segIdx === 0 && chartSvg) {
         flip = 'none';
-        var SPAN = chartSvg.getBoundingClientRect().height * 0.7;   // pace: px the line rises per full walk
         var line0y = linePointScreen(0).y;
-        var rawP = (bottomY + DISP - line0y) / SPAN;                // 0 exactly when mile-0 hits his feet
+        var dyEnd = linePointScreen(1).y - line0y;                 // last point's offset from the start (constant)
+        var traceRise = (bottomY + DISP - topY) + dyEnd;           // rise needed so the last point ends at the top
+        var rise = bottomY + DISP - line0y;                        // how far mile-0 has risen above his feet
+        var rawP = rise / traceRise;                               // 0 at his feet, 1 when the last point hits the top
+        var SPIN_PX = 150, DOWN_PX = 150;                          // exit pacing (px of further scroll)
         if (rawP <= 0) {
-          // Stand still at the bottom-left (still descending if not down yet).
-          // The chart scrolls up so the red line rises right to his feet — no glide.
-          currentX = leftX;
-        } else if (rawP < 1) {                                      // walk the line
+          currentX = leftX;                                        // wait / descend at the bottom-left
+        } else if (rawP < 1) {                                     // walk the line
           var pt = linePointScreen(rawP);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
-        } else if (rawP < 1.5) {                                    // spin 360 up to the TOP-right
-          var sE = linePointScreen(1), t1 = (rawP - 1) / 0.5;
+        } else if (rise < traceRise + SPIN_PX) {                   // last point now at top — spin 360 to the TOP-right
+          var sE = linePointScreen(1), t1 = (rise - traceRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, rightX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
           flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
-        } else {                                                    // glide straight down to BOTTOM-right
-          var t2 = clamp((rawP - 1.5) / 0.5, 0, 1);
+        } else {                                                   // glide straight down to BOTTOM-right
+          var t2 = clamp((rise - traceRise - SPIN_PX) / DOWN_PX, 0, 1);
           currentX = rightX;
           currentY = lerp(topY, bottomY, t2);
         }
