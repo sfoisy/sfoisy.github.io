@@ -102,6 +102,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
 
 .j-travel{height:64vh}
+#travelChart{height:auto;padding:20vh 0}
+#tempChart{max-width:100%;margin:0 auto}
 .j-step{margin-bottom:2.5rem}
 .j-card {
   background: transparent;
@@ -327,7 +329,9 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         </p>
       </div>
     </div>
-    <div class="j-travel"></div>
+    <div class="j-travel" id="travelChart">
+      <div id="tempChart"></div>
+    </div>
     <div class="j-step" data-i="1">
       <div class="j-card">
         <h3 class="stop-head">Stop 2: City Hall Park</h3>
@@ -586,6 +590,40 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   wk.style.backgroundSize=(dw*WK.frames)+'px '+DISP+'px';
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
 
+  // ===== POC: temperature chart + line-walking for the first leg =====
+  var TEMP = { maxMile: 7.7, minT: 65, maxT: 77, pts: [
+    [0,69.4],[0.5,70.1],[1,70.9],[1.5,71.6],[2,72.0],[2.5,72.1],[3,71.9],
+    [3.5,71.7],[4,71.5],[4.5,71.2],[5,70.8],[5.5,70.2],[6,69.5],[6.5,68.7],
+    [7,68.4],[7.5,68.6],[7.7,68.9] ] };
+  var VBW=1000, VBH=600, mL=110, mR=40, mT=50, mB=80;
+  function tX(mile){ return mL + (mile/TEMP.maxMile)*(VBW-mL-mR); }
+  function tY(t){ return mT + (1-(t-TEMP.minT)/(TEMP.maxT-TEMP.minT))*(VBH-mT-mB); }
+  function tempAt(mile){ var p=TEMP.pts; if(mile<=p[0][0])return p[0][1];
+    for(var i=1;i<p.length;i++){ if(mile<=p[i][0]) return lerp(p[i-1][1],p[i][1],(mile-p[i-1][0])/(p[i][0]-p[i-1][0])); }
+    return p[p.length-1][1]; }
+  var chartSvg=null, chartHost=document.getElementById('tempChart');
+  if(chartHost){
+    var poly=TEMP.pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
+    var ticks=[[0,'0'],[1,'1'],[2,'2'],[7.7,'7.7']].map(function(t){
+      return '<text x="'+tX(t[0]).toFixed(1)+'" y="'+(VBH-mB+44)+'" font-size="30" text-anchor="middle" fill="#000">'+t[1]+'</text>'; }).join('');
+    var midY=((mT+VBH-mB)/2).toFixed(1);
+    chartHost.innerHTML =
+      '<svg id="tempChartSvg" viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:600">'+
+      '<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(VBH-mB)+'" stroke="#000" stroke-width="5"/>'+
+      '<line x1="'+mL+'" y1="'+(VBH-mB)+'" x2="'+(VBW-mR)+'" y2="'+(VBH-mB)+'" stroke="#000" stroke-width="5"/>'+
+      '<text x="'+(mL-28)+'" y="'+(tY(77)+11)+'" font-size="32" text-anchor="end" fill="#000">77</text>'+
+      '<text x="'+(mL-28)+'" y="'+(tY(65)+11)+'" font-size="32" text-anchor="end" fill="#000">65</text>'+
+      '<text x="36" y="'+midY+'" font-size="30" text-anchor="middle" fill="#000" transform="rotate(-90 36 '+midY+')">deg F</text>'+
+      ticks +
+      '<text x="'+((mL+VBW-mR)/2).toFixed(1)+'" y="'+(VBH-mB+44)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
+      '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>'+
+      '</svg>';
+    chartSvg=document.getElementById('tempChartSvg');
+  }
+  function linePointScreen(p){ var mile=clamp(p,0,1)*TEMP.maxMile;
+    var lx=tX(mile), ly=tY(tempAt(mile)), r=chartSvg.getBoundingClientRect();
+    return { x: r.left + lx*(r.width/VBW), y: r.top + ly*(r.height/VBH) }; }
+
   const walker=document.getElementById('walker'), label=document.getElementById('activeLabel'), miNum=document.getElementById('miNum'); const townEl=document.getElementById('townName');
   const cards=[].slice.call(document.querySelectorAll('.j-card')), travels=[].slice.call(document.querySelectorAll('.j-travel'));
   const lead=document.querySelector('.j-lead');
@@ -684,15 +722,35 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var segFrom = S[segIdx].arr, segTo = S[segIdx + 1].arr;
       var segFrac = clamp((cur - segFrom) / Math.max(1, segTo - segFrom), 0, 1);
 
-      // Even segments walk L->R (his natural facing); odd segments walk R->L (flipped).
-      var goingRight = (segIdx % 2 === 0);
+      // Zig-zag legs (after the first). Parity set so the leg right after the
+      // line-walk continues L->R from the left where he was dropped off.
+      var goingRight = (segIdx % 2 === 1);
       var fromX = goingRight ? leftX : rightX;
       var toX   = goingRight ? rightX : leftX;
       var currentX = lerp(fromX, toX, segFrac);
+      var flip = goingRight ? 'none' : 'scaleX(-1)';
+
+      // POC: first leg (Central Park -> City Hall) walks along the temp line.
+      if (segIdx === 0 && chartSvg) {
+        var entryEnd = 0.10, exitStart = 0.90;
+        flip = 'none';
+        if (segFrac < entryEnd) {                 // approach: right, then down onto the line
+          var s0 = linePointScreen(0), sX = s0.x - dw/2, sY = s0.y - DISP, te = segFrac/entryEnd;
+          if (te < 0.5) currentX = lerp(leftX, sX, te/0.5);
+          else { currentX = sX; currentY = lerp(currentY, sY, (te-0.5)/0.5); }
+        } else if (segFrac > exitStart) {          // done tracing: glide back to resting spot
+          var sE = linePointScreen(1), eX = sE.x - dw/2, eY = sE.y - DISP, to2 = (segFrac-exitStart)/(1-exitStart);
+          currentX = lerp(eX, leftX, to2);
+          currentY = lerp(eY, currentY, to2);
+        } else {                                   // trace the line
+          var pt = linePointScreen((segFrac-entryEnd)/(exitStart-entryEnd));
+          currentX = pt.x - dw/2; currentY = pt.y - DISP;
+        }
+      }
 
       wk.style.left = currentX + 'px';
       wk.style.top = currentY + 'px';
-      wk.style.transform = goingRight ? 'none' : 'scaleX(-1)';
+      wk.style.transform = flip;
     }
     
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
