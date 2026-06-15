@@ -102,7 +102,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
 
 .j-travel{height:64vh}
-#travelChart{height:auto;padding:20vh 0 50vh 0}
+#travelChart{height:auto;padding:15vh 0 40vh 0}
 #tempChart{max-width:100%;margin:0 auto}
 .j-step{margin-bottom:2.5rem}
 .j-card {
@@ -733,6 +733,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       }
       var segFrom = S[segIdx].arr, segTo = S[segIdx + 1].arr;
       var segFrac = clamp((cur - segFrom) / Math.max(1, segTo - segFrom), 0, 1);
+      var dispCur = cur;   // mileage for the map dot / counter / stride; synced to the line on the chart leg
 
       // Default zig-zag legs (the no-chart ones), riding along the bottom.
       var goingRight = (segIdx % 2 === 0);
@@ -749,6 +750,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var traceRise = (bottomY + DISP - topY) + dyEnd;           // rise needed so the last point ends at the top
         var rise = bottomY + DISP - line0y;                        // how far mile-0 has risen above his feet
         var rawP = rise / traceRise;                               // 0 at his feet, 1 when the last point hits the top
+        dispCur = S[0].arr + clamp(rawP, 0, 1) * (S[1].arr - S[0].arr);   // map/counter/stride follow the line
         var SPIN_PX = 150, DOWN_PX = 150;                          // exit pacing (px of further scroll)
         if (rawP <= 0) {
           currentX = leftX;                                        // wait / descend at the bottom-left
@@ -813,8 +815,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     gStateLabels.style.opacity = mapIntroFactor;
     
-    var walkFrac=interp(WCUM,cur)/wcumMax;
-    bright.setAttribute('d', revealedD(cur));
+    var walkFrac=interp(WCUM,dispCur)/wcumMax;
+    bright.setAttribute('d', revealedD(dispCur));
     miNum.textContent=(walkFrac*TOTAL).toFixed(1);
     var miNow=walkFrac*TOTAL, tn='';
     if(active>=0 && S[active] && S[active].townOverride){ tn=S[active].townOverride; }
@@ -822,7 +824,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(townEl && tn!==lastTown){ townEl.textContent=tn; lastTown=tn; }
     var stepMul = (segIdx === 0 && chartSvg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
-    var p=ptAt(cur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
+    var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
     if(FERRY){ ferryLine.classList.toggle('on',cur>=FS-0.5); ferryLabel.classList.toggle('on',cur>=FS-0.5 && cur<FE); }
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
