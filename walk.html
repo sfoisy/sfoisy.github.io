@@ -590,13 +590,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   wk.style.backgroundSize=(dw*WK.frames)+'px '+DISP+'px';
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
 
-  // ===== POC: temperature chart + line-walking for the first leg =====
-  var TEMP = { maxMile: 7.7, minT: 65, maxT: 77, pts: [
-    [0,69.4],[0.5,70.1],[1,70.9],[1.5,71.6],[2,72.0],[2.5,72.1],[3,71.9],
-    [3.5,71.7],[4,71.5],[4.5,71.2],[5,70.8],[5.5,70.2],[6,69.5],[6.5,68.7],
-    [7,68.4],[7.5,68.6],[7.7,68.9] ] };
-  var VBW=1000, VBH=600, mL=110, mR=40, mT=50, mB=80;
-  function tX(mile){ return mL + (mile/TEMP.maxMile)*(VBW-mL-mR); }
+  // ===== POC: temperature chart (y-axis on right) + line-walking, first leg =====
+  var TEMP = { maxMile: 7, minT: 68, maxT: 78, pts: [
+    [0,71.1],[0.5,71.1],[1,71.4],[1.5,72.0],[2,72.8],[2.5,73.7],[3,74.4],
+    [3.5,74.5],[4,74.1],[4.5,73.9],[5,73.9],[5.5,73.7],[6,73.2],[6.5,73.1],[7,73.4] ] };
+  var VBW=1000, VBH=600, mL=55, mR=140, mT=50, mB=110;
+  var AX = VBW - mR;                                   // y-axis x-position (right side)
+  function tX(mile){ return mL + (mile/TEMP.maxMile)*(AX-mL); }
   function tY(t){ return mT + (1-(t-TEMP.minT)/(TEMP.maxT-TEMP.minT))*(VBH-mT-mB); }
   function tempAt(mile){ var p=TEMP.pts; if(mile<=p[0][0])return p[0][1];
     for(var i=1;i<p.length;i++){ if(mile<=p[i][0]) return lerp(p[i-1][1],p[i][1],(mile-p[i-1][0])/(p[i][0]-p[i-1][0])); }
@@ -604,18 +604,23 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   var chartSvg=null, chartHost=document.getElementById('tempChart');
   if(chartHost){
     var poly=TEMP.pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
-    var ticks=[[0,'0'],[1,'1'],[2,'2'],[7.7,'7.7']].map(function(t){
-      return '<text x="'+tX(t[0]).toFixed(1)+'" y="'+(VBH-mB+44)+'" font-size="30" text-anchor="middle" fill="#000">'+t[1]+'</text>'; }).join('');
-    var midY=((mT+VBH-mB)/2).toFixed(1);
+    var bY=VBH-mB;
+    var xticks='';
+    for(var m=0;m<=TEMP.maxMile;m++){ var xx=tX(m).toFixed(1);
+      xticks+='<line x1="'+xx+'" y1="'+bY+'" x2="'+xx+'" y2="'+(bY+12)+'" stroke="#000" stroke-width="4"/>'+
+              '<text x="'+xx+'" y="'+(bY+46)+'" font-size="30" text-anchor="middle" fill="#000">'+m+'</text>'; }
+    var yticks='';
+    [69,71,73,75,77].forEach(function(t){ var yy=tY(t).toFixed(1);
+      yticks+='<line x1="'+AX+'" y1="'+yy+'" x2="'+(AX+12)+'" y2="'+yy+'" stroke="#000" stroke-width="4"/>'+
+              '<text x="'+(AX+24)+'" y="'+(parseFloat(yy)+10)+'" font-size="30" text-anchor="start" fill="#000">'+t+'</text>'; });
+    var midY=((mT+bY)/2).toFixed(1);
     chartHost.innerHTML =
       '<svg id="tempChartSvg" viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:600">'+
-      '<line x1="'+mL+'" y1="'+mT+'" x2="'+mL+'" y2="'+(VBH-mB)+'" stroke="#000" stroke-width="5"/>'+
-      '<line x1="'+mL+'" y1="'+(VBH-mB)+'" x2="'+(VBW-mR)+'" y2="'+(VBH-mB)+'" stroke="#000" stroke-width="5"/>'+
-      '<text x="'+(mL-28)+'" y="'+(tY(77)+11)+'" font-size="32" text-anchor="end" fill="#000">77</text>'+
-      '<text x="'+(mL-28)+'" y="'+(tY(65)+11)+'" font-size="32" text-anchor="end" fill="#000">65</text>'+
-      '<text x="36" y="'+midY+'" font-size="30" text-anchor="middle" fill="#000" transform="rotate(-90 36 '+midY+')">deg F</text>'+
-      ticks +
-      '<text x="'+((mL+VBW-mR)/2).toFixed(1)+'" y="'+(VBH-mB+44)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
+      '<line x1="'+mL+'" y1="'+bY+'" x2="'+AX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
+      '<line x1="'+AX+'" y1="'+mT+'" x2="'+AX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
+      xticks + yticks +
+      '<text x="'+(AX+88)+'" y="'+midY+'" font-size="40" text-anchor="middle" fill="#000">\u00B0F</text>'+
+      '<text x="'+((mL+AX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
       '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>'+
       '</svg>';
     chartSvg=document.getElementById('tempChartSvg');
@@ -687,32 +692,28 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
-    // True continuous downward vertical glide from the very first pixel of scroll
-    // True continuous downward vertical glide from the very first pixel of scroll
+    // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
       var stop1Rect = stop1Header.getBoundingClientRect();
       var constantX = mq.matches ? 15 : 20;
-      
-      // Calculate scroll progress up to Stop 1
+
       var totalScrollDistanceToStop1 = window.scrollY + stop1Rect.top;
       var stop1Progress = totalScrollDistanceToStop1 > 0 ? clamp(window.scrollY / totalScrollDistanceToStop1, 0, 1) : 1;
-      
-      // Static onscreen view coordinates (No viewport subtraction)
-      var startY = mq.matches ? 105 : 125;
-      var endY = (window.innerHeight / 2) - (DISP / 2);
-      
-      var currentY = lerp(startY, endY, stop1Progress);
 
-      // --- Horizontal zig-zag: alternate sides each inter-stop segment ---
-      // Left spot = constantX. Right spot mirrors the same gap on the far side
-      // of the text column, in the whitespace before the thin map.
+      // Resting anchors — he lives along the BOTTOM now, not the middle.
       var leftX = constantX;
       var txt = document.querySelector('.j-narrative').getBoundingClientRect();
       var rightX = txt.left + txt.right - leftX - dw;          // mirror of the left gap
       var mapL = document.querySelector('.j-map').getBoundingClientRect().left;
-      rightX = Math.min(rightX, mapL - dw - 8);                // never overlap the map
-      rightX = Math.max(rightX, leftX + 20);                  // safety
+      rightX = Math.min(rightX, mapL - dw - 8);
+      rightX = Math.max(rightX, leftX + 20);
+      var bottomY = window.innerHeight - DISP - 20;            // bottom of screen
+      var topY = 80;                                           // just under the nav
+
+      // Intro descent now lands him at the BOTTOM-left.
+      var startY = mq.matches ? 105 : 125;
+      var currentY = lerp(startY, bottomY, stop1Progress);
 
       // Which inter-stop segment are we on, and how far through it?
       var segIdx = 0;
@@ -722,29 +723,33 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var segFrom = S[segIdx].arr, segTo = S[segIdx + 1].arr;
       var segFrac = clamp((cur - segFrom) / Math.max(1, segTo - segFrom), 0, 1);
 
-      // Zig-zag legs (after the first). Parity set so the leg right after the
-      // line-walk continues L->R from the left where he was dropped off.
-      var goingRight = (segIdx % 2 === 1);
+      // Default zig-zag legs (the no-chart ones), riding along the bottom.
+      var goingRight = (segIdx % 2 === 0);
       var fromX = goingRight ? leftX : rightX;
       var toX   = goingRight ? rightX : leftX;
       var currentX = lerp(fromX, toX, segFrac);
       var flip = goingRight ? 'none' : 'scaleX(-1)';
 
-      // POC: first leg (Central Park -> City Hall) walks along the temp line.
+      // POC: first leg (Central Park -> City Hall) walks the temperature line.
       if (segIdx === 0 && chartSvg) {
-        var entryEnd = 0.10, exitStart = 0.90;
+        var entryEnd = 0.05, exitStart = 0.82, spinEnd = 0.92;
         flip = 'none';
-        if (segFrac < entryEnd) {                 // approach: right, then down onto the line
-          var s0 = linePointScreen(0), sX = s0.x - dw/2, sY = s0.y - DISP, te = segFrac/entryEnd;
-          if (te < 0.5) currentX = lerp(leftX, sX, te/0.5);
-          else { currentX = sX; currentY = lerp(currentY, sY, (te-0.5)/0.5); }
-        } else if (segFrac > exitStart) {          // done tracing: glide back to resting spot
-          var sE = linePointScreen(1), eX = sE.x - dw/2, eY = sE.y - DISP, to2 = (segFrac-exitStart)/(1-exitStart);
-          currentX = lerp(eX, leftX, to2);
-          currentY = lerp(eY, currentY, to2);
-        } else {                                   // trace the line
+        if (segFrac < entryEnd) {                       // tiny blend from bottom-left onto line start
+          var s0 = linePointScreen(0), t = segFrac/entryEnd;
+          currentX = lerp(leftX, s0.x - dw/2, t);
+          currentY = lerp(currentY, s0.y - DISP, t);
+        } else if (segFrac < exitStart) {               // ride the line
           var pt = linePointScreen((segFrac-entryEnd)/(exitStart-entryEnd));
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
+        } else if (segFrac < spinEnd) {                 // spin 360 up to the TOP-right
+          var sE = linePointScreen(1), t1 = (segFrac-exitStart)/(spinEnd-exitStart);
+          currentX = lerp(sE.x - dw/2, rightX, t1);
+          currentY = lerp(sE.y - DISP, topY, t1);
+          flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
+        } else {                                        // glide straight down to BOTTOM-right
+          var t2 = (segFrac - spinEnd) / (1 - spinEnd);
+          currentX = rightX;
+          currentY = lerp(topY, bottomY, t2);
         }
       }
 
