@@ -625,6 +625,17 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       '</svg>';
     chartSvg=document.getElementById('tempChartSvg');
   }
+  // Slide the whole chart so the line's mile-0 sits under the walker's resting spot.
+  function alignChartToWalker(){
+    if(!chartSvg) return;
+    chartSvg.style.transform='none';
+    var r=chartSvg.getBoundingClientRect();
+    var lx=(window.matchMedia('(max-width:900px)').matches ? 15 : 20);
+    var shift=(lx + dw/2) - (r.left + tX(0)*(r.width/VBW));
+    chartSvg.style.transform='translateX('+shift.toFixed(1)+'px)';
+  }
+  alignChartToWalker();
+  window.addEventListener('resize', alignChartToWalker);
   function linePointScreen(p){ var mile=clamp(p,0,1)*TEMP.maxMile;
     var lx=tX(mile), ly=tY(tempAt(mile)), r=chartSvg.getBoundingClientRect();
     return { x: r.left + lx*(r.width/VBW), y: r.top + ly*(r.height/VBH) }; }
@@ -732,21 +743,25 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
       // POC: first leg (Central Park -> City Hall) walks the temperature line.
       if (segIdx === 0 && chartSvg) {
-        var entryEnd = 0.05, exitStart = 0.82, spinEnd = 0.92;
+        var entryEnd = 0.04, settleEnd = 0.10, exitStart = 0.82, spinEnd = 0.92;
         flip = 'none';
-        if (segFrac < entryEnd) {                       // tiny blend from bottom-left onto line start
-          var s0 = linePointScreen(0), t = segFrac/entryEnd;
-          currentX = lerp(leftX, s0.x - dw/2, t);
-          currentY = lerp(currentY, s0.y - DISP, t);
-        } else if (segFrac < exitStart) {               // ride the line
-          var pt = linePointScreen((segFrac-entryEnd)/(exitStart-entryEnd));
+        var s0 = linePointScreen(0);                        // line start (chart is aligned under leftX)
+        if (segFrac < entryEnd) {
+          // Descend / wait at the bottom-left. The chart scrolls up so the
+          // red line rises right to his feet — no horizontal glide.
+          currentX = leftX;
+        } else if (segFrac < settleEnd) {                   // line settles onto his feet
+          currentX = leftX;
+          currentY = lerp(bottomY, s0.y - DISP, (segFrac-entryEnd)/(settleEnd-entryEnd));
+        } else if (segFrac < exitStart) {                   // ride the line
+          var pt = linePointScreen((segFrac-settleEnd)/(exitStart-settleEnd));
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
-        } else if (segFrac < spinEnd) {                 // spin 360 up to the TOP-right
+        } else if (segFrac < spinEnd) {                     // spin 360 up to the TOP-right
           var sE = linePointScreen(1), t1 = (segFrac-exitStart)/(spinEnd-exitStart);
           currentX = lerp(sE.x - dw/2, rightX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
           flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
-        } else {                                        // glide straight down to BOTTOM-right
+        } else {                                            // glide straight down to BOTTOM-right
           var t2 = (segFrac - spinEnd) / (1 - spinEnd);
           currentX = rightX;
           currentY = lerp(topY, bottomY, t2);
