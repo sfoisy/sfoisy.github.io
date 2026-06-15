@@ -741,28 +741,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var currentX = lerp(fromX, toX, segFrac);
       var flip = goingRight ? 'none' : 'scaleX(-1)';
 
-      // POC: first leg (Central Park -> City Hall) walks the temperature line.
+      // POC: first leg — stand still until the red line reaches his feet, then walk it.
       if (segIdx === 0 && chartSvg) {
-        var entryEnd = 0.04, settleEnd = 0.10, exitStart = 0.82, spinEnd = 0.92;
         flip = 'none';
-        var s0 = linePointScreen(0);                        // line start (chart is aligned under leftX)
-        if (segFrac < entryEnd) {
-          // Descend / wait at the bottom-left. The chart scrolls up so the
-          // red line rises right to his feet — no horizontal glide.
+        var SPAN = chartSvg.getBoundingClientRect().height * 0.7;   // pace: px the line rises per full walk
+        var line0y = linePointScreen(0).y;
+        var rawP = (bottomY + DISP - line0y) / SPAN;                // 0 exactly when mile-0 hits his feet
+        if (rawP <= 0) {
+          // Stand still at the bottom-left (still descending if not down yet).
+          // The chart scrolls up so the red line rises right to his feet — no glide.
           currentX = leftX;
-        } else if (segFrac < settleEnd) {                   // line settles onto his feet
-          currentX = leftX;
-          currentY = lerp(bottomY, s0.y - DISP, (segFrac-entryEnd)/(settleEnd-entryEnd));
-        } else if (segFrac < exitStart) {                   // ride the line
-          var pt = linePointScreen((segFrac-settleEnd)/(exitStart-settleEnd));
+        } else if (rawP < 1) {                                      // walk the line
+          var pt = linePointScreen(rawP);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
-        } else if (segFrac < spinEnd) {                     // spin 360 up to the TOP-right
-          var sE = linePointScreen(1), t1 = (segFrac-exitStart)/(spinEnd-exitStart);
+        } else if (rawP < 1.5) {                                    // spin 360 up to the TOP-right
+          var sE = linePointScreen(1), t1 = (rawP - 1) / 0.5;
           currentX = lerp(sE.x - dw/2, rightX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
           flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
-        } else {                                            // glide straight down to BOTTOM-right
-          var t2 = (segFrac - spinEnd) / (1 - spinEnd);
+        } else {                                                    // glide straight down to BOTTOM-right
+          var t2 = clamp((rawP - 1.5) / 0.5, 0, 1);
           currentX = rightX;
           currentY = lerp(topY, bottomY, t2);
         }
