@@ -590,55 +590,90 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   wk.style.backgroundSize=(dw*WK.frames)+'px '+DISP+'px';
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
 
-  // ===== POC: temperature chart (y-axis on right) + line-walking, first leg =====
-  var TEMP = { maxMile: 7, minT: 68, maxT: 78, pts: [
-    [0,71.1],[0.5,71.1],[1,71.4],[1.5,72.0],[2,72.8],[2.5,73.7],[3,74.4],
-    [3.5,74.5],[4,74.1],[4.5,73.9],[5,73.9],[5.5,73.7],[6,73.2],[6.5,73.1],[7,73.4] ] };
-  var VBW=1000, VBH=600, mL=55, mR=140, mT=50, mB=110;
-  var AX = VBW - mR;                                   // y-axis x-position (right side)
-  function tX(mile){ return mL + (mile/TEMP.maxMile)*(AX-mL); }
-  function tY(t){ return mT + (1-(t-TEMP.minT)/(TEMP.maxT-TEMP.minT))*(VBH-mT-mB); }
-  function tempAt(mile){ var p=TEMP.pts; if(mile<=p[0][0])return p[0][1];
-    for(var i=1;i<p.length;i++){ if(mile<=p[i][0]) return lerp(p[i-1][1],p[i][1],(mile-p[i-1][0])/(p[i][0]-p[i-1][0])); }
-    return p[p.length-1][1]; }
-  var chartSvg=null, chartHost=document.getElementById('tempChart');
-  if(chartHost){
-    var poly=TEMP.pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
-    var bY=VBH-mB;
+  // ===== Temperature charts + line-walking on every leg =====
+  var legChart = [];                                   // legChart[legIdx] = { svg, mirror, lps, align }
+  var MQ = window.matchMedia('(max-width:900px)');
+  var TRAVELS = [].slice.call(document.querySelectorAll('.j-travel'));
+
+  function makeLegData(legIdx){
+    if(legIdx===0){                                    // leg 0 keeps its original placeholder data
+      return { maxMile:7, minT:68, maxT:78, pts:[
+        [0,71.1],[0.5,71.1],[1,71.4],[1.5,72.0],[2,72.8],[2.5,73.7],[3,74.4],
+        [3.5,74.5],[4,74.1],[4.5,73.9],[5,73.9],[5.5,73.7],[6,73.2],[6.5,73.1],[7,73.4] ] };
+    }
+    var maxMile=7, minT=68, maxT=78, pts=[], n=14;     // fake wavy data — swap in real per-leg data later
+    var base=71+((legIdx*1.7)%5), amp=2+(legIdx%3), ph=legIdx*0.8;
+    for(var i=0;i<=n;i++){
+      var mile=i/n*maxMile;
+      var t=base+Math.sin(i/n*Math.PI*1.7+ph)*amp+Math.cos(i*0.6+legIdx)*0.5;
+      t=Math.max(minT+0.6, Math.min(maxT-0.6, t));
+      pts.push([+mile.toFixed(2), +t.toFixed(1)]);
+    }
+    return { maxMile:maxMile, minT:minT, maxT:maxT, pts:pts };
+  }
+
+  function legRightX(){                                // the right-hand rest spot during legs (mirrors render's rightX)
+    var leftX=(MQ.matches?15:20);
+    var txt=document.querySelector('.j-narrative').getBoundingClientRect();
+    var rx=txt.left+txt.right-leftX-dw;
+    var endW=(MQ.matches?120:260);
+    var mapL=window.innerWidth-22-endW;
+    rx=Math.min(rx, mapL-dw-8);
+    rx=Math.max(rx, leftX+20);
+    return rx;
+  }
+
+  function buildLegChart(host, data, mirror){
+    var maxMile=data.maxMile, minT=data.minT, maxT=data.maxT, pts=data.pts;
+    var VBW=1000, VBH=600, mL=55, mR=140, mT=50, mB=110, bY=VBH-mB;
+    var axisX = mirror ? mR : (VBW-mR);                // y-axis x (right normally, left when mirrored)
+    var farX  = mirror ? (VBW-mL) : mL;                // x of mile 0 (left normally, right when mirrored)
+    function tX(mile){ return farX + (mile/maxMile)*(axisX-farX); }
+    function tY(t){ return mT + (1-(t-minT)/(maxT-minT))*(VBH-mT-mB); }
+    function tempAt(mile){ var p=pts; if(mile<=p[0][0])return p[0][1];
+      for(var i=1;i<p.length;i++){ if(mile<=p[i][0]) return lerp(p[i-1][1],p[i][1],(mile-p[i-1][0])/(p[i][0]-p[i-1][0])); }
+      return p[p.length-1][1]; }
+    var poly=pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
     var xticks='';
-    for(var m=0;m<=TEMP.maxMile;m++){ var xx=tX(m).toFixed(1);
+    for(var m=0;m<=maxMile;m++){ var xx=tX(m).toFixed(1);
       xticks+='<line x1="'+xx+'" y1="'+bY+'" x2="'+xx+'" y2="'+(bY+12)+'" stroke="#000" stroke-width="4"/>'+
               '<text x="'+xx+'" y="'+(bY+46)+'" font-size="30" text-anchor="middle" fill="#000">'+m+'</text>'; }
-    var yticks='';
+    var yticks='', tAnc=mirror?'end':'start', tOff=mirror?-24:24, cOff=mirror?-12:12;
     [69,71,73,75,77].forEach(function(t){ var yy=tY(t).toFixed(1);
-      yticks+='<line x1="'+AX+'" y1="'+yy+'" x2="'+(AX+12)+'" y2="'+yy+'" stroke="#000" stroke-width="4"/>'+
-              '<text x="'+(AX+24)+'" y="'+(parseFloat(yy)+10)+'" font-size="30" text-anchor="start" fill="#000">'+t+'</text>'; });
-    var midY=((mT+bY)/2).toFixed(1);
-    chartHost.innerHTML =
-      '<svg id="tempChartSvg" viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:600">'+
-      '<line x1="'+mL+'" y1="'+bY+'" x2="'+AX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
-      '<line x1="'+AX+'" y1="'+mT+'" x2="'+AX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
+      yticks+='<line x1="'+axisX+'" y1="'+yy+'" x2="'+(axisX+cOff)+'" y2="'+yy+'" stroke="#000" stroke-width="4"/>'+
+              '<text x="'+(axisX+tOff)+'" y="'+(parseFloat(yy)+10)+'" font-size="30" text-anchor="'+tAnc+'" fill="#000">'+t+'</text>'; });
+    var midY=((mT+bY)/2).toFixed(1), unitX=mirror?(axisX-88):(axisX+88);
+    host.innerHTML =
+      '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:600">'+
+      '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
+      '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
       xticks + yticks +
-      '<text x="'+(AX+88)+'" y="'+midY+'" font-size="40" text-anchor="middle" fill="#000">\u00B0F</text>'+
-      '<text x="'+((mL+AX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
+      '<text x="'+unitX+'" y="'+midY+'" font-size="40" text-anchor="middle" fill="#000">\u00B0F</text>'+
+      '<text x="'+((farX+axisX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
       '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       '</svg>';
-    chartSvg=document.getElementById('tempChartSvg');
+    var svgEl=host.querySelector('svg');
+    function lps(p){ var mile=clamp(p,0,1)*maxMile, lx2=tX(mile), ly2=tY(tempAt(mile)), r=svgEl.getBoundingClientRect();
+      return { x: r.left + lx2*(r.width/VBW), y: r.top + ly2*(r.height/VBH) }; }
+    function align(){ svgEl.style.transform='none';
+      var r=svgEl.getBoundingClientRect();
+      var leftX=(MQ.matches?15:20);
+      var targetX = mirror ? (legRightX()+dw/2) : (leftX+dw/2);
+      var mile0X = r.left + tX(0)*(r.width/VBW);
+      svgEl.style.transform='translateX('+(targetX-mile0X).toFixed(1)+'px)'; }
+    align();
+    return { svg:svgEl, mirror:mirror, lps:lps, align:align };
   }
-  // Slide the whole chart so the line's mile-0 sits under the walker's resting spot.
-  function alignChartToWalker(){
-    if(!chartSvg) return;
-    chartSvg.style.transform='none';
-    var r=chartSvg.getBoundingClientRect();
-    var lx=(window.matchMedia('(max-width:900px)').matches ? 15 : 20);
-    var shift=(lx + dw/2) - (r.left + tX(0)*(r.width/VBW));
-    chartSvg.style.transform='translateX('+shift.toFixed(1)+'px)';
+
+  for(var li=0; li<S.length-1; li++){
+    var tdiv=TRAVELS[li+1]; if(!tdiv) continue;
+    var hostDiv;
+    if(li===0){ hostDiv=document.getElementById('tempChart'); }   // leg 0 reuses the existing chart slot
+    else { tdiv.style.height='auto'; tdiv.style.padding='15vh 0 40vh 0';
+      hostDiv=document.createElement('div'); hostDiv.style.maxWidth='100%'; hostDiv.style.margin='0 auto'; tdiv.appendChild(hostDiv); }
+    legChart[li]=buildLegChart(hostDiv, makeLegData(li), (li%2===1));   // odd legs mirrored
   }
-  alignChartToWalker();
-  window.addEventListener('resize', alignChartToWalker);
-  function linePointScreen(p){ var mile=clamp(p,0,1)*TEMP.maxMile;
-    var lx=tX(mile), ly=tY(tempAt(mile)), r=chartSvg.getBoundingClientRect();
-    return { x: r.left + lx*(r.width/VBW), y: r.top + ly*(r.height/VBH) }; }
+  window.addEventListener('resize', function(){ legChart.forEach(function(c){ if(c&&c.align) c.align(); }); });
 
   const walker=document.getElementById('walker'), label=document.getElementById('activeLabel'), miNum=document.getElementById('miNum'); const townEl=document.getElementById('townName');
   const cards=[].slice.call(document.querySelectorAll('.j-card')), travels=[].slice.call(document.querySelectorAll('.j-travel'));
@@ -742,37 +777,37 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var currentX = lerp(fromX, toX, segFrac);
       var flip = goingRight ? 'none' : 'scaleX(-1)';
 
-      // POC: first leg — wait until the line hits his feet, then walk it until the LAST point reaches the top.
-      if (segIdx === 0 && chartSvg) {
-        flip = 'none';
-        var line0y = linePointScreen(0).y;
-        var dyEnd = linePointScreen(1).y - line0y;                 // last point's offset from the start (constant)
-        var traceRise = (bottomY + DISP - topY) + dyEnd;           // rise needed so the last point ends at the top
-        var rise = bottomY + DISP - line0y;                        // how far mile-0 has risen above his feet
-        var rawP = rise / traceRise;                               // 0 at his feet, 1 when the last point hits the top
-        dispCur = S[0].arr + clamp(rawP, 0, 1) * (S[1].arr - S[0].arr);   // map/counter/stride follow the line
-        var SPIN_PX = 150, DOWN_PX = 150;                          // exit pacing (px of further scroll)
+      // Line-walk on every leg: wait for the line to reach his feet, walk it, then spin + glide to the next rest spot.
+      var ci = legChart[segIdx];
+      if (ci && ci.svg) {
+        var mir = ci.mirror;
+        var restX = mir ? rightX : leftX;          // this leg starts where the last one ended
+        var endX  = mir ? leftX  : rightX;          // ...and ends at the next leg's start
+        var rest0 = mir ? 'scaleX(-1)' : 'none';
+        flip = rest0;
+        var line0y = ci.lps(0).y;
+        var dyEnd = ci.lps(1).y - line0y;
+        var traceRise = (bottomY + DISP - topY) + dyEnd;
+        var rise = bottomY + DISP - line0y;
+        var rawP = rise / traceRise;
+        dispCur = S[segIdx].arr + clamp(rawP, 0, 1) * (S[segIdx+1].arr - S[segIdx].arr);
+        var SPIN_PX = 150, DOWN_PX = 150;
         if (rawP <= 0) {
-          currentX = leftX;                                        // wait / descend at the bottom-left
-        } else if (rawP < 1) {                                     // walk the line
-          var pt = linePointScreen(rawP);
+          currentX = restX;
+        } else if (rawP < 1) {
+          var pt = ci.lps(rawP);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
-        } else if (rise < traceRise + SPIN_PX) {                   // last point now at top — spin 360 to the TOP-right
-          var sE = linePointScreen(1), t1 = (rise - traceRise) / SPIN_PX;
-          currentX = lerp(sE.x - dw/2, rightX, t1);
+        } else if (rise < traceRise + SPIN_PX) {
+          var sE = ci.lps(1), t1 = (rise - traceRise) / SPIN_PX;
+          currentX = lerp(sE.x - dw/2, endX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
           flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
-        } else {                                                   // glide straight down to BOTTOM-right
+        } else {
           var t2 = clamp((rise - traceRise - SPIN_PX) / DOWN_PX, 0, 1);
-          currentX = rightX;
+          currentX = endX;
           currentY = lerp(topY, bottomY, t2);
         }
       }
-
-      wk.style.left = currentX + 'px';
-      wk.style.top = currentY + 'px';
-      wk.style.transform = flip;
-    }
     
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
@@ -822,7 +857,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(active>=0 && S[active] && S[active].townOverride){ tn=S[active].townOverride; }
     else { for(var ti=0;ti<TOWNSEGS.length;ti++){ if(miNow>=TOWNSEGS[ti][0] && miNow<=TOWNSEGS[ti][1]){ tn=TOWNSEGS[ti][2]; break; } } if(!tn && TOWNSEGS.length) tn=(miNow<=0?TOWNSEGS[0][2]:TOWNSEGS[TOWNSEGS.length-1][2]); }
     if(townEl && tn!==lastTown){ townEl.textContent=tn; lastTown=tn; }
-    var stepMul = (segIdx === 0 && chartSvg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
+    var stepMul = (ci && ci.svg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
     if(FERRY){ ferryLine.classList.toggle('on',cur>=FS-0.5); ferryLabel.classList.toggle('on',cur>=FS-0.5 && cur<FE); }
