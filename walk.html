@@ -216,8 +216,6 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.8rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 #walkerFig {
   position: fixed;
-  top: 0;
-  left: 0;
   z-index: 101;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -273,7 +271,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .map-readout .mi-unit{font-size:.72rem}
   .map-readout .lbl{font-size:.52rem}
   .map-readout .town{font-size:.62rem;margin-top:.12rem}
-  #walkerFig{left:0; top:0; bottom:auto;}
+  #walkerFig{bottom:15px; left:15px;}
   #mapLogo{position:fixed;height:44px;right:8px;bottom:8px;z-index:150}
   .article-top{max-width:100%;padding:1.25rem 0 .25rem}
   .article-top-title{font-size:1.55rem}
@@ -985,7 +983,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         }
       }
 
-      wk.style.transform = 'translate(' + currentX.toFixed(1) + 'px,' + currentY.toFixed(1) + 'px) ' + flip;
+      wk.style.left = currentX + 'px';
+      wk.style.top = currentY + 'px';
+      wk.style.transform = flip;
     }
 
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
