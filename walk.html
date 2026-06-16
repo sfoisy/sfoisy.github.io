@@ -940,7 +940,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5 || i===active);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
     cards.forEach(function(c,i){c.classList.toggle('active',i===active);});
-    if(active>=0){ if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; } label.style.opacity=mapIntroFactor; }
+    if(active>=0){ if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; } label.style.opacity=instantScrollFactor; }
     else { label.style.opacity=0; shownLabel=-9; }
     requestAnimationFrame(render);
   }
