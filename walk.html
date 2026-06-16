@@ -214,7 +214,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(0,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.8rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
-.map-caption .cap-mobile{display:none}
+.map-caption{display:none}
+.map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.56rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
 .map-source{display:none;position:absolute;right:7px;bottom:7px;max-width:88%;text-align:right;font-family:'DM Sans',sans-serif;font-size:.5rem;font-weight:600;line-height:1.25;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none;z-index:70}
 #walkerFig {
   position: fixed;
@@ -536,6 +537,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 
   <div class="j-map">
     <div class="mapwrap">
+      <div class="map-cap-mobile" id="mapCapMobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</div>
       <div class="map-hud">
         <div class="map-readout"><span class="mi" id="miNum">0.0</span><span class="mi-unit"> mi</span><div class="lbl">walked</div></div>
       </div>
@@ -617,7 +619,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   wk.style.backgroundSize=(dw*WK.frames)+'px '+DISP+'px';
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
   var wkTop=document.getElementById('walkerTop');
-  if(wkTop && WK){ var tw=66, th=Math.round(WK.fh*tw/WK.fw);
+  if(wkTop && WK){ var tw=(window.matchMedia('(max-width:900px)').matches?52:46), th=Math.round(WK.fh*tw/WK.fw);
     wkTop.style.width=tw+'px'; wkTop.style.height=th+'px';
     wkTop.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
     wkTop.style.backgroundSize=(tw*WK.frames)+'px '+th+'px';
@@ -913,9 +915,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var endWidth = mq.matches ? 100 : 220;
     var endHeight = mq.matches ? window.innerHeight * 0.32 : window.innerHeight * 0.82;
     
-    var widthFactor = mq.matches ? clamp(instantScrollFactor / 0.12, 0, 1) : instantScrollFactor;   // mobile: snap to thin width right away so it clears the text
-    var computedWidth = lerp(startWidth, endWidth, widthFactor);
-    var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
+    var computedWidth, computedHeight;
+    if (mq.matches) {
+      // Phase 1 shrinks into the top-right corner keeping the same aspect ratio,
+      // phase 2 linearly elongates straight down into the thin final sliver.
+      var pA = 0.4;                                       // share of scroll spent on the aspect-locked shrink
+      var midW = endWidth;                               // width reaches its final value during the shrink
+      var midH = endWidth * (startHeight / startWidth);  // height tracks it so the shape stays identical
+      if (instantScrollFactor <= pA) {
+        var fa = instantScrollFactor / pA;
+        computedWidth  = lerp(startWidth, midW, fa);
+        computedHeight = lerp(startHeight, midH, fa);
+      } else {
+        var fb = (instantScrollFactor - pA) / (1 - pA);
+        computedWidth  = midW;
+        computedHeight = lerp(midH, endHeight, fb);
+      }
+    } else {
+      computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
+      computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
+    }
     
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
@@ -939,7 +958,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       rightX = Math.max(rightX, leftX + 20);
       var bottomY = window.innerHeight - DISP - 20;            // bottom of screen
       var topY = _mr.top + _mr.height * 0.20;                  // just under the nav
-      var flyApexY = mq.matches ? (window.innerHeight * 0.5 - DISP / 2) : topY;   // mobile: arc to mid-page, not the top
+      var flyApexY = topY;   // both: fly all the way to the top (he's faded out before he lands)
 
       // Intro descent now lands him at the BOTTOM-left.
       var startY = mq.matches ? 105 : 125;
@@ -978,16 +997,19 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var rise = bottomY + DISP - line0y;
         var rawP = rise / traceRise;
         var SPIN_PX = 150, DOWN_PX = 150;
-        var endP = mq.matches ? 0.5 : 1;   // mobile: leave the line at 50% so the dismount can glide
-        var mileP = mq.matches ? clamp(rawP / endP, 0, 1) : clamp(rawP, 0, 1);   // mobile: mileage finishes with the chart walk
+        var endP = 1;   // desktop + mobile now share the same timing
+        var mileP = clamp(rawP, 0, 1);   // mobile: mileage finishes with the chart walk
         dispCur = S[segIdx].arr + mileP * (S[segIdx+1].arr - S[segIdx].arr);
         var legRise = endP * traceRise;
         if (rawP <= 0) {
           currentX = restX;
+          var FADE = 0.25;                         // fade him in a few scrolls before he reaches the line
+          walkerVis = clamp((rawP + FADE) / FADE, 0, 1);
+          flip = rest0;                            // already facing the way he is about to walk
         } else if (rawP < endP) {
           onLine = true;
           walkerVis = 1;
-          var lineP = mq.matches ? clamp(rawP / endP, 0, 1) : rawP;
+          var lineP = rawP;
           var pt = ci.lps(lineP, crect);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
           var dp = 0.02;
@@ -998,7 +1020,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var ang = (mir ? Math.atan2(fdy, -fdx) : Math.atan2(fdy, fdx)) * 180 / Math.PI;
           flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + ang.toFixed(1) + 'deg)';
         } else if (rise < legRise + SPIN_PX) {
-          var sE = ci.lps(mq.matches ? 1 : endP, crect), t1 = (rise - legRise) / SPIN_PX;
+          var sE = ci.lps(1, crect), t1 = (rise - legRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, endX, t1);
           currentY = lerp(sE.y - DISP, flyApexY, t1);
           walkerVis = clamp(1 - t1, 0, 1);   // fully faded exactly as the 2nd rotation completes
@@ -1045,6 +1067,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     var capEl = document.getElementById('mapCaption');
     if(capEl) capEl.style.opacity = clamp(1 - instantScrollFactor/0.08, 0, 1);
+    var capM = document.getElementById('mapCapMobile');
+    if(capM) capM.style.opacity = clamp(1 - instantScrollFactor/0.08, 0, 1);
     
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
