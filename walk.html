@@ -214,6 +214,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(0,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.8rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
+.map-caption .cap-mobile{display:none}
 #walkerFig {
   position: fixed;
   z-index: 101;
@@ -266,13 +267,17 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-lead .lede::first-letter { font-size: 2.6rem; }
   #map { will-change: transform; }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
+  .map-caption{font-size:.62rem;line-height:1.35}
+  .map-caption .cap-full{display:none}
+  .map-caption .cap-mobile{display:inline}
   .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
-  .map-readout .mi{font-size:1.4rem}
-  .map-readout .mi-unit{font-size:.72rem}
-  .map-readout .lbl{font-size:.52rem}
+  .map-readout .mi{font-size:1.12rem}
+  .map-readout .mi-unit{font-size:.58rem}
+  .map-readout .lbl{font-size:.42rem}
   .map-readout .town{font-size:.62rem;margin-top:.12rem}
+  .map-town{font-size:.74rem}
   #walkerFig{bottom:15px; left:15px;}
-  #mapLogo{position:fixed;height:44px;right:8px;bottom:8px;z-index:150}
+  #mapLogo{position:fixed;height:44px;right:8px;bottom:22px;z-index:150}
   .article-top{max-width:100%;padding:1.25rem 0 .25rem}
   .article-top-title{font-size:1.55rem}
   .article-top-sub{font-size:.82rem}
@@ -545,7 +550,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     </div>
     <div class="map-town" id="townName">Manhattan, NY</div>
-    <div class="map-caption" id="mapCaption">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</div>
+    <div class="map-caption" id="mapCaption"><span class="cap-full">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</span><span class="cap-mobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span></div>
   </div>
 </div>
 </section>
@@ -598,7 +603,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   });
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
     var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
-  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=window.matchMedia('(max-width:900px)').matches?28:46;
+  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=window.matchMedia('(max-width:900px)').matches?24:46;
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
   wk.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
@@ -849,7 +854,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var RAD=52*Math.PI/180;
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
-    var FS=32, LH=38, off=40;                  // text size, line height, gap right of the dot
+    var FS=mq.matches?38:32, LH=mq.matches?46:38, off=40;                  // text size, line height, gap right of the dot
     var n=lab.lines.length, up=(n-1)*LH/2;
     var ax=sx+rx*off+ux*up, ay=sy+ry*off+uy*up;
     label.setAttribute('x',ax); label.setAttribute('y',ay);
@@ -920,6 +925,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       rightX = Math.max(rightX, leftX + 20);
       var bottomY = window.innerHeight - DISP - 20;            // bottom of screen
       var topY = _mr.top + _mr.height * 0.20;                  // just under the nav
+      var flyApexY = mq.matches ? (window.innerHeight * 0.5 - DISP / 2) : topY;   // mobile: arc to mid-page, not the top
 
       // Intro descent now lands him at the BOTTOM-left.
       var startY = mq.matches ? 105 : 125;
@@ -964,25 +970,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           currentX = restX;
         } else if (rawP < endP) {
           onLine = true;
-          var pt = ci.lps(rawP, crect);
+          var lineP = mq.matches ? clamp(rawP / endP, 0, 1) : rawP;   // mobile: finish the chart by the time he lifts off
+          var pt = ci.lps(lineP, crect);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
           var dp = 0.02;
-          var pa = clamp(rawP - dp, 0, 1), pb = clamp(rawP + dp, 0, 1);
+          var pa = clamp(lineP - dp, 0, 1), pb = clamp(lineP + dp, 0, 1);
           if (pa === pb) { pa = clamp(rawP - 0.001, 0, 1); pb = clamp(rawP + 0.001, 0, 1); }
           var A = ci.lps(pa, crect), B = ci.lps(pb, crect);
           var fdx = B.x - A.x, fdy = B.y - A.y;
           var ang = (mir ? Math.atan2(fdy, -fdx) : Math.atan2(fdy, fdx)) * 180 / Math.PI;
           flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + ang.toFixed(1) + 'deg)';
         } else if (rise < legRise + SPIN_PX) {
-          var sE = ci.lps(endP, crect), t1 = (rise - legRise) / SPIN_PX;
+          var sE = ci.lps(mq.matches ? 1 : endP, crect), t1 = (rise - legRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, endX, t1);
-          currentY = lerp(sE.y - DISP, topY, t1);
+          currentY = lerp(sE.y - DISP, flyApexY, t1);
           flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (720 * t1).toFixed(1) + 'deg)';
         } else {
           var t2 = clamp((rise - legRise - SPIN_PX) / DOWN_PX, 0, 1);
           var gravityT = t2 * t2;  // quadratic ease-in, accelerates like a falling object
           currentX = endX;
-          currentY = lerp(topY, bottomY, gravityT);
+          currentY = lerp(flyApexY, bottomY, gravityT);
           if (t2 >= 1) active = segIdx + 1;
         }
       }
@@ -1002,8 +1009,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     // Change the first argument from 0 to 8 to start with an 8-degree clockwise tilt
-    var mapInternalRotation = lerp(1, -52, instantScrollFactor); 
-    var mapInternalScale = lerp(1.35, 3.15, instantScrollFactor);
+    var mapInternalRotation = lerp(mq.matches ? -8 : 1, -52, instantScrollFactor);
+    var mapInternalScale = lerp(mq.matches ? 1.7 : 1.35, 3.15, instantScrollFactor);
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
     var shiftX = lerp(mq.matches ? -10 : -23, mq.matches ? -32 : -70, instantScrollFactor);
