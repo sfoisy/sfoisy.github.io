@@ -831,11 +831,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var sE = ci.lps(1), t1 = (rise - traceRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, endX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
-          flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
+          flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (720 * t1).toFixed(1) + 'deg)';
         } else {
           var t2 = clamp((rise - traceRise - SPIN_PX) / DOWN_PX, 0, 1);
+          var gravityT = t2 * t2;  // quadratic ease-in — accelerates like a falling object
           currentX = endX;
-          currentY = lerp(topY, bottomY, t2);
+          currentY = lerp(topY, bottomY, gravityT);
         }
       }
 
