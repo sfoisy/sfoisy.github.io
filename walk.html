@@ -962,9 +962,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var traceRise = (bottomY + DISP - topY) + dyEnd;
         var rise = bottomY + DISP - line0y;
         var rawP = rise / traceRise;
-        dispCur = S[segIdx].arr + clamp(rawP, 0, 1) * (S[segIdx+1].arr - S[segIdx].arr);
         var SPIN_PX = 150, DOWN_PX = 150;
         var endP = mq.matches ? 0.5 : 1;   // mobile: leave the line at 50% so the dismount can glide
+        var mileP = mq.matches ? clamp(rawP / endP, 0, 1) : clamp(rawP, 0, 1);   // mobile: mileage finishes with the chart walk
+        dispCur = S[segIdx].arr + mileP * (S[segIdx+1].arr - S[segIdx].arr);
         var legRise = endP * traceRise;
         if (rawP <= 0) {
           currentX = restX;
