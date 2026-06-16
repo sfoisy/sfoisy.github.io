@@ -526,7 +526,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <text id="ferryLabel" class="ferry-label" font-size="22"></text>
         <g id="gTethers"></g>
         <g id="gPins"></g>
-        <circle id="walker" r="5.5"/>
+        <circle id="walker" r="5.5" style="opacity:0"/>
         <text id="activeLabel"></text>
       </svg>
       <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
@@ -582,6 +582,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',9);dot.setAttribute('class','pin-dot');dot.style.fill=col;
     g.appendChild(ring);g.appendChild(dot);gPins.appendChild(g);pinEls.push(g);
   });
+  if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
+    var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=46;
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
