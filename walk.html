@@ -606,22 +606,37 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     });
   }
 
+  // ===== Per-leg chart data (time-based) =====
+  // Fill real values here later. Any leg with no entry gets auto-generated placeholder data.
+  // Shape: { date:'May 23', start:9, end:13,
+  //   temp:[[9,71],[9.5,71.4], ...],   // °F at each half hour
+  //   dew:[[9,58], ...],               // optional, auto-derived from temp if omitted
+  //   precip:[[10.5,0.2],[11,0.1]] }   // inches, ONLY half-hours that had rain
+  var LEGDATA = {
+    // 0: { date:'May 23', start:9, end:13, temp:[[9,71],[9.5,71.4],[10,72]], precip:[[10.5,0.2]] },
+  };
+  function fmtHour(h){ var x=((Math.round(h))%24+24)%24, ap=x<12?'am':'pm', d=x%12; if(d===0)d=12; return d+ap; }
+  function fmtIn(v){ return (+v).toFixed(2).replace(/0+$/,'').replace(/\.$/,'')+' in'; }
+    
   function makeLegData(legIdx){
-    if(legIdx===0){                                    // leg 0 keeps its original placeholder data
-      var p0=[
-        [0,71.1],[0.5,71.1],[1,71.4],[1.5,72.0],[2,72.8],[2.5,73.7],[3,74.4],
-        [3.5,74.5],[4,74.1],[4.5,73.9],[5,73.9],[5.5,73.7],[6,73.2],[6.5,73.1],[7,73.4] ];
-      return { maxMile:7, minT:68, maxT:78, pts:p0, dew:dewFromTemp(p0,0) };
+    if(LEGDATA[legIdx]){
+      var L=LEGDATA[legIdx];
+      return { date:L.date||'May 23', start:L.start, end:L.end,
+               pts:L.temp, dew:L.dew||dewFromTemp(L.temp,legIdx),
+               precip:(L.precip||[]).filter(function(p){return p[1]>0;}) };
     }
-    var maxMile=7, minT=68, maxT=78, pts=[], n=14;     // fake wavy data — swap in real per-leg data later
-    var base=71+((legIdx*1.7)%5), amp=2+(legIdx%3), ph=legIdx*0.8;
-    for(var i=0;i<=n;i++){
-      var mile=i/n*maxMile;
-      var t=base+Math.sin(i/n*Math.PI*1.7+ph)*amp+Math.cos(i*0.6+legIdx)*0.5;
-      t=Math.max(minT+0.6, Math.min(maxT-0.6, t));
-      pts.push([+mile.toFixed(2), +t.toFixed(1)]);
+    // ---- placeholder: varying start/end, half-hourly temps, sparse fake precip ----
+    var start = 9 + (legIdx % 4)*0.5;            // 9:00 .. 10:30
+    var end   = Math.min(19.5, start + 3 + (legIdx % 5));   // 3-7 hrs, never past 7:30pm
+    var base=71+((legIdx*1.7)%5), amp=2.5+(legIdx%3), ph=legIdx*0.8, pts=[];
+    for(var h=start; h<=end+1e-6; h+=0.5){
+      var f=h-start, t=base+Math.sin(f*0.5+ph)*amp+Math.cos(f*0.9+legIdx)*0.6;
+      pts.push([+h.toFixed(2), +t.toFixed(1)]);
     }
-    return { maxMile:maxMile, minT:minT, maxT:maxT, pts:pts, dew:dewFromTemp(pts,legIdx) };
+    var precip=[];
+    if(legIdx%4===2){ var m=Math.round((start+(end-start)*0.5)*2)/2; precip.push([m,0.2]); if(m+0.5<=end) precip.push([m+0.5,0.1]); }
+    else if(legIdx%5===3){ var m2=Math.round((start+(end-start)*0.7)*2)/2; precip.push([m2,0.1]); }
+    return { date:'May 23', start:start, end:end, pts:pts, dew:dewFromTemp(pts,legIdx), precip:precip };
   }
 
   function legRightX(){                                // the right-hand rest spot during legs (mirrors render's rightX)
@@ -636,54 +651,70 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   }
 
   function buildLegChart(host, data, mirror){
-    var maxMile=data.maxMile, pts=data.pts, dew=data.dew||[];
+    var start=data.start, end=data.end, span=Math.max(0.5,end-start);
+    var pts=data.pts, dew=data.dew||[], precip=data.precip||[];
     var allT=pts.map(function(p){return p[1];}).concat(dew.map(function(p){return p[1];}));
     var minT=Math.floor((Math.min.apply(null,allT)-1)/2)*2;
     var maxT=Math.ceil((Math.max.apply(null,allT)+1)/2)*2;
     var VBW=1000, VBH=600, mL=55, mR=140, mT=50, mB=110, bY=VBH-mB;
-    var axisX = mirror ? mR : (VBW-mR);                // y-axis x (right normally, left when mirrored)
-    var farX  = mirror ? (VBW-mL) : mL;                // x of mile 0 (left normally, right when mirrored)
-    function tX(mile){ return farX + (mile/maxMile)*(axisX-farX); }
+    var axisX = mirror ? mR : (VBW-mR);
+    var farX  = mirror ? (VBW-mL) : mL;
+    function tX(h){ return farX + ((h-start)/span)*(axisX-farX); }
     function tY(t){ return mT + (1-(t-minT)/(maxT-minT))*(VBH-mT-mB); }
-    function tempAt(mile){ var p=pts; if(mile<=p[0][0])return p[0][1];
-      for(var i=1;i<p.length;i++){ if(mile<=p[i][0]) return lerp(p[i-1][1],p[i][1],(mile-p[i-1][0])/(p[i][0]-p[i-1][0])); }
+    function tempAt(h){ var p=pts; if(h<=p[0][0])return p[0][1];
+      for(var i=1;i<p.length;i++){ if(h<=p[i][0]) return lerp(p[i-1][1],p[i][1],(h-p[i-1][0])/(p[i][0]-p[i-1][0])); }
       return p[p.length-1][1]; }
     var poly=pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
     var dewPoly=dew.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
+
     var xticks='';
-    for(var m=0;m<=maxMile;m++){ var xx=tX(m).toFixed(1);
+    for(var hh=Math.ceil(start-1e-6); hh<=Math.floor(end+1e-6); hh++){ var xx=tX(hh).toFixed(1);
       xticks+='<line x1="'+xx+'" y1="'+bY+'" x2="'+xx+'" y2="'+(bY+12)+'" stroke="#000" stroke-width="4"/>'+
-              '<text x="'+xx+'" y="'+(bY+46)+'" font-size="22.5" text-anchor="middle" fill="#000">'+m+'</text>'; }
+              '<text x="'+xx+'" y="'+(bY+46)+'" font-size="22.5" text-anchor="middle" fill="#000">'+fmtHour(hh)+'</text>'; }
     var yticks='', tAnc=mirror?'end':'start', tOff=mirror?-24:24, cOff=mirror?-12:12;
     for(var t=minT+2; t<maxT; t+=2){ var yy=tY(t).toFixed(1);
       yticks+='<line x1="'+axisX+'" y1="'+yy+'" x2="'+(axisX+cOff)+'" y2="'+yy+'" stroke="#000" stroke-width="4"/>'+
               '<text x="'+(axisX+tOff)+'" y="'+(parseFloat(yy)+10)+'" font-size="22.5" text-anchor="'+tAnc+'" fill="#000">'+t+'</text>'; }
+
+    // precip bars (only half-hours with rain)
+    var halfW=Math.abs(tX(start+0.5)-tX(start)), barW=halfW*0.5;
+    var precipRef=0.5; precip.forEach(function(p){ if(p[1]>precipRef) precipRef=p[1]; });
+    var maxBarPx=(bY-mT)*0.45, precipBars='', precipLabels='';
+    precip.forEach(function(p){ if(p[1]<=0) return;
+      var xc=tX(p[0]), bh=(p[1]/precipRef)*maxBarPx, yTop=bY-bh;
+      precipBars+='<rect x="'+(xc-barW/2).toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="#3a8dde" fill-opacity="0.6" rx="2"/>';
+      precipLabels+='<text x="'+xc.toFixed(1)+'" y="'+(yTop-8).toFixed(1)+'" font-size="19" text-anchor="middle" fill="#0e6ba8" font-weight="700">'+fmtIn(p[1])+'</text>'; });
+
+    var tempDots=pts.map(function(d){ return '<circle cx="'+tX(d[0]).toFixed(1)+'" cy="'+tY(d[1]).toFixed(1)+'" r="4.5" fill="#ff3b30"/>'; }).join('');
     var midY=((mT+bY)/2).toFixed(1), unitX=mirror?(axisX-88):(axisX+88);
     host.innerHTML =
       '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:400">'+
+      precipBars +
       '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
       '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
       xticks + yticks +
       '<text x="'+unitX+'" y="'+midY+'" font-size="30" text-anchor="middle" fill="#000">\u00B0F</text>'+
-      '<text x="'+((farX+axisX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="22.5" text-anchor="middle" fill="#000">miles walked</text>'+
+      '<text x="'+((farX+axisX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="22.5" text-anchor="middle" fill="#000" font-weight="700">'+(data.date||'')+'</text>'+
       (dewPoly?'<polyline points="'+dewPoly+'" fill="none" stroke="#0e6ba8" stroke-width="5" stroke-dasharray="11 8" stroke-linejoin="round" stroke-linecap="round"/>':'')+
       '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      tempDots + precipLabels +
       '<g font-family="DM Sans,sans-serif" font-weight="400" font-size="20.25" fill="#000">'+
-        '<line x1="280" y1="22" x2="335" y2="22" stroke="#ff3b30" stroke-width="6" stroke-linecap="round"/>'+
-        '<text x="345" y="31">Temperature</text>'+
-        '<line x1="600" y1="22" x2="655" y2="22" stroke="#0e6ba8" stroke-width="6" stroke-dasharray="11 8" stroke-linecap="round"/>'+
-        '<text x="665" y="31">Dew point</text>'+
+        '<line x1="200" y1="22" x2="255" y2="22" stroke="#ff3b30" stroke-width="6" stroke-linecap="round"/>'+
+        '<text x="265" y="31">Temperature</text>'+
+        '<line x1="520" y1="22" x2="575" y2="22" stroke="#0e6ba8" stroke-width="6" stroke-dasharray="11 8" stroke-linecap="round"/>'+
+        '<text x="585" y="31">Dew point</text>'+
+        '<rect x="775" y="14" width="16" height="16" fill="#3a8dde" fill-opacity="0.6"/>'+
+        '<text x="799" y="31">Precip</text>'+
       '</g>'+
       '</svg>';
     var svgEl=host.querySelector('svg');
-    function lps(p){ var mile=clamp(p,0,1)*maxMile, lx2=tX(mile), ly2=tY(tempAt(mile)), r=svgEl.getBoundingClientRect();
+    function lps(p){ var h=start+clamp(p,0,1)*span, lx2=tX(h), ly2=tY(tempAt(h)), r=svgEl.getBoundingClientRect();
       return { x: r.left + lx2*(r.width/VBW), y: r.top + ly2*(r.height/VBH) }; }
     function align(){ svgEl.style.transform='none';
-      var r=svgEl.getBoundingClientRect();
-      var leftX=(MQ.matches?15:20);
+      var r=svgEl.getBoundingClientRect(), leftX=(MQ.matches?15:20);
       var targetX = mirror ? (legRightX()+dw/2) : (leftX+dw/2);
-      var mile0X = r.left + tX(0)*(r.width/VBW);
-      svgEl.style.transform='translateX('+(targetX-mile0X).toFixed(1)+'px)'; }
+      var startScreenX = r.left + farX*(r.width/VBW);
+      svgEl.style.transform='translateX('+(targetX-startScreenX).toFixed(1)+'px)'; }
     align();
     return { svg:svgEl, mirror:mirror, lps:lps, align:align };
   }
