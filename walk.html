@@ -216,6 +216,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.8rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 #walkerFig {
   position: fixed;
+  top: 0;
+  left: 0;
   z-index: 101;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -249,13 +251,13 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .nav-links { display: none; }     /* hide the full link row on phones */
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
-    padding: 3.5rem 128px 2.5rem 30px;
+    padding: 3.5rem 150px 2.5rem 22px;
     margin: 0;
   }
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner {
     display: block;
-    padding: 0 128px 0 30px; /* right = map lane, left = walker lane */
+    padding: 0 150px 0 22px; /* right = map lane, left = walker lane */
     margin: 0;
   }
   .j-card { padding: 0; }
@@ -271,8 +273,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .map-readout .mi-unit{font-size:.72rem}
   .map-readout .lbl{font-size:.52rem}
   .map-readout .town{font-size:.62rem;margin-top:.12rem}
-  #walkerFig{bottom:15px; left:15px;}
-  #mapLogo{height:44px;right:.4rem;bottom:.4rem}
+  #walkerFig{left:0; top:0; bottom:auto;}
+  #mapLogo{position:fixed;height:44px;right:8px;bottom:8px;z-index:150}
   .article-top{max-width:100%;padding:1.25rem 0 .25rem}
   .article-top-title{font-size:1.55rem}
   .article-top-sub{font-size:.82rem}
@@ -598,7 +600,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   });
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
     var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
-  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=window.matchMedia('(max-width:900px)').matches?14:46;
+  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=window.matchMedia('(max-width:900px)').matches?28:46;
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
   wk.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
@@ -742,7 +744,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   }
 
   function legRightX(){                                // the right-hand rest spot during legs (mirrors render's rightX)
-    var leftX=(MQ.matches?15:20);
+    var leftX=(MQ.matches?8:20);
     var txt=document.querySelector('.j-narrative').getBoundingClientRect();
     var rx=txt.left+txt.right-leftX-dw;
     var endW=(MQ.matches?100:260);
@@ -820,7 +822,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     function lps(p, rect){ var h=start+clamp(p,0,1)*span, lx2=tX(h), ly2=tY(tempAt(h)), r=rect||svgEl.getBoundingClientRect();
       return { x: r.left + lx2*(r.width/VBW), y: r.top + ly2*(r.height/VBH) }; }
     function align(){ svgEl.style.transform='none';
-      var r=svgEl.getBoundingClientRect(), leftX=(MQ.matches?15:20);
+      var r=svgEl.getBoundingClientRect(), leftX=(MQ.matches?8:20);
       var targetX = mirror ? (legRightX()+dw/2) : (leftX+dw/2);
       var startScreenX = r.left + farX*(r.width/VBW);
       svgEl.style.transform='translateX('+(targetX-startScreenX).toFixed(1)+'px)'; }
@@ -888,12 +890,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
     var startWidth = mq.matches ? 100 : 400;
-    var startHeight = mq.matches ? 120 : 362;
+    var startHeight = mq.matches ? 100 : 362;
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
     var endWidth = mq.matches ? 100 : 220;
-    var endHeight = mq.matches ? window.innerHeight * 0.60 : window.innerHeight * 0.82;
+    var endHeight = mq.matches ? window.innerHeight * 0.42 : window.innerHeight * 0.82;
     
     var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
     var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
@@ -905,7 +907,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
       var stop1Rect = stop1Header.getBoundingClientRect();
-      var constantX = mq.matches ? 15 : 20;
+      var constantX = mq.matches ? 8 : 20
 
       var totalScrollDistanceToStop1 = window.scrollY + stop1Rect.top;
       var stop1Progress = totalScrollDistanceToStop1 > 0 ? clamp(window.scrollY / totalScrollDistanceToStop1, 0, 1) : 1;
@@ -983,9 +985,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         }
       }
 
-      wk.style.left = currentX + 'px';
-      wk.style.top = currentY + 'px';
-      wk.style.transform = flip;
+      wk.style.transform = 'translate(' + currentX.toFixed(1) + 'px,' + currentY.toFixed(1) + 'px) ' + flip;
     }
 
     // 2. ANIMATE INTERNAL SATELLITE MAP (Stays locked inside the frame)
