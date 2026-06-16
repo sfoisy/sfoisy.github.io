@@ -264,7 +264,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-card .ph-note { font-size: .85rem; }
   .j-lead p { font-size: .9rem; line-height: 1.7; }
   .j-lead .lede::first-letter { font-size: 2.6rem; }
-  #map, #walkerFig { will-change: transform; }
+  #map { will-change: transform; }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
   .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
   .map-readout .mi{font-size:1.4rem}
@@ -933,7 +933,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var segFrom = S[segIdx].arr, segTo = S[segIdx + 1].arr;
       var segFrac = clamp((cur - segFrom) / Math.max(1, segTo - segFrom), 0, 1);
       var dispCur = cur;   // mileage for the map dot / counter / stride; synced to the line on the chart leg
-      var onLine = false;  // true only while walking the chart line
 
       // Default zig-zag legs (the no-chart ones), riding along the bottom.
       var goingRight = (segIdx % 2 === 0);
@@ -961,7 +960,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         if (rawP <= 0) {
           currentX = restX;
         } else if (rawP < 1) {
-          onLine = true;
           var pt = ci.lps(rawP, crect);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
           var dp = 0.02;
@@ -985,15 +983,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         }
       }
 
-      if (onLine && mq.matches) {            // mobile, mid-line: ride native scroll, glued to the line
-        wk.style.position = 'absolute';
-        wk.style.left = (currentX + window.pageXOffset) + 'px';
-        wk.style.top = (currentY + window.pageYOffset) + 'px';
-      } else {                               // desktop always, and mobile when resting/spinning/dropping
-        wk.style.position = 'fixed';
-        wk.style.left = currentX + 'px';
-        wk.style.top = currentY + 'px';
-      }
+      wk.style.left = currentX + 'px';
+      wk.style.top = currentY + 'px';
       wk.style.transform = flip;
     }
 
