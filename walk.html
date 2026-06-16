@@ -187,10 +187,6 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .pin .ring{fill:none;}
 .pin-dot {
   fill: rgba(26, 24, 48, 0.32);
-  stroke: #ffffff;
-  stroke-width: 5;
-  stroke-linejoin: round;
-  paint-order: stroke;
   transition: fill .3s, transform 0.3s;
   transform-origin: center;
 }
@@ -578,23 +574,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
   const gPins=document.getElementById('gPins'), gTeth=document.getElementById('gTethers'),
         gStateLabels=document.getElementById('gStateLabels'), pinEls=[];
-  function starPath(cx, cy, oR, iR){
-    var p=[];
-    for(var k=0;k<10;k++){ var r=(k%2===0)?oR:iR, a=-Math.PI/2+k*Math.PI/5;
-      p.push((cx+r*Math.cos(a)).toFixed(2)+','+(cy+r*Math.sin(a)).toFixed(2)); }
-    return 'M'+p.join('L')+'Z';
-  }
   S.forEach(function(s,i){
     var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');
+    var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',s.x);ring.setAttribute('cy',s.y);ring.setAttribute('r',10.5);ring.setAttribute('class','ring');
     var hue=(i/Math.max(1,S.length-1))*285;
     var col = s.off ? '#ffffff' : 'hsl('+hue.toFixed(0)+',88%,52%)';
-    var star=document.createElementNS(NS,'path');
-    star.setAttribute('d', starPath(s.x, s.y, 11, 4.5));
-    star.setAttribute('class','pin-dot');
-    star.style.fill=col;
-    g.appendChild(star);gPins.appendChild(g);pinEls.push(g);
+    var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',9);dot.setAttribute('class','pin-dot');dot.style.fill=col;
+    g.appendChild(ring);g.appendChild(dot);gPins.appendChild(g);pinEls.push(g);
   });
-
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=46;
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
