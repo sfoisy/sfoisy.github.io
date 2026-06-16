@@ -249,13 +249,13 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .nav-links { display: none; }     /* hide the full link row on phones */
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
-    padding: 3.5rem 148px 2.5rem 56px;
+    padding: 3.5rem 128px 2.5rem 30px;
     margin: 0;
   }
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner {
     display: block;
-    padding: 0 148px 0 56px; /* right = map lane, left = walker lane */
+    padding: 0 128px 0 30px; /* right = map lane, left = walker lane */
     margin: 0;
   }
   .j-card { padding: 0; }
@@ -598,7 +598,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   });
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
     var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
-  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=46;
+  var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP=window.matchMedia('(max-width:900px)').matches?14:46;
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
   wk.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
@@ -745,7 +745,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var leftX=(MQ.matches?15:20);
     var txt=document.querySelector('.j-narrative').getBoundingClientRect();
     var rx=txt.left+txt.right-leftX-dw;
-    var endW=(MQ.matches?120:260);
+    var endW=(MQ.matches?100:260);
     var mapL=window.innerWidth-22-endW;
     rx=Math.min(rx, mapL-dw-8);
     rx=Math.max(rx, leftX+20);
@@ -887,13 +887,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
-    var startWidth = mq.matches ? 180 : 400;
-    var startHeight = mq.matches ? 148 : 362;
+    var startWidth = mq.matches ? 100 : 400;
+    var startHeight = mq.matches ? 120 : 362;
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
-    var endWidth = mq.matches ? 120 : 220;
-    var endHeight = mq.matches ? 340 : window.innerHeight * 0.82; 
+    var endWidth = mq.matches ? 100 : 220;
+    var endHeight = mq.matches ? window.innerHeight * 0.60 : window.innerHeight * 0.82;
     
     var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
     var computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
@@ -995,7 +995,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapInternalScale = lerp(1.35, 3.15, instantScrollFactor);
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
-    var shiftX = lerp(-23, -70, instantScrollFactor);
+    var shiftX = lerp(mq.matches ? -10 : -23, mq.matches ? -32 : -70, instantScrollFactor);
     var shiftY = lerp(9, -20, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
