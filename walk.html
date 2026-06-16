@@ -899,7 +899,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var overlayOpacity = 1 - instantScrollFactor;
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
     var capEl = document.getElementById('mapCaption');
-    if(capEl) capEl.style.opacity = clamp(1 - instantScrollFactor/0.4, 0, 1);
+    if(capEl) capEl.style.opacity = clamp(1 - instantScrollFactor/0.08, 0, 1);
     
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
