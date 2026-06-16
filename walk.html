@@ -212,7 +212,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;font-variant-numeric:tabular-nums}
 .map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
-.map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#000;background:#7cb342;padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
+.map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#000;background:hsl(0,88%,52%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 #walkerFig {
   position: fixed;
   z-index: 101;
@@ -896,6 +896,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(active>=0 && S[active] && S[active].townOverride){ tn=S[active].townOverride; }
     else { for(var ti=0;ti<TOWNSEGS.length;ti++){ if(miNow>=TOWNSEGS[ti][0] && miNow<=TOWNSEGS[ti][1]){ tn=TOWNSEGS[ti][2]; break; } } if(!tn && TOWNSEGS.length) tn=(miNow<=0?TOWNSEGS[0][2]:TOWNSEGS[TOWNSEGS.length-1][2]); }
     if(townEl && tn!==lastTown){ townEl.textContent=tn; lastTown=tn; }
+    var fi=0; for(var qi=0;qi<S.length-1;qi++){ if(cur>=S[qi].arr){ fi=qi+(cur-S[qi].arr)/Math.max(1,S[qi+1].arr-S[qi].arr); } else break; }
+    if(townEl){ townEl.style.background='hsl('+((Math.max(0,Math.min(S.length-1,fi))/(S.length-1))*285).toFixed(1)+',88%,52%)'; }
     var stepMul = (ci && ci.svg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
