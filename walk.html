@@ -241,9 +241,13 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 .j-card-img{width:100%;max-width:100%;height:auto;border-radius:.75rem;margin-top:1rem;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .j-card-video{width:100%;max-width:100%;border-radius:.75rem;margin-top:1rem;box-shadow:0 4px 12px rgba(0,0,0,.08);display:block;border:0}
 @media(max-width:900px){
+  html { overflow-x: hidden; } /* keep layout exactly device-width so the page never opens zoomed */
   body {
     padding-left: 0; /* Clean collapse reset for responsive touch screens */
   }
+  nav { padding: 0 1.25rem; }       /* collapse the wide desktop nav */
+  .nav-links { display: none; }     /* hide the full link row on phones */
+  .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
     padding: 4rem 1.25rem 3rem;
     margin: 0 auto; /* Re-center on small mobile frames where map docks safely */
