@@ -249,15 +249,22 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .nav-links { display: none; }     /* hide the full link row on phones */
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
-    padding: 4rem 1.25rem 3rem;
-    margin: 0 auto; /* Re-center on small mobile frames where map docks safely */
+    padding: 3.5rem 148px 2.5rem 56px;
+    margin: 0;
   }
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner {
     display: block;
-    padding: 0 1.25rem;
-    margin: 0 auto; /* Maintain fluid centered columns for responsive views */
+    padding: 0 148px 0 56px; /* right = map lane, left = walker lane */
+    margin: 0;
   }
+  .j-card { padding: 0; }
+  .stop-head { font-size: 1.25rem; }
+  .j-card .met { font-size: .85rem; }
+  .j-card .ph-note { font-size: .85rem; }
+  .j-lead p { font-size: .9rem; line-height: 1.7; }
+  .j-lead .lede::first-letter { font-size: 2.6rem; }
+  #map, #walkerFig { will-change: transform; }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
   .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
   .map-readout .mi{font-size:1.4rem}
@@ -810,7 +817,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       '</g>'+
       '</svg>';
     var svgEl=host.querySelector('svg');
-    function lps(p){ var h=start+clamp(p,0,1)*span, lx2=tX(h), ly2=tY(tempAt(h)), r=svgEl.getBoundingClientRect();
+    function lps(p, rect){ var h=start+clamp(p,0,1)*span, lx2=tX(h), ly2=tY(tempAt(h)), r=rect||svgEl.getBoundingClientRect();
       return { x: r.left + lx2*(r.width/VBW), y: r.top + ly2*(r.height/VBH) }; }
     function align(){ svgEl.style.transform='none';
       var r=svgEl.getBoundingClientRect(), leftX=(MQ.matches?15:20);
@@ -907,12 +914,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var leftX = constantX;
       var txt = document.querySelector('.j-narrative').getBoundingClientRect();
       var rightX = txt.left + txt.right - leftX - dw;          // mirror of the left gap
-      var mapL = document.querySelector('.j-map').getBoundingClientRect().left;
+      var _mr = document.querySelector('.j-map').getBoundingClientRect();
+      var mapL = _mr.left;
       rightX = Math.min(rightX, mapL - dw - 8);
       rightX = Math.max(rightX, leftX + 20);
       var bottomY = window.innerHeight - DISP - 20;            // bottom of screen
-      var _mr = document.querySelector('.j-map').getBoundingClientRect();
-      var topY = _mr.top + _mr.height * 0.20;                                      // just under the nav
+      var topY = _mr.top + _mr.height * 0.20;                  // just under the nav
 
       // Intro descent now lands him at the BOTTOM-left.
       var startY = mq.matches ? 105 : 125;
@@ -937,13 +944,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // Line-walk on every leg: wait for the line to reach his feet, walk it, then spin + glide to the next rest spot.
       var ci = legChart[segIdx];
       if (ci && ci.svg) {
+        var crect = ci.svg.getBoundingClientRect();   // read once per frame, not five times
         var mir = ci.mirror;
         var restX = mir ? rightX : leftX;          // this leg starts where the last one ended
         var endX  = mir ? leftX  : rightX;          // ...and ends at the next leg's start
         var rest0 = mir ? 'scaleX(-1)' : 'none';
         flip = rest0;
-        var line0y = ci.lps(0).y;
-        var dyEnd = ci.lps(1).y - line0y;
+        var line0y = ci.lps(0, crect).y;
+        var dyEnd = ci.lps(1, crect).y - line0y;
         var traceRise = (bottomY + DISP - topY) + dyEnd;
         var rise = bottomY + DISP - line0y;
         var rawP = rise / traceRise;
@@ -952,23 +960,23 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         if (rawP <= 0) {
           currentX = restX;
         } else if (rawP < 1) {
-          var pt = ci.lps(rawP);
+          var pt = ci.lps(rawP, crect);
           currentX = pt.x - dw/2; currentY = pt.y - DISP;
           var dp = 0.02;
           var pa = clamp(rawP - dp, 0, 1), pb = clamp(rawP + dp, 0, 1);
           if (pa === pb) { pa = clamp(rawP - 0.001, 0, 1); pb = clamp(rawP + 0.001, 0, 1); }
-          var A = ci.lps(pa), B = ci.lps(pb);
+          var A = ci.lps(pa, crect), B = ci.lps(pb, crect);
           var fdx = B.x - A.x, fdy = B.y - A.y;
           var ang = (mir ? Math.atan2(fdy, -fdx) : Math.atan2(fdy, fdx)) * 180 / Math.PI;
           flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + ang.toFixed(1) + 'deg)';
         } else if (rise < traceRise + SPIN_PX) {
-          var sE = ci.lps(1), t1 = (rise - traceRise) / SPIN_PX;
+          var sE = ci.lps(1, crect), t1 = (rise - traceRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, endX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
           flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (720 * t1).toFixed(1) + 'deg)';
         } else {
           var t2 = clamp((rise - traceRise - SPIN_PX) / DOWN_PX, 0, 1);
-          var gravityT = t2 * t2;  // quadratic ease-in — accelerates like a falling object
+          var gravityT = t2 * t2;  // quadratic ease-in, accelerates like a falling object
           currentX = endX;
           currentY = lerp(topY, bottomY, gravityT);
           if (t2 >= 1) active = segIdx + 1;
