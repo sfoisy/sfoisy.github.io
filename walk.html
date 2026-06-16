@@ -659,7 +659,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
               '<text x="'+(axisX+tOff)+'" y="'+(parseFloat(yy)+10)+'" font-size="30" text-anchor="'+tAnc+'" fill="#000">'+t+'</text>'; }
     var midY=((mT+bY)/2).toFixed(1), unitX=mirror?(axisX-88):(axisX+88);
     host.innerHTML =
-      '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:600">'+
+      '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:400">'+
       '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
       '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
       xticks + yticks +
@@ -667,7 +667,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       '<text x="'+((farX+axisX)/2).toFixed(1)+'" y="'+(bY+90)+'" font-size="30" text-anchor="middle" fill="#000">miles walked</text>'+
       (dewPoly?'<polyline points="'+dewPoly+'" fill="none" stroke="#0e6ba8" stroke-width="5" stroke-dasharray="11 8" stroke-linejoin="round" stroke-linecap="round"/>':'')+
       '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
-      '<g font-family="DM Sans,sans-serif" font-weight="600" font-size="27" fill="#000">'+
+      '<g font-family="DM Sans,sans-serif" font-weight="400" font-size="20.25" fill="#000">'+
         '<line x1="280" y1="22" x2="335" y2="22" stroke="#ff3b30" stroke-width="6" stroke-linecap="round"/>'+
         '<text x="345" y="31">Temperature</text>'+
         '<line x1="600" y1="22" x2="655" y2="22" stroke="#0e6ba8" stroke-width="6" stroke-dasharray="11 8" stroke-linecap="round"/>'+
