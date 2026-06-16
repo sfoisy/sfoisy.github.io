@@ -777,7 +777,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       rightX = Math.min(rightX, mapL - dw - 8);
       rightX = Math.max(rightX, leftX + 20);
       var bottomY = window.innerHeight - DISP - 20;            // bottom of screen
-      var topY = 80;                                           // just under the nav
+      var _mr = document.querySelector('.j-map').getBoundingClientRect();
+      var topY = _mr.top + _mr.height * 0.20;                                      // just under the nav
 
       // Intro descent now lands him at the BOTTOM-left.
       var startY = mq.matches ? 105 : 125;
@@ -830,7 +831,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var sE = ci.lps(1), t1 = (rise - traceRise) / SPIN_PX;
           currentX = lerp(sE.x - dw/2, endX, t1);
           currentY = lerp(sE.y - DISP, topY, t1);
-          flip = 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
+          flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (360 * t1).toFixed(1) + 'deg)';
         } else {
           var t2 = clamp((rise - traceRise - SPIN_PX) / DOWN_PX, 0, 1);
           currentX = endX;
