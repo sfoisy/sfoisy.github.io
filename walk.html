@@ -710,8 +710,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(LEGDATA[legIdx]){
       var L=LEGDATA[legIdx];
       var hrs=L.temp.map(function(p){return p[0];});
-      var start=(L.start!=null)?L.start:Math.floor(Math.min.apply(null,hrs));
-      var end=(L.end!=null)?L.end:Math.ceil(Math.max.apply(null,hrs));
+      var start=(L.start!=null)?L.start:Math.min.apply(null,hrs);
+      var end=(L.end!=null)?L.end:Math.max.apply(null,hrs);
       return { date:L.date||'', station:L.station||'', start:start, end:end,
                pts:L.temp, dew:L.dew||dewFromTemp(L.temp,legIdx),
                precip:(L.precip||[]).filter(function(p){return p[1]==='T'||p[1]>0;}) };
