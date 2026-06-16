@@ -178,7 +178,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)); 
   opacity: 0;
 }
-.ferry-line{fill:none;stroke:var(--ferry);stroke-width:2.8;stroke-dasharray:7 6;stroke-linecap:round;opacity:.4;transition:opacity .5s}
+.ferry-line{fill:none;stroke:#ffffff;stroke-width:3;stroke-dasharray:1 9;stroke-linecap:round;opacity:.4;transition:opacity .5s}
 .ferry-line.on{opacity:1}
 .ferry-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:var(--ferry);opacity:0;transition:opacity .5s;pointer-events:none}
 .ferry-label.on{opacity:.97}
@@ -209,7 +209,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #walker{fill:#ffffff;stroke:#ffeb3b;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
 .map-hud{position:absolute;bottom:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
 .map-readout{background:transparent;padding:.35rem .2rem .3rem;border-radius:.6rem;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.75)}
-.map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}.map-readout .mi-unit{font-size:.78rem;color:#fff}
+.map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;font-variant-numeric:tabular-nums}
+.map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#000;background:#7cb342;padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 #walkerFig {
@@ -254,7 +255,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
   .map-readout{padding:.22rem .42rem .2rem;border-radius:.45rem}
-  .map-readout .mi{font-size:1.4rem;min-width:2.8em}
+  .map-readout .mi{font-size:1.4rem}
   .map-readout .mi-unit{font-size:.72rem}
   .map-readout .lbl{font-size:.52rem}
   .map-readout .town{font-size:.62rem;margin-top:.12rem}
@@ -718,7 +719,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     lab.lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
-  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9; var lastTown='';
+  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown='';
   function compute(){
     var anchor=window.scrollY+window.innerHeight*af(), mi=0, act=-1;
     for(var i=0;i<S.length;i++){
@@ -746,12 +747,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
-    var startWidth = mq.matches ? 180 : 450;
+    var startWidth = mq.matches ? 180 : 400;
     var startHeight = mq.matches ? 148 : 362;
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
-    var endWidth = mq.matches ? 120 : 260;
+    var endWidth = mq.matches ? 120 : 220;
     var endHeight = mq.matches ? 340 : window.innerHeight * 0.82; 
     
     var computedWidth = lerp(startWidth, endWidth, instantScrollFactor);
@@ -850,11 +851,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Scale starts at 1.0 (100%) and expands up to 3.2 (320%) dynamically alongside the rotation timeline
     // Change the first argument from 0 to 8 to start with an 8-degree clockwise tilt
     var mapInternalRotation = lerp(1, -52, instantScrollFactor); 
-    var mapInternalScale = lerp(1.12, 3.3, instantScrollFactor); // Bumps maximum zoom level up to 400%
+    var mapInternalScale = lerp(1.12, 2.95, instantScrollFactor);
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
     var shiftX = lerp(-23, -70, instantScrollFactor);
-    var shiftY = lerp(9, 0, instantScrollFactor);
+    var shiftY = lerp(9, -45, instantScrollFactor);
     
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
@@ -869,9 +870,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     document.querySelector('.route-bright').style.opacity = mapIntroFactor;
     
+    if(active>=0 && active>maxRevealed) maxRevealed=active;
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
-      pins[pIdx].style.opacity = (cur >= S[pIdx].arr - 0.5) ? mapIntroFactor : 0;
+      pins[pIdx].style.opacity = (pIdx<=maxRevealed) ? mapIntroFactor : 0;
     }
     
     // ADJUSTED VALUES: 
