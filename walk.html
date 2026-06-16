@@ -837,6 +837,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var gravityT = t2 * t2;  // quadratic ease-in — accelerates like a falling object
           currentX = endX;
           currentY = lerp(topY, bottomY, gravityT);
+          if (t2 >= 1) active = segIdx + 1;
         }
       }
 
@@ -897,7 +898,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
     if(FERRY){ ferryLine.classList.toggle('on',cur>=FS-0.5); ferryLabel.classList.toggle('on',cur>=FS-0.5 && cur<FE); }
-    S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5);pinEls[i].classList.toggle('active',i===active);});
+    S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5 || i===active);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
     cards.forEach(function(c,i){c.classList.toggle('active',i===active);});
     if(active>=0){ if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; } label.style.opacity=1; }
