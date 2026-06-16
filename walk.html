@@ -182,8 +182,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .ferry-line.on{opacity:1}
 .ferry-label{font-family:'DM Sans',sans-serif;font-weight:600;fill:var(--ferry);opacity:0;transition:opacity .5s;pointer-events:none}
 .ferry-label.on{opacity:.97}
-.tether{stroke:var(--strava);stroke-width:1.6;stroke-dasharray:6 5;opacity:0;transition:opacity .5s}
+.tether{stroke:#ffeb3b;stroke-width:1.6;stroke-dasharray:6 5;opacity:0;transition:opacity .5s}
 .tether.on{opacity:.85}
+.pin .ring{fill:none;}
 .pin-dot {
   fill: rgba(26, 24, 48, 0.32);
   transition: fill .3s, transform 0.3s;
@@ -193,11 +194,10 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   fill: #ffeb3b; 
 }
 .pin.active .pin-dot {
-  fill: #ffeb3b;
-  filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.9));
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.95));
 }
 #activeLabel {
-  font-family: 'Playfair Display', serif;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-style: normal;
   fill: #ffffff;
@@ -209,8 +209,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 #walker{fill:#ffffff;stroke:#ffeb3b;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
 .map-hud{position:absolute;bottom:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
 .map-readout{background:transparent;padding:.35rem .2rem .3rem;border-radius:.6rem;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.75)}
-.map-readout .mi{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}
-.map-readout .mi-unit{font-size:.78rem;color:#fff}
+.map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;min-width:2.95em;text-align:left;font-variant-numeric:tabular-nums}.map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#000;background:#7cb342;padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 #walkerFig {
@@ -570,7 +569,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   if(FERRY){
     ferryLine.setAttribute('d',FERRY.d);
     ferryLabel.setAttribute('x',FERRY.lx); ferryLabel.setAttribute('y',FERRY.ly);
-    ferryLabel.setAttribute('text-anchor',FERRY.anc); ferryLabel.textContent='\u26F4 Staten Island Ferry';
+    ferryLabel.setAttribute('text-anchor',FERRY.anc); ferryLabel.textContent='';
   }
 
   const gPins=document.getElementById('gPins'), gTeth=document.getElementById('gTethers'),
@@ -579,7 +578,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(s.off){var t=document.createElementNS(NS,'line');t.setAttribute('x1',s.ax);t.setAttribute('y1',s.ay);t.setAttribute('x2',s.x);t.setAttribute('y2',s.y);t.setAttribute('class','tether');t.dataset.i=i;gTeth.appendChild(t);}
     var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');
     var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',s.x);ring.setAttribute('cy',s.y);ring.setAttribute('r',7);ring.setAttribute('class','ring');
-    var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',4);dot.setAttribute('class','pin-dot');
+    var hue=(i/Math.max(1,S.length-1))*285;
+    var col='hsl('+hue.toFixed(0)+',88%,52%)';
+    var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',6);dot.setAttribute('class','pin-dot');dot.style.fill=col;
     g.appendChild(ring);g.appendChild(dot);gPins.appendChild(g);pinEls.push(g);
   });
 
@@ -867,7 +868,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
-      pins[pIdx].style.opacity = mapIntroFactor;
+      pins[pIdx].style.opacity = (cur >= S[pIdx].arr - 0.5) ? mapIntroFactor : 0;
+    }
     }
     
     // ADJUSTED VALUES: 
