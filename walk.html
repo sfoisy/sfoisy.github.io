@@ -213,6 +213,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(0,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
+.map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.8rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 #walkerFig {
   position: fixed;
   z-index: 101;
@@ -533,6 +534,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     </div>
     <div class="map-town" id="townName">Manhattan, NY</div>
+    <div class="map-caption" id="mapCaption">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd, the second-to-last day of my walk! I'm somewhere near the star marking DC, lol.</div>
   </div>
 </div>
 </section>
@@ -896,6 +898,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var overlayOpacity = 1 - instantScrollFactor;
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
+    var capEl = document.getElementById('mapCaption');
+    if(capEl) capEl.style.opacity = clamp(1 - instantScrollFactor/0.4, 0, 1);
     
     var mapIntroFactor = clamp((introCur - 0.3) / 0.7, 0, 1);
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
