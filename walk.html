@@ -104,9 +104,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .j-travel{height:64vh}
 #travelChart{height:auto;padding:15vh 0 40vh 0}
 #tempChart{max-width:100%;margin:0 auto}
-.chart-station{font-family:'DM Sans',sans-serif;text-align:center;font-size:1.15rem;font-weight:400;color:#000;margin:0 0 1.9rem}
-.chart-station b{font-weight:700}
-.chart-legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.9rem;margin:1.5rem 0 0;font-family:'DM Sans',sans-serif;font-size:1.3rem;color:#000}
+.chart-station{font-family:'DM Sans',sans-serif;font-style:italic;text-align:left;font-size:1.05rem;font-weight:400;color:#000;line-height:1.35;margin:1.1rem 0 0}
+.chart-legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.9rem;margin:.3rem 0 0;font-family:'DM Sans',sans-serif;font-size:1.3rem;color:#000}
 .chart-legend .li{display:inline-flex;align-items:center;gap:.5rem}
 .chart-legend .sw-line{display:inline-block;width:36px;height:0;border-top:5px solid #ff3b30}
 .chart-legend .sw-dash{display:inline-block;width:36px;height:0;border-top:5px dashed #0e6ba8}
@@ -302,7 +301,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .article-top-sub{font-size:.82rem}
   .j-narrative{padding:0 0 3rem;max-width:100%}
   .j-travel{height:48vh}
-  .chart-station{font-size:1.35rem;margin-bottom:1.5rem}
+  .chart-station{font-size:1.35rem;margin-top:1.1rem}
   .chart-legend{font-size:1.5rem;gap:1.2rem}
   footer {
     background: #fff;
@@ -838,14 +837,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var tempDots=pts.map(function(d){ return '<circle cx="'+tX(d[0]).toFixed(1)+'" cy="'+tY(d[1]).toFixed(1)+'" r="4.5" fill="#ff3b30"/>'; }).join('');
     var midY=((mT+bY)/2).toFixed(1), unitX=mirror?(axisX-88):(axisX+88);
-    var stationHTML = data.station ? '<div class="chart-station">Weather Station: <b>'+data.station+'</b></div>' : '';
+    var stationHTML = data.station ? '<div class="chart-station">Weather Station:<br>'+data.station+'</div>' : '';
     var legendHTML =
       '<div class="chart-legend">'+
         '<span class="li"><span class="sw-line"></span>Temperature</span>'+
         '<span class="li"><span class="sw-dash"></span>Dew point</span>'+
         '<span class="li"><span class="sw-box"></span>Precip</span>'+
       '</div>';
-    host.innerHTML = stationHTML +
+    host.innerHTML =
       '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:400">'+
       precipBars +
       '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
@@ -856,7 +855,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       (dewPoly?'<polyline points="'+dewPoly+'" fill="none" stroke="#0e6ba8" stroke-width="5" stroke-dasharray="11 8" stroke-linejoin="round" stroke-linecap="round"/>':'')+
       '<polyline points="'+poly+'" fill="none" stroke="#ff3b30" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       tempDots + precipLabels +
-      '</svg>' + legendHTML;
+      '</svg>' + legendHTML + stationHTML;
     var svgEl=host.querySelector('svg');
     if(MQ.matches){ svgEl.querySelectorAll('text').forEach(function(t){
       var fs=parseFloat(t.getAttribute('font-size'))||0;
@@ -867,8 +866,17 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     function align(){ svgEl.style.transform='none';
       var r=svgEl.getBoundingClientRect(), leftX=(MQ.matches?0:20);
       var targetX = mirror ? (legRightX()+dw/2) : (leftX+dw/2);
-      var startScreenX = r.left + farX*(r.width/VBW);
-      svgEl.style.transform='translateX('+(targetX-startScreenX).toFixed(1)+'px)'; }
+      var scale=r.width/VBW, startScreenX=r.left + farX*scale;
+      svgEl.style.transform='translateX('+(targetX-startScreenX).toFixed(1)+'px)';
+      // line the caption + legend up with the chart's real on-screen position
+      var hostL=host.getBoundingClientRect().left;
+      var pMin=Math.min(farX,axisX), pMax=Math.max(farX,axisX);
+      var chartLeftPx=(targetX + (pMin-farX)*scale) - hostL;
+      var chartWPx=(pMax-pMin)*scale;
+      var st=host.querySelector('.chart-station'), lg=host.querySelector('.chart-legend');
+      if(st){ st.style.marginLeft=chartLeftPx.toFixed(1)+'px'; st.style.width=chartWPx.toFixed(1)+'px'; }
+      if(lg){ lg.style.marginLeft=chartLeftPx.toFixed(1)+'px'; lg.style.width=chartWPx.toFixed(1)+'px'; }
+    }
     align();
     return { svg:svgEl, mirror:mirror, lps:lps, align:align };
   }
