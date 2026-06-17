@@ -638,6 +638,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   var dw=Math.round(WK.fw*DISP/WK.fh);
   wk.style.width=dw+'px'; wk.style.height=DISP+'px';
   wk.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
+  var WALKER_BG="url(data:image/png;base64,"+WK.b64+")", WALKER_BGSIZE=(dw*WK.frames)+'px '+DISP+'px';
+  var BOAT_BG="url(boat.png)", BOAT_BGSIZE=dw+'px '+DISP+'px', boatOn=false;
+  (new Image()).src='boat.png';   // preload so the swap is instant
   wk.style.backgroundSize=(dw*WK.frames)+'px '+DISP+'px';
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
   var wkTop=document.getElementById('walkerTop');
@@ -1180,7 +1183,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var fi=0; for(var qi=0;qi<S.length-1;qi++){ if(cur>=S[qi].arr){ fi=qi+(cur-S[qi].arr)/Math.max(1,S[qi+1].arr-S[qi].arr); } else break; }
     if(townEl){ townEl.style.background='hsl('+((Math.max(0,Math.min(S.length-1,fi))/(S.length-1))*285).toFixed(1)+',88%,42%)'; }
     var stepMul = (ci && ci.svg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
-    wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
+    var ferryNow = (dispCur>=FS-0.5 && dispCur<FE);                 // riding the Staten Island Ferry
+    if(ferryNow!==boatOn){
+      boatOn=ferryNow;
+      wk.style.backgroundImage = boatOn?BOAT_BG:WALKER_BG;
+      wk.style.backgroundSize  = boatOn?BOAT_BGSIZE:WALKER_BGSIZE;
+    }
+    if(boatOn) wk.style.backgroundPositionX='0px';                  // static boat, no walk cycle
+    else wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
     if(FERRY){ ferryLine.classList.toggle('on',dispCur>=FS-0.5); ferryLabel.classList.toggle('on',dispCur>=FS-0.5 && dispCur<FE); if(ferryBadge) ferryBadge.style.opacity=(dispCur>=FS-0.5 && dispCur<FE)?1:0; }
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5 || i===active);pinEls[i].classList.toggle('active',i===active);});
