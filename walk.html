@@ -1160,7 +1160,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var stepMul = (ci && ci.svg && rawP > 0 && rawP < 1) ? 4 : 1;   // 4x leg speed on the red line
     wk.style.backgroundPositionX=(-(Math.floor(walkFrac*STEPS*stepMul)%WK.frames*dw))+'px';
     var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);
-    if(FERRY){ ferryLine.classList.toggle('on',cur>=FS-0.5); ferryLabel.classList.toggle('on',cur>=FS-0.5 && cur<FE); if(ferryBadge) ferryBadge.style.opacity=(cur>=FS-0.5 && cur<FE)?1:0; }
+    if(FERRY){ ferryLine.classList.toggle('on',dispCur>=FS-0.5); ferryLabel.classList.toggle('on',dispCur>=FS-0.5 && dispCur<FE); if(ferryBadge) ferryBadge.style.opacity=(dispCur>=FS-0.5 && dispCur<FE)?1:0; }
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5 || i===active);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
     cards.forEach(function(c,i){c.classList.toggle('active',i===active);});
