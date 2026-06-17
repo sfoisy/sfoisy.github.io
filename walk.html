@@ -1294,5 +1294,45 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   compute(); cur=target; introCur=targetIntro; active=targetActive; render();
 })();
 </script>
+<script>
+(function(){
+  function fmt(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60), x=s%60; return m+':'+(x<10?'0':'')+x; }
+  window.onYouTubeIframeAPIReady=function(){
+    [].slice.call(document.querySelectorAll('.yt-player')).forEach(setupPlayer);
+  };
+  function setupPlayer(el){
+    var vid=el.getAttribute('data-video-id');
+    var frame=el.querySelector('.yt-frame');
+    var bigplay=el.querySelector('.yt-bigplay');
+    var pp=el.querySelector('.yt-pp');
+    var prog=el.querySelector('.yt-prog');
+    var fill=el.querySelector('.yt-prog-fill');
+    var timeEl=el.querySelector('.yt-time');
+    var click=el.querySelector('.yt-click');
+    var dur=0, raf=null;
+    var player=new YT.Player(frame,{
+      videoId:vid,
+      playerVars:{controls:0,modestbranding:1,rel:0,playsinline:1,fs:0,disablekb:1,iv_load_policy:3},
+      events:{
+        onReady:function(){ dur=player.getDuration()||0; timeEl.textContent='0:00 / '+fmt(dur); el.classList.add('paused'); },
+        onStateChange:function(e){
+          if(e.data===YT.PlayerState.PLAYING){ el.classList.add('playing'); el.classList.remove('paused'); if(!dur) dur=player.getDuration()||0; startLoop(); }
+          else { el.classList.remove('playing'); el.classList.add('paused'); stopLoop(); }
+          if(e.data===YT.PlayerState.ENDED){ player.seekTo(0,true); player.pauseVideo(); fill.style.width='0%'; timeEl.textContent='0:00 / '+fmt(dur); }
+        }
+      }
+    });
+    function update(){ var t=player.getCurrentTime?player.getCurrentTime():0; if(dur){ fill.style.width=(t/dur*100)+'%'; timeEl.textContent=fmt(t)+' / '+fmt(dur); } raf=requestAnimationFrame(update); }
+    function startLoop(){ if(!raf) raf=requestAnimationFrame(update); }
+    function stopLoop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+    function toggle(){ if(player.getPlayerState()===YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo(); }
+    bigplay.addEventListener('click',function(e){ e.stopPropagation(); toggle(); });
+    pp.addEventListener('click',function(e){ e.stopPropagation(); toggle(); });
+    click.addEventListener('click',toggle);
+    prog.addEventListener('click',function(e){ e.stopPropagation(); var r=prog.getBoundingClientRect(); var f=(e.clientX-r.left)/r.width; f=Math.max(0,Math.min(1,f)); if(dur) player.seekTo(f*dur,true); });
+  }
+})();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
