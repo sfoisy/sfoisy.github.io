@@ -949,18 +949,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
-    var endWidth, endHeight;
-    if (mq.matches) {
-      // MOBILE: morph to ONE fixed-size card whose aspect matches the look that
-      // already works. We never distort it to chase the viewport; instead (just
-      // below) we uniformly scale the whole map to fit short screens, so the full
-      // route is always visible rather than clipped.
-      endWidth  = 120;   // natural card width
-      endHeight = 680;   // natural card height, aspect ~0.176 to match the good look
-    } else {
-      endWidth  = 220;
-      endHeight = window.innerHeight * 0.82;
-    }
+    var endWidth = mq.matches ? 100 : 220;
+    var endHeight = mq.matches ? window.innerHeight * 0.32 : window.innerHeight * 0.82;
     
     var computedWidth, computedHeight;
     if (mq.matches) {
@@ -986,18 +976,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
-    if (mq.matches) {
-      // Uniformly shrink the whole card (top-right pinned) so it always fits
-      // between the page top and the logo. Scaling it as one piece keeps the
-      // internal map composition intact, so it's never cut off.
-      var _logoTop = window.innerHeight - 22 - 44;       // mobile logo: bottom 22px, height 44px
-      var _availH  = Math.max(120, _logoTop - 76 - 12);  // 76px = .j-map top, 12px gap above logo
-      var _fit     = Math.min(1, _availH / computedHeight);
-      mapBox.style.transformOrigin = 'top right';
-      mapBox.style.transform = 'scale(' + _fit.toFixed(4) + ')';
-    } else {
-      mapBox.style.transform = 'none';
-    }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
