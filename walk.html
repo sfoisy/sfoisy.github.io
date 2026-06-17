@@ -898,6 +898,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const cards=[].slice.call(document.querySelectorAll('.j-card')), travels=[].slice.call(document.querySelectorAll('.j-travel'));
   const lead=document.querySelector('.j-lead');
   const mq=window.matchMedia('(max-width:1100px)');
+  const LOWH=window.matchMedia('(max-width:1100px) and (max-height:600px)');
+  const lowTopGap=66, lowBotGap=90;   // clears the nav at top and the fixed logo/town label at bottom
   const af=function(){return mq.matches?0.66:0.5;};
   const clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
 
@@ -950,7 +952,16 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
     var endWidth = mq.matches ? 100 : 220;
-    var endHeight = mq.matches ? window.innerHeight * 0.32 : window.innerHeight * 0.82;
+    var endHeight;
+    if (mq.matches && LOWH.matches) {
+      // Short mobile viewport: don't shrink the map with the screen height.
+      // Fill the vertical white space instead.
+      endHeight = window.innerHeight - lowTopGap - lowBotGap;
+    } else if (mq.matches) {
+      endHeight = window.innerHeight * 0.32;
+    } else {
+      endHeight = window.innerHeight * 0.82;
+    }
     
     var computedWidth, computedHeight;
     if (mq.matches) {
@@ -976,6 +987,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapBox = document.querySelector('.j-map');
     mapBox.style.width = computedWidth + 'px';
     mapBox.style.height = computedHeight + 'px';
+    if (mq.matches && LOWH.matches) {
+      // Center the map in the available band so it grows up AND down.
+      var lowBand = window.innerHeight - lowTopGap - lowBotGap;
+      mapBox.style.top = (lowTopGap + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
+    } else {
+      mapBox.style.top = '';   // every other case falls back to the CSS top:76px
+    }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
