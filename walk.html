@@ -1069,8 +1069,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // Center the map in the available band so it grows up AND down.
       var lowBand = window.innerHeight - lowTopGap - lowBotGap;
       mapBox.style.top = (lowTopGap + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
+    } else if (mq.matches) {
+      // Mobile (taller viewports): the nav bar scrolls away with the page, so once
+      // it's gone the map's fixed 76px gap is just dead space. Glide the map up
+      // toward the very top of the screen as scroll progresses, reclaiming that room.
+      mapBox.style.top = lerp(76, 10, instantScrollFactor) + 'px';
     } else {
-      mapBox.style.top = '';   // every other case falls back to the CSS top:76px
+      mapBox.style.top = '';   // desktop falls back to the CSS top:76px
     }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
