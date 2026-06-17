@@ -316,6 +316,13 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .chart-legend{font-size:0.9rem;gap:.6rem}
   .chart-station{font-size:0.9rem}
 }
+#scrollHint{display:none}
+@media(max-width:1100px){
+  #scrollHint{display:flex;align-items:flex-start;gap:.55rem;position:absolute;right:18px;top:215px;z-index:6;pointer-events:none;font-family:'DM Sans',sans-serif}
+  #scrollHint .sh-word{margin-top:.35rem;font-size:1.5rem;font-weight:500;color:#000}
+  #scrollHint .sh-arrow{display:block}
+}
+@media(max-width:1100px) and (max-height:600px){#scrollHint{display:none}}
 </style>
 </head>
 <body>
@@ -334,7 +341,14 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 
 <header class="article-hero">
   <div id="walkerTop" aria-hidden="true"></div>
-  <p class="eyebrow">A walk for weather & climate science</p>
+  <div id="scrollHint" aria-hidden="true">
+    <span class="sh-word">scroll!</span>
+    <svg class="sh-arrow" width="26" height="118" viewBox="0 0 26 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 4 L13 96" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+      <path d="M4 86 L13 104 L22 86" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <p class="eyebrow">A walk for weather &amp; climate science</p>
   <h1 class="article-title"><strong>Walking 250 miles from NYC to DC</strong></h1>
   <p class="article-dek">From May 23 to June 3, I walked up to 52 miles per day, interviewing scientists from 10 research institutions between NYC and DC. Follow along my journey by scrolling below!</p>
   <p class="article-meta">
@@ -656,6 +670,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   window.addEventListener('orientationchange',sizeWalker);
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
   var wkTop=document.getElementById('walkerTop');
+  var scrollHintEl=document.getElementById('scrollHint');
   if(wkTop && WK){ var tw=(window.matchMedia('(max-width:1100px)').matches?52:46), th=Math.round(WK.fh*tw/WK.fw);
     wkTop.style.width=tw+'px'; wkTop.style.height=th+'px';
     wkTop.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
@@ -974,6 +989,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
     if(wkTop) wkTop.style.opacity=clamp(1-window.scrollY/50,0,1);   // top walker fades out fast on first scroll
+    if(scrollHintEl) scrollHintEl.style.opacity=clamp(1-window.scrollY/25,0,1);   // hint fades out before the walker
     
     // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
     var _s1 = document.querySelector('.j-step[data-i="0"]');
