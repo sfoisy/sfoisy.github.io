@@ -1033,8 +1033,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var endHeight;
     if (mq.matches && LOWH.matches) {
       // Short mobile viewport: don't shrink the map with the screen height.
-      // Fill the vertical white space instead.
-      endHeight = window.innerHeight - lowTopGap - lowBotGap;
+      // Fill the vertical white space instead, but never go so short the
+      // route becomes unreadable; below that floor, let the map overflow
+      // the viewport rather than squash the route into illegibility.
+      var lowHFloor = 260;
+      endHeight = Math.max(lowHFloor, window.innerHeight - lowTopGap - lowBotGap);
     } else if (mq.matches) {
       endHeight = window.innerHeight * 0.32;
     } else {
@@ -1068,6 +1071,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if (mq.matches && LOWH.matches) {
       // Center the map in the available band, but glide the band's top edge up
       // as the nav scrolls away, same as the taller-viewport case below.
+      // If the readability floor pushed the map taller than the band, this
+      // pins it to the top of the band and lets it overflow downward instead
+      // of trying to center it (which would push it half off-screen at top).
       var lowTopNow = lerp(lowTopGap, 10, instantScrollFactor);
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
       mapBox.style.top = (lowTopNow + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
