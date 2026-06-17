@@ -1018,7 +1018,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var f = Math.pow(clamp((rawP + FADE) / FADE, 0, 1), 1.5);
           if (segIdx === 0) {                      // first leg: bring him in alongside the intro labels...
             var _wl = clamp((introCur - 0.2) / 0.8, 0, 1);
-            f = Math.pow(_wl, 2);                  // same curve the pins/labels use (mapIntroFactor = _lf*_lf)
+            f = mq.matches ? (_wl > 0 ? 1 : 0)     // mobile: pop in instantly when the walk starts, no fade
+                           : Math.pow(_wl, 2);     // desktop: same gentle fade as the pins/labels
           } else if (!mq.matches) {
             f = 1;                                 // desktop: rests fully visible between legs, never vanishes
           }
