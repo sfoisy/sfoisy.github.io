@@ -189,7 +189,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   fill: rgba(26, 24, 48, 0.32);
   transition: fill .3s, transform 0.3s;
   transform-origin: center;
+  transform-box: fill-box;
 }
+.pin:hover .pin-dot { transform: scale(1.25); }
 .pin.reached .pin-dot {
   fill: #ffeb3b; 
 }
