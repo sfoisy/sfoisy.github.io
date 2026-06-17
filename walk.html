@@ -907,14 +907,25 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var RAD=52*Math.PI/180;
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
-    var FS=mq.matches?57:32, LH=mq.matches?69:38, off=40;                  // text size, line height, gap right of the dot
-    var n=lab.lines.length, up=(n-1)*LH/2;
+    var FS=mq.matches?57:32, LH=mq.matches?69:38, off=40;
+    var lines=lab.lines;
+    if(mq.matches){                          // mobile: re-wrap so no line goes past 12 chars
+      var words=lab.lines.join(' ').split(/\s+/), out=[], cur='';
+      words.forEach(function(w){
+        if(cur==='') cur=w;
+        else if((cur+' '+w).length<=12) cur+=' '+w;       // word fits, keep it on this line
+        else { out.push(cur); cur=w; }                    // would exceed 12, push it to the next line
+      });
+      if(cur) out.push(cur);
+      lines=out;
+    }
+    var n=lines.length, up=(n-1)*LH/2;
     var ax=sx+rx*off+ux*up, ay=sy+ry*off+uy*up;
     label.setAttribute('x',ax); label.setAttribute('y',ay);
     label.setAttribute('text-anchor','start'); label.setAttribute('font-size',FS);
     label.setAttribute('transform','rotate(52 '+ax+' '+ay+')');
     label.textContent='';
-    lab.lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
+    lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
   var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0;
@@ -1068,6 +1079,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           } else if (!mq.matches) {
             f = 1;                                 // desktop: rests fully visible between legs, never vanishes
           }
+          if (mq.matches) f = 0;                   // mobile: stay hidden until he steps onto the chart line
           walkerVis = f;
         } else if (rawP < endP) {
           onLine = true;
