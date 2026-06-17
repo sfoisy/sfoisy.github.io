@@ -846,6 +846,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       '</g>'+
       '</svg>';
     var svgEl=host.querySelector('svg');
+    if(MQ.matches){ svgEl.querySelectorAll('text').forEach(function(t){
+      var fs=parseFloat(t.getAttribute('font-size'))||0;
+      if(fs) t.setAttribute('font-size',(fs*3).toFixed(2));
+    }); }
     function lps(p, rect){ var h=start+clamp(p,0,1)*span, lx2=tX(h), ly2=tY(tempAt(h)), r=rect||svgEl.getBoundingClientRect();
       return { x: r.left + lx2*(r.width/VBW), y: r.top + ly2*(r.height/VBH) }; }
     function align(){ svgEl.style.transform='none';
@@ -878,7 +882,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var RAD=52*Math.PI/180;
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
-    var FS=mq.matches?38:32, LH=mq.matches?46:38, off=40;                  // text size, line height, gap right of the dot
+    var FS=mq.matches?57:32, LH=mq.matches?69:38, off=40;                  // text size, line height, gap right of the dot
     var n=lab.lines.length, up=(n-1)*LH/2;
     var ax=sx+rx*off+ux*up, ay=sy+ry*off+uy*up;
     label.setAttribute('x',ax); label.setAttribute('y',ay);
