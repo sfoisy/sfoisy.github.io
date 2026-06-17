@@ -605,12 +605,19 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const gPins=document.getElementById('gPins'), gTeth=document.getElementById('gTethers'),
         gStateLabels=document.getElementById('gStateLabels'), pinEls=[];
   S.forEach(function(s,i){
-    var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');
+    var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');g.style.cursor='pointer';
     var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',s.x);ring.setAttribute('cy',s.y);ring.setAttribute('r',10.5);ring.setAttribute('class','ring');
     var hue=(i/Math.max(1,S.length-1))*285;
     var col = s.off ? '#ffffff' : 'hsl('+hue.toFixed(0)+',88%,52%)';
     var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',9);dot.setAttribute('class','pin-dot');dot.style.fill=col;
-    g.appendChild(ring);g.appendChild(dot);gPins.appendChild(g);pinEls.push(g);
+    var hit=document.createElementNS(NS,'circle');hit.setAttribute('cx',s.x);hit.setAttribute('cy',s.y);hit.setAttribute('r',20);hit.setAttribute('fill','transparent');hit.style.pointerEvents='all';
+    g.appendChild(ring);g.appendChild(dot);g.appendChild(hit);gPins.appendChild(g);pinEls.push(g);
+    g.addEventListener('click',function(){
+      if(parseFloat(g.style.opacity||'0')<0.15) return;
+      var card=document.querySelector('.j-step[data-i="'+i+'"]'); if(!card) return;
+      var top=card.getBoundingClientRect().top+window.scrollY-window.innerHeight*af()+24;
+      window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+    });
   });
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
     var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
