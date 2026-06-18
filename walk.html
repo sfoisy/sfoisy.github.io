@@ -962,7 +962,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
   var wkTop=document.getElementById('walkerTop');
   var scrollHintEl=document.getElementById('scrollHint');
-  if(wkTop && WK){ var tw=(window.matchMedia('(max-width:1100px)').matches?52:46), th=Math.round(WK.fh*tw/WK.fw);
+  if(wkTop && WK){ var tw=(window.matchMedia('(max-width:1100px)').matches?40:46), th=Math.round(WK.fh*tw/WK.fw);
     wkTop.style.width=tw+'px'; wkTop.style.height=th+'px';
     wkTop.style.backgroundImage="url(data:image/png;base64,"+WK.b64+")";
     wkTop.style.backgroundSize=(tw*WK.frames)+'px '+th+'px';
@@ -1279,7 +1279,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     cur += (target-cur)*0.18; if(Math.abs(target-cur)<0.05) cur=target;
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
-    if(wkTop) wkTop.style.opacity=clamp(1-window.scrollY/50,0,1);   // top walker fades out fast on first scroll
+    if(wkTop) wkTop.style.opacity = mq.matches ? 1 : clamp(1-window.scrollY/50,0,1);   // desktop: fades out fast on first scroll; mobile: stays put (just scrolls off with the header)
     if(scrollHintEl) scrollHintEl.style.opacity=clamp(1-window.scrollY/25,0,1);   // hint fades out before the walker
     
     // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
