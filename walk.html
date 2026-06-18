@@ -415,10 +415,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           You can include a brief caption or extra context about filming in the rain here before the video layout.
         </p>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls preload="metadata" playsinline>
-          <source src="https://wesitefoisy1.b-cdn.net/hikaru.mp4" type="video/mp4">
+          <source src="https://wesitefoisy1.b-cdn.net/hikaru.mp4#t=0.1" type="video/mp4">
         </video>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls preload="metadata" playsinline>
-          <source src="https://wesitefoisy1.b-cdn.net/allegra.mp4" type="video/mp4">
+          <source src="https://wesitefoisy1.b-cdn.net/allegra.mp4#t=0.1" type="video/mp4">
         </video>
         <p class="ph-note" style="margin-top:1rem;">
           Write any concluding thoughts for City Hall Park here before the narrative moves on to the next leg of the trek.
@@ -439,7 +439,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <p class="met">Met Alan Robock.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls preload="metadata" playsinline>
-          <source src="https://wesitefoisy1.b-cdn.net/alan.mp4" type="video/mp4">
+          <source src="https://wesitefoisy1.b-cdn.net/alan.mp4#t=0.1" type="video/mp4">
         </video>
       </div>
     </div>
@@ -464,7 +464,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <p class="met">Met Nadir Jeevanjee, Mitch Bushuk, Timothy Merlis, and Bernadette Woods Placky.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls preload="metadata" playsinline>
-          <source src="https://wesitefoisy1.b-cdn.net/bernadette.mp4" type="video/mp4">
+          <source src="https://wesitefoisy1.b-cdn.net/bernadette.mp4#t=0.1" type="video/mp4">
         </video>
       </div>
     </div>
@@ -511,7 +511,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <p class="met">Met Charles Schutte.</p>
         <p class="ph-note">[Add a few sentences about this stop: the conversation, what you saw, what stuck with you.]</p>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls preload="metadata" playsinline>
-          <source src="https://wesitefoisy1.b-cdn.net/charles.mp4" type="video/mp4">
+          <source src="https://wesitefoisy1.b-cdn.net/charles.mp4#t=0.1" type="video/mp4">
         </video>
       </div>
     </div>
@@ -1042,7 +1042,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var lowHFloor = 260;
       endHeight = Math.max(lowHFloor, window.innerHeight - lowTopGap - lowBotGap);
     } else if (mq.matches) {
-      endHeight = window.innerHeight * 0.32;
+      var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && /Mac/.test(navigator.platform));
+      endHeight = window.innerHeight * (isIOS ? 0.46 : 0.32);   // Safari's address bar shrinks innerHeight, so give iOS more
     } else {
       endHeight = window.innerHeight * 0.82;
     }
