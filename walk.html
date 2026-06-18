@@ -231,6 +231,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.04rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 .map-caption{display:none}
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
+.map-static{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;background:#1a1830}
+.map-static.on{display:block}
+.map-static-img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--ms-x,0px),var(--ms-y,0px)) scale(var(--ms-scale,1.5)) rotate(var(--ms-rot,-5deg))}
 .map-source{display:none;position:absolute;right:7px;bottom:7px;max-width:88%;text-align:right;font-family:'DM Sans',sans-serif;font-size:.5rem;font-weight:600;line-height:1.25;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none;z-index:70}
 #walkerFig {
   position: fixed;
@@ -867,6 +870,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <text id="activeLabel"></text>
       </svg>
       <div class="map-source">Source: MODIS onboard Terra</div>
+      <div id="mapStatic" class="map-static" aria-hidden="true"><img class="map-static-img" src="open_FINAL.jpg" alt=""></div>
     </div>
     <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     <div class="map-town" id="townName">Manhattan, NY</div>
@@ -1289,7 +1293,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
     // --- DESKTOP opening: map starts hidden below the fold, rides up to line up with the
     //     end of the intro ("...trace the path with you."), then pins under the nav and rotates ---
-    var mapSlideTop = null;                         // null => keep LOWH-mobile top behavior only
+    var mapSlideTop = null, ridingUp = false;       // null => LOWH-mobile only; ridingUp => regular mobile still sliding up to the pin
     if(!(mq.matches && LOWH.matches)){
       var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
       // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
@@ -1297,6 +1301,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         ? lead.getBoundingClientRect().bottom + 16  // KNOB(mobile): map sits just below the lede text
         : lead.getBoundingClientRect().bottom;
       mapSlideTop = Math.max(PIN_TOP, _anchor);     // rides up with the content, then pins
+      ridingUp = mq.matches && (_anchor > PIN_TOP + 0.5);   // regular mobile only: still sliding, not yet pinned
       var pinScrollY = (window.scrollY + _anchor) - PIN_TOP;
       instantScrollFactor = clamp((window.scrollY - pinScrollY) / Math.max(1, _s1y - pinScrollY), 0, 1);
     }
@@ -1510,6 +1515,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
+    // Mobile slide-up: show the flat static stand-in (cheap to translate) and hide the live SVG (expensive to repaint while moving). Swap to the live map the instant it pins, so it can run its rotate/zoom transition.
+    var mapStatic = document.getElementById('mapStatic');
+    if(mapStatic){
+      mapStatic.classList.toggle('on', ridingUp);
+      document.getElementById('map').style.visibility = ridingUp ? 'hidden' : 'visible';
+    }
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     document.querySelector('.map-town').style.opacity = instantScrollFactor;
