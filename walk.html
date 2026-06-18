@@ -291,15 +291,15 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .stop-head { font-size: 1.25rem; }
   .j-card .met { font-size: .85rem; }
   .j-card .ph-note { font-size: .85rem; }
-  .j-lead p { font-size: .9rem; line-height: 1.7; }
+  .j-lead p { font-size: .9rem; line-height: 1.7; max-width:none; }   /* mobile: let the lede run the full width */
   .j-lead .lede::first-letter { font-size: 2.6rem; }
-  .j-lead{margin-left:0;margin-bottom:50vh;display:flex;flex-direction:column}      /* mobile: runway so the map rises + rotates like desktop (KNOB: 50vh) */
+  .j-lead{margin-left:0;margin-right:-128px;margin-bottom:50vh;display:flex;flex-direction:column}      /* mobile: full-width lede (cancels the 150px map lane), runway for the rise (KNOB: 50vh) */
   .j-lead > .j-card-img{display:none}   /* mobile: letters now live in the hero, like desktop */
   #map { will-change: transform; }
   .route-bright { filter: none; }
   #walker { filter: none; }
   #activeLabel { filter: none; }
-  .mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
+  ..mapwrap{border-radius:.7rem;box-shadow:0 8px 20px -10px rgba(13,11,46,.5);will-change:transform}   /* GPU layer so the ride-up repaints cheaply (less scroll lag)*/
   #ferryBadge{width:42px;top:.4rem;right:.4rem}
   .map-caption{display:none}
   .map-source{display:none}
@@ -866,9 +866,9 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <circle id="walker" r="5.5" style="opacity:0"/>
         <text id="activeLabel"></text>
       </svg>
-      <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
       <div class="map-source">Source: MODIS onboard Terra</div>
     </div>
+    <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     <div class="map-town" id="townName">Manhattan, NY</div>
     <div class="map-caption" id="mapCaption"><span class="cap-full">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</span><span class="cap-mobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span></div>
   </div>
@@ -1294,7 +1294,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
       // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
       var _anchor = mq.matches
-        ? lead.getBoundingClientRect().top + 40     // KNOB(mobile): +40 drops the map a touch beside the lede
+        ? lead.getBoundingClientRect().bottom + 16  // KNOB(mobile): map sits just below the lede text
         : lead.getBoundingClientRect().bottom;
       mapSlideTop = Math.max(PIN_TOP, _anchor);     // rides up with the content, then pins
       var pinScrollY = (window.scrollY + _anchor) - PIN_TOP;
@@ -1303,8 +1303,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
-    var startWidth = mq.matches ? 120 : 400;    // KNOB: mobile map size while it rides beside the lede
-    var startHeight = mq.matches ? 108 : 362;
+    var startWidth = mq.matches ? window.innerWidth * 0.75 : 400;        // KNOB: mobile map = 75% of page width
+    var startHeight = mq.matches ? window.innerWidth * 0.75 * 0.9 : 362;  // keep the ~10:9 frame aspect
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
@@ -1358,12 +1358,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       mapBox.style.top = (lowTopNow + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
     } else if (mapSlideTop != null) {
       mapBox.style.top = mapSlideTop + 'px';   // mobile + desktop: ride up with the content, then pin and transform
-      if (!mq.matches) {
-        // desktop only: start the map's right edge on the letters image's right edge, glide to the corner
+      var startRight;
+      if (mq.matches) {
+        startRight = window.innerWidth * 0.125;        // mobile: centers the 75vw start (12.5vw each side)
+      } else {
         var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
-        var startRight = window.innerWidth - _hr.right;
-        mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // 22 = corner gap; matches CSS
+        startRight = window.innerWidth - _hr.right;    // desktop: start on the letters image's right edge
       }
+      mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // glide to the 22px corner
     } else {
       mapBox.style.top = '';
     }
