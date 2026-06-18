@@ -272,14 +272,14 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
     position: relative;
-    padding: 3.5rem 150px 2.5rem 14px;
+    padding: 3.5rem 14px 2.5rem 14px;   /* dropped the right gap; the hero figure lives there now */
     margin: 0;
   }
-  .hero-row{display:block}            /* mobile: collapse the two-column hero */
-  .hero-figure{display:none}          /* mobile: opening image hidden for now (desktop-only treatment) */
-  .article-hero .eyebrow{padding-right:80px}
-  .article-hero .article-title{padding-right:50px}
-  .article-hero .article-dek{padding-right:60px}
+  .hero-row{display:flex;gap:1rem;align-items:flex-start}   /* mobile: two-column hero like desktop */
+  .hero-figure{display:block;flex:0 0 42%;max-width:none}   /* mobile: letters image up in the hero, top-right (KNOB: 42%) */
+  .article-hero .eyebrow{padding-right:0}
+  .article-hero .article-title{padding-right:0}
+  .article-hero .article-dek{padding-right:0}
   #walkerTop{display:block;position:absolute;right:22px;bottom:48px;margin:0;z-index:5}
   .stat-strip{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:none}.stat{border-bottom:1px solid #e9e9e9}
   .journey-inner {
@@ -294,7 +294,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-lead p { font-size: .9rem; line-height: 1.7; }
   .j-lead .lede::first-letter { font-size: 2.6rem; }
   .j-lead{margin-left:0;margin-bottom:50vh;display:flex;flex-direction:column}      /* mobile: runway so the map rises + rotates like desktop (KNOB: 50vh) */
-  .j-lead > .j-card-img{display:block;order:-1;margin-top:0;margin-bottom:1.25rem}   /* mobile: letters image FIRST, like the desktop hero */
+  .j-lead > .j-card-img{display:none}   /* mobile: letters now live in the hero, like desktop */
   #map { will-change: transform; }
   .route-bright { filter: none; }
   #walker { filter: none; }
@@ -333,7 +333,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 }
 #scrollHint{display:none}
 @media(max-width:1100px){
-  #scrollHint{display:flex;align-items:center;gap:.5rem;position:absolute;right:30px;top:190px;z-index:6;pointer-events:none}
+  #scrollHint{display:none;align-items:center;gap:.5rem;position:absolute;right:30px;top:190px;z-index:6;pointer-events:none}
   #scrollHint .sh-word{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:400;color:#000}
   #scrollHint .sh-arrow{display:block}
 }
@@ -1289,20 +1289,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
     // --- DESKTOP opening: map starts hidden below the fold, rides up to line up with the
     //     end of the intro ("...trace the path with you."), then pins under the nav and rotates ---
-    var mapSlideTop = null;                         // null => keep existing (mobile) top behavior
-    if(!mq.matches){
-      var PIN_TOP = 76;                             // KNOB: where the map pins under the nav
-      var MAP_ANCHOR_OFFSET = 0;                    // KNOB: push the map's resting line lower (+) / higher (-)
-      var _leadBot = lead.getBoundingClientRect().bottom;   // bottom of the intro = end of "...with you."
-      mapSlideTop = Math.max(PIN_TOP, _leadBot + MAP_ANCHOR_OFFSET);          // rides up from below, then pins
-      var pinScrollY = (window.scrollY + _leadBot) - PIN_TOP + MAP_ANCHOR_OFFSET;
+    var mapSlideTop = null;                         // null => keep LOWH-mobile top behavior only
+    if(!(mq.matches && LOWH.matches)){
+      var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
+      // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
+      var _anchor = mq.matches
+        ? lead.getBoundingClientRect().top + 40     // KNOB(mobile): +40 drops the map a touch beside the lede
+        : lead.getBoundingClientRect().bottom;
+      mapSlideTop = Math.max(PIN_TOP, _anchor);     // rides up with the content, then pins
+      var pinScrollY = (window.scrollY + _anchor) - PIN_TOP;
       instantScrollFactor = clamp((window.scrollY - pinScrollY) / Math.max(1, _s1y - pinScrollY), 0, 1);
     }
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
-    var startWidth = mq.matches ? 186 : 400;
-    var startHeight = mq.matches ? 168 : 362;
+    var startWidth = mq.matches ? 120 : 400;    // KNOB: mobile map size while it rides beside the lede
+    var startHeight = mq.matches ? 108 : 362;
     
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
@@ -1354,19 +1356,16 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var lowTopNow = lerp(lowTopGap, 10, instantScrollFactor);
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
       mapBox.style.top = (lowTopNow + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
-    } else if (mq.matches) {
-      // Mobile (taller viewports): the nav bar scrolls away with the page, so once
-      // it's gone the map's fixed 76px gap is just dead space. Glide the map up
-      // toward the very top of the screen as scroll progresses, reclaiming that room.
-      mapBox.style.top = lerp(76, 10, instantScrollFactor) + 'px';
     } else if (mapSlideTop != null) {
-      mapBox.style.top = mapSlideTop + 'px';   // desktop: ride up in line with the lede, then pin under the nav
-      // X only: start the map's right edge on the letters image's right edge, glide to the corner as it rotates.
-      var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
-      var startRight = window.innerWidth - _hr.right;   // CSS 'right' that lines the map's right edge up with the letters' right edge
-      mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // 22 = corner gap; matches your CSS
+      mapBox.style.top = mapSlideTop + 'px';   // mobile + desktop: ride up with the content, then pin and transform
+      if (!mq.matches) {
+        // desktop only: start the map's right edge on the letters image's right edge, glide to the corner
+        var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
+        var startRight = window.innerWidth - _hr.right;
+        mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // 22 = corner gap; matches CSS
+      }
     } else {
-      mapBox.style.top = '';   // desktop falls back to the CSS top:76px
+      mapBox.style.top = '';
     }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
