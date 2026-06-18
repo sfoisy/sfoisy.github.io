@@ -1046,7 +1046,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       endHeight = Math.max(lowHFloor, window.innerHeight - lowTopGap - lowBotGap);
     } else if (mq.matches) {
       var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && /Mac/.test(navigator.platform));
-      endHeight = window.innerHeight * (isIOS ? 0.46 : 0.32);   // Safari's address bar shrinks innerHeight, so give iOS more
+      endHeight = window.innerHeight * (isIOS ? 0.40 : 0.32);   // Safari's address bar shrinks innerHeight, so give iOS more
     } else {
       endHeight = window.innerHeight * 0.82;
     }
@@ -1382,6 +1382,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     click.addEventListener('click',toggle);
     prog.addEventListener('click',function(e){ e.stopPropagation(); var r=prog.getBoundingClientRect(); var f=(e.clientX-r.left)/r.width; f=Math.max(0,Math.min(1,f)); if(dur) player.seekTo(f*dur,true); });
   }
+})();
+</script>
+<script>
+(function(){
+  var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && /Mac/.test(navigator.platform));
+  if(!isIOS) return;
+  var map=document.getElementById('map');
+  if(map){ map.style.willChange='auto'; }   // stop Safari caching a low-res raster of the scaled SVG map
 })();
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
