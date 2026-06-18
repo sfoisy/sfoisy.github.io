@@ -38,9 +38,13 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   color: #000;
   padding: 4.5rem 0 4.5rem 0; /* Clear inline padding side-restrictions */
   text-align: left;
-  max-width: 900px;
+  max-width: 1040px;   /* KNOB: hero width (was 900) — wider to seat the opening image on the right */
   margin: 0; /* Remove '0 auto' centering to pull it tight to the left margin */
 }
+.hero-row{display:flex;gap:2.5rem;align-items:flex-start}
+.hero-text{flex:1 1 0;min-width:0}
+.hero-figure{flex:0 0 42%;max-width:440px}            /* KNOB: opening-image column width */
+.hero-img{width:100%;height:auto;border-radius:.75rem;box-shadow:0 4px 14px rgba(0,0,0,.10);display:block}
 
 .article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
 
@@ -267,6 +271,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     padding: 3.5rem 150px 2.5rem 14px;
     margin: 0;
   }
+  .hero-row{display:block}            /* mobile: collapse the two-column hero */
+  .hero-figure{display:none}          /* mobile: opening image hidden for now (desktop-only treatment) */
   .article-hero .eyebrow{padding-right:80px}
   .article-hero .article-title{padding-right:50px}
   .article-hero .article-dek{padding-right:60px}
@@ -370,6 +376,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       <path d="M5 20 L12 31 L19 20" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
+  <div class="hero-row">
+    <div class="hero-text">
   <p class="eyebrow">A walk for weather &amp; climate science</p>
   <h1 class="article-title"><strong>Walking 250 miles from NYC to DC</strong></h1>
   <p class="article-dek">From May 23 to June 3, I walked up to 52 miles per day, interviewing scientists from 10 research institutions between NYC and DC. Follow along my journey by scrolling below!</p>
@@ -377,6 +385,11 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <span>By Syl Foisy &middot; June 12, 2026</span>
   <img src="head_shot.png" alt="Syl Foisy" class="meta-headshot">
 </p>
+    </div>
+    <div class="hero-figure">
+      <img class="hero-img" src="https://wesitefoisy1.b-cdn.net/letters.png" alt="Delivering letters to Congress at the U.S. Capitol">
+    </div>
+  </div>
 </header>
 
 <section class="journey">
@@ -1250,6 +1263,17 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var _s1 = document.querySelector('.j-step[data-i="0"]');
     var _s1y = _s1 ? (window.scrollY + _s1.getBoundingClientRect().top) : 150;
     var instantScrollFactor = clamp(_s1y > 0 ? window.scrollY / _s1y : 1, 0, 1);
+
+    // --- DESKTOP opening: map sits in line with the lede, rides up to the nav, THEN rotates ---
+    var mapSlideTop = null;                         // null => keep existing (mobile) top behavior
+    if(!mq.matches){
+      var PIN_TOP = 76;                             // KNOB: where the map pins under the nav
+      var LEDE_OFFSET = 0;                          // KNOB: nudge first resting line vs the lede top (+ = lower)
+      var _leadTop = lead.getBoundingClientRect().top;
+      mapSlideTop = Math.max(PIN_TOP, _leadTop + LEDE_OFFSET);                 // sticky: rides up, then pins
+      var pinScrollY = (window.scrollY + _leadTop) - PIN_TOP + LEDE_OFFSET;    // scrollY where it finishes arriving
+      instantScrollFactor = clamp((window.scrollY - pinScrollY) / Math.max(1, _s1y - pinScrollY), 0, 1);
+    }
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
     // Starting dimensions (Initial Landscape) - Restored to 100% original baseline
@@ -1311,6 +1335,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // it's gone the map's fixed 76px gap is just dead space. Glide the map up
       // toward the very top of the screen as scroll progresses, reclaiming that room.
       mapBox.style.top = lerp(76, 10, instantScrollFactor) + 'px';
+    } else if (mapSlideTop != null) {
+      mapBox.style.top = mapSlideTop + 'px';   // desktop: ride up in line with the lede, then pin under the nav
     } else {
       mapBox.style.top = '';   // desktop falls back to the CSS top:76px
     }
