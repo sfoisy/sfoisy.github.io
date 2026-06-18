@@ -1731,33 +1731,5 @@ document.addEventListener('play', function (e) {
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
 })();
 </script>
-<script>
-(function(){
-  // Desktop only: videos swell to 1.5x at screen center, shrink to 0.5x as they scroll off
-  var DESKTOP=function(){ return window.matchMedia('(min-width:1101px)').matches; };
-  var vids=[].slice.call(document.querySelectorAll('.j-card-video'));
-  var MAX=1.5, MIN=0.5;   // KNOBS: scale at dead center / at the top-or-bottom edge
-  var cleaned=false;
-  function reset(v){ v.style.transform=''; v.style.transformOrigin=''; v.style.willChange=''; }
-  function update(){
-    if(!DESKTOP()){ if(!cleaned){ vids.forEach(reset); cleaned=true; } return; }   // mobile: leave videos alone
-    cleaned=false;
-    var cy=window.innerHeight/2;
-    vids.forEach(function(v){
-      var r=v.getBoundingClientRect(), mid=r.top+r.height/2;
-      var d=Math.min(1, Math.abs(mid-cy)/cy);   // 0 dead-center, 1 at top/bottom edge
-      var s=MAX+(MIN-MAX)*d;                      // MAX at center -> MIN at the edges
-      v.style.transformOrigin='center center';
-      v.style.willChange='transform';
-      v.style.transform='scale('+s.toFixed(3)+')';
-    });
-  }
-  var tick=false;
-  function onScroll(){ if(!tick){ tick=true; requestAnimationFrame(function(){ update(); tick=false; }); } }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', onScroll);
-  update();
-})();
-</script>
 </body>
 </html>
