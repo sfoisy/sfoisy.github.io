@@ -1300,6 +1300,43 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 </script>
 <script>
 (function(){
+  // Mobile portrait only: media starts full-bleed, shrinks back into the lane as it reaches the map band
+  var MQ=window.matchMedia('(max-width:1100px)');
+  var media=[].slice.call(document.querySelectorAll('.j-card-img, .j-card-video'));
+  var T=100;            // px over which it eases from full-width back to the margin
+  var cleaned=false;
+  function active(){ return MQ.matches && window.matchMedia('(orientation: portrait)').matches; }
+  function reset(el){ el.style.width=''; el.style.marginLeft=''; el.style.maxWidth=''; el.style.display=''; }
+  function lerp(a,b,f){ return a+(b-a)*f; }
+  function update(){
+    if(!active()){ if(!cleaned){ media.forEach(reset); cleaned=true; } return; }
+    cleaned=false;
+    var mapEl=document.querySelector('.j-map'); if(!mapEl) return;
+    var mapBottom=mapEl.getBoundingClientRect().bottom;
+    var vw=document.documentElement.clientWidth;
+    media.forEach(function(el){
+      var card=el.closest('.j-card'); if(!card) return;
+      var cr=card.getBoundingClientRect();
+      var laneLeft=cr.left, constrainedW=cr.width;
+      var top=el.getBoundingClientRect().top;
+      var d=top-mapBottom;
+      var f = d<=0 ? 0 : (d>=T ? 1 : d/T);   // f=1 full-bleed (below map), f=0 back in the lane
+      el.style.display='block';
+      el.style.maxWidth='none';
+      el.style.width=lerp(constrainedW, vw, f).toFixed(1)+'px';
+      el.style.marginLeft=lerp(0, -laneLeft, f).toFixed(1)+'px';
+    });
+  }
+  var tick=false;
+  function onScroll(){ if(!tick){ tick=true; requestAnimationFrame(function(){ update(); tick=false; }); } }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  window.addEventListener('orientationchange', onScroll);
+  update();
+})();
+</script>
+<script>
+(function(){
   function fmt(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60), x=s%60; return m+':'+(x<10?'0':'')+x; }
   window.onYouTubeIframeAPIReady=function(){
     [].slice.call(document.querySelectorAll('.yt-player')).forEach(setupPlayer);
