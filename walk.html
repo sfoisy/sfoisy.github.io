@@ -1513,8 +1513,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
     document.querySelector('.map-town').style.opacity = instantScrollFactor;
-    // Mobile: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip
-    mapBox.style.opacity = mq.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
+    // Low-height mobile only: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip. Regular-height (hot dog) mobile shows it normally like desktop.
+    mapBox.style.opacity = LOWH.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
     
     var overlayOpacity = 1 - instantScrollFactor;
     document.getElementById('openingOverlay').style.opacity = overlayOpacity;
