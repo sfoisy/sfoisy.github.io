@@ -1321,7 +1321,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var cr=card.getBoundingClientRect();
       var laneLeft=cr.left, constrainedW=cr.width;
       var top=el.getBoundingClientRect().top;
-      var d=top-mapBottom;
+      var d=top-mapBottom-55;   // finish shrinking ~55px sooner so it clears the town-name box
       var f = d<=0 ? 0 : (d>=T ? 1 : d/T);   // f=1 full-bleed (below map), f=0 back in the lane
       var fullW=vw-laneLeft-rightMargin;   // text margin left, map margin right
       el.style.display='block';
