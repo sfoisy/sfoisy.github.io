@@ -358,10 +358,23 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 @media(max-width:1100px){.yt-bar{opacity:1;pointer-events:auto}.yt-bigplay{width:54px;height:54px}}
 @media(max-width:1100px){.comments{padding:2rem 22px 3rem 22px !important;max-width:100% !important;}}
 @media(min-width:1281px){
-  .j-card-img{ width:50%; height:auto; display:block; margin-left:auto; margin-right:auto; }
+  .j-card-img{ width:50%; height:auto; display:block; margin-left:auto; margin-right:auto; cursor:zoom-in; transition:transform .2s ease; }
+  .j-card-img:hover{ transform:scale(1.05); }   /* hint: grows a touch on hover; transform = no layout shift, nothing else moves */
   .j-card-video{ width:50%; margin-left:auto; margin-right:auto; }
   .j-card{ text-align:center; }
 }
+/* ===== Desktop image lightbox: fills the area to the LEFT of the fixed map ===== */
+#imgLightbox{ display:none; position:fixed; top:0; bottom:0; left:0; right:0; z-index:200;
+  align-items:center; justify-content:center; background:rgba(20,18,30,.82); }
+#imgLightbox.open{ display:flex; }
+#imgLightboxImg{ max-width:92%; max-height:90%; object-fit:contain; border-radius:.5rem;
+  box-shadow:0 20px 60px -10px rgba(0,0,0,.6); }
+#imgLightboxClose{ position:absolute; top:18px; right:18px; width:44px; height:44px; padding:0;
+  border:none; border-radius:50%; background:rgba(255,255,255,.94); color:#000; font-size:26px;
+  line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.3); }
+#imgLightboxClose:hover{ background:#fff; }
+@media(max-width:1280px){ #imgLightbox{ display:none !important; } }   /* desktop-only feature */
 </style>
 </head>
 <body>
@@ -1684,6 +1697,37 @@ document.addEventListener('play', function (e) {
     if (v !== e.target) v.pause();
   });
 }, true);
+</script>
+<div id="imgLightbox" aria-hidden="true">
+  <button id="imgLightboxClose" aria-label="Close">&times;</button>
+  <img id="imgLightboxImg" alt="">
+</div>
+<script>
+(function(){
+  var DESKTOP=function(){ return window.matchMedia('(min-width:1281px)').matches; };
+  var box=document.getElementById('imgLightbox');
+  var boxImg=document.getElementById('imgLightboxImg');
+  var closeBtn=document.getElementById('imgLightboxClose');
+  function open(src,alt){
+    if(!DESKTOP()) return;
+    var map=document.querySelector('.j-map');
+    var mr=map?map.getBoundingClientRect():null;
+    box.style.right=mr?(window.innerWidth-mr.left)+'px':'0px';   // right edge lands on the map's left edge
+    boxImg.src=src; boxImg.alt=alt||'';
+    box.classList.add('open'); box.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';                       // freeze the page so the map holds still while open
+  }
+  function close(){
+    box.classList.remove('open'); box.setAttribute('aria-hidden','true');
+    boxImg.src=''; document.body.style.overflow='';
+  }
+  document.querySelectorAll('.j-card-img').forEach(function(img){
+    img.addEventListener('click',function(){ open(img.currentSrc||img.src,img.alt); });
+  });
+  closeBtn.addEventListener('click',close);
+  box.addEventListener('click',function(e){ if(e.target===box) close(); });   // click the backdrop (outside the picture) = close
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
+})();
 </script>
 </body>
 </html>
