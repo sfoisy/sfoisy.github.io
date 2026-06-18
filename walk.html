@@ -101,6 +101,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   padding: 0 0; /* Resets structural desktop horizontal constraints */
 }
 .j-narrative{padding:0 0 5rem;max-width:100%}
+.j-lead{margin-left:6rem}   /* KNOB: desktop indent for the intro text + its image */
 .j-lead .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#000;display:block;margin-bottom:.5rem}
 .j-lead p{font-size:1.08rem;line-height:1.9;font-weight:300;color:var(--text);margin-bottom:1.25rem;max-width:750px}
 .j-lead .lede::first-letter{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:700;float:left;line-height:.78;margin:.4rem .6rem 0 0;color:var(--deep)}
@@ -289,6 +290,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-card .ph-note { font-size: .85rem; }
   .j-lead p { font-size: .9rem; line-height: 1.7; }
   .j-lead .lede::first-letter { font-size: 2.6rem; }
+  .j-lead{margin-left:0;display:flex;flex-direction:column}        /* mobile: drop the desktop indent, stack so the image can lead */
+  .j-lead > .j-card-img{order:-1;margin-top:0;margin-bottom:1rem}  /* mobile: letters image sits above "Last spring" */
   #map { will-change: transform; }
   .route-bright { filter: none; }
   #walker { filter: none; }
@@ -397,7 +400,6 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     <div class="j-narrative">
       
       <div class="j-lead">
-        <span class="eyebrow">The journey</span>
         <p class="lede">Last spring, I set out from Central Park and walked to Washington, D.C. On foot, the whole way: 270.4 miles, to carry one simple message to the people who set its budget. Weather and climate science is worth funding.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/letters.png" alt="Letters delivered to Congress" style="margin-top:1.5rem;">
         <p>Along the route I stopped to meet climate and weather scientists, sitting down with each of them to talk about the work they do and why it matters. Scroll through the stops below, and the map will trace the path with you.</p>
