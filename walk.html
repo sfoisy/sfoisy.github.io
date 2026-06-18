@@ -293,8 +293,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-card .ph-note { font-size: .85rem; }
   .j-lead p { font-size: .9rem; line-height: 1.7; }
   .j-lead .lede::first-letter { font-size: 2.6rem; }
-  .j-lead{margin-left:0;margin-bottom:0;display:flex;flex-direction:column}      /* mobile: no indent, no desktop runway */
-  .j-lead > .j-card-img{display:block;order:1;margin-top:1rem;margin-bottom:0}   /* mobile: letters image below "...trace the path with you." */
+  .j-lead{margin-left:0;margin-bottom:50vh;display:flex;flex-direction:column}      /* mobile: runway so the map rises + rotates like desktop (KNOB: 50vh) */
+  .j-lead > .j-card-img{display:block;order:-1;margin-top:0;margin-bottom:1.25rem}   /* mobile: letters image FIRST, like the desktop hero */
   #map { will-change: transform; }
   .route-bright { filter: none; }
   #walker { filter: none; }
