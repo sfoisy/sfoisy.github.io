@@ -1312,8 +1312,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(!active()){ if(!cleaned){ media.forEach(reset); cleaned=true; } return; }
     cleaned=false;
     var mapEl=document.querySelector('.j-map'); if(!mapEl) return;
-    var mapBottom=mapEl.getBoundingClientRect().bottom;
+    var mr=mapEl.getBoundingClientRect();
+    var mapBottom=mr.bottom;
     var vw=document.documentElement.clientWidth;
+    var rightMargin=vw-mr.right;   // match the gap the map leaves on the right
     media.forEach(function(el){
       var card=el.closest('.j-card'); if(!card) return;
       var cr=card.getBoundingClientRect();
@@ -1321,10 +1323,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var top=el.getBoundingClientRect().top;
       var d=top-mapBottom;
       var f = d<=0 ? 0 : (d>=T ? 1 : d/T);   // f=1 full-bleed (below map), f=0 back in the lane
+      var fullW=vw-laneLeft-rightMargin;   // text margin left, map margin right
       el.style.display='block';
       el.style.maxWidth='none';
-      el.style.width=lerp(constrainedW, vw, f).toFixed(1)+'px';
-      el.style.marginLeft=lerp(0, -laneLeft, f).toFixed(1)+'px';
+      el.style.width=lerp(constrainedW, fullW, f).toFixed(1)+'px';
+      el.style.marginLeft='0px';
     });
   }
   var tick=false;
