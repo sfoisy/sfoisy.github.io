@@ -364,8 +364,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-card{ text-align:center; }
 }
 /* ===== Desktop image lightbox: fills the area to the LEFT of the fixed map ===== */
-#imgLightbox{ display:none; position:fixed; top:0; bottom:0; left:0; right:0; z-index:200;
-  align-items:center; justify-content:center; background:transparent; }
+#imgLightbox{ display:none; position:fixed; top:58px; bottom:0; left:0; right:0; z-index:200;
+  align-items:center; justify-content:center; background:#fff; }
 #imgLightbox.open{ display:flex; }
 #imgLightboxImg{ max-width:92%; max-height:90%; object-fit:contain; border-radius:.5rem;
   box-shadow:0 20px 60px -10px rgba(0,0,0,.6); }
@@ -1716,16 +1716,18 @@ document.addEventListener('play', function (e) {
     boxImg.src=src; boxImg.alt=alt||'';
     box.classList.add('open'); box.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';                       // freeze the page so the map holds still while open
+    setTimeout(function(){ document.addEventListener('click', docClose); }, 0);   // arm "click anywhere closes" next tick
   }
+  function docClose(e){ if(e.target!==boxImg) close(); }   // any click that isn't the picture itself closes
   function close(){
     box.classList.remove('open'); box.setAttribute('aria-hidden','true');
     boxImg.src=''; document.body.style.overflow='';
+    document.removeEventListener('click', docClose);
   }
   document.querySelectorAll('.j-card-img').forEach(function(img){
     img.addEventListener('click',function(){ open(img.currentSrc||img.src,img.alt); });
   });
   closeBtn.addEventListener('click',close);
-  box.addEventListener('click',function(e){ if(e.target===box) close(); });   // click the backdrop (outside the picture) = close
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
 })();
 </script>
