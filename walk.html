@@ -1272,14 +1272,16 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var _s1y = _s1 ? (window.scrollY + _s1.getBoundingClientRect().top) : 150;
     var instantScrollFactor = clamp(_s1y > 0 ? window.scrollY / _s1y : 1, 0, 1);
 
-    // --- DESKTOP opening: map sits exactly on the hero "letters" image at the very top,
-    //     then glides into the right-hand corner as it rotates. ---
+    // --- DESKTOP opening: map starts hidden below the fold, rides up to line up with the
+    //     end of the intro ("...trace the path with you."), then pins under the nav and rotates ---
     var mapSlideTop = null;                         // null => keep existing (mobile) top behavior
-    var deskGlide = false;                          // desktop hero->corner glide active this frame
     if(!mq.matches){
-      deskGlide = true;
-      var GLIDE_PX = window.innerHeight * 0.9;      // KNOB: scroll distance over which it glides to the corner
-      instantScrollFactor = clamp(window.scrollY / GLIDE_PX, 0, 1);
+      var PIN_TOP = 76;                             // KNOB: where the map pins under the nav
+      var MAP_ANCHOR_OFFSET = 0;                    // KNOB: push the map's resting line lower (+) / higher (-)
+      var _leadBot = lead.getBoundingClientRect().bottom;   // bottom of the intro = end of "...with you."
+      mapSlideTop = Math.max(PIN_TOP, _leadBot + MAP_ANCHOR_OFFSET);          // rides up from below, then pins
+      var pinScrollY = (window.scrollY + _leadBot) - PIN_TOP + MAP_ANCHOR_OFFSET;
+      instantScrollFactor = clamp((window.scrollY - pinScrollY) / Math.max(1, _s1y - pinScrollY), 0, 1);
     }
     
     // 1. MORPH THE ASPECT RATIO OF THE OUTSIDE CROP WINDOW
@@ -1326,24 +1328,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     }
     
     var mapBox = document.querySelector('.j-map');
-    if (deskGlide) {
-      // Start box = the hero "letters" image; end box = the thin right-hand corner sliver.
-      var _g = instantScrollFactor;
-      var gf = _g<0.5 ? 4*_g*_g*_g : 1-Math.pow(-2*_g+2,3)/2;   // easeInOutCubic => glides, doesn't snap
-      var hr = document.querySelector('.hero-figure').getBoundingClientRect();
-      var END_TOP = 76, END_RIGHT = 22;                          // KNOBS: corner gaps (match your CSS)
-      var END_LEFT = window.innerWidth - END_RIGHT - endWidth;   // endWidth(220) + endHeight(82vh) set just above
-      mapBox.style.width  = lerp(hr.width,  endWidth,  gf) + 'px';
-      mapBox.style.height = lerp(hr.height, endHeight, gf) + 'px';
-      mapBox.style.left   = lerp(hr.left,   END_LEFT,  gf) + 'px';
-      mapBox.style.top    = lerp(hr.top,    END_TOP,   gf) + 'px';
-      mapBox.style.right  = 'auto';                              // override CSS right:22px so left wins
-    } else {
-      mapBox.style.width = computedWidth + 'px';
-      mapBox.style.height = computedHeight + 'px';
-      mapBox.style.left = '';                                    // clear desktop glide values if viewport shrank
-      mapBox.style.right = '';
-    }
+    mapBox.style.width = computedWidth + 'px';
+    mapBox.style.height = computedHeight + 'px';
     if (mq.matches && LOWH.matches) {
       // Center the map in the available band, but glide the band's top edge up
       // as the nav scrolls away, same as the taller-viewport case below.
@@ -1358,7 +1344,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // it's gone the map's fixed 76px gap is just dead space. Glide the map up
       // toward the very top of the screen as scroll progresses, reclaiming that room.
       mapBox.style.top = lerp(76, 10, instantScrollFactor) + 'px';
-    }   // desktop top/left/right are set in the glide block above, so nothing to do here
+    } else if (mapSlideTop != null) {
+      mapBox.style.top = mapSlideTop + 'px';   // desktop: ride up in line with the lede, then pin under the nav
+      // X only: start the map's right edge on the letters image's right edge, glide to the corner as it rotates.
+      var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
+      var startRight = window.innerWidth - _hr.right;   // CSS 'right' that lines the map's right edge up with the letters' right edge
+      mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // 22 = corner gap; matches your CSS
+    } else {
+      mapBox.style.top = '';   // desktop falls back to the CSS top:76px
+    }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
     if (stop1Header) {
