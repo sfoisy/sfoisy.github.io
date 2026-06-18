@@ -1632,5 +1632,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   vids.forEach(function (v) { io.observe(v); });
 })();
 </script>
+<script>
+document.addEventListener('play', function (e) {
+  if (!e.target.classList || !e.target.classList.contains('j-card-video')) return;
+  document.querySelectorAll('.j-card-video').forEach(function (v) {
+    if (v !== e.target) v.pause();
+  });
+}, true);
+</script>
 </body>
 </html>
