@@ -233,7 +233,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
 .map-flow{display:none}
 @media(max-width:1100px){.map-flow{display:block;width:75vw;margin:1rem auto 0;position:relative;aspect-ratio:1/.9;border-radius:.7rem;overflow:hidden;background:#1a1830;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
-.map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
+.map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--mf-x,0px),var(--mf-y,0px)) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
 .map-flow .cap{position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:2;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}}
 @media(max-width:1100px) and (max-height:600px){.map-flow{display:none}}
 .map-static{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;background:#1a1830}
@@ -432,7 +432,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <p class="lede">Last spring, I set out from Central Park and walked to Washington, D.C. On foot, the whole way: 270.4 miles, to carry one simple message to the people who set its budget. Weather and climate science is worth funding.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/letters.png" alt="Letters delivered to Congress" style="margin-top:1.5rem;">
         <p>Along the route I stopped to meet climate and weather scientists, sitting down with each of them to talk about the work they do and why it matters. Scroll through the stops below, and the map will trace the path with you.</p>
-        <div class="map-flow" id="mapFlow" aria-hidden="true">
+        <div class="map-flow" id="mapFlow" aria-hidden="true" style="--mf-x:-14px;--mf-y:10px;--mf-scale:1.5;--mf-rot:-5deg">
           <img src="open_FINAL.jpg" alt="">
           <span class="cap">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span>
         </div>
