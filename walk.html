@@ -231,6 +231,11 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.04rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 .map-caption{display:none}
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
+.map-flow{display:none}
+@media(max-width:1100px){.map-flow{display:block;width:75vw;margin:1rem auto 0;position:relative;aspect-ratio:1/.9;border-radius:.7rem;overflow:hidden;background:#1a1830;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
+.map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
+.map-flow .cap{position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:2;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}}
+@media(max-width:1100px) and (max-height:600px){.map-flow{display:none}}
 .map-static{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;background:#1a1830}
 .map-static.on{display:block}
 .map-static-img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--ms-x,0px),var(--ms-y,0px)) scale(var(--ms-scale,1.5)) rotate(var(--ms-rot,-5deg))}
@@ -427,6 +432,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <p class="lede">Last spring, I set out from Central Park and walked to Washington, D.C. On foot, the whole way: 270.4 miles, to carry one simple message to the people who set its budget. Weather and climate science is worth funding.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/letters.png" alt="Letters delivered to Congress" style="margin-top:1.5rem;">
         <p>Along the route I stopped to meet climate and weather scientists, sitting down with each of them to talk about the work they do and why it matters. Scroll through the stops below, and the map will trace the path with you.</p>
+        <div class="map-flow" id="mapFlow" aria-hidden="true">
+          <img src="open_FINAL.jpg" alt="">
+          <span class="cap">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span>
+        </div>
       </div>
 
 <div class="j-travel" style="height: 55vh;"></div>
@@ -1297,8 +1306,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(!(mq.matches && LOWH.matches)){
       var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
       // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
+      var _mf = document.getElementById('mapFlow');
       var _anchor = mq.matches
-        ? lead.getBoundingClientRect().bottom + 16  // KNOB(mobile): map sits just below the lede text
+        ? ((_mf && _mf.offsetParent!==null) ? _mf.getBoundingClientRect().top : lead.getBoundingClientRect().bottom + 16)  // mobile: pin & swap when the in-flow stand-in reaches the top
         : lead.getBoundingClientRect().bottom;
       mapSlideTop = Math.max(PIN_TOP, _anchor);     // rides up with the content, then pins
       ridingUp = mq.matches && (_anchor > PIN_TOP + 0.5);   // regular mobile only: still sliding, not yet pinned
@@ -1516,10 +1526,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     document.getElementById('map').style.transform = 
       'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
     // Mobile slide-up: show the flat static stand-in (cheap to translate) and hide the live SVG (expensive to repaint while moving). Swap to the live map the instant it pins, so it can run its rotate/zoom transition.
-    var mapStatic = document.getElementById('mapStatic');
-    if(mapStatic){
-      mapStatic.classList.toggle('on', ridingUp);
-      document.getElementById('map').style.visibility = ridingUp ? 'hidden' : 'visible';
+    // During the rise: show the in-flow stand-in (scrolls natively on the compositor — zero lag, like every other image) and hide the whole fixed map. The instant the stand-in reaches the pin line, hide it and reveal the live map so it can run its rotate/zoom.
+    var mapFlow = document.getElementById('mapFlow');
+    if(mapFlow){
+      var showFlow = mq.matches && ridingUp;
+      mapFlow.style.visibility = showFlow ? 'visible' : 'hidden';
+      mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
     // --- Rest of your rendering logic remains unchanged ---
     document.querySelector('.map-hud').style.opacity = instantScrollFactor;
