@@ -901,17 +901,16 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
   <script>
   (function(){
-    function resizeCusdis(){
-      var iframe = document.querySelector('#cusdis_thread iframe');
-      if(!iframe) return;
-      try {
-        var h = iframe.contentDocument && iframe.contentDocument.body
-          ? iframe.contentDocument.body.scrollHeight
-          : null;
-        if(h && h > 0) iframe.style.height = h + 'px';
-      } catch(e) {}
-    }
-    // Poll until the iframe appears, then watch for content changes
+    // Method 1: postMessage from Cusdis iframe (works cross-origin on all browsers)
+    window.addEventListener('message', function(e){
+      if(!e.data || typeof e.data !== 'object') return;
+      // Cusdis sends { from:'cusdis', event:'setHeight', data:{ height:N } }
+      if(e.data.from === 'cusdis' && e.data.event === 'setHeight'){
+        var iframe = document.querySelector('#cusdis_thread iframe');
+        if(iframe) iframe.style.height = (e.data.data.height + 32) + 'px';
+      }
+    });
+    // Method 2: same-origin fallback + force min-height off on the iframe itself
     var attempts = 0;
     var poll = setInterval(function(){
       var iframe = document.querySelector('#cusdis_thread iframe');
@@ -919,15 +918,18 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         clearInterval(poll);
         iframe.style.height = 'auto';
         iframe.style.minHeight = '0';
+        iframe.style.overflow = 'hidden';
         iframe.addEventListener('load', function(){
-          resizeCusdis();
-          // Keep watching for dynamic content (new comments, form expansion)
-          var ro = window.ResizeObserver
-            ? new ResizeObserver(resizeCusdis)
-            : null;
-          if(ro && iframe.contentDocument && iframe.contentDocument.body)
-            ro.observe(iframe.contentDocument.body);
-          setInterval(resizeCusdis, 800);
+          try {
+            var h = iframe.contentDocument.body.scrollHeight;
+            if(h > 0) iframe.style.height = h + 'px';
+          } catch(e){}
+          setInterval(function(){
+            try {
+              var h = iframe.contentDocument.body.scrollHeight;
+              if(h > 0) iframe.style.height = h + 'px';
+            } catch(e){}
+          }, 800);
         });
       }
       if(++attempts > 40) clearInterval(poll);
