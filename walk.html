@@ -901,39 +901,34 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
   <script>
   (function(){
-    // Method 1: postMessage from Cusdis iframe (works cross-origin on all browsers)
-    window.addEventListener('message', function(e){
-      if(!e.data || typeof e.data !== 'object') return;
-      // Cusdis sends { from:'cusdis', event:'setHeight', data:{ height:N } }
-      if(e.data.from === 'cusdis' && e.data.event === 'setHeight'){
-        var iframe = document.querySelector('#cusdis_thread iframe');
-        if(iframe) iframe.style.height = (e.data.data.height + 32) + 'px';
+    // Cusdis renders into an iframe; force it to grow to its full content height
+    // instead of capping and showing an inner scrollbar.
+    function fitCusdis(){
+      var f = document.querySelector('#cusdis_thread iframe');
+      if(!f) return;
+      try{
+        var doc = f.contentDocument || f.contentWindow.document;
+        var h = doc.body ? doc.body.scrollHeight : 0;
+        if(h) f.style.height = h + 'px';
+      }catch(e){ /* cross-origin: fall back to the observer below */ }
+    }
+    // Re-fit whenever the iframe appears or changes size.
+    var thread = document.getElementById('cusdis_thread');
+    if(thread){
+      var mo = new MutationObserver(fitCusdis);
+      mo.observe(thread, {childList:true, subtree:true, attributes:true});
+    }
+    window.addEventListener('message', function(ev){
+      // Cusdis posts its height on resize; apply it.
+      if(ev && ev.data && (ev.data.from === 'cusdis' || ev.data.event === 'resize')){
+        var f = document.querySelector('#cusdis_thread iframe');
+        if(f && ev.data.data) f.style.height = ev.data.data + 'px';
+        else fitCusdis();
       }
     });
-    // Method 2: same-origin fallback + force min-height off on the iframe itself
-    var attempts = 0;
-    var poll = setInterval(function(){
-      var iframe = document.querySelector('#cusdis_thread iframe');
-      if(iframe){
-        clearInterval(poll);
-        iframe.style.height = 'auto';
-        iframe.style.minHeight = '0';
-        iframe.style.overflow = 'hidden';
-        iframe.addEventListener('load', function(){
-          try {
-            var h = iframe.contentDocument.body.scrollHeight;
-            if(h > 0) iframe.style.height = h + 'px';
-          } catch(e){}
-          setInterval(function(){
-            try {
-              var h = iframe.contentDocument.body.scrollHeight;
-              if(h > 0) iframe.style.height = h + 'px';
-            } catch(e){}
-          }, 800);
-        });
-      }
-      if(++attempts > 40) clearInterval(poll);
-    }, 250);
+    window.addEventListener('load', fitCusdis);
+    setTimeout(fitCusdis, 1500);
+    setTimeout(fitCusdis, 4000);
   })();
   </script>
 </section>
