@@ -1309,6 +1309,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
   var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null};
+  var hudShown=false;   // mobile: latches true once the mileage HUD has fully faded in with the first label, so it then stays visible for the rest of the page
   function setBox(prop,val){ var v=(val==='')?'':Math.round(val); if(boxGeom[prop]===v) return; boxGeom[prop]=v; mapBoxEl.style[prop]=(v==='')?'':(v+'px'); }
   function compute(){
     var anchor=window.scrollY+window.innerHeight*af(), mi=0, act=-1;
@@ -1584,12 +1585,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var _lf = clamp((introCur - 0.2) / 0.8, 0, 1);
     var mapIntroFactor = _lf * _lf;   // ease-in: route, pins & labels stay faint longer, so they fade in slowly
-    // Mobile: the mileage HUD fades in locked to the first stop label. We recompute the
-    // label's own ramp here (using last frame's labelAnchor — one-frame stale, invisible
-    // while easing) so the HUD's opacity tracks the "Central Park" text exactly: starts
-    // when it starts, finishes when it finishes. Desktop keeps its scroll-depth fade.
-    var _hudLblRamp = (active>=0) ? clamp((window.scrollY-labelAnchor)/250,0,1) : 0;
-    document.querySelector('.map-hud').style.opacity = mq.matches ? (instantScrollFactor * _hudLblRamp) : instantScrollFactor;
+    // Mobile: the mileage HUD fades in once, locked to the FIRST stop label (Central Park),
+    // then stays visible for the rest of the page. We track the first label's ramp until
+    // the HUD has fully arrived, then latch it on (hudShown) so it never re-fades. Desktop
+    // keeps its scroll-depth fade.
+    if(mq.matches){
+      if(!hudShown){
+        var _hudLblRamp = (active>=0) ? clamp((window.scrollY-labelAnchor)/250,0,1) : 0;
+        var _hudOp = instantScrollFactor * _hudLblRamp;
+        if(_hudOp>=0.999) hudShown=true;
+        document.querySelector('.map-hud').style.opacity = hudShown ? 1 : _hudOp;
+      } else {
+        document.querySelector('.map-hud').style.opacity = 1;
+      }
+    } else {
+      document.querySelector('.map-hud').style.opacity = instantScrollFactor;
+    }
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     
     if(active>=0 && active>maxRevealed) maxRevealed=active;
