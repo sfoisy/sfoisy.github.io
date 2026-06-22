@@ -899,6 +899,41 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     data-page-title="270 Miles on Foot">
   </div>
   <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
+  <script>
+  (function(){
+    function resizeCusdis(){
+      var iframe = document.querySelector('#cusdis_thread iframe');
+      if(!iframe) return;
+      try {
+        var h = iframe.contentDocument && iframe.contentDocument.body
+          ? iframe.contentDocument.body.scrollHeight
+          : null;
+        if(h && h > 0) iframe.style.height = h + 'px';
+      } catch(e) {}
+    }
+    // Poll until the iframe appears, then watch for content changes
+    var attempts = 0;
+    var poll = setInterval(function(){
+      var iframe = document.querySelector('#cusdis_thread iframe');
+      if(iframe){
+        clearInterval(poll);
+        iframe.style.height = 'auto';
+        iframe.style.minHeight = '0';
+        iframe.addEventListener('load', function(){
+          resizeCusdis();
+          // Keep watching for dynamic content (new comments, form expansion)
+          var ro = window.ResizeObserver
+            ? new ResizeObserver(resizeCusdis)
+            : null;
+          if(ro && iframe.contentDocument && iframe.contentDocument.body)
+            ro.observe(iframe.contentDocument.body);
+          setInterval(resizeCusdis, 800);
+        });
+      }
+      if(++attempts > 40) clearInterval(poll);
+    }, 250);
+  })();
+  </script>
 </section>
 
 <footer><span class="fname">Syl Foisy</span><span class="fcredit">Last updated June 11, 2026</span></footer>
