@@ -1589,6 +1589,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // arrives later, with the stop label, not during the rise. Desktop keeps its fade.
     document.querySelector('.map-hud').style.opacity = mq.matches ? clamp((instantScrollFactor - 0.55) / 0.25, 0, 1) : instantScrollFactor;
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
+    bright.style.opacity = mapIntroFactor;
     
     if(active>=0 && active>maxRevealed) maxRevealed=active;
     var pins = document.querySelectorAll('.pin');
