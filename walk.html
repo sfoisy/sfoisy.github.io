@@ -1586,7 +1586,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var mapIntroFactor = _lf * _lf;   // ease-in: route, pins & labels stay faint longer, so they fade in slowly
     // Mobile: the mileage HUD fades in alongside the first label/pins (mapIntroFactor),
     // instead of appearing early during the map's rise. Desktop keeps the scroll-depth fade.
-    document.querySelector('.map-hud').style.opacity = mq.matches ? (instantScrollFactor * mapIntroFactor) : instantScrollFactor;
+    // Mobile: hold the mileage HUD hidden until the map has pinned & transformed well in
+    // (instantScrollFactor past a threshold), then fade it over a short window — so it
+    // arrives later, with the stop label, not during the rise. Desktop keeps its fade.
+    document.querySelector('.map-hud').style.opacity = mq.matches ? clamp((instantScrollFactor - 0.55) / 0.25, 0, 1) : instantScrollFactor;
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     
     if(active>=0 && active>maxRevealed) maxRevealed=active;
