@@ -1584,12 +1584,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     
     var _lf = clamp((introCur - 0.2) / 0.8, 0, 1);
     var mapIntroFactor = _lf * _lf;   // ease-in: route, pins & labels stay faint longer, so they fade in slowly
-    // Mobile: the mileage HUD fades in alongside the first label/pins (mapIntroFactor),
-    // instead of appearing early during the map's rise. Desktop keeps the scroll-depth fade.
-    // Mobile: hold the mileage HUD hidden until the map has pinned & transformed well in
-    // (instantScrollFactor past a threshold), then fade it over a short window — so it
-    // arrives later, with the stop label, not during the rise. Desktop keeps its fade.
-    document.querySelector('.map-hud').style.opacity = mq.matches ? clamp((instantScrollFactor - 0.55) / 0.25, 0, 1) : instantScrollFactor;
+    // Mobile: the mileage HUD fades in locked to the first stop label. We recompute the
+    // label's own ramp here (using last frame's labelAnchor — one-frame stale, invisible
+    // while easing) so the HUD's opacity tracks the "Central Park" text exactly: starts
+    // when it starts, finishes when it finishes. Desktop keeps its scroll-depth fade.
+    var _hudLblRamp = (active>=0) ? clamp((window.scrollY-labelAnchor)/250,0,1) : 0;
+    document.querySelector('.map-hud').style.opacity = mq.matches ? (instantScrollFactor * _hudLblRamp) : instantScrollFactor;
     document.querySelector('.route-faint').style.opacity = mapIntroFactor;
     
     if(active>=0 && active>maxRevealed) maxRevealed=active;
