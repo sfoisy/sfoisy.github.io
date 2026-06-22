@@ -1272,7 +1272,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
-  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB='';
+  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0;
   function compute(){
     var anchor=window.scrollY+window.innerHeight*af(), mi=0, act=-1;
     for(var i=0;i<S.length;i++){
@@ -1561,15 +1561,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // - Zoomed in 2x closer by cutting NORM[2] and NORM[3] targets in half
     // - Shifted right by altering the X tracking calculation to keep the route centered
     // - Pushed down slightly via Y tracking to avoid clipping the northern leg
-    var vbF = mq.matches ? Math.round(instantScrollFactor*16)/16 : instantScrollFactor;
     var vb=[
-      lerp(WIDE[0], -336, vbF), 
-      lerp(WIDE[1], -15, vbF),  
-      lerp(WIDE[2], 1672, vbF), 
-      lerp(WIDE[3], 836, vbF)  
+      lerp(WIDE[0], -336, instantScrollFactor), 
+      lerp(WIDE[1], -15, instantScrollFactor),  
+      lerp(WIDE[2], 1672, instantScrollFactor), 
+      lerp(WIDE[3], 836, instantScrollFactor)  
     ];
-    var vbStr = vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1);
-    if(vbStr!==lastVB){ svg.setAttribute('viewBox', vbStr); lastVB=vbStr; }
+    svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
     gStateLabels.style.opacity = mapIntroFactor;
     
     var walkFrac=interp(WCUM,dispCur)/wcumMax;
