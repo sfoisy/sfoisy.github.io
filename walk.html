@@ -1584,7 +1584,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
     // --- Rest of your rendering logic remains unchanged ---
-    document.querySelector('.map-hud').style.opacity = instantScrollFactor;
+    // Mobile: the mileage HUD fades in alongside the first label/pins (mapIntroFactor),
+    // instead of appearing early during the map's rise. Desktop keeps the scroll-depth fade.
+    document.querySelector('.map-hud').style.opacity = mq.matches ? (instantScrollFactor * mapIntroFactor) : instantScrollFactor;
     document.querySelector('.map-town').style.opacity = instantScrollFactor;
     // Low-height mobile only: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip. Regular-height (hot dog) mobile shows it normally like desktop.
     mapBox.style.opacity = LOWH.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
