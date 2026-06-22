@@ -1329,47 +1329,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     cur += (target-cur)*0.18; if(Math.abs(target-cur)<0.05) cur=target;
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
-
-    // ── READ PHASE: every getBoundingClientRect() for the frame is gathered here, before
-    //    any style write. Reading layout after writing it forces a synchronous reflow
-    //    (WebKit/Safari is especially harsh); doing all reads first lets the browser flush
-    //    layout once per frame. Map geometry below is last frame's value — a sub-pixel,
-    //    one-frame-stale read that's imperceptible while it eases.
-    var _s1 = document.querySelector('.j-step[data-i="0"]');
-    var _s1rect = _s1 ? _s1.getBoundingClientRect() : null;
-    var narrRect = document.querySelector('.j-narrative').getBoundingClientRect();
-    var mapRectPrev = mapBoxEl.getBoundingClientRect();
-    var heroRect = mq.matches ? null : document.querySelector('.hero-figure').getBoundingClientRect();
-    var leadRect = lead.getBoundingClientRect();
-    var mfEl = document.getElementById('mapFlow');
-    var mfRect = (mfEl && mfEl.offsetParent !== null) ? mfEl.getBoundingClientRect() : null;
-    var segIdxR = 0;
-    for (var _si = 0; _si < S.length - 1; _si++) { if (cur >= S[_si].arr - 0.0001) segIdxR = _si; else break; }
-    var ciR = legChart[segIdxR];
-    var crectR = (ciR && ciR.svg) ? ciR.svg.getBoundingClientRect() : null;
-    // ── end READ PHASE
-
     if(wkTop) wkTop.style.opacity = mq.matches ? 1 : clamp(1-window.scrollY/50,0,1);   // desktop: fades out fast on first scroll; mobile: stays put (just scrolls off with the header)
     if(scrollHintEl) scrollHintEl.style.opacity=clamp(1-window.scrollY/25,0,1);   // hint fades out before the walker
     
     // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
-    var _s1y = _s1rect ? (window.scrollY + _s1rect.top) : 150;
+    var _s1 = document.querySelector('.j-step[data-i="0"]');
+    var _s1y = _s1 ? (window.scrollY + _s1.getBoundingClientRect().top) : 150;
     var instantScrollFactor = clamp(_s1y > 0 ? window.scrollY / _s1y : 1, 0, 1);
 
     // --- DESKTOP opening: map starts hidden below the fold, rides up to line up with the
     //     end of the intro ("...trace the path with you."), then pins under the nav and rotates ---
-    var mapSlideTop = null, ridingUp = false, startRightVal = 22;   // null => LOWH-mobile only; ridingUp => regular mobile still sliding up to the pin
+    var mapSlideTop = null, ridingUp = false;       // null => LOWH-mobile only; ridingUp => regular mobile still sliding up to the pin
     if(!(mq.matches && LOWH.matches)){
       var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
       // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
+      var _mf = document.getElementById('mapFlow');
       var _anchor = mq.matches
-        ? (mfRect ? mfRect.top : leadRect.bottom + 16)  // mobile: pin & swap when the in-flow stand-in reaches the top
-        : leadRect.bottom;
+        ? ((_mf && _mf.offsetParent!==null) ? _mf.getBoundingClientRect().top : lead.getBoundingClientRect().bottom + 16)  // mobile: pin & swap when the in-flow stand-in reaches the top
+        : lead.getBoundingClientRect().bottom;
       mapSlideTop = Math.max(PIN_TOP, _anchor);     // rides up with the content, then pins
       ridingUp = mq.matches && (_anchor > PIN_TOP + 0.5);   // regular mobile only: still sliding, not yet pinned
-      startRightVal = mq.matches
-        ? window.innerWidth * 0.125                 // mobile: centers the 75vw start (12.5vw each side)
-        : (window.innerWidth - heroRect.right);     // desktop: start on the letters image's right edge
       var pinScrollY = (window.scrollY + _anchor) - PIN_TOP;
       instantScrollFactor = clamp((window.scrollY - pinScrollY) / Math.max(1, _s1y - pinScrollY), 0, 1);
     }
@@ -1431,13 +1410,21 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       setBox('top', lowTopNow + Math.max(0, (lowBand - computedHeight) / 2));
     } else if (mapSlideTop != null) {
       setBox('top', mapSlideTop);   // mobile + desktop: ride up with the content, then pin and transform
-      setBox('right', lerp(startRightVal, 22, instantScrollFactor));   // glide to the 22px corner (startRightVal computed in the read phase)
+      var startRight;
+      if (mq.matches) {
+        startRight = window.innerWidth * 0.125;        // mobile: centers the 75vw start (12.5vw each side)
+      } else {
+        var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
+        startRight = window.innerWidth - _hr.right;    // desktop: start on the letters image's right edge
+      }
+      setBox('right', lerp(startRight, 22, instantScrollFactor));   // glide to the 22px corner
     } else {
       setBox('top', '');
     }
     // Walker scroll choreography
-    var stop1Rect = _s1rect;
-    if (stop1Rect) {
+    var stop1Header = document.querySelector('.j-step[data-i="0"]');
+    if (stop1Header) {
+      var stop1Rect = stop1Header.getBoundingClientRect();
       var constantX = mq.matches ? 0 : 20
 
       var totalScrollDistanceToStop1 = window.scrollY + stop1Rect.top;
@@ -1445,9 +1432,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
       // Resting anchors — he lives along the BOTTOM now, not the middle.
       var leftX = constantX;
-      var txt = narrRect;
+      var txt = document.querySelector('.j-narrative').getBoundingClientRect();
       var rightX = txt.left + txt.right - leftX - dw;          // mirror of the left gap
-      var _mr = mapRectPrev;
+      var _mr = document.querySelector('.j-map').getBoundingClientRect();
       var mapL = _mr.left;
       rightX = Math.min(rightX, mapL - dw - (mq.matches ? 4 : 8));
       rightX = Math.max(rightX, leftX + 20);
@@ -1480,7 +1467,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // Line-walk on every leg: wait for the line to reach his feet, walk it, then spin + glide to the next rest spot.
       var ci = legChart[segIdx];
       if (ci && ci.svg) {
-        var crect = crectR;   // read in the frame's read phase, reused here
+        var crect = ci.svg.getBoundingClientRect();   // read once per frame, not five times
         var mir = ci.mirror;
         var restX = mir ? rightX : leftX;          // this leg starts where the last one ended
         var endX  = mir ? leftX  : rightX;          // ...and ends at the next leg's start
