@@ -1307,7 +1307,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
-  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0;
+  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB='';
+  // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
+  // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
+  // makes the crop "jump" behind the composited map transform.
+  var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null};
+  function setBox(prop,val){ var v=(val==='')?'':Math.round(val); if(boxGeom[prop]===v) return; boxGeom[prop]=v; mapBoxEl.style[prop]=(v==='')?'':(v+'px'); }
   function compute(){
     var anchor=window.scrollY+window.innerHeight*af(), mi=0, act=-1;
     for(var i=0;i<S.length;i++){
@@ -1394,9 +1399,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
     }
     
-    var mapBox = document.querySelector('.j-map');
-    mapBox.style.width = computedWidth + 'px';
-    mapBox.style.height = computedHeight + 'px';
+    var mapBox = mapBoxEl;
+    setBox('width', computedWidth);
+    setBox('height', computedHeight);
     if (mq.matches && LOWH.matches) {
       // Center the map in the available band, but glide the band's top edge up
       // as the nav scrolls away, same as the taller-viewport case below.
@@ -1405,9 +1410,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // of trying to center it (which would push it half off-screen at top).
       var lowTopNow = lerp(lowTopGap, 10, instantScrollFactor);
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
-      mapBox.style.top = (lowTopNow + Math.max(0, (lowBand - computedHeight) / 2)) + 'px';
+      setBox('top', lowTopNow + Math.max(0, (lowBand - computedHeight) / 2));
     } else if (mapSlideTop != null) {
-      mapBox.style.top = mapSlideTop + 'px';   // mobile + desktop: ride up with the content, then pin and transform
+      setBox('top', mapSlideTop);   // mobile + desktop: ride up with the content, then pin and transform
       var startRight;
       if (mq.matches) {
         startRight = window.innerWidth * 0.125;        // mobile: centers the 75vw start (12.5vw each side)
@@ -1415,9 +1420,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
         startRight = window.innerWidth - _hr.right;    // desktop: start on the letters image's right edge
       }
-      mapBox.style.right = lerp(startRight, 22, instantScrollFactor) + 'px';   // glide to the 22px corner
+      setBox('right', lerp(startRight, 22, instantScrollFactor));   // glide to the 22px corner
     } else {
-      mapBox.style.top = '';
+      setBox('top', '');
     }
     // Walker scroll choreography
     var stop1Header = document.querySelector('.j-step[data-i="0"]');
