@@ -188,7 +188,11 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   stroke-width: 7.6;                
   stroke-linejoin: round;
   stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)); 
   opacity: 0;
+}
+@supports (-webkit-hyphens:none){
+  .route-bright { filter:none; }
 }
 .ferry-line{fill:none;stroke:#ffffff;stroke-width:3;stroke-dasharray:1 9;stroke-linecap:round;opacity:.4;transition:opacity .5s}
 .ferry-line.on{opacity:1}
