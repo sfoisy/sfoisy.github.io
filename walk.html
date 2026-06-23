@@ -1310,7 +1310,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     lines.forEach(function(ln,i){var ts=document.createElementNS(NS,'tspan');ts.setAttribute('x',ax);ts.setAttribute('dy',i===0?0:LH);ts.textContent=ln;label.appendChild(ts);});
   }
 
-  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB='';
+  var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB=''; var cpAnchor=-1;
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
@@ -1577,7 +1577,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
     // --- Rest of your rendering logic remains unchanged ---
-    document.querySelector('.map-town').style.opacity = instantScrollFactor;
+    // Mobile: hold the "Manhattan, NY" box hidden until Central Park appears, then fade it in
+    // in lockstep with the Central Park stop label (cpAnchor → +250px, same ramp as the label).
+    if(mq.matches){
+      document.querySelector('.map-town').style.opacity = (cpAnchor<0) ? 0 : (instantScrollFactor*clamp((window.scrollY-cpAnchor)/250,0,1));
+    } else {
+      document.querySelector('.map-town').style.opacity = instantScrollFactor;   // desktop unchanged
+    }
     // Low-height mobile only: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip. Regular-height (hot dog) mobile shows it normally like desktop.
     mapBox.style.opacity = LOWH.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
     
@@ -1646,6 +1652,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     cards.forEach(function(c,i){c.classList.toggle('active',i===active);});
     if(active>=0){
         if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; labelAnchor=window.scrollY; }
+        if(active===0 && cpAnchor<0) cpAnchor=labelAnchor;   // first frame the Central Park label shows → anchor the mobile town-box fade to it
         var lblRamp=clamp((window.scrollY-labelAnchor)/250,0,1);   // each stop label eases in over ~250px
         label.style.opacity=instantScrollFactor*lblRamp;
       }
