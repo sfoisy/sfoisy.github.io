@@ -465,7 +465,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         </ul>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">For those following along at home, I reached out to 92 scientists along my planned route, of which I secured 16 in-person meetings. Emails were tricky, as I had to provide the time I would be arriving – something that relied heavily on the assumption my walk wouldn't be delayed!</p>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">I then purchased – in part through a generous anonymous donation – 500 stickers, 25 vintage pins, and 20 embroidered hats. Having all this merch under my watch for a few days felt extremely powerful.</p>
-        <p class="ph-note" style="text-align:left;margin-top:1rem;">[Merch image goes here]</p>
+        <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/hatss.png" alt="Syl Stuff">
         <p class="ph-note" style="text-align:left;margin-top:1rem;">Cognizant of the demands of a 250 mile walk, I also realized I couldn't do this alone. Graciously, <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a>, a climate science postdoc and hall of fame video maker (@zentouro), and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a>, an award-winning freelance science communicator (@vgwschutte), volunteered to join me on the walk as an all-star support cast. They would trail me in the "content bus," where they would be busy cultivating content, running the social media accounts, and providing support for me along the way. I remember thinking: Is this real life?!</p>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">Finally, I wrote on a slip of paper my own personal goals for the walk (corny, I know!). I have had experience with <a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">social media</a>, but not so much with talking to the camera, so this was new ground for me. I wrote the words: wonder, excitement, positivity, and fun on a slip of paper, which I tucked into my wallet. I would aim to embody these words throughout the following 12 days of adventure.</p>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">But that's enough intro from me – let's get walking!!</p>
@@ -1626,9 +1626,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     bright.style.opacity = mapIntroFactor;
     
     if(active>=0 && active>maxRevealed) maxRevealed=active;
+    var cpRamp = cpAnchor<0 ? 0 : clamp((window.scrollY-cpAnchor)/250,0,1);   // same 250px fade ramp the Central Park label uses
     var pins = document.querySelectorAll('.pin');
     for (var pIdx = 0; pIdx < pins.length; pIdx++) {
-      pins[pIdx].style.opacity = (pIdx<=maxRevealed) ? mapIntroFactor : 0;
+      if(pIdx===0){ pins[0].style.opacity = instantScrollFactor*cpRamp; }      // CP dot fades in/out in lockstep with its text
+      else { pins[pIdx].style.opacity = (pIdx<=maxRevealed) ? mapIntroFactor : 0; }
     }
     
     // ADJUSTED VALUES: 
