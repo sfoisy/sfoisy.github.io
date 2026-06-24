@@ -1658,7 +1658,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     }
     if(boatOn) wk.style.backgroundPositionX='0px';                  // static boat, no walk cycle
     else wk.style.backgroundPositionX=(-(Math.floor(cyclePhase)%WK.frames*dw))+'px';
-    var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);walker.style.opacity=mapIntroFactor;
+    var p=ptAt(dispCur); walker.setAttribute('cx',p[0]);walker.setAttribute('cy',p[1]);walker.style.opacity=instantScrollFactor;
     if(FERRY){ ferryLine.classList.toggle('on',dispCur>=FS-0.5); ferryLabel.classList.toggle('on',dispCur>=FS-0.5 && dispCur<FE); if(ferryBadge) ferryBadge.style.opacity=(dispCur>=FS-0.5 && dispCur<FE)?1:0; }
     S.forEach(function(s,i){pinEls[i].classList.toggle('reached',cur>=s.arr-0.5 || i===active);pinEls[i].classList.toggle('active',i===active);});
     document.querySelectorAll('.tether').forEach(function(t){var i=+t.dataset.i;t.classList.toggle('on',cur>=S[i].arr-0.5);});
