@@ -1359,8 +1359,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // card is just peeking up from the bottom edge the instant the map finishes.
     var MAP_FINISH_LEAD = window.innerHeight * 0.85;
     var _s1 = document.querySelector('.j-step[data-i="0"]');
-    var _s1y = _s1 ? (window.scrollY + _s1.getBoundingClientRect().top - MAP_FINISH_LEAD) : 150;
+    var _s1top = _s1 ? (window.scrollY + _s1.getBoundingClientRect().top) : 150;
+    var _s1y = _s1top > 0 ? (_s1top - MAP_FINISH_LEAD) : 150;
     var instantScrollFactor = clamp(_s1y > 0 ? window.scrollY / _s1y : 1, 0, 1);
+    // Label fade keeps its ORIGINAL timing (tied to the card reaching the top),
+    // independent of the early map lock above.
+    var labelScrollFactor = clamp(_s1top > 0 ? window.scrollY / _s1top : 1, 0, 1);
 
     // --- DESKTOP opening: map starts hidden below the fold, rides up to line up with the
     //     end of the intro ("...trace the path with you."), then pins under the nav and rotates ---
