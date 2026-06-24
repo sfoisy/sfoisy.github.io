@@ -1677,7 +1677,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         if(active!==shownLabel){ buildLabel(S[active].lab, S[active].x, S[active].y); shownLabel=active; labelAnchor=window.scrollY; }
         if(active===0 && cpAnchor<0) cpAnchor=labelAnchor;   // first frame the Central Park label shows → anchor the mobile town-box fade to it
         var lblRamp=clamp((window.scrollY-labelAnchor)/250,0,1);   // each stop label eases in over ~250px
-        label.style.opacity=instantScrollFactor*lblRamp;
+        label.style.opacity=labelScrollFactor*lblRamp;
       }
       else { label.style.opacity=0; shownLabel=-9; }
     requestAnimationFrame(render);
