@@ -1858,5 +1858,18 @@ document.addEventListener('play', function (e) {
 })();
 </script>
 <img id="hatCorner" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="" aria-hidden="true">
+<script>
+(function(){
+  var v = document.querySelector('.hero-img');
+  if(!v || v.tagName !== 'VIDEO') return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ v.play().catch(function(){}); }
+      else { v.pause(); }
+    });
+  }, {threshold: 0.01});
+  io.observe(v);
+})();
+</script>
 </body>
 </html>
