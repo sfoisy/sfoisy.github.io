@@ -54,6 +54,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   align-self: start;
 }
 .hero-img{width:100%;height:auto;border-radius:.75rem;box-shadow:0 4px 14px rgba(0,0,0,.10);display:block}
+#hatCorner{position:fixed;right:.7rem;bottom:.7rem;height:108px;width:auto;z-index:140;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));transition:opacity .2s ease-out}
+@media(max-width:1100px){#hatCorner{display:none}}
 
 .article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
 
@@ -1367,7 +1369,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     cur += (target-cur)*0.18; if(Math.abs(target-cur)<0.05) cur=target;
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
-    if(wkTop) wkTop.style.opacity = mq.matches ? 1 : clamp(1-window.scrollY/50,0,1);   // desktop: fades out fast on first scroll; mobile: stays put (just scrolls off with the header)
+    if(wkTop) wkTop.style.opacity=clamp(1-window.scrollY/50,0,1);
+    var _hat = document.getElementById('hatCorner');
+    if(_hat && !mq.matches){
+      var _leadBot = lead.getBoundingClientRect().bottom;
+      _hat.style.opacity = clamp((_leadBot - 76) / 250, 0, 1);   // KNOB: 250 = fade runway (px)
+    }
     if(scrollHintEl) scrollHintEl.style.opacity=clamp(1-window.scrollY/25,0,1);   // hint fades out before the walker
     
     // Calculates a smooth 0 to 1 scroll depth factor over the initial 150px
@@ -1850,5 +1857,6 @@ document.addEventListener('play', function (e) {
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
 })();
 </script>
+<img id="hatCorner" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="" aria-hidden="true">
 </body>
 </html>
