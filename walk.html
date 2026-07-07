@@ -43,7 +43,15 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 }
 .hero-row{display:flex;gap:2.5rem;align-items:center}   /* center the image against the headline block */
 .hero-text{flex:1 1 0;min-width:0}
-.hero-figure{flex:0 0 40%;max-width:413px;transform:translateY(0)}   /* KNOBS: 413 = 330 * 1.25; translateY nudges up(-)/down(+) */
+.hero-figure{
+  position:relative;
+  aspect-ratio:9/16;
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  max-width:400px;
+  margin:0 auto;
+}
 .hero-img{width:100%;height:auto;border-radius:.75rem;box-shadow:0 4px 14px rgba(0,0,0,.10);display:block}
 
 .article-hero .eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--lavender);margin-bottom:1.25rem}
@@ -425,7 +433,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <p style="font-style:italic;font-size:.82rem;color:#000;margin-top:.6rem;">All opinions expressed in this article are personal.</p>
     </div>
     <div class="hero-figure">
-      <video class="hero-img" src="https://wesitefoisy1.b-cdn.net/collage_open.mp4" autoplay loop muted playsinline style="width:100%; height:auto; display:block;"></video>
+      <video class="hero-img" src="https://wesitefoisy1.b-cdn.net/collage_openn.mp4" autoplay loop muted playsinline></video>
     </div>
   </div>
 </header>
