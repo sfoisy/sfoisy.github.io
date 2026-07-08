@@ -410,9 +410,19 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <div class="nav-links">
     <a href="/#about">About</a><a href="/#publications">Publications</a><a href="/#outreach">Outreach</a><a href="/#videos">Beyond</a><a href="/#contact">Contact</a><a href="Foisy_CV_long.pdf" target="_blank">CV</a>
   </div>
-  <div class="lang-toggle" id="langToggle">
-    <button data-lang="en" class="lang-btn active" onclick="setLang('en')">EN</button>
-    <button data-lang="es" class="lang-btn" onclick="setLang('es')">ES</button>
+  <div class="lang-select" id="langSelect">
+    <button class="lang-current" id="langCurrent" onclick="toggleLangMenu()" aria-haspopup="true" aria-expanded="false">
+      <span id="langLabel">English</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="lang-menu" id="langMenu" role="menu">
+      <button role="menuitem" data-lang="en" onclick="setLang('en')">English</button>
+      <button role="menuitem" data-lang="es" onclick="setLang('es')">Español</button>
+      <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français</button>
+      <button role="menuitem" data-lang="pt" onclick="setLang('pt')">Português</button>
+      <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy</button>
+      <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文</button>
+    </div>
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
@@ -1889,9 +1899,14 @@ document.addEventListener('play', function (e) {
 })();
 </script>
 <style>
-.lang-toggle{display:flex;gap:.4rem;align-items:center}
-.lang-btn{font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.06em;background:none;border:1px solid #ccc;border-radius:4px;padding:.25rem .5rem;color:#666;cursor:pointer;transition:.2s}
-.lang-btn.active{background:#000;color:#fff;border-color:#000}
+.lang-select{position:relative}
+.lang-current{display:flex;align-items:center;gap:.4rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.04em;background:none;border:1px solid #ccc;border-radius:6px;padding:.35rem .7rem;color:#000;cursor:pointer;transition:.2s}
+.lang-current:hover{border-color:#000}
+.lang-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e9e9e9;border-radius:8px;box-shadow:0 8px 24px -8px rgba(0,0,0,.25);padding:.3rem;min-width:150px;z-index:200}
+.lang-menu.open{display:block}
+.lang-menu button{display:block;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:400;background:none;border:none;border-radius:5px;padding:.5rem .7rem;color:#000;cursor:pointer;transition:background .15s}
+.lang-menu button:hover{background:#f2f2f2}
+.lang-menu button.active{font-weight:700;background:#f6f6f6}
 </style>
 <script>
 (function(){
@@ -1903,6 +1918,19 @@ document.addEventListener('play', function (e) {
       "hero.dek": "Del 23 de mayo al 3 de junio, camin\u00e9 hasta 52 millas por d\u00eda, entregando casi 300 cartas de cient\u00edficos del clima y la meteorolog\u00eda directamente a siete miembros del Congreso. \u00a1S\u00edgueme abajo! :)"
     }
   };
+  var LABELS = { en:"English", es:"Español", fr:"Français", pt:"Português", mg:"Malagasy", zh:"中文" };
+  window.toggleLangMenu = function(){
+    var m = document.getElementById('langMenu'), c = document.getElementById('langCurrent');
+    var open = m.classList.toggle('open');
+    c.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  document.addEventListener('click', function(e){
+    var sel = document.getElementById('langSelect');
+    if(sel && !sel.contains(e.target)){
+      document.getElementById('langMenu').classList.remove('open');
+      document.getElementById('langCurrent').setAttribute('aria-expanded','false');
+    }
+  });
   var originals = {}, els = null;
   function collect(){
     els = document.querySelectorAll('[data-i18n]');
@@ -1919,9 +1947,13 @@ document.addEventListener('play', function (e) {
       else if(DICT[lang] && DICT[lang][k] != null){ el.innerHTML = DICT[lang][k]; }
     });
     document.documentElement.lang = lang;
-    document.querySelectorAll('.lang-btn').forEach(function(b){
+    var lbl = document.getElementById('langLabel');
+    if(lbl && LABELS[lang]) lbl.textContent = LABELS[lang];
+    document.querySelectorAll('.lang-menu button').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-lang') === lang);
     });
+    var m = document.getElementById('langMenu');
+    if(m) m.classList.remove('open');
     try{ localStorage.setItem('site-lang', lang); }catch(e){}
   };
   document.addEventListener('DOMContentLoaded', function(){
