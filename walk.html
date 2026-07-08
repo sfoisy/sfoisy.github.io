@@ -1993,7 +1993,7 @@ document.addEventListener('play', function (e) {
     var cs = getComputedStyle(op);
     var lh = parseFloat(cs.lineHeight);
     if(isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.3;   // 'normal' fallback
-    var desiredGap = 4 * lh;
+    var desiredGap = 2 * lh;
     var opBottom = op.getBoundingClientRect().bottom;
     var ledeTop = lede.getBoundingClientRect().top;
     var curMargin = parseFloat(getComputedStyle(lead).marginTop) || 0;
