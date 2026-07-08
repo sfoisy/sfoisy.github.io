@@ -383,10 +383,18 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 @media(max-width:1100px){.comments{padding:2rem 22px 3rem 22px !important;max-width:100% !important;}}
 @media(min-width:1101px){
   .j-lead{margin-top:-20rem}
-  .j-card-img{ width:50%; height:auto; display:block; margin-left:auto; margin-right:auto; cursor:pointer; transition:transform .2s ease; }
-  .j-card-img:hover{ transform:scale(1.05); }   /* hint: grows a touch on hover; transform = no layout shift, nothing else moves */
-  .j-card-video{ width:85%; margin-left:auto; margin-right:auto; }
-  .j-card{ text-align:center; }
+  .j-card{ text-align:left; }
+  .j-card::after{ content:""; display:block; clear:both; }   /* card grows to contain its floats */
+  .j-card-img{
+    width:42%;                                    /* KNOB: how much of the column the image takes */
+    height:auto; display:block; cursor:pointer; transition:transform .2s ease;
+    float:right; clear:both;                      /* clear = never two images side by side */
+    margin:.35rem 0 1rem 1.75rem;                 /* KNOB: 1.75rem = gap between image and the text beside it */
+  }
+  .j-card-img:nth-of-type(even){ float:left; margin:.35rem 1.75rem 1rem 0; }
+  .j-card-img:hover{ transform:scale(1.03); }
+  .j-card-video{ width:85%; margin-left:auto; margin-right:auto; clear:both; }
+  .stop-head{ clear:both; }                       /* a new stop never begins beside a floated image */
 }
 /* ===== Desktop image lightbox: fills the area to the LEFT of the fixed map ===== */
 #imgLightbox{ display:none; position:fixed; top:58px; bottom:0; left:0; right:0; z-index:200;
