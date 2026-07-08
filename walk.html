@@ -1303,9 +1303,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   for(var li=0; li<S.length-1; li++){
     var tdiv=TRAVELS[li+1]; if(!tdiv) continue;
     var hostDiv;
-    if(li===0){ hostDiv=document.getElementById('tempChart'); }   // leg 0 reuses the existing chart slot
-    else { tdiv.style.height='auto'; tdiv.style.padding='15vh 0 40vh 0';
-      hostDiv=document.createElement('div'); hostDiv.style.maxWidth='100%'; hostDiv.style.margin='0 auto'; tdiv.appendChild(hostDiv); }
+    tdiv.style.height='auto'; tdiv.style.padding='15vh 0 40vh 0';
+    hostDiv=document.createElement('div'); hostDiv.style.maxWidth='100%'; hostDiv.style.margin='0 auto'; tdiv.appendChild(hostDiv);
     legHosts[li]={host:hostDiv, data:makeLegData(li), mirror:(li%2===1)};
     legChart[li]=buildLegChart(hostDiv, legHosts[li].data, legHosts[li].mirror);   // odd legs mirrored
   }
