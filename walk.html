@@ -413,8 +413,14 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 #imgLightbox{ display:none; position:fixed; top:58px; bottom:0; left:0; right:0; z-index:200;
   align-items:center; justify-content:center; background:#fff; }
 #imgLightbox.open{ display:flex; }
-#imgLightboxImg{ max-width:92%; max-height:90%; object-fit:contain; border-radius:.5rem;
+#imgLightboxFig{ display:flex; flex-direction:column; align-items:center;
+  max-width:92%; max-height:90%; margin:0; }
+#imgLightboxImg{ max-width:100%; min-height:0; object-fit:contain; border-radius:.5rem;
   box-shadow:0 20px 60px -10px rgba(0,0,0,.6); }
+#imgLightboxCap{ margin-top:1rem; font-family:'DM Sans',sans-serif; font-style:italic;
+  font-weight:400; font-size:.95rem; line-height:1.5; color:#000; text-align:center;
+  max-width:60ch; }
+#imgLightboxCap:empty{ display:none; }
 #imgLightboxClose{ position:absolute; top:18px; right:18px; width:44px; height:44px; padding:0;
   border:none; border-radius:50%; background:rgba(255,255,255,.94); color:#000; font-size:26px;
   line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -514,7 +520,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           <figcaption>Andrew and me co-hosting the opening of last year's Weather &amp; Climate Livestream.</figcaption>
         </figure>
         <p class="ph-note" style="text-align:left;">On April 25th, I received a message on my phone unlike most. Andrew Williams, whom I fondly <a href="https://www.youtube.com/live/CcWR6CdJnvQ?si=gTucbALIanjXz7ig" target="_blank" rel="noopener">co-hosted</a> the opening of the <a href="https://wclivestream.com/" target="_blank" rel="noopener">Weather &amp; Climate Livestream</a> with last year (and who many have rumored to be my long-lost brother :), had noted in the organizing chat a few alarming facts:</p>
-        <ul class="ph-note" style="text-align:left;margin-top:4rem;padding-left:1.5rem;">
+        <ul class="ph-note" style="text-align:left;margin-top:8rem;padding-left:1.5rem;">
           <li>NOAA has shed over 1,000 employees since January 2025 – roughly 20% of its workforce – through layoffs, early retirement incentives, and firings. (<a href="https://abcnews.com/Politics/noaa-braces-mass-layoffs-fueling-concerns-lifesaving-weather/story?id=119730398" target="_blank" rel="noopener">source</a>)</li>
           <li style="margin-top:0.5rem;">The NWS has lost more than 500 employees since the new administration took office, leaving at least eight of the nation's 122 forecast offices unable to operate overnight. (<a href="https://www.nbcnews.com/science/environment/noaa-scrambling-fill-forecasting-jobs-cuts-national-weather-service-rcna207050" target="_blank" rel="noopener">source</a>)</li>
           <li style="margin-top:0.5rem;">The administration dismissed all roughly 400 scientists and experts working on the next National Climate Assessment – the congressionally mandated report that communities, city planners, and local governments rely on to prepare for climate risk. (<a href="https://www.npr.org/2025/04/29/nx-s1-5380816/climate-assessment-authors-released" target="_blank" rel="noopener">source</a>)</li>
@@ -523,7 +529,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/news.png" alt="Headlines about NOAA layoffs, National Weather Service vacancies, and the dismissal of National Climate Assessment authors">
           <figcaption>A sampling of the headlines from spring 2025.</figcaption>
         </figure>
-        <p class="ph-note" style="text-align:left;margin-top:4rem;">With these facts in mind, Andrew suggested the need for a followup to last year's <a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">livestream</a> – the event that had been seen by nearly 200,000 humans, and resulted in 30,000 calls to members of Congress detailing why climate and weather science is worth funding.</p>
+        <p class="ph-note" style="text-align:left;margin-top:8rem;">With these facts in mind, Andrew suggested the need for a followup to last year's <a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">livestream</a> – the event that had been seen by nearly 200,000 humans, and resulted in 30,000 calls to members of Congress detailing why climate and weather science is worth funding.</p>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">If it's not obvious by now, I pitched walking from NYC to DC as a way to generate publicity, and other organizers graciously helped shape the idea towards a physical manifestation of the Livestream's goal – instead of calling, I would hand deliver real paper letters to members of Congress. To make matters more epic, a livestream would still be planned, coinciding with the final 50 hours of my walk to the Capitol.</p>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">Thrilled at this opportunity, I spent a good deal of time preparing and imagining what such a walk could shape up to be, to complement delivering letters to Congress. I settled on three main objectives:</p>
         <ul class="ph-note" style="text-align:left;margin-top:1rem;padding-left:1.5rem;">
@@ -1882,7 +1888,10 @@ document.addEventListener('play', function (e) {
 </script>
 <div id="imgLightbox" aria-hidden="true">
   <button id="imgLightboxClose" aria-label="Close">&times;</button>
-  <img id="imgLightboxImg" alt="">
+  <figure id="imgLightboxFig">
+    <img id="imgLightboxImg" alt="">
+    <figcaption id="imgLightboxCap"></figcaption>
+  </figure>
 </div>
 <script>
 (function(){
@@ -1890,12 +1899,14 @@ document.addEventListener('play', function (e) {
   var box=document.getElementById('imgLightbox');
   var boxImg=document.getElementById('imgLightboxImg');
   var closeBtn=document.getElementById('imgLightboxClose');
-  function open(src,alt){
+  var boxCap=document.getElementById('imgLightboxCap');
+  function open(src,alt,cap){
     if(!DESKTOP()) return;
     var map=document.querySelector('.j-map');
     var mr=map?map.getBoundingClientRect():null;
     box.style.right=mr?(window.innerWidth-mr.left)+'px':'0px';   // right edge lands on the map's left edge
     boxImg.src=src; boxImg.alt=alt||'';
+    boxCap.textContent=cap||'';
     box.classList.add('open'); box.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';                       // freeze the page so the map holds still while open
     setTimeout(function(){ document.addEventListener('click', docClose); }, 0);   // arm "click anywhere closes" next tick
@@ -1907,7 +1918,11 @@ document.addEventListener('play', function (e) {
     document.removeEventListener('click', docClose);
   }
   document.querySelectorAll('.j-card-img').forEach(function(img){
-    img.addEventListener('click',function(){ open(img.currentSrc||img.src,img.alt); });
+    img.addEventListener('click',function(){
+      var fig=img.closest('.j-fig');
+      var cap=fig?fig.querySelector('figcaption'):null;
+      open(img.currentSrc||img.src, img.alt, cap?cap.textContent:'');
+    });
   });
   closeBtn.addEventListener('click',close);
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
