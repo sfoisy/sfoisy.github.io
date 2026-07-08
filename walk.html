@@ -410,6 +410,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <div class="nav-links">
     <a href="/#about">About</a><a href="/#publications">Publications</a><a href="/#outreach">Outreach</a><a href="/#videos">Beyond</a><a href="/#contact">Contact</a><a href="Foisy_CV_long.pdf" target="_blank">CV</a>
   </div>
+  <div class="lang-toggle" id="langToggle">
+    <button data-lang="en" class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button data-lang="es" class="lang-btn" onclick="setLang('es')">ES</button>
+  </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
@@ -427,9 +431,9 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   </div>
   <div class="hero-row">
     <div class="hero-text">
-  <p class="eyebrow">A walk for weather &amp; climate science</p>
-  <h1 class="article-title"><strong>Walking 250 miles from NYC to DC</strong></h1>
-  <p class="article-dek">From May 23 to June 3, I walked up to 52 miles per day, delivering nearly 300 letters from concerned weather and climate scientists directly to seven members of Congress. Follow along below! :)</p>
+  <p class="eyebrow" data-i18n="hero.eyebrow">A walk for weather &amp; climate science</p>
+  <h1 class="article-title" data-i18n="hero.title"><strong>Walking 250 miles from NYC to DC</strong></h1>
+  <p class="article-dek" data-i18n="hero.dek">From May 23 to June 3, I walked up to 52 miles per day, delivering nearly 300 letters from concerned weather and climate scientists directly to seven members of Congress. Follow along below! :)</p>
   <p class="article-meta">
   <span>By Syl Foisy &middot; June 12, 2026</span>
   <img src="head_shot.png" alt="Syl Foisy" class="meta-headshot">
@@ -1882,6 +1886,50 @@ document.addEventListener('play', function (e) {
     });
   }, {threshold: 0.01});
   io.observe(v);
+})();
+</script>
+<style>
+.lang-toggle{display:flex;gap:.4rem;align-items:center}
+.lang-btn{font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.06em;background:none;border:1px solid #ccc;border-radius:4px;padding:.25rem .5rem;color:#666;cursor:pointer;transition:.2s}
+.lang-btn.active{background:#000;color:#fff;border-color:#000}
+</style>
+<script>
+(function(){
+  // ROUGH DRAFT Spanish, to be refined by a translator later.
+  var DICT = {
+    es: {
+      "hero.eyebrow": "Una caminata por la ciencia meteorol\u00f3gica y clim\u00e1tica",
+      "hero.title": "<strong>Caminando 250 millas de Nueva York a Washington</strong>",
+      "hero.dek": "Del 23 de mayo al 3 de junio, camin\u00e9 hasta 52 millas por d\u00eda, entregando casi 300 cartas de cient\u00edficos del clima y la meteorolog\u00eda directamente a siete miembros del Congreso. \u00a1S\u00edgueme abajo! :)"
+    }
+  };
+  var originals = {}, els = null;
+  function collect(){
+    els = document.querySelectorAll('[data-i18n]');
+    els.forEach(function(el){
+      var k = el.getAttribute('data-i18n');
+      if(!(k in originals)) originals[k] = el.innerHTML;  // capture English once
+    });
+  }
+  window.setLang = function(lang){
+    if(!els) collect();
+    els.forEach(function(el){
+      var k = el.getAttribute('data-i18n');
+      if(lang === 'en'){ el.innerHTML = originals[k]; }
+      else if(DICT[lang] && DICT[lang][k] != null){ el.innerHTML = DICT[lang][k]; }
+    });
+    document.documentElement.lang = lang;
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+    try{ localStorage.setItem('site-lang', lang); }catch(e){}
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    collect();
+    var saved = null;
+    try{ saved = localStorage.getItem('site-lang'); }catch(e){}
+    if(saved && saved !== 'en') setLang(saved);
+  });
 })();
 </script>
 </body>
