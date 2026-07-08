@@ -448,7 +448,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   <span>By Syl Foisy &middot; June 12, 2026</span>
   <img src="head_shot.png" alt="Syl Foisy" class="meta-headshot">
 </p>
-  <p style="font-style:italic;font-size:.82rem;color:#000;margin-top:.6rem;">All opinions expressed in this article are personal.</p>
+  <p id="opinionLine" style="font-style:italic;font-size:.82rem;color:#000;margin-top:.6rem;">All opinions expressed in this article are personal.</p>
     </div>
     <div class="hero-figure">
       <video class="hero-img" src="https://wesitefoisy1.b-cdn.net/collagee.mp4" autoplay loop muted playsinline></video>
@@ -1974,13 +1974,43 @@ document.addEventListener('play', function (e) {
     });
     var m = document.getElementById('langMenu');
     if(m) m.classList.remove('open');
+    fixLedeGap();
     try{ localStorage.setItem('site-lang', lang); }catch(e){}
   };
+  // Desktop only: hold a constant four-line gap below the opinion line, no
+  // matter how the language rewraps the title/dek above it. Mobile is left
+  // exactly as-is (it already works) by clearing any inline margin we set.
+  function fixLedeGap(){
+    var lead = document.querySelector('.j-lead');
+    if(!lead) return;
+    if(!window.matchMedia('(min-width:1101px)').matches){
+      lead.style.marginTop = '';   // hand control back to the mobile CSS
+      return;
+    }
+    var op = document.getElementById('opinionLine');
+    var lede = document.querySelector('.j-lead .lede');
+    if(!op || !lede) return;
+    var cs = getComputedStyle(op);
+    var lh = parseFloat(cs.lineHeight);
+    if(isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.3;   // 'normal' fallback
+    var desiredGap = 4 * lh;
+    var opBottom = op.getBoundingClientRect().bottom;
+    var ledeTop = lede.getBoundingClientRect().top;
+    var curMargin = parseFloat(getComputedStyle(lead).marginTop) || 0;
+    lead.style.marginTop = (curMargin + (desiredGap - (ledeTop - opBottom))) + 'px';
+  }
   document.addEventListener('DOMContentLoaded', function(){
     collect();
     var saved = null;
     try{ saved = localStorage.getItem('site-lang'); }catch(e){}
     if(saved && saved !== 'en') setLang(saved);
+    fixLedeGap();
+  });
+  window.addEventListener('load', fixLedeGap);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fixLedeGap);
+  var _lgt;
+  window.addEventListener('resize', function(){
+    clearTimeout(_lgt); _lgt = setTimeout(fixLedeGap, 120);
   });
 })();
 </script>
