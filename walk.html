@@ -419,8 +419,8 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       <button role="menuitem" data-lang="en" onclick="setLang('en')">English</button>
       <button role="menuitem" data-lang="es" onclick="setLang('es')">Español</button>
       <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français</button>
-      <button role="menuitem" data-lang="pt" onclick="setLang('pt')">Português</button>
       <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy</button>
+      <button role="menuitem" data-lang="vi" onclick="setLang('vi')">Tiếng Việt</button>
       <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文</button>
     </div>
   </div>
@@ -1922,15 +1922,15 @@ document.addEventListener('play', function (e) {
       "hero.title": "<strong>250 miles à pied de New York à Washington</strong>",
       "hero.dek": "Du 23 mai au 3 juin, j'ai marché jusqu'à 52 miles par jour, remettant près de 300 lettres de scientifiques du climat et de la météo directement à sept membres du Congrès. Suivez-moi ci-dessous ! :)"
     },
-    pt: {
-      "hero.eyebrow": "Uma caminhada pela ciência do clima e do tempo",
-      "hero.title": "<strong>Caminhando 250 milhas de Nova York a Washington</strong>",
-      "hero.dek": "De 23 de maio a 3 de junho, caminhei até 52 milhas por dia, entregando quase 300 cartas de cientistas do clima e da meteorologia diretamente a sete membros do Congresso. Acompanhe abaixo! :)"
-    },
     mg: {
       "hero.eyebrow": "Dia an-tongotra ho an'ny siansa momba ny toetrandro sy ny toetr'andro",
       "hero.title": "<strong>Nandeha an-tongotra 250 kilaometatra avy any New York ka hatrany Washington</strong>",
       "hero.dek": "Nanomboka ny 23 Mey ka hatramin'ny 3 Jona, nandeha an-tongotra hatramin'ny 52 mailaka isan'andro aho, nanolotra saika 300 taratasy avy amin'ny mpahay siansa momba ny toetrandro sy ny toetr'andro mivantana tamin'ny mpikambana fito ao amin'ny Kongresy. Araho eto ambany! :)"
+    },
+    vi: {
+      "hero.eyebrow": "Một chuyến đi bộ vì khoa học thời tiết và khí hậu",
+      "hero.title": "<strong>Đi bộ 250 dặm từ New York đến Washington</strong>",
+      "hero.dek": "Từ ngày 23 tháng 5 đến ngày 3 tháng 6, tôi đã đi bộ tới 52 dặm mỗi ngày, trao gần 300 lá thư từ các nhà khoa học thời tiết và khí hậu trực tiếp đến bảy thành viên Quốc hội. Hãy theo dõi bên dưới nhé! :)"
     },
     zh: {
       "hero.eyebrow": "一次为气象与气候科学而走的徒步",
@@ -1938,7 +1938,7 @@ document.addEventListener('play', function (e) {
       "hero.dek": "从5月23日到6月3日，我每天徒步多达52英里，将近300封来自气象与气候科学家的信件直接送到七位国会议员手中。欢迎在下方跟随我的旅程！:)"
     }
   };
-  var LABELS = { en:"English", es:"Español", fr:"Français", pt:"Português", mg:"Malagasy", zh:"中文" };
+  var LABELS = { en:"English", es:"Español", fr:"Français", mg:"Malagasy", vi:"Tiếng Việt", zh:"中文" };
   window.toggleLangMenu = function(){
     var m = document.getElementById('langMenu'), c = document.getElementById('langCurrent');
     var open = m.classList.toggle('open');
