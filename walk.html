@@ -1550,7 +1550,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // scroll handlers on a slower cadence, so re-writing `top` on a fixed element every
       // frame makes it stutter and snap. Park it as position:absolute at its document
       // coordinate (a constant) and let the browser scroll it natively — zero JS per frame.
-      var safariRide = SAFARI && !mq.matches && (mapSlideTop > PIN_TOP + 0.5);
+      var safariRide = !mq.matches && (mapSlideTop > PIN_TOP + 0.5);   // desktop, all browsers: ride up on the compositor
       if (safariRide) {
         if (!safariFrozen) {   // promote to its own layer so scrolling it is a compositor translate, not a repaint
           safariFrozen = true;
