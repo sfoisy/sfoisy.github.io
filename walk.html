@@ -1428,6 +1428,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   }
 
   var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB=''; var cpAnchor=-1, cpDone=false;
+  var safariFrozen=false, lastMapTf='', lastD='';   // Safari ride: layer flag + write caches
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
@@ -1551,10 +1552,20 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // coordinate (a constant) and let the browser scroll it natively — zero JS per frame.
       var safariRide = SAFARI && !mq.matches && (mapSlideTop > PIN_TOP + 0.5);
       if (safariRide) {
+        if (!safariFrozen) {   // promote to its own layer so scrolling it is a compositor translate, not a repaint
+          safariFrozen = true;
+          mapBoxEl.style.willChange = 'transform';
+          mapBoxEl.style.transform = 'translateZ(0)';
+        }
         setPos('absolute');
         setBox('top', window.scrollY + lead.getBoundingClientRect().bottom);
         setBox('right', startRight);
       } else {
+        if (safariFrozen) {    // pinned: hand it back to the normal fixed path, untouched
+          safariFrozen = false;
+          mapBoxEl.style.willChange = '';
+          mapBoxEl.style.transform = '';
+        }
         setPos('fixed');
         setBox('top', mapSlideTop);                                   // pinned: original behavior
         setBox('right', lerp(startRight, 22, instantScrollFactor));   // glide to the 22px corner
@@ -1702,8 +1713,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var shiftX = lerp(mq.matches ? -10 : -23, mq.matches ? -32 : -70, instantScrollFactor);
     var shiftY = lerp(9, -20, instantScrollFactor);
     
-    document.getElementById('map').style.transform = 
-      'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
+    var _mapTf = 'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
+    if(_mapTf !== lastMapTf){ lastMapTf = _mapTf; document.getElementById('map').style.transform = _mapTf; }
     // Mobile slide-up: show the flat static stand-in (cheap to translate) and hide the live SVG (expensive to repaint while moving). Swap to the live map the instant it pins, so it can run its rotate/zoom transition.
     // During the rise: show the in-flow stand-in (scrolls natively on the compositor — zero lag, like every other image) and hide the whole fixed map. The instant the stand-in reaches the pin line, hide it and reveal the live map so it can run its rotate/zoom.
     var mapFlow = document.getElementById('mapFlow');
@@ -1758,11 +1769,13 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       lerp(WIDE[2], 1672, instantScrollFactor), 
       lerp(WIDE[3], 836, instantScrollFactor)  
     ];
-    svg.setAttribute('viewBox', vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1));
+    var _vb = vb[0].toFixed(1)+' '+vb[1].toFixed(1)+' '+vb[2].toFixed(1)+' '+vb[3].toFixed(1);
+    if(_vb !== lastVB){ lastVB = _vb; svg.setAttribute('viewBox', _vb); }
     gStateLabels.style.opacity = mapIntroFactor;
     
     var walkFrac=interp(WCUM,dispCur)/wcumMax;
-    bright.setAttribute('d', revealedD(dispCur));
+    var _d = revealedD(dispCur);
+    if(_d !== lastD){ lastD = _d; bright.setAttribute('d', _d); }
     miNum.textContent=(walkFrac*TOTAL).toFixed(1);
     var miNow=walkFrac*TOTAL, tn='';
     if(active>=0 && S[active] && S[active].townOverride){ tn=S[active].townOverride; }
