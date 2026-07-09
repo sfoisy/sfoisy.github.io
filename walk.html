@@ -391,10 +391,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-card{ text-align:left; }
   .j-card::after{ content:""; display:block; clear:both; }   /* card grows to contain its floats */
   .j-card-img{
-    width:42%;                                    /* KNOB: how much of the column the image takes */
+    width:60%;                                    /* KNOB: image width (matches .j-fig) */
     height:auto; display:block; cursor:pointer; transition:transform .2s ease;
-    float:right; clear:right;                     /* clear:right = never two images stacked side by side */
-    margin:.35rem 0 1rem 1.75rem;                 /* KNOB: 1.75rem = gap between image and the text beside it */
+    float:none; clear:both;                       /* no wrap — text above, image, text below */
+    margin:2.5rem auto;                           /* KNOB: space above and below each image */
   }
   .j-card-img:hover{ transform:scale(1.03); }
   .j-fig{
