@@ -313,9 +313,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   .j-card { padding: 0; }
   .j-fig{ float:none; width:auto; margin:1rem 0; }
-  .j-beat{ display:flex; flex-direction:column; }
-  .j-beat > .ph-note{ order:1; }
-  .j-beat > .j-fig{ order:2; }
+  .j-beat{ display:flex; flex-direction:column; gap:1.25rem; margin:1.25rem 0; }
+  .j-beat > .ph-note{ order:1; margin:0; }
+  .j-beat > .j-fig{ order:2; margin:0; }
+  .j-beat + ul.ph-note{ margin-top:1.25rem !important; }
   .j-fig figcaption{ font-family:'DM Sans',sans-serif; font-size:.75rem; font-style:italic; line-height:1.4; color:#000; margin-top:.4rem; }
   .stop-head { font-size: 1.25rem; }
   .j-card .met { font-size: .85rem; }
