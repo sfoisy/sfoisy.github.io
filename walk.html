@@ -438,6 +438,17 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   box-shadow:0 4px 14px rgba(0,0,0,.3); }
 #imgLightboxClose:hover{ background:#fff; }
 @media(max-width:1100px){ #imgLightbox{ display:none !important; } }   /* desktop-only feature */
+
+/* ===== Desktop: stop images are centered blocks, never wrapped by text ===== */
+@media(min-width:1101px){
+  .j-card > .j-card-img{
+    width:60%;                 /* KNOB: image width */
+    float:none;
+    clear:both;
+    margin:2.5rem auto;        /* KNOB: space above and below */
+    display:block;
+  }
+}
 </style>
 </head>
 <body>
