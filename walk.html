@@ -1397,6 +1397,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const lead=document.querySelector('.j-lead');
   const mq=window.matchMedia('(max-width:1100px)');
   const LOWH=window.matchMedia('(max-width:1100px) and (max-height:600px)');
+  const SAFARI = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
   const lowTopGap=66, lowBotGap=90;   // clears the nav at top and the fixed logo/town label at bottom
   const af=function(){return mq.matches?0.66:0.5;};
   const clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
@@ -1430,8 +1431,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
-  var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null};
+  var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null}, boxPos=null;
   function setBox(prop,val){ var v=(val==='')?'':Math.round(val); if(boxGeom[prop]===v) return; boxGeom[prop]=v; mapBoxEl.style[prop]=(v==='')?'':(v+'px'); }
+  function setPos(p){ if(boxPos===p) return; boxPos=p; mapBoxEl.style.position=p; }
   function compute(){
     var anchor=window.scrollY+window.innerHeight*af(), mi=0, act=-1;
     for(var i=0;i<S.length;i++){
@@ -1536,7 +1538,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
       setBox('top', lowTopNow + Math.max(0, (lowBand - computedHeight) / 2));
     } else if (mapSlideTop != null) {
-      setBox('top', mapSlideTop);   // mobile + desktop: ride up with the content, then pin and transform
       var startRight;
       if (mq.matches) {
         startRight = window.innerWidth * 0.125;        // mobile: centers the 75vw start (12.5vw each side)
@@ -1544,8 +1545,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var _hr = document.querySelector('.hero-figure').getBoundingClientRect();
         startRight = window.innerWidth - _hr.right;    // desktop: start on the letters image's right edge
       }
-      setBox('right', lerp(startRight, 22, instantScrollFactor));   // glide to the 22px corner
+      // Safari desktop, still riding up: Safari scrolls the page on the compositor but runs
+      // scroll handlers on a slower cadence, so re-writing `top` on a fixed element every
+      // frame makes it stutter and snap. Park it as position:absolute at its document
+      // coordinate (a constant) and let the browser scroll it natively — zero JS per frame.
+      var safariRide = SAFARI && !mq.matches && (mapSlideTop > PIN_TOP + 0.5);
+      if (safariRide) {
+        setPos('absolute');
+        setBox('top', window.scrollY + lead.getBoundingClientRect().bottom);
+        setBox('right', startRight);
+      } else {
+        setPos('fixed');
+        setBox('top', mapSlideTop);                                   // pinned: original behavior
+        setBox('right', lerp(startRight, 22, instantScrollFactor));   // glide to the 22px corner
+      }
     } else {
+      setPos('fixed');
       setBox('top', '');
     }
     // Walker scroll choreography
