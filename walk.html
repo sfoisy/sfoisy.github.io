@@ -1987,10 +1987,19 @@ document.addEventListener('play', function (e) {
 (function(){
   var v = document.querySelector('.hero-img');
   if(!v || v.tagName !== 'VIDEO') return;
+
+  var userPaused = false;   // set by a click; the observer must not override it
+
+  v.style.cursor = 'pointer';
+  v.addEventListener('click', function(){
+    if(v.paused){ userPaused = false; v.play().catch(function(){}); }
+    else { userPaused = true; v.pause(); }
+  });
+
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if(e.isIntersecting){ v.play().catch(function(){}); }
-      else { v.pause(); }
+      if(e.isIntersecting){ if(!userPaused) v.play().catch(function(){}); }
+      else { v.pause(); }   // always pause offscreen; resume only if the user hasn't paused it
     });
   }, {threshold: 0.01});
   io.observe(v);
