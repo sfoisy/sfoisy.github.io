@@ -1690,11 +1690,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         }
       }
 
-      if (onLine && mq.matches) {            // mobile, mid-line: ride native scroll, glued to the line
+      if (onLine) {                          // mid-line, any device: ride native scroll, glued to the line
         wk.style.position = 'absolute';
         wk.style.left = (currentX + window.pageXOffset) + 'px';
         wk.style.top = (currentY + window.pageYOffset) + 'px';
-      } else {                               // desktop always, and mobile when resting/spinning/dropping
+      } else {                               // resting, spinning, dropping: viewport-anchored
         wk.style.position = 'fixed';
         wk.style.left = currentX + 'px';
         wk.style.top = currentY + 'px';
