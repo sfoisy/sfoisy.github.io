@@ -395,9 +395,9 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   .j-card-img:hover{ transform:scale(1.03); }
   .j-fig{
-    width:42%;                                    /* KNOB: figure now owns the width */
-    float:right; clear:right;
-    margin:.35rem 0 1.25rem 1.75rem;
+    width:70%;                                    /* KNOB: centered figure width */
+    float:none; clear:both;
+    margin:2.5rem auto;                           /* KNOB: space above and below each image */
   }
   .j-fig .j-card-img{ width:100%; float:none; clear:none; margin:0; }
   .j-beat{
@@ -408,7 +408,6 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-beat.flip{ flex-direction:row-reverse; }     /* image on the left */
   .j-beat > .j-fig{ flex:0 0 40%; float:none; width:auto; margin:0; }   /* KNOB: 40% = image share */
   .j-beat > .ph-note{ flex:1 1 0; min-width:0; margin:0; }
-  .j-fig.fig-left{ float:left; clear:left; margin:.35rem 1.75rem 1.25rem 0; }
   .j-fig figcaption{
     margin-top:.5rem;
     font-family:'DM Sans',sans-serif;
@@ -536,7 +535,11 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           <li style="margin-top:0.5rem;">The NWS has lost more than 500 employees since the new administration took office, leaving at least eight of the nation's 122 forecast offices unable to operate overnight. (<a href="https://www.nbcnews.com/science/environment/noaa-scrambling-fill-forecasting-jobs-cuts-national-weather-service-rcna207050" target="_blank" rel="noopener">source</a>)</li>
           <li style="margin-top:0.5rem;">The administration dismissed all roughly 400 scientists and experts working on the next National Climate Assessment – the congressionally mandated report that communities, city planners, and local governments rely on to prepare for climate risk. (<a href="https://www.npr.org/2025/04/29/nx-s1-5380816/climate-assessment-authors-released" target="_blank" rel="noopener">source</a>)</li>
         </ul>
-        <p class="ph-note" style="text-align:left;margin-top:4rem;">With these facts in mind, Andrew suggested the need for a followup to last year's <a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">livestream</a> – the event that had been seen by nearly 200,000 humans, and resulted in 30,000 calls to members of Congress</p>
+        <figure class="j-fig">
+          <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/news.png" alt="Headlines about NOAA layoffs, National Weather Service vacancies, and the dismissal of National Climate Assessment authors">
+          <figcaption>A sampling of the headlines from spring 2025.</figcaption>
+        </figure>
+        <p class="ph-note" style="text-align:left;margin-top:1rem;">With these facts in mind, Andrew suggested the need for a followup to last year's <a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">livestream</a> – the event that had been seen by nearly 200,000 humans, and resulted in 30,000 calls to members of Congress</p>
         <figure class="j-fig" style="margin-top:.35rem;">
           <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/news.png" alt="Headlines about NOAA layoffs, National Weather Service vacancies, and the dismissal of National Climate Assessment authors">
           <figcaption>A sampling of the headlines from spring 2025.</figcaption>
@@ -550,7 +553,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           <li style="margin-top:0.5rem;">Have merch in hand to thank those who talk with me</li>
         </ul>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">For those following along at home, I reached out to 92 scientists along my planned route, of which I secured 16 in-person meetings. Emails were tricky, as I had to provide the time I would be arriving – something that relied heavily on the assumption my walk wouldn't be delayed!</p>
-        <figure class="j-fig fig-left">
+        <figure class="j-fig">
           <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/hatss.png" alt="Stickers, pins, and embroidered hats">
           <figcaption>Five hundred stickers, twenty-five pins, twenty hats.</figcaption>
         </figure>
