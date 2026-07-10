@@ -455,18 +455,15 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     display:block;
   }
 
-  /* ===== Scroll reveal: images slide in from alternating sides ===== */
+  /* ===== Scroll-linked reveal: slides in from alternating sides, tied to scroll position ===== */
   .reveal{
     opacity:0;
-    transition:opacity .7s ease-out, transform .7s cubic-bezier(.22,.61,.36,1);   /* KNOB: .7s = speed */
     will-change:opacity, transform;
+    transition:none;   /* position is driven per-frame by JS, not by a transition */
   }
-  .reveal-l{ transform:translateX(-60px); }   /* KNOB: 60px = slide distance */
-  .reveal-r{ transform:translateX(60px); }
-  .reveal.in{ opacity:1; transform:translateX(0); }
-
-  /* the hover zoom must not fight the reveal transform */
-  .j-card > .j-card-img.reveal.in:hover{ transform:scale(1.03); }
+  /* hover zoom is disabled while revealing; JS restores it at rest */
+  .j-card > .j-card-img.reveal.done{ transition:transform .2s ease; }
+  .j-card > .j-card-img.reveal.done:hover{ transform:scale(1.03); }
 }
 @media(prefers-reduced-motion:reduce){
   .reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
@@ -2213,19 +2210,53 @@ document.addEventListener('play', function (e) {
   var els = [].slice.call(document.querySelectorAll('.j-card > .j-card-img, .j-fig'))
     .filter(function(el){ return !el.closest('.j-beat'); });
 
+  var DIST = 60;    // KNOB: px it slides in from
+  var SPAN = 0.45;  // KNOB: fraction of viewport height the reveal takes to complete
+
   els.forEach(function(el, i){
-    el.classList.add('reveal', i % 2 ? 'reveal-r' : 'reveal-l');   // alternate: left, right, left...
+    el.classList.add('reveal');
+    el.dataset.dir = (i % 2) ? 1 : -1;   // alternate: left, right, left...
   });
 
+  // Only measure what's actually on screen. Everything else costs nothing.
+  var live = new Set();
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if(!e.isIntersecting) return;
-      e.target.classList.add('in');
-      io.unobserve(e.target);   // fire once, then stop watching
+      if(e.isIntersecting) live.add(e.target);
+      else {
+        live.delete(e.target);
+        // Off the bottom means it never started; off the top means it finished.
+        var above = e.boundingClientRect.top < 0;
+        e.target.style.opacity = above ? 1 : 0;
+        e.target.style.transform = above ? 'none' : 'translateX(' + (e.target.dataset.dir * DIST) + 'px)';
+        e.target.classList.toggle('done', above);
+      }
     });
-  }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });   // KNOB: -8% = trigger a bit before it's centered
-
+  }, { rootMargin: '0px' });
   els.forEach(function(el){ io.observe(el); });
+
+  var clamp = function(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); };
+  var ticking = false;
+
+  function frame(){
+    ticking = false;
+    var vh = window.innerHeight, runway = vh * SPAN;
+    live.forEach(function(el){
+      var top = el.getBoundingClientRect().top;
+      // p = 0 the instant its top touches the bottom of the viewport; 1 after it has risen `runway` px.
+      var p = clamp((vh - top) / runway);
+      var e = 1 - Math.pow(1 - p, 3);   // ease-out cubic
+      el.style.opacity = e;
+      el.style.transform = (p >= 1) ? 'none' : 'translateX(' + (el.dataset.dir * DIST * (1 - e)).toFixed(1) + 'px)';
+      el.classList.toggle('done', p >= 1);
+    });
+  }
+
+  window.addEventListener('scroll', function(){
+    if(!ticking){ ticking = true; requestAnimationFrame(frame); }
+  }, {passive:true});
+  window.addEventListener('resize', frame);
+  frame();
 })();
 </script>
 
