@@ -1852,7 +1852,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   var T=85;            // px over which it eases from full-width back to the margin
   var cleaned=false;
   function active(){ return MQ.matches && window.matchMedia('(orientation: portrait)').matches; }
-  function reset(el){ el.style.width=''; el.style.marginLeft=''; el.style.marginRight=''; el.style.maxWidth=''; el.style.display=''; }
+  function reset(el){ el.style.width=''; el.style.marginLeft=''; el.style.marginRight=''; el.style.maxWidth=''; el.style.display=''; var w=el.parentElement; if(w&&w.classList.contains('video-share-wrap')){ w.style.width=''; w.style.marginLeft=''; w.style.marginRight=''; w.style.maxWidth=''; w.style.display=''; } }
   function lerp(a,b,f){ return a+(b-a)*f; }
   function update(){
     if(!active()){ if(!cleaned){ media.forEach(reset); cleaned=true; } return; }
@@ -1870,11 +1870,17 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var d=top-mapBottom-25;   // finish shrinking ~25px sooner so it clears the town-name box
       var f = d<=0 ? 0 : (d>=T ? 1 : d/T);   // f=1 full-bleed (below map), f=0 back in the lane
       var fullW=vw-laneLeft-rightMargin;   // text margin left, map margin right
-      el.style.display='block';
-      el.style.maxWidth='none';
-      el.style.width=lerp(constrainedW, fullW, f).toFixed(1)+'px';
-      el.style.marginLeft = el.closest('.j-fig') ? 'auto' : '0px';   // figures center; bare images hug the text margin
-      if(el.closest('.j-fig')) el.style.marginRight='auto';
+      // If this video is wrapped for sharing, resize the WRAP (not just the
+      // <video>) so the absolutely-positioned share button tracks the video's
+      // shrinking/growing right edge on mobile.
+      var wrap = el.parentElement && el.parentElement.classList.contains('video-share-wrap') ? el.parentElement : null;
+      var tgt = wrap || el;
+      tgt.style.display='block';
+      tgt.style.maxWidth='none';
+      tgt.style.width=lerp(constrainedW, fullW, f).toFixed(1)+'px';
+      tgt.style.marginLeft = el.closest('.j-fig') ? 'auto' : '0px';   // figures center; bare media hug the text margin
+      if(el.closest('.j-fig')) tgt.style.marginRight='auto';
+      if(wrap){ el.style.width='100%'; el.style.maxWidth='100%'; el.style.marginLeft='0'; el.style.marginRight='0'; }
     });
   }
   var tick=false;
@@ -2302,17 +2308,31 @@ document.addEventListener('play', function (e) {
   }
   function flash(){ var u=pop.querySelector('.vsp-url'), o=u.textContent; u.textContent='Link copied!'; setTimeout(function(){ u.textContent=o; },1400); }
 
-  // Deep link: ?v=hikaru scrolls to that video on load
+  // Deep link: ?v=hikaru scrolls to (and vertically centers) that video on load.
+  // Lazy images above it keep loading and grow the page, so we re-correct until
+  // the target position stops moving instead of firing a single (short) scroll.
   window.addEventListener('load', function(){
     var m = /[?&]v=([^&#]+)/.exec(location.search); if(!m) return;
-    var v = VSHARE[decodeURIComponent(m[1])]; if(!v) return;
-    var el = document.getElementById('vid-'+decodeURIComponent(m[1])) || document.querySelector('.j-step[data-i="'+v.stop+'"]');
+    var key = decodeURIComponent(m[1]);
+    var v = VSHARE[key]; if(!v) return;
+    var el = document.getElementById('vid-'+key) || document.querySelector('.j-step[data-i="'+v.stop+'"]');
     if(!el) return;
-    setTimeout(function(){
-      var mobile = window.matchMedia('(max-width:1100px)').matches;
-      var y = el.getBoundingClientRect().top + window.scrollY - window.innerHeight*(mobile?0.30:0.22);
-      window.scrollTo({top:Math.max(0,y), behavior:'smooth'});
-    }, 600);
+    function targetY(){
+      var r = el.getBoundingClientRect();
+      var absTop = r.top + window.scrollY;            // absolute, independent of current scroll
+      return Math.max(0, absTop + r.height/2 - window.innerHeight/2);   // center the video
+    }
+    var tries = 0, lastY = null;
+    function step(){
+      var y = targetY();
+      window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
+      tries++;
+      if(tries < 12 && (lastY === null || Math.abs(y - lastY) > 2)){
+        lastY = y;
+        setTimeout(step, tries===1 ? 700 : 300);   // let the smooth glide settle, then re-correct
+      }
+    }
+    setTimeout(step, 500);
   });
 })();
 </script>
