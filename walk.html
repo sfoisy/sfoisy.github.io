@@ -328,25 +328,40 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
       var r=t.getBoundingClientRect();
       return Math.max(0, r.top + window.scrollY + r.height/2 - window.innerHeight/2);
     }
-    // Lazy images/videos between here and the target only render as they near the viewport, so
-    // the page is much SHORTER than its final height right now. A one-shot scroll computes a Y
-    // beyond the current scroll range, the browser clamps it to the document bottom, and you
-    // land at the end of the walk. So: jump, let the newly-revealed content render, re-measure,
-    // repeat until it settles. (Same convergence the ?v= deep-link loader uses.)
     var mobile=window.matchMedia('(max-width:1100px)').matches;
-    var tries=0, lastY=null;
-    (function step(){
+    // 1) Force the lazy images ABOVE the target to load now. They carry no width/height attrs,
+    //    so until they load they occupy ~0px and the page sits far shorter than its real height
+    //    — which is why a measured scroll parks short (around the temp chart) no matter the easing.
+    var stopY=t.getBoundingClientRect().top+window.scrollY, pending=[];
+    [].slice.call(document.querySelectorAll('img[loading="lazy"]')).forEach(function(img){
+      if(img.getBoundingClientRect().top+window.scrollY > stopY) return;   // below the target: can't push it
+      img.loading='eager';
+      if(img.dataset && img.dataset.src && !img.src) img.src=img.dataset.src;
+      if(!img.complete) pending.push(img);
+    });
+    // 2) Converge. Require TWO stable passes: a single match can just mean nothing rendered yet
+    //    during the gap, which would strand us early.
+    var tries=0, lastY=null, stable=0;
+    function step(){
       var y=targetY();
-      // Mobile jumps instantly — smooth + the scroll-driven map animation thrashes.
       if(mobile) window.scrollTo(0,y);
       else window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
       tries++;
-      var max = mobile ? 7 : 3;
-      if(tries<max && (lastY===null || Math.abs(y-lastY)>2)){
-        lastY=y;
-        setTimeout(step, mobile ? 220 : (tries===1 ? 700 : 300));
-      }
-    })();
+      if(lastY!==null && Math.abs(y-lastY)<=2) stable++; else stable=0;
+      lastY=y;
+      if(tries<12 && stable<2) setTimeout(step, mobile ? 200 : 260);
+    }
+    var started=false;
+    function begin(){ if(started) return; started=true; step(); }
+    if(pending.length){
+      var done=0;
+      pending.forEach(function(img){
+        var go=function(){ if(++done>=pending.length) begin(); };
+        img.addEventListener('load', go, {once:true});
+        img.addEventListener('error', go, {once:true});
+      });
+      setTimeout(begin, 700);   // safety net: never wait on an image that stalls
+    } else begin();
   });
 })();
 </script>
