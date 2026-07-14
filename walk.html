@@ -311,7 +311,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   .map-info.open .map-info-pop, body.mapInfoOpen .map-info-pop{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
   .map-info-pop::after{display:none}             /* kill the desktop hover-bridge on mobile */
   .map-info{top:auto;left:auto;bottom:.5rem;right:.5rem}   /* button bottom-right on mobile */
-  .map-info-pop{max-height:80vh;overflow:auto}
+  .map-info-pop{max-height:80vh;overflow:auto;overscroll-behavior:contain}
   .map-info-close{display:flex;align-items:center;justify-content:center;position:absolute;top:.4rem;left:.5rem;width:30px;height:30px;border:none;background:none;font-size:1.6rem;line-height:1;color:#000;cursor:pointer;z-index:2}
   .map-info-pop p{margin-top:1.6rem}
 }
@@ -322,17 +322,10 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
     var a = e.target.closest('.tip-link');
     if(!a) return;
     e.preventDefault();
-    // If this link sits inside the map ⓘ card, dismiss that card first. Doing it here (rather
-    // than relying on the info handler further down) also clears body{overflow:hidden} BEFORE
-    // the scroll below, which would otherwise be blocked by the scroll lock.
-    var pop = a.closest('.map-info-pop');
-    if(pop){
-      var mi = document.getElementById('mapInfo');
-      if(mi) mi.classList.remove('open');
-      document.body.classList.remove('mapInfoOpen');
-      document.body.style.overflow = '';
-      if(mi && pop.parentNode === document.body) mi.appendChild(pop);
-    }
+    // If this link sits inside the map ⓘ card, dismiss that card first. This also releases the
+    // scroll lock (body overflow + the touchmove blocker) BEFORE the smooth scroll below, which
+    // would otherwise be swallowed by the lock.
+    if(a.closest('.map-info-pop') && window.closeMapInfo){ window.closeMapInfo(); }
     var t = a.getAttribute('data-target')
       ? document.getElementById(a.getAttribute('data-target'))
       : document.querySelector('.j-step[data-i="'+a.getAttribute('data-stop')+'"]');
@@ -1216,8 +1209,15 @@ function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.que
 // close via X, tapping outside, or the tap-link inside.
 (function(){
   function info(){ return document.getElementById('mapInfo'); }
-  function open(){ var i=info(); if(!i) return; i.classList.add('open'); if(window.matchMedia('(max-width:1100px)').matches){ var pop=i.querySelector('.map-info-pop'), bd=document.getElementById('mapInfoBackdrop'); if(pop && pop.parentNode!==document.body) document.body.appendChild(pop); if(bd && bd.parentNode!==document.body) document.body.appendChild(bd); document.body.classList.add('mapInfoOpen'); document.body.style.overflow='hidden'; } }
-  function close(){ var i=info(); if(!i) return; i.classList.remove('open'); document.body.classList.remove('mapInfoOpen'); document.body.style.overflow=''; var pop=document.querySelector('.map-info-pop'); if(pop && pop.parentNode===document.body) i.appendChild(pop); }
+  // iOS Safari keeps touch-scrolling the page even with body{overflow:hidden}, so while the
+  // card is open we swallow touchmove — except inside the card itself, which may need to scroll.
+  function lockTouch(e){
+    if(e.target.closest && e.target.closest('.map-info-pop')) return;
+    e.preventDefault();
+  }
+  function open(){ var i=info(); if(!i) return; i.classList.add('open'); if(window.matchMedia('(max-width:1100px)').matches){ var pop=i.querySelector('.map-info-pop'), bd=document.getElementById('mapInfoBackdrop'); if(pop && pop.parentNode!==document.body) document.body.appendChild(pop); if(bd && bd.parentNode!==document.body) document.body.appendChild(bd); document.body.classList.add('mapInfoOpen'); document.body.style.overflow='hidden'; document.addEventListener('touchmove', lockTouch, {passive:false}); } }
+  function close(){ var i=info(); if(!i) return; i.classList.remove('open'); document.body.classList.remove('mapInfoOpen'); document.body.style.overflow=''; document.removeEventListener('touchmove', lockTouch, {passive:false}); var pop=document.querySelector('.map-info-pop'); if(pop && pop.parentNode===document.body) i.appendChild(pop); }
+  window.closeMapInfo = close;   // so the .tip-link handler can dismiss the card + release the scroll lock
   document.addEventListener('click',function(e){
     var i=info(); if(!i) return;
     if(e.target.closest && e.target.closest('.map-info-close')){ e.preventDefault(); close(); return; }
