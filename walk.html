@@ -300,13 +300,11 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
     opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility .2s}
   .map-info.open .map-info-pop{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
   .map-info-pop::after{display:none}             /* kill the desktop hover-bridge on mobile */
+  .map-info{top:auto;left:auto;bottom:.5rem;right:.5rem}   /* button bottom-right on mobile */
+  .map-info-pop{max-height:80vh;overflow:auto}
+  .map-info-close{display:flex;align-items:center;justify-content:center;position:absolute;top:.4rem;left:.5rem;width:30px;height:30px;border:none;background:none;font-size:1.6rem;line-height:1;color:#000;cursor:pointer;z-index:2}
+  .map-info-pop p{margin-top:1.6rem}
 }
-  .map-cap-mobile{display:none}                 /* remove the MODIS overlay on mobile */
-  .map-info-pop{transition:opacity .18s,visibility .18s}
-  .map-info.open .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
-  .map-info-pop{right:auto;left:0;top:44px;width:min(78vw,300px)}  /* open below the button, in-frame */
-}
-@media(max-width:1100px){.map-info{display:block}}
 </style>
 <script>
 (function(){
@@ -1097,7 +1095,6 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     <div class="mapwrap">
       <div class="map-cap-mobile" id="mapCapMobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</div>
       <div id="mapInfoBackdrop"></div>
-      <div id="mapInfoBackdrop"></div>
       <img id="ferryBadge" src="ferry.png" alt="Staten Island Ferry">
       <div class="map-hud">
         <div class="map-readout"><span class="mi" id="miNum">0.0</span><span class="mi-unit"> mi</span><div class="lbl">walked</div></div>
@@ -1212,19 +1209,6 @@ function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.que
     if(i.classList.contains('open') && (!e.target.closest || !e.target.closest('.map-info-pop'))){ close(); }
   });
 })();
-// Mobile: tap the ⓘ button to open the MODIS caption as a centered card + backdrop.
-document.addEventListener('click',function(e){
-  var info=document.getElementById('mapInfo'); if(!info) return;
-  var btn=e.target.closest && e.target.closest('.map-info-btn');
-  var back=document.getElementById('mapInfoBackdrop');
-  if(btn && info.contains(btn)){
-    e.preventDefault();
-    var open=info.classList.toggle('open');
-    document.body.classList.toggle('mapInfoOpen', open);
-  } else if(!e.target.closest || !e.target.closest('.map-info-pop')){
-    info.classList.remove('open'); document.body.classList.remove('mapInfoOpen');
-  }
-});
 // Mobile: tap the ⓘ button to toggle the MODIS caption (desktop still uses hover).
 document.addEventListener('click',function(e){
   var info=document.getElementById('mapInfo'); if(!info) return;
