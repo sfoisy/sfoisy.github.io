@@ -328,21 +328,25 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
       var r=t.getBoundingClientRect();
       return Math.max(0, r.top + window.scrollY + r.height/2 - window.innerHeight/2);
     }
-    if(window.matchMedia('(max-width:1100px)').matches){
-      // Mobile: lazy images between here and the target only render as they near the viewport,
-      // so measuring once is wrong — the page grows mid-scroll and we land somewhere else
-      // entirely. Jump instantly, re-measure, repeat until it settles. (Same convergence trick
-      // the ?v= deep-link loader uses, for exactly this reason.)
-      var tries=0, lastY=null;
-      (function step(){
-        var y=targetY();
-        window.scrollTo(0,y);
-        tries++;
-        if(tries<7 && (lastY===null || Math.abs(y-lastY)>2)){ lastY=y; setTimeout(step,220); }
-      })();
-    } else {
-      t.scrollIntoView({behavior:'smooth', block:'center'});
-    }
+    // Lazy images/videos between here and the target only render as they near the viewport, so
+    // the page is much SHORTER than its final height right now. A one-shot scroll computes a Y
+    // beyond the current scroll range, the browser clamps it to the document bottom, and you
+    // land at the end of the walk. So: jump, let the newly-revealed content render, re-measure,
+    // repeat until it settles. (Same convergence the ?v= deep-link loader uses.)
+    var mobile=window.matchMedia('(max-width:1100px)').matches;
+    var tries=0, lastY=null;
+    (function step(){
+      var y=targetY();
+      // Mobile jumps instantly — smooth + the scroll-driven map animation thrashes.
+      if(mobile) window.scrollTo(0,y);
+      else window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
+      tries++;
+      var max = mobile ? 7 : 3;
+      if(tries<max && (lastY===null || Math.abs(y-lastY)>2)){
+        lastY=y;
+        setTimeout(step, mobile ? 220 : (tries===1 ? 700 : 300));
+      }
+    })();
   });
 })();
 </script>
