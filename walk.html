@@ -1407,6 +1407,18 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       's7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>'+
       '<span class="fl-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>';
     var flName=flLbl.querySelector('.fl-name');
+    // Mobile map is much narrower, so halve the type (and scale the pin/padding with it) so the
+    // longest names still fit across instead of ellipsing.
+    function sizePill(){
+      var m=MOB.matches, ic=flLbl.querySelector('svg');
+      flLbl.style.fontSize=m ? '.36rem' : '.72rem';
+      flLbl.style.gap=m ? '.16rem' : '.3rem';
+      flLbl.style.padding=m ? '.16rem .3rem .16rem .24rem' : '.28rem .5rem .28rem .38rem';
+      flLbl.style.borderRadius=m ? '.32rem' : '.45rem';
+      if(ic){ ic.setAttribute('width', m?6:10); ic.setAttribute('height', m?6:10); }
+    }
+    sizePill();
+    if(MOB.addEventListener) MOB.addEventListener('change', sizePill);
     (document.querySelector('.mapwrap')||document.body).appendChild(flLbl);
 
     var shown=-1;
