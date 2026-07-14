@@ -2377,40 +2377,43 @@ document.addEventListener('play', function (e) {
     var el = document.getElementById('vid-'+key) || document.querySelector('.j-step[data-i="'+v.stop+'"]');
     if(!el) return;
 
+    function centerEl(){
+      var w = el.parentElement;
+      return (w && w.classList.contains('video-share-wrap')) ? w : el;
+    }
     function targetY(){
-      var r = el.getBoundingClientRect();
+      var r = centerEl().getBoundingClientRect();
       return Math.max(0, r.top + window.scrollY + r.height/2 - window.innerHeight/2);
     }
-
+    
     var mobile = window.matchMedia('(max-width:1100px)').matches;
 
     if(mobile){
-      // Eagerly load every lazy image above the video, then WAIT for them to
-      // finish loading before measuring — otherwise the video hasn't been
-      // pushed to its real position yet and we jump to the top.
+      // Force lazy images above the video to load (they grow the page height).
       var stop0 = el.getBoundingClientRect().top + window.scrollY;
-      var above = [].slice.call(document.querySelectorAll('img[loading="lazy"]'))
-        .filter(function(img){ return img.getBoundingClientRect().top + window.scrollY < stop0; });
-      above.forEach(function(img){ img.loading = 'eager'; if(img.dataset && img.dataset.src && !img.src) img.src = img.dataset.src; });
+      [].slice.call(document.querySelectorAll('img[loading="lazy"]'))
+        .filter(function(img){ return img.getBoundingClientRect().top + window.scrollY < stop0; })
+        .forEach(function(img){ img.loading = 'eager'; if(img.dataset && img.dataset.src && !img.src) img.src = img.dataset.src; });
 
-      var pending = above.filter(function(img){ return !img.complete; }).length;
-      var done = false;
-      function jump(){
-        if(done) return; done = true;
-        // Two rAFs let layout settle after the last image reflows, then center.
-        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      // Then POLL the video's absolute position until it stops changing. Images
+      // AND the JS-rendered temp chart (#tempChart) above the video keep pushing
+      // it down as they render — waiting only for images (the old approach)
+      // fired before the chart drew, so we landed too high. Measuring
+      // getBoundingClientRect is cheap and, unlike scrollTo, does NOT wake the
+      // heavy scroll handler — so we scroll exactly ONCE, at the end.
+      var lastTop = -1, stable = 0, waited = 0;
+      (function settle(){
+        var top = el.getBoundingClientRect().top + window.scrollY;
+        stable = (Math.abs(top - lastTop) < 2) ? stable + 1 : 0;
+        lastTop = top;
+        waited += 150;
+        if(stable >= 2 || waited >= 3200){
           window.scrollTo(0, targetY());
-        }); });
-      }
-      if(pending === 0){ jump(); }
-      else {
-        above.forEach(function(img){
-          if(img.complete) return;
-          img.addEventListener('load', function(){ if(--pending <= 0) jump(); });
-          img.addEventListener('error', function(){ if(--pending <= 0) jump(); });
-        });
-        setTimeout(jump, 2500); // safety net if some image never fires load
-      }
+          requestAnimationFrame(function(){ window.scrollTo(0, targetY()); });
+        } else {
+          setTimeout(settle, 150);
+        }
+      })();
       return;
     }
 
