@@ -2389,29 +2389,25 @@ document.addEventListener('play', function (e) {
     var mobile = window.matchMedia('(max-width:1100px)').matches;
 
     if(mobile){
-      // Force lazy images above the video to load (they grow the page height).
+      // Eagerly load lazy images above the video so they don't grow the page later.
       var stop0 = el.getBoundingClientRect().top + window.scrollY;
       [].slice.call(document.querySelectorAll('img[loading="lazy"]'))
         .filter(function(img){ return img.getBoundingClientRect().top + window.scrollY < stop0; })
         .forEach(function(img){ img.loading = 'eager'; if(img.dataset && img.dataset.src && !img.src) img.src = img.dataset.src; });
 
-      // Then POLL the video's absolute position until it stops changing. Images
-      // AND the JS-rendered temp chart (#tempChart) above the video keep pushing
-      // it down as they render — waiting only for images (the old approach)
-      // fired before the chart drew, so we landed too high. Measuring
-      // getBoundingClientRect is cheap and, unlike scrollTo, does NOT wake the
-      // heavy scroll handler — so we scroll exactly ONCE, at the end.
-      var lastTop = -1, stable = 0, waited = 0;
-      (function settle(){
-        var top = el.getBoundingClientRect().top + window.scrollY;
-        stable = (Math.abs(top - lastTop) < 2) ? stable + 1 : 0;
-        lastTop = top;
-        waited += 150;
-        if(stable >= 2 || waited >= 3200){
-          window.scrollTo(0, targetY());
-          requestAnimationFrame(function(){ window.scrollTo(0, targetY()); });
-        } else {
-          setTimeout(settle, 150);
+      // Instant correction loop. The temp chart and images BETWEEN the top and
+      // the video only render once scrolled near them, so measuring from the top
+      // can't know the final position. Each jump brings that content into view
+      // to render, then we re-measure and re-center — converging in a few passes.
+      // Instant (not smooth) + early-stop keeps it from feeling laggy.
+      var tries = 0, lastY = null;
+      (function step(){
+        var y = targetY();
+        window.scrollTo(0, y);
+        tries++;
+        if(tries < 7 && (lastY === null || Math.abs(y - lastY) > 2)){
+          lastY = y;
+          setTimeout(step, 220);
         }
       })();
       return;
