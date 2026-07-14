@@ -1282,7 +1282,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // is the cursor over the map at all?
       var r=svgMap.getBoundingClientRect();
       if(cx<r.left||cx>r.right||cy<r.top||cy>r.bottom){ hide(); return; }
-      flLbl.style.left=cx+'px'; flLbl.style.top=cy+'px';
+      // Flip the label to the left of the cursor if it would run off the right edge.
+      var lblW = flLbl.offsetWidth || 120;
+      if(cx + 14 + lblW > window.innerWidth - 8){
+        flLbl.style.left = (cx - 14 - lblW) + 'px';
+      } else {
+        flLbl.style.left = (cx + 14) + 'px';
+      }
+      flLbl.style.top = cy + 'px';
       // pin label wins — check what's under the cursor
       var under=document.elementFromPoint(cx,cy);
       if(under && under.closest && under.closest('.pin')){ hide(); return; }
