@@ -1329,14 +1329,28 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     function hide(){ if(shown!==-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; } }
 
     var svgPt2=svgMap.createSVGPoint();
-    // Map client (screen) coords -> SVG user coords using the rendered box + current viewBox.
-    // getBoundingClientRect reflects CSS transforms; Safari's getScreenCTM() does not, which is
-    // why hover broke once the map morphed away from its original untransformed state.
+    // Map client (screen) coords -> SVG user coords, correct under the map's CSS
+    // translate/scale/ROTATE. We avoid getScreenCTM() (Safari ignores CSS transforms on the
+    // SVG) and avoid getBoundingClientRect() on #map (it returns an axis-aligned box, which
+    // is wrong once rotated). Instead: take the untransformed box from .mapwrap, undo #map's
+    // computed matrix about its transform-origin, then apply the viewBox mapping.
     function clientToUser(cx,cy){
-      var rect=svgMap.getBoundingClientRect(), vb=svgMap.viewBox.baseVal;
-      var scale=Math.min(rect.width/vb.width, rect.height/vb.height);   // preserveAspectRatio meet
-      var ox=rect.left+(rect.width-vb.width*scale)/2, oy=rect.top+(rect.height-vb.height*scale)/2;
-      svgPt2.x=vb.x+(cx-ox)/scale; svgPt2.y=vb.y+(cy-oy)/scale; return svgPt2;
+      var box=(document.querySelector('.mapwrap')||svgMap).getBoundingClientRect();
+      var vb=svgMap.viewBox.baseVal;
+      var t=getComputedStyle(svgMap).transform, px=cx, py=cy;
+      if(t && t!=='none'){
+        var m;
+        try{ m=new DOMMatrix(t); }catch(e){ m=null; }
+        if(m){
+          // #map uses transform-origin:center center
+          var ox=box.left+box.width/2, oy=box.top+box.height/2;
+          var p=m.inverse().transformPoint(new DOMPoint(cx-ox, cy-oy));
+          px=p.x+ox; py=p.y+oy;
+        }
+      }
+      var scale=Math.min(box.width/vb.width, box.height/vb.height);   // preserveAspectRatio meet
+      var mx=box.left+(box.width-vb.width*scale)/2, my=box.top+(box.height-vb.height*scale)/2;
+      svgPt2.x=vb.x+(px-mx)/scale; svgPt2.y=vb.y+(py-my)/scale; return svgPt2;
     }
     var lastX=null, lastY=null, insideMap=false;
 
