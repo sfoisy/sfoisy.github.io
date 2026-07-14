@@ -1262,25 +1262,39 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     });
     svgMap.appendChild(gReg);
 
-    var svgPt=svgMap.createSVGPoint(), shown=-1;
-    function hide(){ if(shown!==-1){ poly.style.opacity=0; lbl.style.opacity=0; shown=-1; } }
+    // White highlight; label follows the cursor (as an HTML element outside the SVG).
+    poly.setAttribute('fill','#ffffff'); poly.setAttribute('stroke','#ffffff');
+    poly.setAttribute('fill-opacity','0.14'); poly.setAttribute('stroke-width','5');
+
+    var flLbl=document.createElement('div');
+    flLbl.style.cssText='position:fixed;z-index:9999;pointer-events:none;opacity:0;transition:opacity .14s;'+
+      'font:700 .95rem "DM Sans",sans-serif;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.9);'+
+      'transform:translate(14px,14px);white-space:nowrap';
+    document.body.appendChild(flLbl);
+
+    var shown=-1;
+    function hide(){ if(shown!==-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; } }
 
     svgMap.addEventListener('mousemove', function(e){
+      // label follows cursor
+      flLbl.style.left=e.clientX+'px'; flLbl.style.top=e.clientY+'px';
       if(e.target && e.target.closest && e.target.closest('.pin')){ hide(); return; }  // pin label wins
-      svgPt.x=e.clientX; svgPt.y=e.clientY;
-      var loc=svgPt.matrixTransform(svgMap.getScreenCTM().inverse());
+      svgPt2.x=e.clientX; svgPt2.y=e.clientY;
+      var loc=svgPt2.matrixTransform(svgMap.getScreenCTM().inverse());
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
       if(hit===-1){ hide(); return; }
-      if(hit===shown) return;
-      shown=hit;
-      var s=MAP_SHAPES[hit], col='hsl('+s.hue+',85%,60%)';
-      poly.setAttribute('points', s.pts.map(function(pt){return pt[0]+','+pt[1];}).join(' '));
-      poly.setAttribute('fill',col); poly.setAttribute('stroke',col); poly.style.opacity=1;
-      lbl.setAttribute('x',s.c[0]); lbl.setAttribute('y',s.c[1]);
-      lbl.setAttribute('fill','#fff'); lbl.textContent=s.name; lbl.style.opacity=1;
+      if(hit!==shown){
+        shown=hit;
+        var s=MAP_SHAPES[hit];
+        poly.setAttribute('points', s.pts.map(function(pt){return pt[0]+','+pt[1];}).join(' '));
+        poly.style.opacity=1;
+        flLbl.textContent=s.name;
+      }
+      flLbl.style.opacity=1;
     }, {passive:true});
     svgMap.addEventListener('mouseleave', hide, {passive:true});
+    var svgPt2=svgMap.createSVGPoint();
   })();
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP, dw, WALKER_BGSIZE, BOAT_BGSIZE;
   var WALKER_BG="url(data:image/png;base64,"+WK.b64+")";
