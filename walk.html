@@ -2144,7 +2144,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // During the rise: show the in-flow stand-in (scrolls natively on the compositor — zero lag, like every other image) and hide the whole fixed map. The instant the stand-in reaches the pin line, hide it and reveal the live map so it can run its rotate/zoom.
     var mapFlow = document.getElementById('mapFlow');
     if(mapFlow){
-      var showFlow = mq.matches && ridingUp;
+      // The stand-in exists purely to avoid repainting the live SVG *while it moves*. So keep it
+      // only during actual scrolling; once the scroll settles, swap the live map back in — it sits
+      // at exactly the stand-in's position (mapSlideTop === the stand-in's top), so the swap is
+      // invisible, and regions become tappable on the initial map too, before it rotates.
+      var showFlow = mq.matches && ridingUp && mapScrolling;
       mapFlow.style.visibility = showFlow ? 'visible' : 'hidden';
       mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
@@ -2236,8 +2240,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       else { label.style.opacity=0; shownLabel=-9; }
     requestAnimationFrame(render);
   }
-  var tick=false;
-  window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(function(){compute();tick=false;});}},{passive:true});
+  var tick=false, mapScrolling=false, _msIdle=null;
+  window.addEventListener('scroll',function(){
+    // Mark the page as actively scrolling; 140ms after it stops, re-render so the live map
+    // takes over from the flat stand-in (see the mapFlow swap in render()).
+    mapScrolling=true;
+    clearTimeout(_msIdle);
+    _msIdle=setTimeout(function(){ mapScrolling=false; compute(); }, 140);
+    if(!tick){tick=true;requestAnimationFrame(function(){compute();tick=false;});}
+  },{passive:true});
   window.addEventListener('resize',compute);
   compute(); cur=target; introCur=targetIntro; active=targetActive; render();
 })();
