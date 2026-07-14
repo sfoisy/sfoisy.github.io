@@ -259,6 +259,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   transition: opacity 0.03s;
   filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.95));
 }
+#hoverLabel{font-family:'DM Sans',sans-serif;font-weight:700;font-style:normal;fill:#ffffff;pointer-events:none;opacity:0;transition:opacity .2s;filter:drop-shadow(0px 1px 4px rgba(0,0,0,.95))}
 #walker{fill:#ffffff;stroke:#ffffff;stroke-width:3;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
 .map-hud{position:absolute;bottom:.7rem;left:.7rem;display:flex;align-items:center;gap:.55rem;pointer-events:none;opacity: 0;z-index: 65;}
 .map-readout{background:transparent;padding:.35rem .2rem .3rem;border-radius:.6rem;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.75)}
@@ -1086,6 +1087,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <g id="gPins"></g>
         <circle id="walker" r="5.5" style="opacity:0"></circle>
         <text id="activeLabel"></text>
+        <text id="hoverLabel"></text>
       </svg>
       <div class="map-source">Source: MODIS onboard Terra</div>
       <div id="mapStatic" class="map-static" aria-hidden="true"><img class="map-static-img" src="open_FINAL.jpg" alt=""></div>
@@ -1198,6 +1200,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
   const gPins=document.getElementById('gPins'), gTeth=document.getElementById('gTethers'),
         gStateLabels=document.getElementById('gStateLabels'), pinEls=[];
+  const hoverLabel=document.getElementById('hoverLabel');
   S.forEach(function(s,i){
     var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');g.style.cursor='pointer';
     var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',s.x);ring.setAttribute('cy',s.y);ring.setAttribute('r',10.5);ring.setAttribute('class','ring');
@@ -1212,9 +1215,18 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var top=card.getBoundingClientRect().top+window.scrollY-window.innerHeight*af()+24;
       window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
     });
+    g.addEventListener('mouseenter',function(){
+      if(mq.matches) return;                              // desktop only
+      if(parseFloat(g.style.opacity||'0')<0.15) return;   // only pins already revealed by scroll
+      if(hoverLabel){ buildLabel(S[i].lab, S[i].x, S[i].y, hoverLabel); hoverLabel.style.opacity=1; }
+    });
+    g.addEventListener('mouseleave',function(){
+      if(hoverLabel) hoverLabel.style.opacity=0;
+    });
   });
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
-    var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al); }
+    var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al);
+    if(hoverLabel) gPins.parentNode.appendChild(hoverLabel); }
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP, dw, WALKER_BGSIZE, BOAT_BGSIZE;
   var WALKER_BG="url(data:image/png;base64,"+WK.b64+")";
   var BOAT_BG="url(boat.png)", boatOn=false;
@@ -1506,7 +1518,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   const af=function(){return mq.matches?0.66:0.5;};
   const clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
 
-  function buildLabel(lab, sx, sy){
+  function buildLabel(lab, sx, sy, targetEl){
+    var label = targetEl || document.getElementById('activeLabel');
     var RAD=52*Math.PI/180;
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
