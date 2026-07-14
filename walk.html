@@ -1308,6 +1308,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       flLbl.style.opacity=1;
     }
 
+    // Track cursor position across the whole document so scroll-triggered
+    // evaluation works even before the mouse has moved over the map itself.
+    document.addEventListener('mousemove', function(e){
+      lastX=e.clientX; lastY=e.clientY;
+    }, {passive:true});
+
     svgMap.addEventListener('mousemove', function(e){
       lastX=e.clientX; lastY=e.clientY; insideMap=true;
       evaluate(lastX, lastY);
