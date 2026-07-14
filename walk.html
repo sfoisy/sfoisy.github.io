@@ -268,7 +268,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;font-variant-numeric:tabular-nums}
 .map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
-.map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(0,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
+.map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(210,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.04rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 .map-caption{display:none}
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
@@ -326,7 +326,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-flow{display:none}
 @media(max-width:1100px){.map-flow{display:block;width:75vw;margin:1rem auto 0;position:relative;aspect-ratio:1/.9;border:1px solid rgba(255,255,255,.2);border-radius:.7rem;overflow:hidden;background:#1a1830;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
 .map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--mf-x,-14px),var(--mf-y,10px)) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
-.map-flow .cap{position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:2;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}}
+.map-flow .map-flow-info{position:absolute;bottom:.5rem;right:.5rem;z-index:3;width:34px;height:34px;padding:0;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font:italic 700 1.25rem 'Playfair Display',serif;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}}   /* KNOB: 34px = big intro size; it shrinks to .map-info-btn (18px) once folded into the small map */
 @media(max-width:1100px) and (max-height:600px){.map-flow{display:none}}
 .map-static{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;background:#1a1830}
 .map-static.on{display:block}
@@ -619,7 +619,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         </script>
         <div class="map-flow" id="mapFlow" aria-hidden="true" style="--mf-x:-12px;--mf-y:10px;--mf-scale:1.5;--mf-rot:-5deg">
           <img src="open_FINAL.jpg" alt="">
-          <span class="cap">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span>
+          <button class="map-flow-info" aria-label="About this satellite image">i</button>
         </div>
       </div>
 
@@ -1204,6 +1204,10 @@ function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.que
     var i=info(); if(!i) return;
     if(e.target.closest && e.target.closest('.map-info-close')){ e.preventDefault(); close(); return; }
     if(e.target.closest && e.target.closest('.map-info-btn') && i.contains(e.target.closest('.map-info-btn'))){
+      e.preventDefault(); i.classList.contains('open') ? close() : open(); return;
+    }
+    // the intro map's ⓘ (lives outside #mapInfo) opens the same card
+    if(e.target.closest && e.target.closest('.map-flow-info')){
       e.preventDefault(); i.classList.contains('open') ? close() : open(); return;
     }
     // a link inside the card (e.g. Stop #22) closes the overlay too
@@ -2120,7 +2124,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     else { for(var ti=0;ti<TOWNSEGS.length;ti++){ if(miNow>=TOWNSEGS[ti][0] && miNow<=TOWNSEGS[ti][1]){ tn=TOWNSEGS[ti][2]; break; } } if(!tn && TOWNSEGS.length) tn=(miNow<=0?TOWNSEGS[0][2]:TOWNSEGS[TOWNSEGS.length-1][2]); }
     if(townEl && tn!==lastTown){ townEl.textContent=tn; lastTown=tn; }
     var fi=0; for(var qi=0;qi<S.length-1;qi++){ if(cur>=S[qi].arr){ fi=qi+(cur-S[qi].arr)/Math.max(1,S[qi+1].arr-S[qi].arr); } else break; }
-    if(townEl){ townEl.style.background='hsl('+((Math.max(0,Math.min(S.length-1,fi))/(S.length-1))*285).toFixed(1)+',88%,42%)'; }
+    if(townEl){ townEl.style.background='hsl('+((((Math.max(0,Math.min(S.length-1,fi))/(S.length-1))*285)+210)%360).toFixed(1)+',88%,42%)'; }
     var onLineNow = (ci && ci.svg && rawP > 0 && rawP < 1);
     // Walk-cycle cadence: while on the chart line, drive the sprite from rawP (progress ALONG the
     // line, 0..1) instead of walkFrac (real mileage). The short, closely-spaced NJ legs after stop 4
