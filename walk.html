@@ -1264,8 +1264,16 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
     // White highlight; label follows the cursor (as an HTML element outside the SVG).
     poly.setAttribute('fill','#ffffff'); poly.setAttribute('stroke','#ffffff');
-    poly.setAttribute('fill-opacity','0.14'); poly.setAttribute('stroke-width','2.5');
-    poly.setAttribute('vector-effect','non-scaling-stroke');
+    poly.setAttribute('fill-opacity','0.14');
+    // Stroke width is set dynamically (see setStroke) so it thins as the map zooms in.
+    function setStroke(){
+      var vb = svgMap.viewBox && svgMap.viewBox.baseVal ? svgMap.viewBox.baseVal.width : 0;
+      // Base viewBox width when fully zoomed out; stroke=5 looked right there.
+      var BASE_VB = 1000, BASE_STROKE = 5;
+      var w = (vb>0) ? BASE_STROKE * (vb/BASE_VB) : BASE_STROKE;
+      poly.setAttribute('stroke-width', w.toFixed(2));
+    }
+    setStroke();
 
     var flLbl=document.createElement('div');
     flLbl.style.cssText='position:fixed;z-index:9999;pointer-events:none;opacity:0;transition:opacity .14s;'+
