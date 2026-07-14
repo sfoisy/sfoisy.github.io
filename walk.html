@@ -2382,7 +2382,10 @@ document.addEventListener('play', function (e) {
     (function step(){
       var y = targetY();
       window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
-      if(++tries < 3 && (lastY === null || Math.abs(y -
-})();
+      if(++tries < 3 && (lastY === null || Math.abs(y - lastY) > 2)){
+        lastY = y;
+        setTimeout(step, tries===1 ? 700 : 300);
+      }
+    })();
 </script>
 </body></html>
