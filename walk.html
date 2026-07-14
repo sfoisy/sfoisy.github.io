@@ -285,10 +285,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 <script>
 (function(){
   document.addEventListener('click', function(e){
-    var a = e.target.closest('.tip-link[data-stop]');
+    var a = e.target.closest('.tip-link');
     if(!a) return;
     e.preventDefault();
-    var t = document.querySelector('.j-step[data-i="'+a.getAttribute('data-stop')+'"]');
+    var t = a.getAttribute('data-target')
+      ? document.getElementById(a.getAttribute('data-target'))
+      : document.querySelector('.j-step[data-i="'+a.getAttribute('data-stop')+'"]');
     if(t) t.scrollIntoView({behavior:'smooth', block:'center'});
   });
 })();
@@ -1018,7 +1020,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <h3 class="stop-head">Stop 22: University of Maryland</h3>
         <p class="met">Met Ross Salawitch and Rob Levy.</p>
         <p class="ph-note">Say a little about the conversation or the scenery here before the media below.</p>
-        <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
+        <video id="vid-rob" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/rob.mp4#t=0.1" type="video/mp4">
         </video>
         <p class="ph-note" style="margin-top:1rem;">Use this space for a short reflection on this leg of the route.</p>
@@ -1062,7 +1064,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     <div class="map-info" id="mapInfo">
       <button class="map-info-btn" aria-label="About this satellite image">i</button>
       <div class="map-info-pop" role="tooltip">
-        <p>It turns out most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS — a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a>, 438 miles up and moving at 16,800 mph. MODIS captured this on June 2nd, my second-to-last day. To learn more about the mission, see the interview with Rob Levy at <a href="#" class="tip-link" data-stop="21">Stop #22</a>. You can also download your own Terra images for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>! :)</p>
+        <p>It turns out most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS — a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a>, 438 miles up and moving at 16,800 mph. MODIS captured this on June 2nd, my second-to-last day. To learn more about the mission, see the interview with Rob Levy at <a href="#" class="tip-link" data-target="vid-rob">Stop #22</a>. You can also download your own Terra images for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>! :)</p>
       </div>
     </div>
     <div class="mapwrap">
