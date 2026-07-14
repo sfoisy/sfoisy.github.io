@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="270.4 miles on foot from New York City to Washington, D.C., for weather and climate science. By Syl Foisy.">
 <title>NYC → DC Walk · Syl Foisy</title>
+<script src="z_shapes.js"></script>
 
 <!-- ===== Social share card (Open Graph + Twitter) ===== -->
 <meta property="og:type" content="article">
@@ -1227,6 +1228,60 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   if(gPins.parentNode){ gPins.parentNode.appendChild(gPins);
     var _al=document.getElementById('activeLabel'); if(_al) gPins.parentNode.appendChild(_al);
     if(hoverLabel) gPins.parentNode.appendChild(hoverLabel); }
+
+  // ===== Hover-region highlight (desktop only) =====
+  // On mousemove over the map, find which traced region the cursor is inside
+  // (water bodies first, then DC, then states — the priority order baked into
+  // z_shapes.js), stroke its outline in its rainbow hue, and label its centroid.
+  (function(){
+    if(typeof MAP_SHAPES==='undefined') return;
+    if(window.matchMedia('(max-width:1100px)').matches) return;   // desktop only
+    var NSx='http://www.w3.org/2000/svg';
+    var svgMap=document.getElementById('map'); if(!svgMap) return;
+
+    var gReg=document.createElementNS(NSx,'g');
+    gReg.setAttribute('pointer-events','none');
+    var poly=document.createElementNS(NSx,'polygon');
+    poly.setAttribute('fill-opacity','0.12'); poly.setAttribute('stroke-width','3');
+    poly.setAttribute('stroke-linejoin','round'); poly.setAttribute('opacity','0');
+    poly.style.transition='opacity .16s';
+    var lbl=document.createElementNS(NSx,'text');
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-family',"'DM Sans',sans-serif");
+    lbl.setAttribute('font-weight','700'); lbl.setAttribute('font-size','30');
+    lbl.setAttribute('paint-order','stroke'); lbl.setAttribute('stroke','rgba(0,0,0,.55)');
+    lbl.setAttribute('stroke-width','4'); lbl.setAttribute('opacity','0');
+    lbl.style.transition='opacity .16s';
+    gReg.appendChild(poly); gReg.appendChild(lbl);
+
+    // Hidden path per region for native point-in-fill hit testing.
+    var testPaths=MAP_SHAPES.map(function(s){
+      var p=document.createElementNS(NSx,'path');
+      p.setAttribute('d','M'+s.pts.map(function(pt){return pt[0]+','+pt[1];}).join('L')+'Z');
+      p.setAttribute('fill','#000'); p.setAttribute('opacity','0'); p.setAttribute('pointer-events','none');
+      svgMap.appendChild(p); return p;
+    });
+    svgMap.appendChild(gReg);
+
+    var svgPt=svgMap.createSVGPoint(), shown=-1;
+    function hide(){ if(shown!==-1){ poly.style.opacity=0; lbl.style.opacity=0; shown=-1; } }
+
+    svgMap.addEventListener('mousemove', function(e){
+      if(e.target && e.target.closest && e.target.closest('.pin')){ hide(); return; }  // pin label wins
+      svgPt.x=e.clientX; svgPt.y=e.clientY;
+      var loc=svgPt.matrixTransform(svgMap.getScreenCTM().inverse());
+      var hit=-1;
+      for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
+      if(hit===-1){ hide(); return; }
+      if(hit===shown) return;
+      shown=hit;
+      var s=MAP_SHAPES[hit], col='hsl('+s.hue+',85%,60%)';
+      poly.setAttribute('points', s.pts.map(function(pt){return pt[0]+','+pt[1];}).join(' '));
+      poly.setAttribute('fill',col); poly.setAttribute('stroke',col); poly.style.opacity=1;
+      lbl.setAttribute('x',s.c[0]); lbl.setAttribute('y',s.c[1]);
+      lbl.setAttribute('fill','#fff'); lbl.textContent=s.name; lbl.style.opacity=1;
+    }, {passive:true});
+    svgMap.addEventListener('mouseleave', hide, {passive:true});
+  })();
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP, dw, WALKER_BGSIZE, BOAT_BGSIZE;
   var WALKER_BG="url(data:image/png;base64,"+WK.b64+")";
   var BOAT_BG="url(boat.png)", boatOn=false;
