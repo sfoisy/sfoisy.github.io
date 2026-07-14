@@ -1204,7 +1204,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   S.forEach(function(s,i){
     var g=document.createElementNS(NS,'g');g.setAttribute('class','pin');g.style.cursor='pointer';
     var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',s.x);ring.setAttribute('cy',s.y);ring.setAttribute('r',10.5);ring.setAttribute('class','ring');
-    var hue=(i/Math.max(1,S.length-1))*285;
+    var hue=((i/Math.max(1,S.length-1))*285 + 210)%360;
     var col = s.off ? '#ffffff' : 'hsl('+hue.toFixed(0)+',88%,52%)';
     var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',s.x);dot.setAttribute('cy',s.y);dot.setAttribute('r',9);dot.setAttribute('class','pin-dot');dot.style.fill=col;
     var hit=document.createElementNS(NS,'circle');hit.setAttribute('cx',s.x);hit.setAttribute('cy',s.y);hit.setAttribute('r',20);hit.setAttribute('fill','transparent');hit.style.pointerEvents='all';
