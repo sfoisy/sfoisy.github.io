@@ -352,7 +352,10 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
     var tries=0, lastY=null, stable=0;
     function step(){
       var y=targetY();
-      if(mobile) window.scrollTo(0,y);
+      // NOTE: the bare window.scrollTo(0,y) inherits html{scroll-behavior:smooth} and ANIMATES,
+      // so every pass measured a page still in flight and the loop sailed past the target. The
+      // object form with an explicit behavior overrides that CSS — this must stay 'auto'.
+      if(mobile) window.scrollTo({top:y, behavior:'auto'});
       else window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
       tries++;
       if(lastY!==null && Math.abs(y-lastY)<=2) stable++; else stable=0;
@@ -2176,11 +2179,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // During the rise: show the in-flow stand-in (scrolls natively on the compositor — zero lag, like every other image) and hide the whole fixed map. The instant the stand-in reaches the pin line, hide it and reveal the live map so it can run its rotate/zoom.
     var mapFlow = document.getElementById('mapFlow');
     if(mapFlow){
-      // KNOB: the flat stand-in is OFF. It never lined up exactly with the live map, so swapping
-      // between them nudged the geography sideways and made early taps land off-centre. Keep the
-      // element in the flow (its box is the pin anchor above) but never show it — the live SVG
-      // now renders the whole way, which is also what makes the initial map tappable.
-      var showFlow = false;
+      var showFlow = mq.matches && ridingUp;
       mapFlow.style.visibility = showFlow ? 'visible' : 'hidden';
       mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
@@ -2276,15 +2275,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       else { label.style.opacity=0; shownLabel=-9; }
     requestAnimationFrame(render);
   }
-  var tick=false, mapScrolling=false, _msIdle=null;
-  window.addEventListener('scroll',function(){
-    // Mark the page as actively scrolling; 140ms after it stops, re-render so the live map
-    // takes over from the flat stand-in (see the mapFlow swap in render()).
-    mapScrolling=true;
-    clearTimeout(_msIdle);
-    _msIdle=setTimeout(function(){ mapScrolling=false; compute(); }, 140);
-    if(!tick){tick=true;requestAnimationFrame(function(){compute();tick=false;});}
-  },{passive:true});
+  var tick=false;
+  window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(function(){compute();tick=false;});}},{passive:true});
   window.addEventListener('resize',compute);
   compute(); cur=target; introCur=targetIntro; active=targetActive; render();
 })();
@@ -2853,7 +2845,7 @@ document.addEventListener('play', function (e) {
       var tries = 0, lastY = null;
       (function step(){
         var y = targetY();
-        window.scrollTo(0, y);
+        window.scrollTo({top:y, behavior:'auto'});   // bare form would inherit html{scroll-behavior:smooth}
         tries++;
         if(tries < 7 && (lastY === null || Math.abs(y - lastY) > 2)){
           lastY = y;
