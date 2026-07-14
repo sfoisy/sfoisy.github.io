@@ -268,6 +268,14 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-readout .mi{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;display:inline-block;font-variant-numeric:tabular-nums}
 .map-readout .mi-unit{font-size:.78rem;color:#fff}
 .map-readout .lbl{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:.15rem}
+.map-tap-hint{display:none}
+@media(max-width:1100px){
+  /* Sits in the same band as .map-town but left-aligned; render() cross-fades the two so they
+     never occupy that strip at the same time. */
+  .map-tap-hint{display:block;position:absolute;top:100%;left:0;margin-top:.5rem;max-width:72%;
+    font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.58rem;line-height:1.3;
+    color:#000;text-align:left;pointer-events:none;opacity:0;transition:opacity .3s}
+}
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(210,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.04rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 .map-caption{display:none}
@@ -1164,6 +1172,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
       <div id="mapStatic" class="map-static" aria-hidden="true"><img class="map-static-img" src="open_FINAL.jpg" alt=""></div>
     </div>
     <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
+    <div class="map-tap-hint" id="mapTapHint" aria-hidden="true">Click the map to highlight states/water features!</div>
     <div class="map-town" id="townName">Manhattan, NY</div>
     <div class="map-caption" id="mapCaption"><span class="cap-full">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</span><span class="cap-mobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span></div>
   </div>
@@ -1498,7 +1507,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var fadeTimer=null, tx0=0, ty0=0, tapped=false;
     function fadeSoon(){
       if(fadeTimer) clearTimeout(fadeTimer);
-      fadeTimer=setTimeout(function(){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; }, 4000);
+      fadeTimer=setTimeout(function(){
+        poly.style.transition='opacity .9s';    // KNOB: slow, gentle retire
+        flLbl.style.transition='opacity .9s';
+        poly.style.opacity=0; flLbl.style.opacity=0; shown=-1;
+      }, 2000);                                  // KNOB: hold time before it starts fading
     }
     function touchEval(t){
       var cx=t.clientX, cy=t.clientY;
@@ -1515,6 +1528,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         poly.setAttribute('points', s.pts.map(function(pt){return pt[0]+','+pt[1];}).join(' '));
         flName.textContent=s.name; setStroke();
       }
+      poly.style.transition='opacity .16s';     // snap in fast; only the auto-retire is slow
+      flLbl.style.transition='opacity .14s';
       poly.style.opacity=1; flLbl.style.opacity=1;
       return true;
     }
@@ -2161,11 +2176,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // During the rise: show the in-flow stand-in (scrolls natively on the compositor — zero lag, like every other image) and hide the whole fixed map. The instant the stand-in reaches the pin line, hide it and reveal the live map so it can run its rotate/zoom.
     var mapFlow = document.getElementById('mapFlow');
     if(mapFlow){
-      // The stand-in exists purely to avoid repainting the live SVG *while it moves*. So keep it
-      // only during actual scrolling; once the scroll settles, swap the live map back in — it sits
-      // at exactly the stand-in's position (mapSlideTop === the stand-in's top), so the swap is
-      // invisible, and regions become tappable on the initial map too, before it rotates.
-      var showFlow = mq.matches && ridingUp && mapScrolling;
+      // KNOB: the flat stand-in is OFF. It never lined up exactly with the live map, so swapping
+      // between them nudged the geography sideways and made early taps land off-centre. Keep the
+      // element in the flow (its box is the pin anchor above) but never show it — the live SVG
+      // now renders the whole way, which is also what makes the initial map tappable.
+      var showFlow = false;
       mapFlow.style.visibility = showFlow ? 'visible' : 'hidden';
       mapBox.style.visibility  = showFlow ? 'hidden'  : 'visible';
     }
@@ -2173,7 +2188,11 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Mobile: hold the "Manhattan, NY" box hidden until Central Park appears, then fade it in
     // in lockstep with the Central Park stop label (cpAnchor → +250px, same ramp as the label).
     if(mq.matches){
-      document.querySelector('.map-town').style.opacity = (cpAnchor<0) ? 0 : (instantScrollFactor*clamp((window.scrollY-cpAnchor)/250,0,1));
+      var _tOp = (cpAnchor<0) ? 0 : (instantScrollFactor*clamp((window.scrollY-cpAnchor)/250,0,1));
+      document.querySelector('.map-town').style.opacity = _tOp;
+      // The hint shares that strip, so retire it exactly as the town label claims it.
+      var _hint = document.getElementById('mapTapHint');
+      if(_hint) _hint.style.opacity = 1 - _tOp;
     } else {
       document.querySelector('.map-town').style.opacity = instantScrollFactor;   // desktop unchanged
     }
