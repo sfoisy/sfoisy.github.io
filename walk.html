@@ -283,10 +283,12 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 /* invisible bridge so moving the mouse from button to tooltip doesn't drop hover */
 .map-info-pop::after{content:'';position:absolute;top:0;left:100%;width:.6rem;height:100%}
 .map-info:hover .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
+.map-info-close{display:none}
 @media(min-width:1101px){.map-cap-mobile{display:none}}
 @media(max-width:1100px){
   .map-cap-mobile{display:none}                 /* remove MODIS overlay on mobile */
   .map-info{display:block}                       /* show the ⓘ button on mobile */
+  .map-info-close{display:flex}                  /* show the X on mobile */
 
   /* Dim backdrop behind everything EXCEPT the map, shown when the caption is open */
   #mapInfoBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;
