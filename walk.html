@@ -2363,17 +2363,32 @@ document.addEventListener('play', function (e) {
     var mobile = window.matchMedia('(max-width:1100px)').matches;
 
     if(mobile){
-      // Eagerly load every lazy image before this video so nothing grows the
-      // page after we land. Then jump once, instantly.
-      var imgs = [].slice.call(document.querySelectorAll('img[loading="lazy"]'));
-      var stop = el.getBoundingClientRect().top + window.scrollY;
-      imgs.forEach(function(img){
-        if(img.getBoundingClientRect().top + window.scrollY < stop) img.loading = 'eager';
-      });
-      // One rAF after load lets the browser apply eager-load reflow, then jump.
-      requestAnimationFrame(function(){
-        setTimeout(function(){ window.scrollTo(0, targetY()); }, 350);
-      });
+      // Eagerly load every lazy image above the video, then WAIT for them to
+      // finish loading before measuring — otherwise the video hasn't been
+      // pushed to its real position yet and we jump to the top.
+      var stop0 = el.getBoundingClientRect().top + window.scrollY;
+      var above = [].slice.call(document.querySelectorAll('img[loading="lazy"]'))
+        .filter(function(img){ return img.getBoundingClientRect().top + window.scrollY < stop0; });
+      above.forEach(function(img){ img.loading = 'eager'; if(img.dataset && img.dataset.src && !img.src) img.src = img.dataset.src; });
+
+      var pending = above.filter(function(img){ return !img.complete; }).length;
+      var done = false;
+      function jump(){
+        if(done) return; done = true;
+        // Two rAFs let layout settle after the last image reflows, then center.
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          window.scrollTo(0, targetY());
+        }); });
+      }
+      if(pending === 0){ jump(); }
+      else {
+        above.forEach(function(img){
+          if(img.complete) return;
+          img.addEventListener('load', function(){ if(--pending <= 0) jump(); });
+          img.addEventListener('error', function(){ if(--pending <= 0) jump(); });
+        });
+        setTimeout(jump, 2500); // safety net if some image never fires load
+      }
       return;
     }
 
