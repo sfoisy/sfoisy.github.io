@@ -169,6 +169,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   position: fixed;
   top: 76px;
   right: 22px;
+  z-index: 75;
   /* Removed hardcoded width/height to let JS fluidly morph the aspect ratio */
   z-index: 60;
   padding: 0;
@@ -283,6 +284,22 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-info:hover .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
 @media(min-width:1101px){.map-cap-mobile{display:none}}
 @media(max-width:1100px){
+  .map-cap-mobile{display:none}                 /* remove MODIS overlay on mobile */
+  .map-info{display:block}                       /* show the ⓘ button on mobile */
+
+  /* Dim backdrop behind everything EXCEPT the map, shown when the caption is open */
+  #mapInfoBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;
+    transition:opacity .2s,visibility .2s;z-index:70;pointer-events:none}
+  .map-info.open ~ #mapInfoBackdrop, body.mapInfoOpen #mapInfoBackdrop{opacity:1;visibility:visible;pointer-events:auto}
+
+  /* On mobile the tooltip becomes a centered card, not an edge-anchored popover */
+  .map-info-pop{position:fixed;top:50%;left:50%;right:auto;
+    transform:translate(-50%,-50%) scale(.96);
+    width:min(86vw,340px);max-width:none;z-index:80;
+    opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility .2s}
+  .map-info.open .map-info-pop{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+  .map-info-pop::after{display:none}             /* kill the desktop hover-bridge on mobile */
+}
   .map-cap-mobile{display:none}                 /* remove the MODIS overlay on mobile */
   .map-info-pop{transition:opacity .18s,visibility .18s}
   .map-info.open .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
@@ -1077,6 +1094,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     </div>
     <div class="mapwrap">
       <div class="map-cap-mobile" id="mapCapMobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</div>
+      <div id="mapInfoBackdrop"></div>
       <img id="ferryBadge" src="ferry.png" alt="Staten Island Ferry">
       <div class="map-hud">
         <div class="map-readout"><span class="mi" id="miNum">0.0</span><span class="mi-unit"> mi</span><div class="lbl">walked</div></div>
@@ -1173,6 +1191,19 @@ body.is-resizing nav{ backdrop-filter:none; -webkit-backdrop-filter:none; backgr
 </script>
 <script>
 function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.querySelector('.nav-hamburger');m.classList.toggle('open');b.classList.toggle('active');}
+// Mobile: tap the ⓘ button to open the MODIS caption as a centered card + backdrop.
+document.addEventListener('click',function(e){
+  var info=document.getElementById('mapInfo'); if(!info) return;
+  var btn=e.target.closest && e.target.closest('.map-info-btn');
+  var back=document.getElementById('mapInfoBackdrop');
+  if(btn && info.contains(btn)){
+    e.preventDefault();
+    var open=info.classList.toggle('open');
+    document.body.classList.toggle('mapInfoOpen', open);
+  } else if(!e.target.closest || !e.target.closest('.map-info-pop')){
+    info.classList.remove('open'); document.body.classList.remove('mapInfoOpen');
+  }
+});
 // Mobile: tap the ⓘ button to toggle the MODIS caption (desktop still uses hover).
 document.addEventListener('click',function(e){
   var info=document.getElementById('mapInfo'); if(!info) return;
