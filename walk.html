@@ -2308,32 +2308,46 @@ document.addEventListener('play', function (e) {
   }
   function flash(){ var u=pop.querySelector('.vsp-url'), o=u.textContent; u.textContent='Link copied!'; setTimeout(function(){ u.textContent=o; },1400); }
 
-  // Deep link: ?v=hikaru scrolls to (and vertically centers) that video on load.
-  // Lazy images above it keep loading and grow the page, so we re-correct until
-  // the target position stops moving instead of firing a single (short) scroll.
+  // Deep link: ?v=hikaru centers that video on load.
+  // Mobile: force lazy images above it to load first (so the page height is
+  // final), then do ONE instant jump — no smooth glide, no re-correction loop,
+  // which is what caused the scroll-handler thrash / lag.
+  // Desktop: a couple of gentle re-corrections are cheap and look nicer.
   window.addEventListener('load', function(){
     var m = /[?&]v=([^&#]+)/.exec(location.search); if(!m) return;
     var key = decodeURIComponent(m[1]);
     var v = VSHARE[key]; if(!v) return;
     var el = document.getElementById('vid-'+key) || document.querySelector('.j-step[data-i="'+v.stop+'"]');
     if(!el) return;
+
     function targetY(){
       var r = el.getBoundingClientRect();
-      var absTop = r.top + window.scrollY;            // absolute, independent of current scroll
-      return Math.max(0, absTop + r.height/2 - window.innerHeight/2);   // center the video
+      return Math.max(0, r.top + window.scrollY + r.height/2 - window.innerHeight/2);
     }
+
+    var mobile = window.matchMedia('(max-width:1100px)').matches;
+
+    if(mobile){
+      // Eagerly load every lazy image before this video so nothing grows the
+      // page after we land. Then jump once, instantly.
+      var imgs = [].slice.call(document.querySelectorAll('img[loading="lazy"]'));
+      var stop = el.getBoundingClientRect().top + window.scrollY;
+      imgs.forEach(function(img){
+        if(img.getBoundingClientRect().top + window.scrollY < stop) img.loading = 'eager';
+      });
+      // One rAF after load lets the browser apply eager-load reflow, then jump.
+      requestAnimationFrame(function(){
+        setTimeout(function(){ window.scrollTo(0, targetY()); }, 350);
+      });
+      return;
+    }
+
+    // Desktop: smooth first, then at most two quiet corrections.
     var tries = 0, lastY = null;
-    function step(){
+    (function step(){
       var y = targetY();
       window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
-      tries++;
-      if(tries < 12 && (lastY === null || Math.abs(y - lastY) > 2)){
-        lastY = y;
-        setTimeout(step, tries===1 ? 700 : 300);   // let the smooth glide settle, then re-correct
-      }
-    }
-    setTimeout(step, 500);
-  });
+      if(++tries < 3 && (lastY === null || Math.abs(y -
 })();
 </script>
 </body></html>
