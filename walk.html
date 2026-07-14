@@ -289,6 +289,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   .map-cap-mobile{display:none}                 /* remove MODIS overlay on mobile */
   .map-info{display:block}                       /* show the ⓘ button on mobile */
   .map-info-close{display:flex}                  /* show the X on mobile */
+  .map-info-btn{width:18px;height:18px;font-size:.72rem}   /* KNOB: smaller info button on mobile */
 
   /* Dim backdrop behind everything EXCEPT the map, shown when the caption is open */
   #mapInfoBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;
@@ -300,7 +301,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
     transform:translate(-50%,-50%) scale(.96);
     width:min(86vw,340px);max-width:none;z-index:80;
     opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility .2s}
-  .map-info.open .map-info-pop{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+  .map-info.open .map-info-pop, body.mapInfoOpen .map-info-pop{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
   .map-info-pop::after{display:none}             /* kill the desktop hover-bridge on mobile */
   .map-info{top:auto;left:auto;bottom:.5rem;right:.5rem}   /* button bottom-right on mobile */
   .map-info-pop{max-height:80vh;overflow:auto}
@@ -1197,8 +1198,8 @@ function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.que
 // close via X, tapping outside, or the tap-link inside.
 (function(){
   function info(){ return document.getElementById('mapInfo'); }
-  function open(){ var i=info(); if(!i) return; i.classList.add('open'); if(window.matchMedia('(max-width:1100px)').matches){ document.body.classList.add('mapInfoOpen'); document.body.style.overflow='hidden'; } }
-  function close(){ var i=info(); if(!i) return; i.classList.remove('open'); document.body.classList.remove('mapInfoOpen'); document.body.style.overflow=''; }
+  function open(){ var i=info(); if(!i) return; i.classList.add('open'); if(window.matchMedia('(max-width:1100px)').matches){ var pop=i.querySelector('.map-info-pop'), bd=document.getElementById('mapInfoBackdrop'); if(pop && pop.parentNode!==document.body) document.body.appendChild(pop); if(bd && bd.parentNode!==document.body) document.body.appendChild(bd); document.body.classList.add('mapInfoOpen'); document.body.style.overflow='hidden'; } }
+  function close(){ var i=info(); if(!i) return; i.classList.remove('open'); document.body.classList.remove('mapInfoOpen'); document.body.style.overflow=''; var pop=document.querySelector('.map-info-pop'); if(pop && pop.parentNode===document.body) i.appendChild(pop); }
   document.addEventListener('click',function(e){
     var i=info(); if(!i) return;
     if(e.target.closest && e.target.closest('.map-info-close')){ e.preventDefault(); close(); return; }
@@ -1328,6 +1329,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     function hide(){ if(shown!==-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; } }
 
     var svgPt2=svgMap.createSVGPoint();
+    // Map client (screen) coords -> SVG user coords using the rendered box + current viewBox.
+    // getBoundingClientRect reflects CSS transforms; Safari's getScreenCTM() does not, which is
+    // why hover broke once the map morphed away from its original untransformed state.
+    function clientToUser(cx,cy){
+      var rect=svgMap.getBoundingClientRect(), vb=svgMap.viewBox.baseVal;
+      var scale=Math.min(rect.width/vb.width, rect.height/vb.height);   // preserveAspectRatio meet
+      var ox=rect.left+(rect.width-vb.width*scale)/2, oy=rect.top+(rect.height-vb.height*scale)/2;
+      svgPt2.x=vb.x+(cx-ox)/scale; svgPt2.y=vb.y+(cy-oy)/scale; return svgPt2;
+    }
     var lastX=null, lastY=null, insideMap=false;
 
     function evaluate(cx, cy){
@@ -1348,8 +1358,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       // pin label wins — check what's under the cursor
       var under=document.elementFromPoint(cx,cy);
       if(under && under.closest && under.closest('.pin')){ hide(); return; }
-      svgPt2.x=cx; svgPt2.y=cy;
-      var loc=svgPt2.matrixTransform(svgMap.getScreenCTM().inverse());
+      var loc=clientToUser(cx,cy);
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
       if(hit===-1){ hide(); return; }
@@ -1383,8 +1392,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var el=document.elementFromPoint(cx,cy);
       var mapFrame=document.querySelector('.mapwrap')||svgMap;
       if(!el || !mapFrame.contains(el)){ return; }
-      svgPt2.x=cx; svgPt2.y=cy;
-      var loc=svgPt2.matrixTransform(svgMap.getScreenCTM().inverse());
+      var loc=clientToUser(cx,cy);
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
       // position label ABOVE the fingertip so the finger doesn't cover it
@@ -1722,7 +1730,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var RAD=52*Math.PI/180;
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
-    var FS=mq.matches?57:32, LH=mq.matches?69:38, off=40;
+    var FS=mq.matches?57:46, LH=mq.matches?69:54, off=40;
     var lines=lab.lines;
     if(mq.matches){                          // mobile: re-wrap so no line goes past 12 chars
       var words=lab.lines.join(' ').split(/\s+/), out=[], cur='';
