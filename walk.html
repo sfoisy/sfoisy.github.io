@@ -1275,11 +1275,18 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var shown=-1;
     function hide(){ if(shown!==-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; } }
 
-    svgMap.addEventListener('mousemove', function(e){
-      // label follows cursor
-      flLbl.style.left=e.clientX+'px'; flLbl.style.top=e.clientY+'px';
-      if(e.target && e.target.closest && e.target.closest('.pin')){ hide(); return; }  // pin label wins
-      svgPt2.x=e.clientX; svgPt2.y=e.clientY;
+    var svgPt2=svgMap.createSVGPoint();
+    var lastX=null, lastY=null, insideMap=false;
+
+    function evaluate(cx, cy){
+      // is the cursor over the map at all?
+      var r=svgMap.getBoundingClientRect();
+      if(cx<r.left||cx>r.right||cy<r.top||cy>r.bottom){ hide(); return; }
+      flLbl.style.left=cx+'px'; flLbl.style.top=cy+'px';
+      // pin label wins — check what's under the cursor
+      var under=document.elementFromPoint(cx,cy);
+      if(under && under.closest && under.closest('.pin')){ hide(); return; }
+      svgPt2.x=cx; svgPt2.y=cy;
       var loc=svgPt2.matrixTransform(svgMap.getScreenCTM().inverse());
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
@@ -1292,9 +1299,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         flLbl.textContent=s.name;
       }
       flLbl.style.opacity=1;
+    }
+
+    svgMap.addEventListener('mousemove', function(e){
+      lastX=e.clientX; lastY=e.clientY; insideMap=true;
+      evaluate(lastX, lastY);
     }, {passive:true});
-    svgMap.addEventListener('mouseleave', hide, {passive:true});
-    var svgPt2=svgMap.createSVGPoint();
+    svgMap.addEventListener('mouseleave', function(){ insideMap=false; hide(); }, {passive:true});
+
+    // Re-evaluate on scroll using the last known cursor position, so the region
+    // under a stationary cursor lights up as the map slides beneath it.
+    var stick=false;
+    window.addEventListener('scroll', function(){
+      if(lastX===null) return;
+      if(stick) return; stick=true;
+      requestAnimationFrame(function(){ stick=false; evaluate(lastX, lastY); });
+    }, {passive:true});
   })();
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP, dw, WALKER_BGSIZE, BOAT_BGSIZE;
   var WALKER_BG="url(data:image/png;base64,"+WK.b64+")";
