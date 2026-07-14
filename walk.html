@@ -1090,11 +1090,13 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     <div class="map-info" id="mapInfo">
       <button class="map-info-btn" aria-label="About this satellite image">i</button>
       <div class="map-info-pop" role="tooltip">
+        <button class="map-info-close" aria-label="Close">×</button>
         <p>It turns out most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS — a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a>, 438 miles up and moving at 16,800 mph. MODIS captured this on June 2nd, my second-to-last day. To learn more about the mission, see the interview with Rob Levy at <a href="#" class="tip-link" data-target="vid-rob">Stop #22</a>. You can also download your own Terra images for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>! :)</p>
       </div>
     </div>
     <div class="mapwrap">
       <div class="map-cap-mobile" id="mapCapMobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</div>
+      <div id="mapInfoBackdrop"></div>
       <div id="mapInfoBackdrop"></div>
       <img id="ferryBadge" src="ferry.png" alt="Staten Island Ferry">
       <div class="map-hud">
@@ -1192,6 +1194,24 @@ body.is-resizing nav{ backdrop-filter:none; -webkit-backdrop-filter:none; backgr
 </script>
 <script>
 function toggleMenu(){var m=document.getElementById('mobileMenu'),b=document.querySelector('.nav-hamburger');m.classList.toggle('open');b.classList.toggle('active');}
+// Mobile MODIS caption: tap ⓘ to open a centered card + backdrop, lock scroll,
+// close via X, tapping outside, or the tap-link inside.
+(function(){
+  function info(){ return document.getElementById('mapInfo'); }
+  function open(){ var i=info(); if(!i) return; i.classList.add('open'); document.body.classList.add('mapInfoOpen'); document.body.style.overflow='hidden'; }
+  function close(){ var i=info(); if(!i) return; i.classList.remove('open'); document.body.classList.remove('mapInfoOpen'); document.body.style.overflow=''; }
+  document.addEventListener('click',function(e){
+    var i=info(); if(!i) return;
+    if(e.target.closest && e.target.closest('.map-info-close')){ e.preventDefault(); close(); return; }
+    if(e.target.closest && e.target.closest('.map-info-btn') && i.contains(e.target.closest('.map-info-btn'))){
+      e.preventDefault(); i.classList.contains('open') ? close() : open(); return;
+    }
+    // a link inside the card (e.g. Stop #22) closes the overlay too
+    if(e.target.closest && e.target.closest('.map-info-pop a')){ close(); return; }
+    // tap outside the card closes
+    if(i.classList.contains('open') && (!e.target.closest || !e.target.closest('.map-info-pop'))){ close(); }
+  });
+})();
 // Mobile: tap the ⓘ button to open the MODIS caption as a centered card + backdrop.
 document.addEventListener('click',function(e){
   var info=document.getElementById('mapInfo'); if(!info) return;
