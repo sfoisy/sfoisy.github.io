@@ -2290,12 +2290,21 @@ document.addEventListener('play', function (e) {
   var VSHARE = {
     hikaru: {
       stop: 1,
-      title: "Meeting Hikaru Hayakawa at City Hall Park",
+      sharePage: "z_hikaru.html",
+      title: "Hikaru Hayakawa on the languages barrier in climate science.",
       thumb: "https://wesitefoisy1.b-cdn.net/hikaru_photo.png",
-      blurb: "Following Syl Foisy's 270-mile walk from NYC to DC for weather & climate science."
+      blurb: "Following Syl Foisy's 250-mile walk from NYC to DC for weather & climate science."
     }
   };
-  function shareURL(key){ return location.origin + location.pathname + "?v=" + key; }
+  // The URL people SHARE points at the per-video redirect page (z_<key>.html),
+  // which carries custom OG image/title tags for the social preview card, then
+  // bounces the viewer to walk.html?v=<key>. Falls back to the direct link if
+  // no z_ page exists for this key yet.
+  function shareURL(key){
+    var v = VSHARE[key];
+    if(v && v.sharePage) return location.origin + "/" + v.sharePage;
+    return location.origin + location.pathname + "?v=" + key;
+  }
 
   var pop = document.createElement('div');
   pop.id = 'vsharePop';
