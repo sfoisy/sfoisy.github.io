@@ -1287,9 +1287,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var lastX=null, lastY=null, insideMap=false;
 
     function evaluate(cx, cy){
-      // is the cursor over the map at all?
-      var r=svgMap.getBoundingClientRect();
-      if(cx<r.left||cx>r.right||cy<r.top||cy>r.bottom){ hide(); return; }
+      // Only proceed if the cursor is genuinely inside the visible map frame.
+      // elementFromPoint respects the map's clipping/overflow, so it won't fire
+      // when the cursor is off in the text column beside the map.
+      var el = document.elementFromPoint(cx, cy);
+      var mapFrame = document.querySelector('.mapwrap') || svgMap;
+      if(!el || !mapFrame.contains(el)){ hide(); return; }
       // Flip the label to the left of the cursor if it would run off the right edge.
       var lblW = flLbl.offsetWidth || 120;
       if(cx + 14 + lblW > window.innerWidth - 8){
