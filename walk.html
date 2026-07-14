@@ -1350,7 +1350,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // z_shapes.js), stroke its outline in its rainbow hue, and label its centroid.
   (function(){
     if(typeof MAP_SHAPES==='undefined') return;
-    if(window.matchMedia('(max-width:1100px)').matches) return;   // desktop only
+    var MOB=window.matchMedia('(max-width:1100px)');   // desktop = hover, mobile = tap-and-hold-4s
     var NSx='http://www.w3.org/2000/svg';
     var svgMap=document.getElementById('map'); if(!svgMap) return;
 
@@ -1466,51 +1466,60 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // Track cursor position across the whole document so scroll-triggered
     // evaluation works even before the mouse has moved over the map itself.
     document.addEventListener('mousemove', function(e){
+      if(MOB.matches) return;
       lastX=e.clientX; lastY=e.clientY;
     }, {passive:true});
 
     svgMap.addEventListener('mousemove', function(e){
+      if(MOB.matches) return;
       lastX=e.clientX; lastY=e.clientY; insideMap=true;
       evaluate(lastX, lastY);
     }, {passive:true});
-    svgMap.addEventListener('mouseleave', function(){ insideMap=false; hide(); }, {passive:true});
+    svgMap.addEventListener('mouseleave', function(){ if(MOB.matches) return; insideMap=false; hide(); }, {passive:true});
 
-    // ---- Mobile: touch to highlight, tracking the finger; label sits above it ----
-    var fadeTimer=null;
+    // ---- Mobile: tap a region to light it up in white; it holds 4s, then fades ----
+    var fadeTimer=null, tx0=0, ty0=0, tapped=false;
+    function fadeSoon(){
+      if(fadeTimer) clearTimeout(fadeTimer);
+      fadeTimer=setTimeout(function(){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; }, 4000);
+    }
     function touchEval(t){
       var cx=t.clientX, cy=t.clientY;
       var el=document.elementFromPoint(cx,cy);
       var mapFrame=document.querySelector('.mapwrap')||svgMap;
-      if(!el || !mapFrame.contains(el)){ return; }
+      if(!el || !mapFrame.contains(el)) return false;
+      if(el.closest && el.closest('.pin')) return false;      // pin taps keep their own behaviour
       var loc=clientToUser(cx,cy);
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
-      // position label ABOVE the fingertip so the finger doesn't cover it
-      var lblW=flLbl.offsetWidth||120;
-      var lx=cx - lblW/2; if(lx<6) lx=6; if(lx+lblW>window.innerWidth-6) lx=window.innerWidth-6-lblW;
-      flLbl.style.left=lx+'px'; flLbl.style.top=(cy-42)+'px';
-      if(hit===-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; return; }
+      if(hit===-1){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; return false; }
       if(hit!==shown){
         shown=hit; var s=MAP_SHAPES[hit];
         poly.setAttribute('points', s.pts.map(function(pt){return pt[0]+','+pt[1];}).join(' '));
-        poly.style.opacity=1; flName.textContent=s.name; setStroke();
+        flName.textContent=s.name; setStroke();
       }
-      flLbl.style.opacity=1;
+      poly.style.opacity=1; flLbl.style.opacity=1;
+      return true;
     }
     svgMap.addEventListener('touchstart', function(e){
+      if(!MOB.matches) return;
       if(fadeTimer){ clearTimeout(fadeTimer); fadeTimer=null; }
-      touchEval(e.touches[0]);
+      var t=e.touches[0]; tx0=t.clientX; ty0=t.clientY;
+      tapped=touchEval(t);
     }, {passive:true});
     svgMap.addEventListener('touchmove', function(e){
-      if(fadeTimer){ clearTimeout(fadeTimer); fadeTimer=null; }
-      touchEval(e.touches[0]);
+      if(!MOB.matches || !tapped) return;
+      var t=e.touches[0];
+      // Moved a real distance => this is a page scroll, not a tap. Drop the highlight so it
+      // doesn't smear across regions while the map slides under the finger.
+      if(Math.abs(t.clientX-tx0)>10 || Math.abs(t.clientY-ty0)>10){
+        tapped=false;
+        poly.style.opacity=0; flLbl.style.opacity=0; shown=-1;
+      }
     }, {passive:true});
     function touchDone(){
-      // fade on release, or auto-fade after 3s (whichever comes first)
-      if(fadeTimer) clearTimeout(fadeTimer);
-      fadeTimer=setTimeout(function(){ poly.style.opacity=0; flLbl.style.opacity=0; shown=-1; }, 3000);
-      // also fade shortly after lifting the finger
-      poly.style.opacity=0; flLbl.style.opacity=0; shown=-1;
+      if(!MOB.matches || !tapped) return;
+      fadeSoon();          // it was a tap: leave it lit, then fade after 4s
     }
     svgMap.addEventListener('touchend', touchDone, {passive:true});
     svgMap.addEventListener('touchcancel', touchDone, {passive:true});
@@ -1519,6 +1528,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // under a stationary cursor lights up as the map slides beneath it.
     var stick=false;
     window.addEventListener('scroll', function(){
+      if(MOB.matches) return;          // hover-follow only; mobile holds its tapped region
       if(lastX===null) return;
       if(stick) return; stick=true;
       requestAnimationFrame(function(){ stick=false; evaluate(lastX, lastY); });
