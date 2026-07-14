@@ -1782,13 +1782,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var rx=Math.cos(RAD), ry=Math.sin(RAD);   // "screen-right" direction in SVG space
     var ux=Math.sin(RAD), uy=-Math.cos(RAD);   // "screen-up" direction in SVG space
     var FS=mq.matches?57:46, LH=mq.matches?69:54, off=40;
+    var WRAP=mq.matches?12:14;   // KNOB: max characters per label line (desktop labels were running off the map)
     var lines=lab.lines;
-    if(mq.matches){                          // mobile: re-wrap so no line goes past 12 chars
+    {                            // re-wrap so no line runs past WRAP chars
       var words=lab.lines.join(' ').split(/\s+/), out=[], cur='';
       words.forEach(function(w){
         if(cur==='') cur=w;
-        else if((cur+' '+w).length<=12) cur+=' '+w;       // word fits, keep it on this line
-        else { out.push(cur); cur=w; }                    // would exceed 12, push it to the next line
+        else if((cur+' '+w).length<=WRAP) cur+=' '+w;     // word fits, keep it on this line
+        else { out.push(cur); cur=w; }                    // would exceed WRAP, push it to the next line
       });
       if(cur) out.push(cur);
       lines=out;
