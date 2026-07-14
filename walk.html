@@ -2303,9 +2303,6 @@ document.addEventListener('play', function (e) {
   pop.querySelector('.vsp-close').addEventListener('click', close);
   function close(){ pop.classList.remove('open'); }
 
-  // ---- icon set ----
-  // Each entry: label, background color, and icon (inline SVG or, later, an image URL).
-  // To swap in a real logo image later, replace `svg` with e.g. img:'facebook.png'.
   function ICONS(url, enc, et, v){
     return [
       { label:'Copy link', bg:'#eeeeee', dark:true, svg:'<svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 013.1-3.1h4V7h-4a5 5 0 000 10h4v-1.9h-4A3.1 3.1 0 013.9 12zm4.1 1h8v-2H8v2zm8-6h-4v1.9h4a3.1 3.1 0 010 6.2h-4V17h4a5 5 0 000-10z"/></svg>', action:function(){ copy(url); } },
@@ -2333,9 +2330,7 @@ document.addEventListener('play', function (e) {
       var isLink = !!it.href;
       var b = document.createElement(isLink ? 'a' : 'button');
       b.className = 'vsp-opt';
-      var inner = it.img
-        ? '<img src="'+it.img+'" alt="">'
-        : it.svg;
+      var inner = it.img ? '<img src="'+it.img+'" alt="">' : it.svg;
       b.innerHTML = '<span class="vsp-ic" style="background:'+it.bg+';'+(it.dark?'color:#333;':'')+'">'+inner+'</span><span class="vsp-lab">'+it.label+'</span>';
       if(isLink){ b.href=it.href; b.target='_blank'; b.rel='noopener'; b.addEventListener('click', function(){ setTimeout(close,150); }); }
       else if(it.action){ b.addEventListener('click', it.action); }
