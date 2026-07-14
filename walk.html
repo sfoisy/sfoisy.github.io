@@ -279,7 +279,21 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 /* invisible bridge so moving the mouse from button to tooltip doesn't drop hover */
 .map-info-pop::after{content:'';position:absolute;top:0;left:100%;width:.6rem;height:100%}
 .map-info:hover .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
+@media(min-width:1101px){.map-cap-mobile{display:none}}
 @media(max-width:1100px){.map-info{display:none}}
+</style>
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('.tip-link[data-stop]');
+    if(!a) return;
+    e.preventDefault();
+    var t = document.querySelector('.j-step[data-i="'+a.getAttribute('data-stop')+'"]');
+    if(t) t.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+})();
+</script>
+<style>
 .map-flow{display:none}
 @media(max-width:1100px){.map-flow{display:block;width:75vw;margin:1rem auto 0;position:relative;aspect-ratio:1/.9;border:1px solid rgba(255,255,255,.2);border-radius:.7rem;overflow:hidden;background:#1a1830;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
 .map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--mf-x,-14px),var(--mf-y,10px)) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
@@ -1048,7 +1062,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     <div class="map-info" id="mapInfo">
       <button class="map-info-btn" aria-label="About this satellite image">i</button>
       <div class="map-info-pop" role="tooltip">
-        <p>Most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS, a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a> — 438 miles up, and travelling at 16,800 mph — capturing the corridor I walked on June 2nd, the second-to-last day. You can download your own NASA data for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>!</p>
+        <p>It turns out most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS — a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a>, 438 miles up and moving at 16,800 mph. MODIS captured this on June 2nd, my second-to-last day. To learn more about the mission, see the interview with Rob Levy at <a href="#" class="tip-link" data-stop="21">Stop #22</a>. You can also download your own Terra images for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>! :)</p>
       </div>
     </div>
     <div class="mapwrap">
