@@ -2260,14 +2260,23 @@ document.addEventListener('play', function (e) {
 .vshare-btn:hover{background:rgba(0,0,0,.82);transform:scale(1.08)}
 #vsharePop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:1rem}
 #vsharePop.open{display:flex}
-.vsp-card{background:#fff;border-radius:16px;max-width:360px;width:100%;padding:1.4rem;position:relative;box-shadow:0 20px 60px -10px rgba(0,0,0,.5);font-family:'DM Sans',sans-serif;text-align:center}
-.vsp-close{position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.7rem;line-height:1;cursor:pointer;color:#000}
-.vsp-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin-bottom:.9rem;background:#000}
-.vsp-title{font-weight:700;font-size:1rem;margin-bottom:.35rem;color:#000}
-.vsp-url{font-size:.72rem;color:#666;word-break:break-all;margin-bottom:1rem}
-.vsp-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.vsp-opt{display:block;text-decoration:none;text-align:center;font:600 .82rem 'DM Sans',sans-serif;padding:.6rem;border-radius:8px;background:#f2f2f2;color:#000;border:none;cursor:pointer;transition:background .15s}
-.vsp-opt:hover{background:#e4e4e4}
+.vsp-card{background:#fff;border-radius:18px;max-width:520px;width:100%;padding:1.6rem 0 1.6rem;position:relative;box-shadow:0 20px 60px -10px rgba(0,0,0,.5);font-family:'DM Sans',sans-serif}
+.vsp-close{position:absolute;top:10px;right:16px;background:none;border:none;font-size:1.8rem;line-height:1;cursor:pointer;color:#000;z-index:2}
+.vsp-head{font-size:1.35rem;font-weight:400;color:#000;margin:0 0 1.2rem 1.6rem}
+/* horizontally scrollable icon row */
+.vsp-row{display:flex;gap:.4rem;overflow-x:auto;padding:0 1.2rem .5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.vsp-row::-webkit-scrollbar{display:none}
+.vsp-opt{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.55rem;width:88px;text-decoration:none;background:none;border:none;cursor:pointer;padding:.3rem .2rem}
+.vsp-ic{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .15s}
+.vsp-opt:hover .vsp-ic{transform:scale(1.06)}
+.vsp-ic svg{width:30px;height:30px;fill:currentColor}
+.vsp-ic img{width:64px;height:64px;border-radius:50%;object-fit:cover}
+.vsp-lab{font-size:.86rem;color:#000;font-weight:400;text-align:center;line-height:1.2}
+/* copy-link field */
+.vsp-copy{display:flex;align-items:center;gap:.6rem;margin:1.2rem 1.6rem 0;border:1px solid #d8d8d8;border-radius:14px;padding:.55rem .6rem .55rem 1rem}
+.vsp-copy input{flex:1;min-width:0;border:none;outline:none;font:400 .95rem 'DM Sans',sans-serif;color:#333;background:none}
+.vsp-copybtn{flex:0 0 auto;border:1px solid #cfcfcf;background:#fff;border-radius:999px;font:700 .9rem 'DM Sans',sans-serif;color:#000;padding:.55rem 1.3rem;cursor:pointer;transition:background .15s}
+.vsp-copybtn:hover{background:#f2f2f2}
 </style>
 <script>
 (function(){
@@ -2285,35 +2294,51 @@ document.addEventListener('play', function (e) {
   var pop = document.createElement('div');
   pop.id = 'vsharePop';
   pop.innerHTML = '<div class="vsp-card"><button class="vsp-close" aria-label="Close">×</button>'+
-    '<img class="vsp-thumb" alt=""><div class="vsp-title"></div><div class="vsp-url"></div><div class="vsp-row"></div></div>';
+    '<div class="vsp-head">Share</div>'+
+    '<div class="vsp-row"></div>'+
+    '<div class="vsp-copy"><input type="text" readonly aria-label="Share link">'+
+    '<button class="vsp-copybtn">Copy</button></div></div>';
   document.body.appendChild(pop);
   pop.addEventListener('click', function(e){ if(e.target===pop) close(); });
   pop.querySelector('.vsp-close').addEventListener('click', close);
   function close(){ pop.classList.remove('open'); }
 
+  // ---- icon set ----
+  // Each entry: label, background color, and icon (inline SVG or, later, an image URL).
+  // To swap in a real logo image later, replace `svg` with e.g. img:'facebook.png'.
+  function ICONS(url, enc, et, v){
+    return [
+      { label:'Copy link', bg:'#eeeeee', dark:true, svg:'<svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 013.1-3.1h4V7h-4a5 5 0 000 10h4v-1.9h-4A3.1 3.1 0 013.9 12zm4.1 1h8v-2H8v2zm8-6h-4v1.9h4a3.1 3.1 0 010 6.2h-4V17h4a5 5 0 000-10z"/></svg>', action:function(){ copy(url); } },
+      { label:'Email', bg:'#7d7d7d', svg:'<svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 2v.5l8 5 8-5V6H4zm16 12V9l-8 5-8-5v9h16z"/></svg>', href:'mailto:?subject='+et+'&body='+encodeURIComponent((v.blurb||'')+'\n\n'+url) },
+      { label:'Messages', bg:'#e8eefc', img:'placeholder-messages.png', href:'sms:?&body='+encodeURIComponent(v.title+' '+url) },
+      { label:'WhatsApp', bg:'#25d366', img:'placeholder-whatsapp.png', href:'https://wa.me/?text='+encodeURIComponent(v.title+' '+url) },
+      { label:'Facebook', bg:'#3b5998', img:'placeholder-facebook.png', href:'https://www.facebook.com/sharer/sharer.php?u='+enc },
+      { label:'X', bg:'#000000', img:'placeholder-x.png', href:'https://twitter.com/intent/tweet?url='+enc+'&text='+et },
+      { label:'LinkedIn', bg:'#0a66c2', img:'placeholder-linkedin.png', href:'https://www.linkedin.com/sharing/share-offsite/?url='+enc },
+      { label:'Bluesky', bg:'#1185fe', img:'placeholder-bluesky.png', href:'https://bsky.app/intent/compose?text='+encodeURIComponent(v.title+' '+url) }
+    ];
+  }
+
   window.openVShare = function(e, key){
     e.stopPropagation();
     var v = VSHARE[key]; if(!v) return;
     var url = shareURL(key), enc = encodeURIComponent(url), et = encodeURIComponent(v.title);
-    pop.querySelector('.vsp-thumb').src = v.thumb;
-    pop.querySelector('.vsp-title').textContent = v.title;
-    pop.querySelector('.vsp-url').textContent = url;
-    var links = [
-      ['Share…', function(){ if(navigator.share){ navigator.share({title:v.title,text:v.blurb,url:url}); } else { copy(url); } }],
-      ['X', 'https://twitter.com/intent/tweet?url='+enc+'&text='+et],
-      ['Facebook', 'https://www.facebook.com/sharer/sharer.php?u='+enc],
-      ['LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url='+enc],
-      ['Bluesky', 'https://bsky.app/intent/compose?text='+encodeURIComponent(v.title+' '+url)],
-      ['Email', 'mailto:?subject='+et+'&body='+encodeURIComponent(v.blurb+'\n\n'+url)],
-      ['Copy link', function(){ copy(url); }]
-    ];
+
+    var input = pop.querySelector('.vsp-copy input');
+    input.value = url;
+    pop.querySelector('.vsp-copybtn').onclick = function(){ copy(url); };
+
     var row = pop.querySelector('.vsp-row'); row.innerHTML='';
-    links.forEach(function(l){
-      var isLink = typeof l[1]==='string';
+    ICONS(url, enc, et, v).forEach(function(it){
+      var isLink = !!it.href;
       var b = document.createElement(isLink ? 'a' : 'button');
-      b.className='vsp-opt'; b.textContent=l[0];
-      if(isLink){ b.href=l[1]; b.target='_blank'; b.rel='noopener'; b.addEventListener('click', function(){ setTimeout(close,150); }); }
-      else { b.addEventListener('click', l[1]); }
+      b.className = 'vsp-opt';
+      var inner = it.img
+        ? '<img src="'+it.img+'" alt="">'
+        : it.svg;
+      b.innerHTML = '<span class="vsp-ic" style="background:'+it.bg+';'+(it.dark?'color:#333;':'')+'">'+inner+'</span><span class="vsp-lab">'+it.label+'</span>';
+      if(isLink){ b.href=it.href; b.target='_blank'; b.rel='noopener'; b.addEventListener('click', function(){ setTimeout(close,150); }); }
+      else if(it.action){ b.addEventListener('click', it.action); }
       row.appendChild(b);
     });
     pop.classList.add('open');
@@ -2322,8 +2347,7 @@ document.addEventListener('play', function (e) {
     if(navigator.clipboard) navigator.clipboard.writeText(t).then(flash);
     else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); flash(); }
   }
-  function flash(){ var u=pop.querySelector('.vsp-url'), o=u.textContent; u.textContent='Link copied!'; setTimeout(function(){ u.textContent=o; },1400); }
-
+  function flash(){ var b=pop.querySelector('.vsp-copybtn'), o=b.textContent; b.textContent='Copied!'; setTimeout(function(){ b.textContent=o; },1400); }
   // Deep link: ?v=hikaru centers that video on load.
   // Mobile: force lazy images above it to load first (so the page height is
   // final), then do ONE instant jump — no smooth glide, no re-correction loop,
