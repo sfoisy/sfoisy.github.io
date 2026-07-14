@@ -269,6 +269,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-caption{position:absolute;top:100%;left:0;right:0;margin-top:.6rem;text-align:center;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.04rem;line-height:1.45;color:#000;padding:0 .4rem;pointer-events:none}
 .map-caption{display:none}
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
+/* Map info button + hover tooltip (desktop only for now) */
+.map-info{position:absolute;top:.5rem;left:.5rem;z-index:85}
+.map-info-btn{width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font:italic 700 1.05rem 'Playfair Display',serif;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s}
+.map-info-btn:hover{background:rgba(0,0,0,.82)}
+.map-info-pop{position:absolute;top:0;right:calc(100% + .55rem);width:270px;background:#fff;color:#000;border-radius:.7rem;padding:.95rem 1.05rem;box-shadow:0 12px 34px -10px rgba(0,0,0,.45);font-family:'DM Sans',sans-serif;font-size:.82rem;line-height:1.5;opacity:0;visibility:hidden;transform:translateX(6px);transition:opacity .18s,transform .18s,visibility .18s}
+.map-info-pop p{margin:0}
+.map-info-pop a{color:hsl(0,88%,42%);text-decoration:underline}
+/* invisible bridge so moving the mouse from button to tooltip doesn't drop hover */
+.map-info-pop::after{content:'';position:absolute;top:0;left:100%;width:.6rem;height:100%}
+.map-info:hover .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
+@media(max-width:1100px){.map-info{display:none}}
 .map-flow{display:none}
 @media(max-width:1100px){.map-flow{display:block;width:75vw;margin:1rem auto 0;position:relative;aspect-ratio:1/.9;border:1px solid rgba(255,255,255,.2);border-radius:.7rem;overflow:hidden;background:#1a1830;box-shadow:0 8px 20px -10px rgba(13,11,46,.5)}
 .map-flow img{position:absolute;left:50%;top:50%;width:100%;height:auto;transform:translate(-50%,-50%) translate(var(--mf-x,-14px),var(--mf-y,10px)) scale(var(--mf-scale,1.5)) rotate(var(--mf-rot,-5deg))}
@@ -1034,6 +1045,12 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     </div>
   </div>
   <div class="j-map">
+    <div class="map-info" id="mapInfo">
+      <button class="map-info-btn" aria-label="About this satellite image">i</button>
+      <div class="map-info-pop" role="tooltip">
+        <p>Most of the paparazzi shots from my walk came from space. (lol!) This one's from MODIS, a refrigerator-sized camera aboard NASA's <a href="https://terra.nasa.gov/about" target="_blank" rel="noopener">Terra satellite</a> — 438 miles up, and travelling at 16,800 mph — capturing the corridor I walked on June 2nd, the second-to-last day. You can download your own NASA data for free <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">here</a>!</p>
+      </div>
+    </div>
     <div class="mapwrap">
       <div class="map-cap-mobile" id="mapCapMobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</div>
       <img id="ferryBadge" src="ferry.png" alt="Staten Island Ferry">
