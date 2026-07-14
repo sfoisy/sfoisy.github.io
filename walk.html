@@ -609,9 +609,14 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <h3 class="stop-head">Stop 2: City Hall Park</h3>
         <p class="met">Met Allegra LeGrande and Hikaru Hayakawa.</p>
         <p class="ph-note">Add a transition line here to carry the story forward to the next stop.</p>
-        <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
-          <source src="https://wesitefoisy1.b-cdn.net/hikaru.mp4#t=0.1" type="video/mp4">
-        </video>
+        <div class="video-share-wrap">
+          <video id="vid-hikaru" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
+            <source src="https://wesitefoisy1.b-cdn.net/hikaru.mp4#t=0.1" type="video/mp4">
+          </video>
+          <button class="vshare-btn" aria-label="Share this video" onclick="openVShare(event,'hikaru')">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          </button>
+        </div>
         <p class="ph-note" style="margin-top:1rem;">Say a little about the conversation or the scenery here before the media below.</p>
         <video class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/allegra.mp4#t=0.1" type="video/mp4">
@@ -2226,4 +2231,89 @@ document.addEventListener('play', function (e) {
 })();
 </script>
 
+<style>
+.video-share-wrap{position:relative}
+@media(min-width:1101px){ .video-share-wrap{width:85%;margin:2.5rem auto;clear:both} .video-share-wrap .j-card-video{width:100%;margin:0} }
+.vshare-btn{position:absolute;top:10px;right:10px;z-index:5;width:38px;height:38px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,transform .2s}
+.vshare-btn:hover{background:rgba(0,0,0,.82);transform:scale(1.08)}
+#vsharePop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:1rem}
+#vsharePop.open{display:flex}
+.vsp-card{background:#fff;border-radius:16px;max-width:360px;width:100%;padding:1.4rem;position:relative;box-shadow:0 20px 60px -10px rgba(0,0,0,.5);font-family:'DM Sans',sans-serif;text-align:center}
+.vsp-close{position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.7rem;line-height:1;cursor:pointer;color:#000}
+.vsp-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin-bottom:.9rem;background:#000}
+.vsp-title{font-weight:700;font-size:1rem;margin-bottom:.35rem;color:#000}
+.vsp-url{font-size:.72rem;color:#666;word-break:break-all;margin-bottom:1rem}
+.vsp-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.vsp-opt{display:block;text-decoration:none;text-align:center;font:600 .82rem 'DM Sans',sans-serif;padding:.6rem;border-radius:8px;background:#f2f2f2;color:#000;border:none;cursor:pointer;transition:background .15s}
+.vsp-opt:hover{background:#e4e4e4}
+</style>
+<script>
+(function(){
+  // Add more videos here later — key -> {stop data-i, title, thumbnail, blurb}
+  var VSHARE = {
+    hikaru: {
+      stop: 1,
+      title: "Meeting Hikaru Hayakawa at City Hall Park",
+      thumb: "https://wesitefoisy1.b-cdn.net/hikaru_photo.png",
+      blurb: "Following Syl Foisy's 270-mile walk from NYC to DC for weather & climate science."
+    }
+  };
+  function shareURL(key){ return location.origin + location.pathname + "?v=" + key; }
+
+  var pop = document.createElement('div');
+  pop.id = 'vsharePop';
+  pop.innerHTML = '<div class="vsp-card"><button class="vsp-close" aria-label="Close">×</button>'+
+    '<img class="vsp-thumb" alt=""><div class="vsp-title"></div><div class="vsp-url"></div><div class="vsp-row"></div></div>';
+  document.body.appendChild(pop);
+  pop.addEventListener('click', function(e){ if(e.target===pop) close(); });
+  pop.querySelector('.vsp-close').addEventListener('click', close);
+  function close(){ pop.classList.remove('open'); }
+
+  window.openVShare = function(e, key){
+    e.stopPropagation();
+    var v = VSHARE[key]; if(!v) return;
+    var url = shareURL(key), enc = encodeURIComponent(url), et = encodeURIComponent(v.title);
+    pop.querySelector('.vsp-thumb').src = v.thumb;
+    pop.querySelector('.vsp-title').textContent = v.title;
+    pop.querySelector('.vsp-url').textContent = url;
+    var links = [
+      ['Share…', function(){ if(navigator.share){ navigator.share({title:v.title,text:v.blurb,url:url}); } else { copy(url); } }],
+      ['X', 'https://twitter.com/intent/tweet?url='+enc+'&text='+et],
+      ['Facebook', 'https://www.facebook.com/sharer/sharer.php?u='+enc],
+      ['LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url='+enc],
+      ['Bluesky', 'https://bsky.app/intent/compose?text='+encodeURIComponent(v.title+' '+url)],
+      ['Email', 'mailto:?subject='+et+'&body='+encodeURIComponent(v.blurb+'\n\n'+url)],
+      ['Copy link', function(){ copy(url); }]
+    ];
+    var row = pop.querySelector('.vsp-row'); row.innerHTML='';
+    links.forEach(function(l){
+      var isLink = typeof l[1]==='string';
+      var b = document.createElement(isLink ? 'a' : 'button');
+      b.className='vsp-opt'; b.textContent=l[0];
+      if(isLink){ b.href=l[1]; b.target='_blank'; b.rel='noopener'; b.addEventListener('click', function(){ setTimeout(close,150); }); }
+      else { b.addEventListener('click', l[1]); }
+      row.appendChild(b);
+    });
+    pop.classList.add('open');
+  };
+  function copy(t){
+    if(navigator.clipboard) navigator.clipboard.writeText(t).then(flash);
+    else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); flash(); }
+  }
+  function flash(){ var u=pop.querySelector('.vsp-url'), o=u.textContent; u.textContent='Link copied!'; setTimeout(function(){ u.textContent=o; },1400); }
+
+  // Deep link: ?v=hikaru scrolls to that video on load
+  window.addEventListener('load', function(){
+    var m = /[?&]v=([^&#]+)/.exec(location.search); if(!m) return;
+    var v = VSHARE[decodeURIComponent(m[1])]; if(!v) return;
+    var el = document.getElementById('vid-'+decodeURIComponent(m[1])) || document.querySelector('.j-step[data-i="'+v.stop+'"]');
+    if(!el) return;
+    setTimeout(function(){
+      var mobile = window.matchMedia('(max-width:1100px)').matches;
+      var y = el.getBoundingClientRect().top + window.scrollY - window.innerHeight*(mobile?0.30:0.22);
+      window.scrollTo({top:Math.max(0,y), behavior:'smooth'});
+    }, 600);
+  });
+})();
+</script>
 </body></html>
