@@ -2264,6 +2264,12 @@ document.addEventListener('play', function (e) {
 .vsp-close{position:absolute;top:10px;right:16px;background:none;border:none;font-size:1.8rem;line-height:1;cursor:pointer;color:#000;z-index:2}
 .vsp-head{font-size:1.35rem;font-weight:400;color:#000;margin:0 0 1.2rem 1.6rem}
 /* horizontally scrollable icon row */
+.vsp-rowwrap{position:relative}
+.vsp-arrow{position:absolute;top:32px;transform:translateY(-50%);z-index:3;width:36px;height:36px;border-radius:50%;border:1px solid #e2e2e2;background:#fff;color:#333;font-size:1.5rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:background .15s;padding:0}
+.vsp-arrow:hover{background:#f2f2f2}
+.vsp-arrow-l{left:6px}
+.vsp-arrow-r{right:6px}
+.vsp-arrow[hidden]{display:none}
 .vsp-row{display:flex;gap:.4rem;overflow-x:auto;padding:0 1.2rem .5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .vsp-row::-webkit-scrollbar{display:none}
 .vsp-opt{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.55rem;width:88px;text-decoration:none;background:none;border:none;cursor:pointer;padding:.3rem .2rem}
@@ -2295,13 +2301,28 @@ document.addEventListener('play', function (e) {
   pop.id = 'vsharePop';
   pop.innerHTML = '<div class="vsp-card"><button class="vsp-close" aria-label="Close">×</button>'+
     '<div class="vsp-head">Share</div>'+
+    '<div class="vsp-rowwrap"><button type="button" class="vsp-arrow vsp-arrow-l" aria-label="Scroll left">‹</button>'+
     '<div class="vsp-row"></div>'+
+    '<button type="button" class="vsp-arrow vsp-arrow-r" aria-label="Scroll right">›</button></div>'+
     '<div class="vsp-copy"><input type="text" readonly aria-label="Share link">'+
     '<button class="vsp-copybtn">Copy</button></div></div>';
   document.body.appendChild(pop);
   pop.addEventListener('click', function(e){ if(e.target===pop) close(); });
   pop.querySelector('.vsp-close').addEventListener('click', close);
   function close(){ pop.classList.remove('open'); }
+
+  // Arrow navigation for the scrollable icon row.
+  var vRow = pop.querySelector('.vsp-row');
+  var vArrowL = pop.querySelector('.vsp-arrow-l');
+  var vArrowR = pop.querySelector('.vsp-arrow-r');
+  function vUpdateArrows(){
+    var max = vRow.scrollWidth - vRow.clientWidth - 1;
+    vArrowL.hidden = vRow.scrollLeft <= 1;
+    vArrowR.hidden = vRow.scrollLeft >= max || max <= 0;
+  }
+  vArrowL.addEventListener('click', function(){ vRow.scrollBy({left:-180, behavior:'smooth'}); });
+  vArrowR.addEventListener('click', function(){ vRow.scrollBy({left: 180, behavior:'smooth'}); });
+  vRow.addEventListener('scroll', vUpdateArrows, {passive:true});
 
   function ICONS(url, enc, et, v){
     return [
@@ -2337,6 +2358,7 @@ document.addEventListener('play', function (e) {
       row.appendChild(b);
     });
     pop.classList.add('open');
+    requestAnimationFrame(vUpdateArrows);
   };
   function copy(t){
     if(navigator.clipboard) navigator.clipboard.writeText(t).then(flash);
