@@ -1520,16 +1520,16 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     function fadeSoon(){
       if(fadeTimer) clearTimeout(fadeTimer);
       fadeTimer=setTimeout(function(){
-        poly.style.transition='opacity .9s';    // KNOB: slow, gentle retire
-        flLbl.style.transition='opacity .9s';
+        poly.style.transition='opacity .7s';    // KNOB: fade duration
+        flLbl.style.transition='opacity .7s';
         poly.style.opacity=0; flLbl.style.opacity=0; shown=-1;
-        if(mfPoly){ mfPoly.style.transition='opacity .9s'; mfPoly.style.opacity=0; }
+        if(mfPoly){ mfPoly.style.transition='opacity .7s'; mfPoly.style.opacity=0; }
         // park the pill back on the live map once it's invisible, ready for the pinned map
         setTimeout(function(){
           var mw=document.querySelector('.mapwrap');
           if(mw && flLbl.parentNode!==mw && parseFloat(flLbl.style.opacity||'0')===0) mw.appendChild(flLbl);
-        }, 950);
-      }, 2000);                                  // KNOB: hold time before it starts fading
+        }, 750);
+      }, 1300);                                  // KNOB: hold. 1300 + 700 fade = ~2s on screen total
     }
     function touchEval(t){
       var cx=t.clientX, cy=t.clientY;
