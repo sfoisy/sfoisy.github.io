@@ -512,7 +512,12 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .j-narrative{padding:0 0 3rem;max-width:100%}
   .j-travel{height:48vh}
   .chart-station{font-size:0.62rem;margin-top:.4rem;min-height:2.7em}
-  .chart-legend{font-size:0.62rem;gap:1.2rem}
+  /* The column is ~200px here, so Weather and All wrap to two rows while Pace and Elevation
+     sit on one. That is a 12 / 43 / 55 px height difference under EVERY chart, which is what
+     made the page jump on toggle. Reserve two tight rows and it stops mattering. */
+  .chart-legend{font-size:0.62rem;column-gap:1.2rem;row-gap:.3rem;min-height:2.6rem;align-content:flex-start}
+  .chart-legend .sw-line,.chart-legend .sw-dash{width:22px}
+  .chart-legend .sw-box{width:12px;height:12px}
   footer {
     background: #fff;
     border-top: 1px solid #e9e9e9;
@@ -2039,6 +2044,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     return rx;
   }
 
+  var UI_MR = 140;              // the right margin every mode except mobile-'All' actually uses,
+                                // and the one the toggle/legend/caption are always sized from
   function buildLegChart(host, data, mirror){
     var start=data.start, end=data.end, span=Math.max(0.5,end-start);
     var pts=data.pts, dew=data.dew||[], precip=data.precip||[];
@@ -2054,13 +2061,26 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // into roughly half the width there, so a halved stroke would land near a hairline.
     var SW = MQ.matches ? 1 : 0.5;
     var w = function(n){ return (n*SW).toFixed(2); };
-    // 'All': one coloured axis per series. Desktop stacks all of them into the SAME right
-    // margin every other mode uses, so the plot never narrows -- they pack tight instead.
-    // Mobile shows only the first (the line he walks): three columns of numbers cannot fit a
-    // phone without shrinking them past reading size.
+    // 'All': one coloured axis per series, stacked outward from the axis -- left on a mirrored
+    // leg, right otherwise. It only needs extra margin if the page outside the chart cannot
+    // already take it, so measure that instead of guessing: MQ is just (max-width:1100px), which
+    // is a 400px phone AND a 900px browser window, and those two have wildly different amounts of
+    // room. Any hardcoded margin is wrong for one of them. Here the margin only ever pays for
+    // the shortfall, so a roomy window compresses the plot by nothing at all.
     var multiY = !!(data.axes && data.axes.length);
+    var AXF = MQ.matches ? 28 : 15;                    // mobile text is not upscaled; set it here
+    var mR = UI_MR;
+    if(multiY){
+      var sc0   = (host.getBoundingClientRect().width || 900)/1000;   // CSS px per viewBox unit
+      var stack = 38 + 7.28*AXF;                       // 3 columns; widest labels ~5 chars (min/mi)
+      var mapL  = window.innerWidth - 22 - (MQ.matches?100:260);      // same edge legRightX() respects
+      var edge  = mirror ? (legRightX()+dw/2) - 945*sc0               // page left of the svg
+                         : mapL - ((MQ.matches?0:20)+dw/2) - 945*sc0; // page right of it
+      var outer = Math.max(0, edge)/Math.max(sc0, 1e-6);
+      mR = Math.round(Math.min(300, Math.max(UI_MR, stack - outer + 8/Math.max(sc0,1e-6))));
+    }
     // mT no longer holds a date line -- just enough headroom for the All unit captions.
-    var VBW=1000, VBH=508, mL=55, mR=140, mT=34, mB=74, bY=VBH-mB;
+    var VBW=1000, VBH=508, mL=55, mT=34, mB=74, bY=VBH-mB;
     var axisX = mirror ? mR : (VBW-mR);
     var farX  = mirror ? (VBW-mL) : mL;
     function tX(h){ return farX + ((h-start)/span)*(axisX-farX); }
@@ -2085,25 +2105,32 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(multiY){
       // Each series was stretched onto 0..1 by normSeries (lo->0.08, hi->0.92). Undo that per
       // series so every axis prints its own real numbers, in the series' own colour.
-      var AXF = MQ.matches ? 22.5 : 15;              // desktop packs three columns; mobile gets one
       var TK = 7, LOFF = 3, GAP = 4;
-      var axList = MQ.matches ? data.axes.slice(0,1) : data.axes;
-      var ax = axisX;
-      axList.forEach(function(A,ai){
+      var axList = data.axes;
+      // Measure every axis first, then space them evenly.
+      // The pitch is driven ONLY by the axes that have another axis outside them: their labels
+      // have to fit INSIDE a gap. The outermost axis's labels hang off the edge and collide with
+      // nothing, so its width (min/mi is the widest of the three) must not push the others apart.
+      var meas = axList.map(function(A){
         var st = niceStep(A.hi-A.lo, 4), ticks=[];
         for(var v=Math.ceil(A.lo/st)*st; v<=A.hi+1e-9; v+=st) ticks.push(v);
         var labs = ticks.map(function(v){ return String(A.fmt(v,st)); });
         var wide = 0;
         labs.forEach(function(l){ wide = Math.max(wide, l.length*AXF*0.56); });
+        return { ticks:ticks, labs:labs, wide:wide };
+      });
+      var pitch = 0;
+      for(var mi=0; mi<meas.length-1; mi++) pitch = Math.max(pitch, TK+LOFF+meas[mi].wide+GAP);
+      axList.forEach(function(A,ai){
+        var ax = axisX + out*ai*pitch, m = meas[ai];
         yaxisLines += '<line x1="'+ax.toFixed(1)+'" y1="'+mT+'" x2="'+ax.toFixed(1)+'" y2="'+bY+'" stroke="'+A.color+'" stroke-width="'+w(5)+'"/>';
-        ticks.forEach(function(v,i){
+        m.ticks.forEach(function(v,i){
           var yy = tY(0.08+0.84*(v-A.lo)/((A.hi-A.lo)||1)).toFixed(1);
           if(ai===0) gridAt(yy);                    // rules follow the first axis only; three sets would be a thicket
           yaxisLines += '<line x1="'+ax.toFixed(1)+'" y1="'+yy+'" x2="'+(ax+out*TK).toFixed(1)+'" y2="'+yy+'" stroke="'+A.color+'" stroke-width="'+w(4)+'"/>'+
-                        '<text class="axlab" x="'+(ax+out*(TK+LOFF)).toFixed(1)+'" y="'+(parseFloat(yy)+AXF*0.36).toFixed(1)+'" font-size="'+AXF+'" text-anchor="'+tAnc+'" fill="'+A.color+'">'+labs[i]+'</text>';
+                        '<text class="axlab" x="'+(ax+out*(TK+LOFF)).toFixed(1)+'" y="'+(parseFloat(yy)+AXF*0.36).toFixed(1)+'" font-size="'+AXF+'" text-anchor="'+tAnc+'" fill="'+A.color+'">'+m.labs[i]+'</text>';
         });
         yaxisLines += '<text class="axlab" x="'+(ax+out*(TK+LOFF)).toFixed(1)+'" y="'+(mT-11)+'" font-size="'+(AXF*0.95).toFixed(1)+'" text-anchor="'+tAnc+'" fill="'+A.color+'" font-weight="700">'+A.unit+'</text>';
-        ax += out*(TK+LOFF+wide+GAP);
       });
     } else {
       yaxisLines = '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="'+w(5)+'"/>';
@@ -2242,9 +2269,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var targetX = mirror ? (legRightX()+dw/2) : (leftX+dw/2);
       var scale=r.width/VBW, startScreenX=r.left + farX*scale;
       svgEl.style.transform='translateX('+(targetX-startScreenX).toFixed(1)+'px)';
-      // line the caption + legend up with the chart's real on-screen position
+      // Line the caption + legend + toggle up with the chart -- but off the DEFAULT margin,
+      // not the live one. 'All' widens mR on mobile to fit three axis columns; if the UI row
+      // tracked that it would narrow on toggle, re-wrap the legend and jump the page again.
       var hostL=host.getBoundingClientRect().left;
-      var pMin=Math.min(farX,axisX), pMax=Math.max(farX,axisX);
+      var uiAxisX = mirror ? UI_MR : (VBW-UI_MR);
+      var pMin=Math.min(farX,uiAxisX), pMax=Math.max(farX,uiAxisX);
       var chartLeftPx=(targetX + (pMin-farX)*scale) - hostL;
       var chartWPx=(pMax-pMin)*scale;
       [host.querySelector('.chart-station'), host.querySelector('.chart-legend'), host.querySelector('.chart-toggle')]
