@@ -141,13 +141,28 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .j-travel{height:64vh}
 #travelChart{height:auto;padding:15vh 0 40vh 0}
 #tempChart{max-width:100%;margin:0 auto}
-.chart-station{font-family:'DM Sans',sans-serif;font-style:italic;text-align:center;font-size:1.05rem;font-weight:400;color:#000;line-height:1.35;margin:1.1rem 0 0}
-.chart-legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.9rem;margin:.3rem 0 0;font-family:'DM Sans',sans-serif;font-size:1.3rem;color:#000}
+/* Weather's caption is two lines ('Weather Station:' + the name), every other mode's is one.
+   With .j-travel on height:auto that made all 22 chart blocks a line taller in Weather and
+   shifted the whole page. Reserving two lines keeps the scroll position identical per mode. */
+.chart-station{font-family:'DM Sans',sans-serif;font-style:italic;text-align:center;font-size:1.05rem;font-weight:400;color:#000;line-height:1.35;margin:.45rem 0 0;min-height:2.7em}
+.chart-legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1.9rem;margin:.35rem 0 0;font-family:'DM Sans',sans-serif;font-size:1.3rem;color:#000}
+.chart-legend i{font-style:normal;color:#666}
+/* same trick the map pins use: fill-box origin so scale() grows about the dot's own centre,
+   with a fat transparent circle over it so there is something to actually hit. */
+.cdot-dot{transition:transform .3s, filter .3s;transform-origin:center;transform-box:fill-box}
+.cdot-hit{fill:transparent;pointer-events:all;cursor:pointer}
+.cdot:hover .cdot-dot{transform:scale(2.2);filter:drop-shadow(0 0 4px rgba(0,0,0,.35))}
+.chart-tip{position:absolute;z-index:400;pointer-events:none;transform:translate(-50%,-100%);
+  background:#000;color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;
+  white-space:nowrap;padding:.3rem .55rem;border-radius:.35rem;opacity:0;transition:opacity .18s}
+.chart-tip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:#000}
+.chart-tip.on{opacity:1}
+@media (max-width:1100px){.chart-tip{font-size:.7rem}}
 .chart-legend .li{display:inline-flex;align-items:center;gap:.5rem}
 .chart-legend .sw-line{display:inline-block;width:36px;height:0;border-top:5px solid #f5820b}
 .chart-legend .sw-dash{display:inline-block;width:36px;height:0;border-top:5px dashed #0e6ba8}
 .chart-legend .sw-box{display:inline-block;width:18px;height:18px;background:rgba(58,141,222,.6)}
-.chart-toggle{display:flex;justify-content:center;gap:0;margin:.9rem 0 0;font-family:'DM Sans',sans-serif}
+.chart-toggle{display:flex;justify-content:center;gap:0;margin:.1rem 0 0;font-family:'DM Sans',sans-serif}
 .chart-toggle .ct-btn{-webkit-appearance:none;appearance:none;cursor:pointer;font:inherit;font-size:1.05rem;font-weight:500;color:#555;background:#fff;border:2px solid #d9d9d9;border-right-width:0;padding:.42em 1.05em;line-height:1.2;transition:background .15s,color .15s}
 .chart-toggle .ct-btn:first-child{border-radius:999px 0 0 999px}
 .chart-toggle .ct-btn:last-child{border-right-width:2px;border-radius:0 999px 999px 0}
@@ -403,9 +418,11 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-source{display:none;position:absolute;right:7px;bottom:7px;max-width:88%;text-align:right;font-family:'DM Sans',sans-serif;font-size:.5rem;font-weight:600;line-height:1.25;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none;z-index:70}
 #walkerFig {
   position: fixed;
-  transform-origin: 50% 100%;   /* pivot at his feet, not his waist. The walker box is placed
+  transform-origin: 50% 100%;   /* DEFAULT = his feet, for the line-walk tilt. The box sits
                                    bottom-centre on the line (currentX = pt.x - dw/2,
-                                   currentY = pt.y - DISP), so 50% 100% IS the point he stands on. */
+                                   currentY = pt.y - DISP), so 50% 100% IS the spot he stands on.
+                                   render() overrides this to 50% 50% for the between-leg flips
+                                   so he tumbles about his middle. */
   z-index: 101;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -494,7 +511,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   .article-top-sub{font-size:.82rem}
   .j-narrative{padding:0 0 3rem;max-width:100%}
   .j-travel{height:48vh}
-  .chart-station{font-size:0.62rem;margin-top:1.1rem}
+  .chart-station{font-size:0.62rem;margin-top:.4rem;min-height:2.7em}
   .chart-legend{font-size:0.62rem;gap:1.2rem}
   footer {
     background: #fff;
@@ -1813,7 +1830,8 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // One point per whole mile, plus a point pinned at each stop.
   // m0/m1 = the leg's start and end mile; x is on the SAME scale as the mile counter (0 -> 270.4).
   //
-  // From the Garmin FIT. Each point starts as moving-seconds / mile over the 1 mile
+  // pace: one point per mile. elev: four per mile, so the terrain actually shows.
+  // From the Garmin FIT. Each pace point starts as moving-seconds / mile over the 1 mile
   // centred on it, then the whole 272-mile series gets a 3-mile rolling median followed
   // by a 3-mile rolling mean. The median is the important one: raw mile splits are not
   // usable here, because the watch's GPS distance over-credits one city mile and
@@ -1821,78 +1839,95 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // that together are a flat 21:36). The median deletes those isolated spikes; the mean
   // takes the staircase off the median. Nothing is clipped or capped, and the filtered
   // curve still averages 17.13 min/mi against an actual 17.12, so it is unbiased.
-  // mph is just 60/pace.
+  // mph is not stored: it was exactly 60/pace, and its tab is gone.
+  //
+  // The ferry is two points at one level: you climb nothing on a boat. Its extent is not a
+  // guess -- render() swaps the walker for the boat sprite while dispCur is in [FS-0.5, FE),
+  // and dispCur is linear in chart progress, so that condition maps to a real slice of the
+  // mile axis (leg 1, miles 10.69 to 14.81). The level is the mean of the two edges, so the
+  // line steps neither in nor out. Everything the course claimed in between is dropped --
+  // it had him climbing 83 ft over Jersey City while he was sitting on a boat.
+  //
+  // elev is feet, from the Garmin Connect COURSE export (the route as planned in April),
+  // not from the watch -- the activity has no altitude channel at all. The course is 256 mi
+  // against the 272 actually walked and wanders from the real track, so it is mapped on by
+  // distance fraction: it is the terrain of the corridor rather than the exact ground
+  // underfoot. Good for shape, not for spot heights.
   var WALKDATA = {
     0:  { m0:0, m1:7.62,
           pace:[[0,21.2],[1,21],[2,20.8],[3,21],[4,22.3],[5,22.5],[6,21],[7,18.6],[7.62,19.4]],
-          mph:[[0,2.83],[1,2.86],[2,2.88],[3,2.86],[4,2.69],[5,2.67],[6,2.86],[7,3.23],[7.62,3.09]] },
+          elev:[[0,124],[0.25,113],[0.5,106],[0.75,93],[1,79],[1.25,91],[1.5,83],[1.75,71],[2,74],[2.25,76],[2.5,78],[2.75,75],[3,79],[3.25,77],[3.5,69],[3.75,54],[4,51],[4.25,56],[4.5,48],[4.75,43],[5,41],[5.25,40],[5.5,40],[5.75,37],[6,31],[6.25,31],[6.5,24],[6.75,12],[7,9],[7.25,17],[7.5,20],[7.62,15]] },
     1:  { m0:7.62, m1:30.78,
           pace:[[7.62,19.4],[8,20.2],[9,20.6],[10,21.1],[11,19.2],[12,18.3],[13,18.1],[14,17.9],[15,17.5],[16,17.1],[17,16.8],[18,16.8],[19,17.1],[20,17.3],[21,17.2],[22,17],[23,16.8],[24,16.9],[25,17],[26,16.9],[27,15.7],[28,13.6],[29,11.7],[30,11.4],[30.78,12.6]],
-          mph:[[7.62,3.09],[8,2.97],[9,2.91],[10,2.84],[11,3.12],[12,3.28],[13,3.31],[14,3.35],[15,3.43],[16,3.51],[17,3.57],[18,3.57],[19,3.51],[20,3.47],[21,3.49],[22,3.53],[23,3.57],[24,3.55],[25,3.53],[26,3.55],[27,3.82],[28,4.41],[29,5.13],[30,5.26],[30.78,4.76]] },
+          elev:[[7.62,15],[7.75,7],[8,1],[8.25,0],[8.5,0],[8.75,-0],[9,4],[9.25,18],[9.5,8],[9.75,7],[10,7],[10.25,12],[10.5,14],[10.69,11],[14.81,11],[15,9],[15.25,12],[15.5,9],[15.75,11],[16,13],[16.25,11],[16.5,14],[16.75,10],[17,11],[17.25,12],[17.5,25],[17.75,31],[18,33],[18.25,37],[18.5,58],[18.75,74],[19,94],[19.25,124],[19.5,142],[19.75,180],[20,208],[20.25,208],[20.5,201],[20.75,187],[21,169],[21.25,158],[21.5,165],[21.75,166],[22,188],[22.25,214],[22.5,237],[22.75,251],[23,252],[23.25,254],[23.5,243],[23.75,241],[24,235],[24.25,235],[24.5,241],[24.75,217],[25,202],[25.25,218],[25.5,210],[25.75,174],[26,138],[26.25,115],[26.5,97],[26.75,88],[27,82],[27.25,80],[27.5,94],[27.75,97],[28,96],[28.25,96],[28.5,101],[28.75,101],[29,111],[29.25,118],[29.5,121],[29.75,133],[30,141],[30.25,141],[30.5,105],[30.75,95],[30.78,97]] },
     2:  { m0:30.78, m1:41.48,
           pace:[[30.78,12.6],[31,12.9],[32,14.5],[33,15.5],[34,15.7],[35,16.1],[36,16.5],[37,16.8],[38,17],[39,17],[40,16.6],[41,15.9],[41.48,15.6]],
-          mph:[[30.78,4.76],[31,4.65],[32,4.14],[33,3.87],[34,3.82],[35,3.73],[36,3.64],[37,3.57],[38,3.53],[39,3.53],[40,3.61],[41,3.77],[41.48,3.85]] },
+          elev:[[30.78,97],[31,102],[31.25,99],[31.5,101],[31.75,104],[32,111],[32.25,142],[32.5,156],[32.75,197],[33,189],[33.25,194],[33.5,183],[33.75,187],[34,196],[34.25,194],[34.5,186],[34.75,180],[35,181],[35.25,162],[35.5,154],[35.75,145],[36,137],[36.25,126],[36.5,119],[36.75,111],[37,108],[37.25,111],[37.5,106],[37.75,102],[38,103],[38.25,100],[38.5,89],[38.75,85],[39,81],[39.25,77],[39.5,72],[39.75,68],[40,64],[40.25,60],[40.5,59],[40.75,60],[41,58],[41.25,57],[41.48,57]] },
     3:  { m0:41.48, m1:44.54,
           pace:[[41.48,15.6],[42,15.4],[43,15.5],[44,16.2],[44.54,16.5]],
-          mph:[[41.48,3.85],[42,3.9],[43,3.87],[44,3.7],[44.54,3.64]] },
+          elev:[[41.48,57],[41.5,57],[41.75,54],[42,52],[42.25,52],[42.5,52],[42.75,52],[43,56],[43.25,55],[43.5,59],[43.75,53],[44,50],[44.25,47],[44.5,39],[44.54,39]] },
     4:  { m0:44.54, m1:47.67,
           pace:[[44.54,16.5],[45,16.9],[46,17.2],[47,17.2],[47.67,17.1]],
-          mph:[[44.54,3.64],[45,3.55],[46,3.49],[47,3.49],[47.67,3.51]] },
+          elev:[[44.54,39],[44.75,40],[45,50],[45.25,61],[45.5,56],[45.75,38],[46,22],[46.25,24],[46.5,39],[46.75,47],[47,44],[47.25,58],[47.5,64],[47.67,60]] },
     5:  { m0:47.67, m1:55.2,
           pace:[[47.67,17.1],[48,17.1],[49,16.6],[50,16.1],[51,15.7],[52,15.9],[53,16.2],[54,16.3],[55,16.1],[55.2,16.1]],
-          mph:[[47.67,3.51],[48,3.51],[49,3.61],[50,3.73],[51,3.82],[52,3.77],[53,3.7],[54,3.68],[55,3.73],[55.2,3.73]] },
+          elev:[[47.67,60],[47.75,56],[48,66],[48.25,83],[48.5,80],[48.75,85],[49,80],[49.25,77],[49.5,79],[49.75,88],[50,101],[50.25,98],[50.5,95],[50.75,97],[51,105],[51.25,113],[51.5,114],[51.75,118],[52,119],[52.25,101],[52.5,85],[52.75,89],[53,85],[53.25,82],[53.5,75],[53.75,50],[54,38],[54.25,38],[54.5,38],[54.75,38],[55,38],[55.2,38]] },
     6:  { m0:55.2, m1:64.65,
           pace:[[55.2,16.1],[56,15.9],[57,15.8],[58,15.6],[59,15.7],[60,16],[61,16.9],[62,18.2],[63,19.4],[64,19.4],[64.65,19]],
-          mph:[[55.2,3.73],[56,3.77],[57,3.8],[58,3.85],[59,3.82],[60,3.75],[61,3.55],[62,3.3],[63,3.09],[64,3.09],[64.65,3.16]] },
+          elev:[[55.2,38],[55.25,38],[55.5,38],[55.75,38],[56,38],[56.25,38],[56.5,38],[56.75,39],[57,39],[57.25,39],[57.5,38],[57.75,37],[58,37],[58.25,37],[58.5,37],[58.75,37],[59,39],[59.25,38],[59.5,38],[59.75,39],[60,38],[60.25,38],[60.5,38],[60.75,38],[61,38],[61.25,43],[61.5,53],[61.75,57],[62,56],[62.25,56],[62.5,52],[62.75,50],[63,65],[63.25,72],[63.5,61],[63.75,62],[64,76],[64.25,105],[64.5,113],[64.65,110]] },
     7:  { m0:64.65, m1:70.94,
           pace:[[64.65,19],[65,18.6],[66,17.5],[67,17],[68,16.7],[69,17.1],[70,18.1],[70.94,19.1]],
-          mph:[[64.65,3.16],[65,3.23],[66,3.43],[67,3.53],[68,3.59],[69,3.51],[70,3.31],[70.94,3.14]] },
+          elev:[[64.65,110],[64.75,110],[65,126],[65.25,133],[65.5,132],[65.75,131],[66,123],[66.25,107],[66.5,67],[66.75,42],[67,41],[67.25,41],[67.5,41],[67.75,41],[68,41],[68.25,41],[68.5,41],[68.75,41],[69,41],[69.25,41],[69.5,41],[69.75,41],[70,41],[70.25,42],[70.5,43],[70.75,47],[70.94,48]] },
     8:  { m0:70.94, m1:91.02,
           pace:[[70.94,19.1],[71,19.1],[72,19.5],[73,18.5],[74,17.1],[75,16],[76,15.7],[77,15.9],[78,16.1],[79,16.5],[80,17],[81,17.9],[82,18.6],[83,18.6],[84,17.8],[85,16.5],[86,15.6],[87,15.3],[88,15.6],[89,15.9],[90,16.1],[91,16.2],[91.02,16.2]],
-          mph:[[70.94,3.14],[71,3.14],[72,3.08],[73,3.24],[74,3.51],[75,3.75],[76,3.82],[77,3.77],[78,3.73],[79,3.64],[80,3.53],[81,3.35],[82,3.23],[83,3.23],[84,3.37],[85,3.64],[86,3.85],[87,3.92],[88,3.85],[89,3.77],[90,3.73],[91,3.7],[91.02,3.7]] },
+          elev:[[70.94,48],[71,48],[71.25,45],[71.5,45],[71.75,46],[72,45],[72.25,42],[72.5,41],[72.75,41],[73,41],[73.25,41],[73.5,41],[73.75,42],[74,45],[74.25,41],[74.5,42],[74.75,48],[75,59],[75.25,58],[75.5,59],[75.75,60],[76,60],[76.25,60],[76.5,59],[76.75,63],[77,58],[77.25,58],[77.5,57],[77.75,57],[78,55],[78.25,54],[78.5,47],[78.75,27],[79,34],[79.25,71],[79.5,114],[79.75,122],[80,135],[80.25,135],[80.5,120],[80.75,116],[81,101],[81.25,97],[81.5,103],[81.75,115],[82,127],[82.25,141],[82.5,149],[82.75,171],[83,170],[83.25,174],[83.5,183],[83.75,186],[84,190],[84.25,188],[84.5,184],[84.75,178],[85,165],[85.25,159],[85.5,159],[85.75,157],[86,156],[86.25,157],[86.5,159],[86.75,166],[87,181],[87.25,171],[87.5,156],[87.75,197],[88,200],[88.25,201],[88.5,204],[88.75,187],[89,181],[89.25,208],[89.5,215],[89.75,218],[90,217],[90.25,194],[90.5,171],[90.75,103],[91,77],[91.02,81]] },
     9:  { m0:91.02, m1:105.48,
           pace:[[91.02,16.2],[92,16.4],[93,16.6],[94,16.8],[95,16.8],[96,16.5],[97,16.2],[98,16],[99,16],[100,16],[101,16.1],[102,16.3],[103,16.7],[104,17.7],[105,18.7],[105.48,19.2]],
-          mph:[[91.02,3.7],[92,3.66],[93,3.61],[94,3.57],[95,3.57],[96,3.64],[97,3.7],[98,3.75],[99,3.75],[100,3.75],[101,3.73],[102,3.68],[103,3.59],[104,3.39],[105,3.21],[105.48,3.12]] },
+          elev:[[91.02,81],[91.25,157],[91.5,184],[91.75,213],[92,215],[92.25,231],[92.5,225],[92.75,215],[93,202],[93.25,159],[93.5,188],[93.75,195],[94,175],[94.25,163],[94.5,154],[94.75,158],[95,177],[95.25,207],[95.5,195],[95.75,204],[96,223],[96.25,211],[96.5,187],[96.75,192],[97,180],[97.25,179],[97.5,173],[97.75,163],[98,161],[98.25,159],[98.5,152],[98.75,145],[99,152],[99.25,141],[99.5,156],[99.75,157],[100,156],[100.25,147],[100.5,117],[100.75,68],[101,89],[101.25,94],[101.5,89],[101.75,105],[102,151],[102.25,169],[102.5,158],[102.75,149],[103,154],[103.25,141],[103.5,144],[103.75,141],[104,143],[104.25,140],[104.5,139],[104.75,141],[105,144],[105.25,134],[105.48,120]] },
     10: { m0:105.48, m1:115.09,
           pace:[[105.48,19.2],[106,19.6],[107,19.5],[108,18.5],[109,17.4],[110,16.7],[111,16.5],[112,16.5],[113,16.7],[114,17.1],[115,17.6],[115.09,17.6]],
-          mph:[[105.48,3.12],[106,3.06],[107,3.08],[108,3.24],[109,3.45],[110,3.59],[111,3.64],[112,3.64],[113,3.59],[114,3.51],[115,3.41],[115.09,3.41]] },
+          elev:[[105.48,120],[105.5,119],[105.75,104],[106,85],[106.25,113],[106.5,110],[106.75,101],[107,118],[107.25,103],[107.5,80],[107.75,106],[108,98],[108.25,91],[108.5,106],[108.75,101],[109,90],[109.25,87],[109.5,92],[109.75,96],[110,106],[110.25,109],[110.5,105],[110.75,96],[111,93],[111.25,96],[111.5,100],[111.75,101],[112,100],[112.25,100],[112.5,98],[112.75,96],[113,71],[113.25,58],[113.5,52],[113.75,63],[114,78],[114.25,73],[114.5,50],[114.75,46],[115,58],[115.09,67]] },
     11: { m0:115.09, m1:121.92,
           pace:[[115.09,17.6],[116,17.7],[117,17.6],[118,17.2],[119,17.1],[120,17.2],[121,17.3],[121.92,17.3]],
-          mph:[[115.09,3.41],[116,3.39],[117,3.41],[118,3.49],[119,3.51],[120,3.49],[121,3.47],[121.92,3.47]] },
+          elev:[[115.09,67],[115.25,76],[115.5,78],[115.75,67],[116,66],[116.25,83],[116.5,79],[116.75,82],[117,83],[117.25,78],[117.5,75],[117.75,79],[118,71],[118.25,73],[118.5,45],[118.75,45],[119,70],[119.25,60],[119.5,74],[119.75,77],[120,29],[120.25,63],[120.5,86],[120.75,93],[121,98],[121.25,101],[121.5,95],[121.75,80],[121.92,88]] },
     12: { m0:121.92, m1:131.04,
           pace:[[121.92,17.3],[122,17.3],[123,17.4],[124,17.3],[125,17.2],[126,17.1],[127,17.3],[128,18],[129,18.7],[130,19.2],[131,19.1],[131.04,19.1]],
-          mph:[[121.92,3.47],[122,3.47],[123,3.45],[124,3.47],[125,3.49],[126,3.51],[127,3.47],[128,3.33],[129,3.21],[130,3.12],[131,3.14],[131.04,3.14]] },
+          elev:[[121.92,88],[122,91],[122.25,89],[122.5,91],[122.75,76],[123,70],[123.25,78],[123.5,78],[123.75,68],[124,76],[124.25,91],[124.5,63],[124.75,80],[125,86],[125.25,80],[125.5,63],[125.75,33],[126,46],[126.25,32],[126.5,16],[126.75,26],[127,16],[127.25,28],[127.5,21],[127.75,20],[128,16],[128.25,12],[128.5,16],[128.75,14],[129,22],[129.25,22],[129.5,25],[129.75,22],[130,26],[130.25,23],[130.5,26],[130.75,27],[131,29],[131.04,30]] },
     13: { m0:131.04, m1:140.29,
           pace:[[131.04,19.1],[132,18.4],[133,17.5],[134,16.5],[135,16.2],[136,16.5],[137,17.5],[138,19.1],[139,19.7],[140,20.1],[140.29,20.1]],
-          mph:[[131.04,3.14],[132,3.26],[133,3.43],[134,3.64],[135,3.7],[136,3.64],[137,3.43],[138,3.14],[139,3.05],[140,2.99],[140.29,2.99]] },
+          elev:[[131.04,30],[131.25,26],[131.5,29],[131.75,29],[132,20],[132.25,28],[132.5,29],[132.75,27],[133,27],[133.25,26],[133.5,23],[133.75,25],[134,29],[134.25,30],[134.5,32],[134.75,59],[135,88],[135.25,92],[135.5,98],[135.75,101],[136,109],[136.25,107],[136.5,106],[136.75,68],[137,58],[137.25,86],[137.5,83],[137.75,97],[138,120],[138.25,143],[138.5,186],[138.75,218],[139,219],[139.25,199],[139.5,164],[139.75,108],[140,89],[140.25,66],[140.29,66]] },
     14: { m0:140.29, m1:152.92,
           pace:[[140.29,20.1],[141,19.8],[142,19.5],[143,19.4],[144,18.8],[145,18.3],[146,17.8],[147,17.6],[148,17.8],[149,18.1],[150,19.4],[151,20.9],[152,22],[152.92,22]],
-          mph:[[140.29,2.99],[141,3.03],[142,3.08],[143,3.09],[144,3.19],[145,3.28],[146,3.37],[147,3.41],[148,3.37],[149,3.31],[150,3.09],[151,2.87],[152,2.73],[152.92,2.73]] },
+          elev:[[140.29,66],[140.5,77],[140.75,75],[141,86],[141.25,116],[141.5,104],[141.75,95],[142,117],[142.25,121],[142.5,71],[142.75,72],[143,119],[143.25,143],[143.5,185],[143.75,186],[144,182],[144.25,158],[144.5,141],[144.75,119],[145,111],[145.25,96],[145.5,95],[145.75,81],[146,95],[146.25,91],[146.5,80],[146.75,98],[147,112],[147.25,124],[147.5,130],[147.75,124],[148,110],[148.25,96],[148.5,90],[148.75,99],[149,99],[149.25,79],[149.5,86],[149.75,82],[150,82],[150.25,68],[150.5,60],[150.75,70],[151,81],[151.25,83],[151.5,78],[151.75,79],[152,81],[152.25,58],[152.5,61],[152.75,82],[152.92,95]] },
     15: { m0:152.92, m1:162.39,
           pace:[[152.92,22],[153,21.9],[154,19.9],[155,17.8],[156,16.8],[157,16.5],[158,16.1],[159,16.1],[160,16.6],[161,17.3],[162,17.6],[162.39,17.5]],
-          mph:[[152.92,2.73],[153,2.74],[154,3.02],[155,3.37],[156,3.57],[157,3.64],[158,3.73],[159,3.73],[160,3.61],[161,3.47],[162,3.41],[162.39,3.43]] },
+          elev:[[152.92,95],[153,96],[153.25,89],[153.5,76],[153.75,73],[154,56],[154.25,62],[154.5,81],[154.75,100],[155,91],[155.25,105],[155.5,118],[155.75,119],[156,122],[156.25,135],[156.5,132],[156.75,142],[157,153],[157.25,146],[157.5,126],[157.75,117],[158,112],[158.25,132],[158.5,142],[158.75,144],[159,147],[159.25,173],[159.5,186],[159.75,163],[160,196],[160.25,188],[160.5,150],[160.75,120],[161,155],[161.25,179],[161.5,182],[161.75,202],[162,215],[162.25,234],[162.39,228]] },
     16: { m0:162.39, m1:174.51,
           pace:[[162.39,17.5],[163,17.5],[164,17.4],[165,17.5],[166,17.6],[167,17.4],[168,17.1],[169,16.7],[170,16.5],[171,16.7],[172,17],[173,17.4],[174,17.8],[174.51,18]],
-          mph:[[162.39,3.43],[163,3.43],[164,3.45],[165,3.43],[166,3.41],[167,3.45],[168,3.51],[169,3.59],[170,3.64],[171,3.59],[172,3.53],[173,3.45],[174,3.37],[174.51,3.33]] },
+          elev:[[162.39,228],[162.5,208],[162.75,210],[163,239],[163.25,260],[163.5,239],[163.75,156],[164,170],[164.25,229],[164.5,256],[164.75,260],[165,252],[165.25,237],[165.5,221],[165.75,244],[166,239],[166.25,241],[166.5,227],[166.75,212],[167,149],[167.25,101],[167.5,118],[167.75,145],[168,143],[168.25,100],[168.5,61],[168.75,77],[169,50],[169.25,43],[169.5,56],[169.75,69],[170,78],[170.25,72],[170.5,56],[170.75,86],[171,107],[171.25,124],[171.5,143],[171.75,147],[172,133],[172.25,122],[172.5,143],[172.75,154],[173,174],[173.25,210],[173.5,215],[173.75,205],[174,191],[174.25,184],[174.5,201],[174.51,199]] },
     17: { m0:174.51, m1:209.67,
           pace:[[174.51,18],[175,18.1],[176,18.2],[177,17.7],[178,16.7],[179,15.7],[180,15],[181,15.1],[182,15.6],[183,16.1],[184,16.3],[185,16.2],[186,16],[187,16],[188,16.2],[189,16.4],[190,16.6],[191,16.7],[192,16.8],[193,17.1],[194,17.3],[195,17.5],[196,17.6],[197,17.5],[198,17.4],[199,17.4],[200,17.3],[201,17.2],[202,17],[203,16.7],[204,16.5],[205,16.4],[206,16.5],[207,16.6],[208,16.8],[209,17],[209.67,17.1]],
-          mph:[[174.51,3.33],[175,3.31],[176,3.3],[177,3.39],[178,3.59],[179,3.82],[180,4],[181,3.97],[182,3.85],[183,3.73],[184,3.68],[185,3.7],[186,3.75],[187,3.75],[188,3.7],[189,3.66],[190,3.61],[191,3.59],[192,3.57],[193,3.51],[194,3.47],[195,3.43],[196,3.41],[197,3.43],[198,3.45],[199,3.45],[200,3.47],[201,3.49],[202,3.53],[203,3.59],[204,3.64],[205,3.66],[206,3.64],[207,3.61],[208,3.57],[209,3.53],[209.67,3.51]] },
+          elev:[[174.51,199],[174.75,167],[175,130],[175.25,137],[175.5,148],[175.75,108],[176,62],[176.25,78],[176.5,88],[176.75,117],[177,139],[177.25,122],[177.5,117],[177.75,80],[178,65],[178.25,52],[178.5,51],[178.75,48],[179,38],[179.25,13],[179.5,1],[179.75,0],[180,15],[180.25,37],[180.5,43],[180.75,66],[181,142],[181.25,186],[181.5,215],[181.75,238],[182,267],[182.25,327],[182.5,313],[182.75,333],[183,373],[183.25,379],[183.5,369],[183.75,300],[184,292],[184.25,289],[184.5,317],[184.75,348],[185,370],[185.25,364],[185.5,342],[185.75,380],[186,387],[186.25,403],[186.5,418],[186.75,419],[187,418],[187.25,420],[187.5,422],[187.75,427],[188,416],[188.25,409],[188.5,406],[188.75,421],[189,435],[189.25,424],[189.5,409],[189.75,414],[190,430],[190.25,429],[190.5,426],[190.75,423],[191,415],[191.25,419],[191.5,420],[191.75,412],[192,397],[192.25,379],[192.5,385],[192.75,414],[193,411],[193.25,393],[193.5,330],[193.75,325],[194,389],[194.25,385],[194.5,415],[194.75,443],[195,455],[195.25,442],[195.5,387],[195.75,360],[196,311],[196.25,309],[196.5,318],[196.75,325],[197,353],[197.25,343],[197.5,349],[197.75,357],[198,400],[198.25,427],[198.5,427],[198.75,445],[199,455],[199.25,481],[199.5,469],[199.75,426],[200,409],[200.25,378],[200.5,313],[200.75,279],[201,336],[201.25,385],[201.5,402],[201.75,386],[202,375],[202.25,411],[202.5,445],[202.75,471],[203,485],[203.25,459],[203.5,435],[203.75,423],[204,445],[204.25,396],[204.5,333],[204.75,337],[205,371],[205.25,420],[205.5,437],[205.75,426],[206,440],[206.25,479],[206.5,505],[206.75,518],[207,504],[207.25,453],[207.5,462],[207.75,430],[208,340],[208.25,307],[208.5,281],[208.75,265],[209,276],[209.25,303],[209.5,313],[209.67,299]] },
     18: { m0:209.67, m1:220.22,
           pace:[[209.67,17.1],[210,17.2],[211,17.3],[212,17.3],[213,17.3],[214,17.4],[215,17.4],[216,17.4],[217,17.4],[218,17.4],[219,17.5],[220,17.3],[220.22,17.2]],
-          mph:[[209.67,3.51],[210,3.49],[211,3.47],[212,3.47],[213,3.47],[214,3.45],[215,3.45],[216,3.45],[217,3.45],[218,3.45],[219,3.43],[220,3.47],[220.22,3.49]] },
+          elev:[[209.67,299],[209.75,293],[210,337],[210.25,368],[210.5,356],[210.75,318],[211,325],[211.25,391],[211.5,418],[211.75,390],[212,396],[212.25,372],[212.5,356],[212.75,342],[213,301],[213.25,219],[213.5,154],[213.75,146],[214,186],[214.25,255],[214.5,305],[214.75,352],[215,371],[215.25,397],[215.5,437],[215.75,470],[216,469],[216.25,452],[216.5,445],[216.75,431],[217,404],[217.25,399],[217.5,377],[217.75,381],[218,361],[218.25,345],[218.5,327],[218.75,329],[219,319],[219.25,319],[219.5,350],[219.75,352],[220,340],[220.22,330]] },
     19: { m0:220.22, m1:230.15,
           pace:[[220.22,17.2],[221,16.9],[222,16.5],[223,16.3],[224,16.5],[225,16.5],[226,16.6],[227,16.3],[228,15.9],[229,15.6],[230,15.5],[230.15,15.6]],
-          mph:[[220.22,3.49],[221,3.55],[222,3.64],[223,3.68],[224,3.64],[225,3.64],[226,3.61],[227,3.68],[228,3.77],[229,3.85],[230,3.87],[230.15,3.85]] },
+          elev:[[220.22,330],[220.25,327],[220.5,305],[220.75,265],[221,272],[221.25,275],[221.5,300],[221.75,262],[222,234],[222.25,205],[222.5,184],[222.75,150],[223,145],[223.25,171],[223.5,214],[223.75,226],[224,220],[224.25,186],[224.5,155],[224.75,146],[225,131],[225.25,124],[225.5,114],[225.75,123],[226,111],[226.25,99],[226.5,102],[226.75,137],[227,153],[227.25,145],[227.5,130],[227.75,137],[228,126],[228.25,100],[228.5,104],[228.75,106],[229,141],[229.25,130],[229.5,91],[229.75,99],[230,86],[230.15,67]] },
     20: { m0:230.15, m1:256.84,
           pace:[[230.15,15.6],[231,15.7],[232,15.9],[233,15.9],[234,15.4],[235,14.3],[236,13.3],[237,13.3],[238,14.5],[239,15.8],[240,16.4],[241,16],[242,15.4],[243,14.8],[244,14.7],[245,14.7],[246,14.7],[247,14.2],[248,13.7],[249,13.6],[250,13.9],[251,14.2],[252,14.6],[253,15.3],[254,16.2],[255,16.9],[256,17.2],[256.84,16.8]],
-          mph:[[230.15,3.85],[231,3.82],[232,3.77],[233,3.77],[234,3.9],[235,4.2],[236,4.51],[237,4.51],[238,4.14],[239,3.8],[240,3.66],[241,3.75],[242,3.9],[243,4.05],[244,4.08],[245,4.08],[246,4.08],[247,4.23],[248,4.38],[249,4.41],[250,4.32],[251,4.23],[252,4.11],[253,3.92],[254,3.7],[255,3.55],[256,3.49],[256.84,3.57]] },
+          elev:[[230.15,67],[230.25,58],[230.5,64],[230.75,106],[231,140],[231.25,131],[231.5,156],[231.75,173],[232,173],[232.25,148],[232.5,150],[232.75,162],[233,172],[233.25,162],[233.5,146],[233.75,146],[234,201],[234.25,204],[234.5,156],[234.75,136],[235,122],[235.25,91],[235.5,78],[235.75,65],[236,86],[236.25,80],[236.5,160],[236.75,145],[237,121],[237.25,128],[237.5,100],[237.75,65],[238,48],[238.25,26],[238.5,37],[238.75,88],[239,123],[239.25,174],[239.5,195],[239.75,218],[240,182],[240.25,142],[240.5,172],[240.75,167],[241,170],[241.25,137],[241.5,127],[241.75,157],[242,180],[242.25,197],[242.5,193],[242.75,197],[243,205],[243.25,204],[243.5,193],[243.75,202],[244,226],[244.25,225],[244.5,201],[244.75,205],[245,213],[245.25,217],[245.5,193],[245.75,232],[246,270],[246.25,286],[246.5,260],[246.75,214],[247,195],[247.25,205],[247.5,160],[247.75,155],[248,179],[248.25,182],[248.5,158],[248.75,180],[249,218],[249.25,237],[249.5,203],[249.75,173],[250,159],[250.25,146],[250.5,165],[250.75,165],[251,157],[251.25,172],[251.5,172],[251.75,180],[252,201],[252.25,234],[252.5,237],[252.75,216],[253,191],[253.25,211],[253.5,218],[253.75,200],[254,185],[254.25,169],[254.5,160],[254.75,155],[255,157],[255.25,148],[255.5,136],[255.75,134],[256,126],[256.25,129],[256.5,135],[256.75,146],[256.84,143]] },
     21: { m0:256.84, m1:270.4,
           pace:[[256.84,16.8],[257,16.7],[258,16.2],[259,16],[260,16.6],[261,17.6],[262,18.4],[263,19],[264,19.6],[265,19.7],[266,18.8],[267,17.9],[268,17.5],[269,18.2],[270,18.9],[270.4,18.9]],
-          mph:[[256.84,3.57],[257,3.59],[258,3.7],[259,3.75],[260,3.61],[261,3.41],[262,3.26],[263,3.16],[264,3.06],[265,3.05],[266,3.19],[267,3.35],[268,3.43],[269,3.3],[270,3.17],[270.4,3.17]] },
+          elev:[[256.84,143],[257,146],[257.25,155],[257.5,152],[257.75,156],[258,167],[258.25,170],[258.5,172],[258.75,174],[259,183],[259.25,161],[259.5,154],[259.75,145],[260,126],[260.25,108],[260.5,84],[260.75,63],[261,60],[261.25,71],[261.5,79],[261.75,82],[262,89],[262.25,125],[262.5,90],[262.75,60],[263,66],[263.25,86],[263.5,70],[263.75,54],[264,45],[264.25,30],[264.5,17],[264.75,24],[265,39],[265.25,63],[265.5,61],[265.75,57],[266,68],[266.25,90],[266.5,99],[266.75,71],[267,56],[267.25,51],[267.5,81],[267.75,107],[268,107],[268.25,80],[268.5,59],[268.75,43],[269,52],[269.25,69],[269.5,76],[269.75,81],[270,87],[270.25,83],[270.4,79]] },
   };
 
   function fmtHour(h){ var x=((Math.round(h))%24+24)%24, ap=x<12?'am':'pm', d=x%12; if(d===0)d=12; return d+ap; }
   function fmtIn(v){ return (+v).toFixed(2).replace(/0+$/,'').replace(/\.$/,'')+' in'; }
+  function fmtClock(h){ var x=((h%24)+24)%24, hh=Math.floor(x), mm=Math.round((x-hh)*60);
+    if(mm===60){hh++;mm=0;} var ap=(hh%24)<12?'am':'pm', d=hh%12; if(d===0)d=12;
+    return d+':'+(mm<10?'0':'')+mm+ap; }
+  function fmtMile(m){ return 'mile '+(Math.round(m*10)/10); }
   function fmtPace(v){ var m=Math.floor(v), sec=Math.round((v-m)*60); if(sec===60){m++;sec=0;} return m+':'+(sec<10?'0':'')+sec; }
   function niceStep(span, want){                 // a round-ish tick step giving ~`want` ticks
     var raw=span/Math.max(1,want), p=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)), n=raw/p;
@@ -1904,34 +1939,80 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   var CHARTMODE = 'wx';                          // 'wx' | 'pace' | 'mph'
   var CHARTMODES = {
     wx:   { label:'Weather', unit:'\u00B0F',      color:'#f5820b', extras:true,
-            xstep:1,  xfmt:fmtHour, yfmt:function(v){return v;},
+            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, tipX:fmtMile, yfmt:function(v){return v;},
             yaxis:function(lo,hi){ return [Math.floor((lo-1)/2)*2, Math.ceil((hi+1)/2)*2, 4]; } },
-    pace: { label:'Pace',    unit:'min/mi',     color:'#8e44ad', extras:false,
-            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, yfmt:fmtPace,
+    pace: { label:'Pace',    unit:'min/mi',     color:'#7b2cbf', extras:false,
+            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, tipX:fmtMile, yfmt:fmtPace,
             yaxis:function(lo,hi){ var a=Math.floor(lo-0.5), b=Math.ceil(hi+0.5); return [a,b,niceStep(b-a,4)]; } },
-    mph:  { label:'Speed',   unit:'mph',        color:'#1b7f5a', extras:false,
-            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, yfmt:function(v){return (Math.round(v*10)/10);},
-            yaxis:function(lo,hi){ var a=Math.floor((lo-0.15)*2)/2, b=Math.ceil((hi+0.15)*2)/2; return [a,b,niceStep(b-a,4)]; } }
+    elev: { label:'Elevation', unit:'ft',       color:'#2a9d8f', extras:false,
+            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, tipX:fmtMile, yfmt:function(v){return Math.round(v);},
+            yaxis:function(lo,hi){ var a=Math.min(0,Math.floor((lo-10)/10)*10), b=Math.ceil((hi+10)/10)*10; return [a,b,niceStep(b-a,4)]; } },
+    // Everything at once. The three series have three different units (\u00B0F, min/mi, ft) so they
+    // cannot share a numbered axis -- each is stretched to its own min/max inside the box and the y
+    // numbers are dropped. The legend carries the real range of each, so nothing is unreadable.
+    // He walks the ELEVATION line: it is the only one that is literally ground.
+    all:  { label:'All',     unit:'',           color:'#2a9d8f', extras:false, noY:true,
+            xstep:0,  xfmt:function(m){return Math.round(m)+' mi';}, yfmt:function(v){return v;},
+            yaxis:function(){ return [0,1,1]; } }
   };
     
+  // stretch a series onto 0..1 (8% padding top and bottom) and remember what it really spanned
+  function normSeries(a){
+    var v=a.map(function(p){return p[1];});
+    var lo=Math.min.apply(null,v), hi=Math.max.apply(null,v), d=(hi-lo)||1;
+    var out=a.map(function(p){ return [p[0], 0.08+0.84*(p[1]-lo)/d, p[1]]; });   // [x, stretched, real]
+    out.lo=lo; out.hi=hi; return out;
+  }
+  // The weather obs are clocked in hours. Lay them across the leg's miles so every tab shares
+  // one x-axis -- toggling then never slides the walker sideways. The hour rides along in slot
+  // [2] so the tooltip can still say when. Same time-tracks-distance assumption the walker
+  // already makes on every leg (dispCur is linear in chart progress).
+  function hoursToMiles(series, h0, h1, m0, m1){
+    var hs=(h1-h0)||1;
+    return series.map(function(p){ return [m0+(p[0]-h0)/hs*(m1-m0), p[1], p[0]]; });
+  }
   function makeLegData(legIdx){
-    // Pace / speed legs: x is the mile of the walk, so the walker's position on the line
-    // tracks the mile counter. No dew point or precip in these modes.
+    var W=WALKDATA[legIdx];
+
+    // ---- All: elevation is the line he walks; temperature and pace ride along on their own scales
+    if(CHARTMODE==='all' && W && W.elev && LEGDATA[legIdx]){
+      var L=LEGDATA[legIdx], hrs=L.temp.map(function(p){return p[0];});
+      var h0=Math.min.apply(null,hrs), h1=Math.max.apply(null,hrs);
+      var tempMi=hoursToMiles(L.temp, h0, h1, W.m0, W.m1);
+      var e=normSeries(W.elev), t=normSeries(tempMi), pc=normSeries(W.pace);
+      // the formatter takes the step: a leg where the temperature only moves half a degree still
+      // gets two ticks, it just needs a decimal to keep them apart
+      var whole=function(v,st){ return st<1 ? (Math.round(v*10)/10) : Math.round(v); };
+      return { date:L.date||'', station:'', start:W.m0, end:W.m1, pts:e, dew:[], precip:[],
+               overlays:[ { pts:t,  color:'#f5820b', dash:'14 9', name:'Temp',
+                              fmt:function(d){ return Math.round(d[2])+'\u00B0F \u00b7 '+fmtMile(d[0]); } },
+                          { pts:pc, color:'#7b2cbf', dash:'2 9',  name:'Pace',
+                              fmt:function(d){ return fmtPace(d[2])+' min/mi \u00b7 '+fmtMile(d[0]); } } ],
+               // one axis per series, in the series' colour, each printing its own real numbers
+               axes:[ { color:'#2a9d8f', lo:e.lo,  hi:e.hi,  fmt:whole,   unit:'ft'     },
+                      { color:'#f5820b', lo:t.lo,  hi:t.hi,  fmt:whole,   unit:'\u00B0F' },
+                      { color:'#7b2cbf', lo:pc.lo, hi:pc.hi, fmt:fmtPace, unit:'min/mi' } ],
+               selfName:'Elevation',
+               dotFmt:function(d){ return Math.round(d[2])+' ft \u00b7 '+fmtMile(d[0]); } };
+    }
+
+    // Pace / speed / elevation legs: x is the mile of the walk, so the walker's position on the
+    // line tracks the mile counter. No dew point or precip in these modes.
     if(CHARTMODE!=='wx'){
-      var W=WALKDATA[legIdx];
       if(W && W[CHARTMODE] && W[CHARTMODE].length>1){
         return { date:'', station:'', start:W.m0, end:W.m1, pts:W[CHARTMODE], dew:[], precip:[] };
       }
       // no walk data for this leg -> fall through to the weather chart rather than blank out
     }
-    if(LEGDATA[legIdx]){
-      var L=LEGDATA[legIdx];
-      var hrs=L.temp.map(function(p){return p[0];});
-      var start=(L.start!=null)?L.start:Math.min.apply(null,hrs);
-      var end=(L.end!=null)?L.end:Math.max.apply(null,hrs);
-      return { date:L.date||'', station:L.station||'', start:start, end:end,
-               pts:L.temp, dew:L.dew||dewFromTemp(L.temp,legIdx),
-               precip:(L.precip||[]).filter(function(p){return p[1]==='T'||p[1]>0;}) };
+    if(LEGDATA[legIdx] && W){
+      var LW=LEGDATA[legIdx];
+      var hh=LW.temp.map(function(p){return p[0];});
+      var a0=(LW.start!=null)?LW.start:Math.min.apply(null,hh);
+      var a1=(LW.end!=null)?LW.end:Math.max.apply(null,hh);
+      return { date:'', station:LW.station||'', start:W.m0, end:W.m1,
+               pts:hoursToMiles(LW.temp, a0, a1, W.m0, W.m1),
+               dew:hoursToMiles(LW.dew||dewFromTemp(LW.temp,legIdx), a0, a1, W.m0, W.m1),
+               precip:hoursToMiles((LW.precip||[]).filter(function(p){return p[1]==='T'||p[1]>0;}), a0, a1, W.m0, W.m1) };
     }
     // ---- placeholder: varying start/end, half-hourly temps, sparse fake precip ----
     var start = 9 + (legIdx % 4)*0.5;            // 9:00 .. 10:30
@@ -1967,7 +2048,19 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var allT=pts.map(function(p){return p[1];}).concat(dew.map(function(p){return p[1];}));
     var _yr=M.yaxis(Math.min.apply(null,allT), Math.max.apply(null,allT));
     var minT=_yr[0], maxT=_yr[1], yStep=_yr[2];
-    var VBW=1000, VBH=600, mL=55, mR=140, mT=50, mB=140, bY=VBH-mB;
+    // mT leaves room for the date ABOVE the plot; mB is now only deep enough for the x labels,
+    // which is what pulls the toggle and legend up against the bottom of the chart.
+    // SW halves every stroke on desktop. Mobile keeps full weight: the same viewBox is drawn
+    // into roughly half the width there, so a halved stroke would land near a hairline.
+    var SW = MQ.matches ? 1 : 0.5;
+    var w = function(n){ return (n*SW).toFixed(2); };
+    // 'All': one coloured axis per series. Desktop stacks all of them into the SAME right
+    // margin every other mode uses, so the plot never narrows -- they pack tight instead.
+    // Mobile shows only the first (the line he walks): three columns of numbers cannot fit a
+    // phone without shrinking them past reading size.
+    var multiY = !!(data.axes && data.axes.length);
+    // mT no longer holds a date line -- just enough headroom for the All unit captions.
+    var VBW=1000, VBH=508, mL=55, mR=140, mT=34, mB=74, bY=VBH-mB;
     var axisX = mirror ? mR : (VBW-mR);
     var farX  = mirror ? (VBW-mL) : mL;
     function tX(h){ return farX + ((h-start)/span)*(axisX-farX); }
@@ -1981,15 +2074,49 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var xStep = M.xstep || niceStep(span, 5);
     var xticks='';
     for(var hh=Math.ceil((start-1e-6)/xStep)*xStep; hh<=end+1e-6; hh+=xStep){ var xx=tX(hh).toFixed(1);
-      xticks+='<line x1="'+xx+'" y1="'+bY+'" x2="'+xx+'" y2="'+(bY+12)+'" stroke="#000" stroke-width="4"/>'+
+      xticks+='<line x1="'+xx+'" y1="'+bY+'" x2="'+xx+'" y2="'+(bY+12)+'" stroke="#000" stroke-width="'+w(4)+'"/>'+
               '<text x="'+xx+'" y="'+(bY+46)+'" font-size="22.5" text-anchor="middle" fill="#000">'+M.xfmt(hh)+'</text>'; }
     var yticks='', tAnc=mirror?'end':'start', tOff=mirror?-24:24, cOff=mirror?-12:12;
-    for(var t=Math.ceil(minT/yStep)*yStep; t<maxT+1e-9; t+=yStep){ var yy=tY(t).toFixed(1);
-      yticks+='<line x1="'+axisX+'" y1="'+yy+'" x2="'+(axisX+cOff)+'" y2="'+yy+'" stroke="#000" stroke-width="4"/>'+
-              '<text x="'+(axisX+tOff)+'" y="'+(parseFloat(yy)+10)+'" font-size="22.5" text-anchor="'+tAnc+'" fill="#000">'+M.yfmt(t)+'</text>'; }
+    var out=mirror?-1:1;                            // "away from the plot" in x
+    var yaxisLines='', grid='';
+    var gridAt=function(yy){                        // faint rule across the plot at a tick
+      grid+='<line x1="'+Math.min(farX,axisX)+'" y1="'+yy+'" x2="'+Math.max(farX,axisX)+'" y2="'+yy+'" stroke="#e4e4e4" stroke-width="'+w(2.5)+'"/>';
+    };
+    if(multiY){
+      // Each series was stretched onto 0..1 by normSeries (lo->0.08, hi->0.92). Undo that per
+      // series so every axis prints its own real numbers, in the series' own colour.
+      var AXF = MQ.matches ? 22.5 : 15;              // desktop packs three columns; mobile gets one
+      var TK = 7, LOFF = 3, GAP = 4;
+      var axList = MQ.matches ? data.axes.slice(0,1) : data.axes;
+      var ax = axisX;
+      axList.forEach(function(A,ai){
+        var st = niceStep(A.hi-A.lo, 4), ticks=[];
+        for(var v=Math.ceil(A.lo/st)*st; v<=A.hi+1e-9; v+=st) ticks.push(v);
+        var labs = ticks.map(function(v){ return String(A.fmt(v,st)); });
+        var wide = 0;
+        labs.forEach(function(l){ wide = Math.max(wide, l.length*AXF*0.56); });
+        yaxisLines += '<line x1="'+ax.toFixed(1)+'" y1="'+mT+'" x2="'+ax.toFixed(1)+'" y2="'+bY+'" stroke="'+A.color+'" stroke-width="'+w(5)+'"/>';
+        ticks.forEach(function(v,i){
+          var yy = tY(0.08+0.84*(v-A.lo)/((A.hi-A.lo)||1)).toFixed(1);
+          if(ai===0) gridAt(yy);                    // rules follow the first axis only; three sets would be a thicket
+          yaxisLines += '<line x1="'+ax.toFixed(1)+'" y1="'+yy+'" x2="'+(ax+out*TK).toFixed(1)+'" y2="'+yy+'" stroke="'+A.color+'" stroke-width="'+w(4)+'"/>'+
+                        '<text class="axlab" x="'+(ax+out*(TK+LOFF)).toFixed(1)+'" y="'+(parseFloat(yy)+AXF*0.36).toFixed(1)+'" font-size="'+AXF+'" text-anchor="'+tAnc+'" fill="'+A.color+'">'+labs[i]+'</text>';
+        });
+        yaxisLines += '<text class="axlab" x="'+(ax+out*(TK+LOFF)).toFixed(1)+'" y="'+(mT-11)+'" font-size="'+(AXF*0.95).toFixed(1)+'" text-anchor="'+tAnc+'" fill="'+A.color+'" font-weight="700">'+A.unit+'</text>';
+        ax += out*(TK+LOFF+wide+GAP);
+      });
+    } else {
+      yaxisLines = '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="'+w(5)+'"/>';
+      for(var t=Math.ceil(minT/yStep)*yStep; t<maxT+1e-9; t+=yStep){ var yy=tY(t).toFixed(1);
+        gridAt(yy);
+        yticks+='<line x1="'+axisX+'" y1="'+yy+'" x2="'+(axisX+cOff)+'" y2="'+yy+'" stroke="#000" stroke-width="'+w(4)+'"/>'+
+                '<text x="'+(axisX+tOff)+'" y="'+(parseFloat(yy)+10)+'" font-size="22.5" text-anchor="'+tAnc+'" fill="#000">'+M.yfmt(t)+'</text>'; }
+    }
 
     // precip bars (one per hour); 'T' = trace, shown as a "T" with no bar
-    var hourW=Math.abs(tX(start+1)-tX(start)), barW=hourW*0.34;
+    // bar width follows the sample spacing; "one hour" is meaningless on a mile axis
+    var stepX=(pts.length>1)?(span/(pts.length-1)):(span/8);
+    var hourW=Math.abs(tX(start+stepX)-tX(start)), barW=Math.max(5, hourW*0.34);
     var precipRef=0.5; precip.forEach(function(p){ if(typeof p[1]==='number' && p[1]>precipRef) precipRef=p[1]; });
     var maxBarPx=(bY-mT)*0.45, precipBars='', precipLabels='';
     precip.forEach(function(p){
@@ -2003,44 +2130,108 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       precipBars+='<rect x="'+(xc-barW/2).toFixed(1)+'" y="'+yTop.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="#3a8dde" fill-opacity="0.6" rx="2"/>';
       precipLabels+='<text x="'+xc.toFixed(1)+'" y="'+(yTop-8).toFixed(1)+'" font-size="19" text-anchor="middle" fill="#0e6ba8" font-weight="700">'+fmtIn(p[1])+'</text>'; });
     
-    var tempDots=pts.map(function(d){ return '<circle cx="'+tX(d[0]).toFixed(1)+'" cy="'+tY(d[1]).toFixed(1)+'" r="4.5" fill="'+M.color+'"/>'; }).join('');
+    var overlays=data.overlays||[];
+    var overPoly=overlays.map(function(o){
+      var pp=o.pts.map(function(d){return tX(d[0]).toFixed(1)+','+tY(d[1]).toFixed(1);}).join(' ');
+      return '<polyline points="'+pp+'" fill="none" stroke="'+o.color+'" stroke-width="'+w(4.5)+'" stroke-dasharray="'+o.dash+'" stroke-linejoin="round" stroke-linecap="round"/>';
+    }).join('');
+    // Dots: hoverable, and thinned so they never fuse into a tube. The elevation series is
+    // 4 points per mile, which on a 35-mile leg is 140 points across ~800px -- at r=4.5 they
+    // would touch. The LINE keeps every point; only the dots step.
+    function mkDots(series, colour, fmt){
+      var step = Math.max(1, Math.ceil(series.length/26)), keep=[];
+      for(var di=0; di<series.length; di++){
+        if(di%step!==0 && di!==series.length-1) continue;
+        // the endpoint is pinned to the stop and can land a hair from its neighbour (m1=91.02
+        // next to mile 91) -- two dots inside a pixel, two tooltips saying the same thing.
+        if(keep.length && Math.abs(tX(series[di][0])-tX(series[keep[keep.length-1]][0])) < 15){
+          if(di===series.length-1) keep[keep.length-1]=di;   // at the stop, the stop wins
+          continue;
+        }
+        keep.push(di);
+      }
+      return keep.map(function(i){
+        var d=series[i], cx=tX(d[0]).toFixed(1), cy=tY(d[1]).toFixed(1);
+        return '<g class="cdot" data-v="'+fmt(d).replace(/"/g,'&quot;')+'">'+
+                 '<circle class="cdot-hit" cx="'+cx+'" cy="'+cy+'" r="17"/>'+
+                 '<circle class="cdot-dot" cx="'+cx+'" cy="'+cy+'" r="4.5" fill="'+colour+'"/>'+
+               '</g>';
+      }).join('');
+    }
+    var dotFmt = data.dotFmt || function(d){
+      return M.yfmt(d[1]) + (M.unit ? ' '+M.unit : '') + ' \u00b7 ' + (M.tipX || M.xfmt)(d[0])
+             + (d.length>2 ? ' \u00b7 '+fmtClock(d[2]) : '');   // weather keeps its clock time here
+    };
+    var tempDots = mkDots(pts, M.color, dotFmt);
+    var dewDots = dew.length ? mkDots(dew, '#0e6ba8', function(d){
+      return 'dew ' + M.yfmt(d[1]) + ' \u00B0F \u00b7 ' + fmtMile(d[0])
+             + (d.length>2 ? ' \u00b7 '+fmtClock(d[2]) : '');
+    }) : '';
+    // the dashed lines get dots too, so their numbers are reachable as well
+    var overDots = overlays.map(function(o){ return mkDots(o.pts, o.color, o.fmt); }).join('');
     var midY=((mT+bY)/2).toFixed(1), unitX=mirror?(axisX-100):(axisX+100);
     var subHTML = wx
-      ? (data.station ? '<div class="chart-station">Weather Station:<br>'+data.station+'</div>' : '')
-      : '<div class="chart-station">Mile '+start.toFixed(1)+' \u2013 '+end.toFixed(1)+' of '+TOTAL.toFixed(1)+
-        (CHARTMODE==='pace' ? '<br>lower is faster' : '<br>higher is faster')+'</div>';
+      ? (data.station ? '<div class="chart-station">Weather Station: '+data.station+'</div>' : '')
+      : '<div class="chart-station">Mile '+start.toFixed(1)+' \u2013 '+end.toFixed(1)+'</div>';
     var legendHTML = wx
       ? '<div class="chart-legend">'+
           '<span class="li"><span class="sw-line"></span>Temperature</span>'+
           '<span class="li"><span class="sw-dash"></span>Dew point</span>'+
           '<span class="li"><span class="sw-box"></span>Precip</span>'+
         '</div>'
-      : '<div class="chart-legend">'+
-          '<span class="li"><span class="sw-line" style="border-top-color:'+M.color+'"></span>'+
-          (CHARTMODE==='pace'?'Moving pace':'Moving speed')+'</span>'+
-        '</div>';
+      : (overlays.length
+        ? '<div class="chart-legend">'+
+            '<span class="li"><span class="sw-line" style="border-top-color:'+M.color+'"></span>'+
+            (data.selfName||'')+'</span>'+
+            overlays.map(function(o){
+              return '<span class="li"><span class="sw-line" style="border-top-color:'+o.color+
+                     ';border-top-style:dashed"></span>'+o.name+'</span>';
+            }).join('')+
+          '</div>'
+        : '<div class="chart-legend">'+
+            '<span class="li"><span class="sw-line" style="border-top-color:'+M.color+'"></span>'+
+            ({pace:'Moving pace', elev:'Elevation'}[CHARTMODE]||M.label)+'</span>'+
+          '</div>');
     var toggleHTML='<div class="chart-toggle" role="group" aria-label="Choose what this chart shows">'+
-      ['wx','pace','mph'].map(function(k){
+      ['wx','pace','elev','all'].map(function(k){
         return '<button type="button" class="ct-btn'+(k===CHARTMODE?' on':'')+'" data-cmode="'+k+'"'+
                (k===CHARTMODE?' aria-pressed="true"':' aria-pressed="false"')+'>'+CHARTMODES[k].label+'</button>';
       }).join('')+'</div>';
     host.innerHTML =
       '<svg viewBox="0 0 '+VBW+' '+VBH+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;overflow:visible;font-family:DM Sans,sans-serif;font-weight:400">'+
+      grid +
       precipBars +
-      '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
-      '<line x1="'+axisX+'" y1="'+mT+'" x2="'+axisX+'" y2="'+bY+'" stroke="#000" stroke-width="5"/>'+
+      '<line x1="'+Math.min(farX,axisX)+'" y1="'+bY+'" x2="'+Math.max(farX,axisX)+'" y2="'+bY+'" stroke="#000" stroke-width="'+w(5)+'"/>'+
+      yaxisLines +
       xticks + yticks +
-      '<text x="'+unitX+'" y="'+midY+'" font-size="22.5" text-anchor="middle" fill="#000">'+M.unit+'</text>'+
-      '<text x="'+((farX+axisX)/2).toFixed(1)+'" y="'+(bY+88)+'" font-size="23" text-anchor="middle" fill="#000" font-weight="700">'+(data.date||'')+'</text>'+
-      (dewPoly?'<polyline points="'+dewPoly+'" fill="none" stroke="#0e6ba8" stroke-width="5" stroke-dasharray="11 8" stroke-linejoin="round" stroke-linecap="round"/>':'')+
-      '<polyline points="'+poly+'" fill="none" stroke="'+M.color+'" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>'+
-      tempDots + precipLabels +
+      ((M.unit && !multiY)?'<text x="'+unitX+'" y="'+midY+'" font-size="22.5" text-anchor="middle" fill="#000">'+M.unit+'</text>':'')+
+      (dewPoly?'<polyline points="'+dewPoly+'" fill="none" stroke="#0e6ba8" stroke-width="'+w(5)+'" stroke-dasharray="11 8" stroke-linejoin="round" stroke-linecap="round"/>':'')+
+      overPoly +
+      '<polyline points="'+poly+'" fill="none" stroke="'+M.color+'" stroke-width="'+w(5.5)+'" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dewDots + overDots + tempDots + precipLabels +
       '</svg>' + toggleHTML + legendHTML + subHTML;
     host.querySelectorAll('.ct-btn').forEach(function(b){
       b.addEventListener('click', function(){ setChartMode(b.getAttribute('data-cmode')); });
     });
+    // one tooltip per chart, parked in the host (which the line below makes a containing block)
+    host.style.position='relative';
+    var tipEl=document.createElement('div'); tipEl.className='chart-tip'; host.appendChild(tipEl);
+    host.querySelectorAll('.cdot').forEach(function(gd){
+      function show(){
+        var r=gd.getBoundingClientRect(), hr=host.getBoundingClientRect();
+        tipEl.textContent=gd.getAttribute('data-v');
+        tipEl.style.left=(r.left+r.width/2-hr.left)+'px';
+        tipEl.style.top=(r.top+r.height/2-hr.top-9)+'px';
+        tipEl.classList.add('on');
+      }
+      function hide(){ tipEl.classList.remove('on'); }
+      gd.addEventListener('mouseenter',show);
+      gd.addEventListener('mouseleave',hide);
+      gd.addEventListener('touchstart',show,{passive:true});
+      gd.addEventListener('touchend',hide,{passive:true});
+    });
     var svgEl=host.querySelector('svg');
-    if(MQ.matches){ var tscale=window.matchMedia('(max-width:1100px) and (max-height:600px)').matches?.9:1.5; svgEl.querySelectorAll('text').forEach(function(t){
+    if(MQ.matches){ var tscale=window.matchMedia('(max-width:1100px) and (max-height:600px)').matches?.9:1.5; svgEl.querySelectorAll('text:not(.axlab)').forEach(function(t){
       var fs=parseFloat(t.getAttribute('font-size'))||0;
       if(fs) t.setAttribute('font-size',(fs*tscale).toFixed(2));
     }); }
@@ -2327,6 +2518,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var toX   = goingRight ? rightX : leftX;
       var currentX = lerp(fromX, toX, segFrac);
       var flip = goingRight ? 'none' : 'scaleX(-1)';
+      var wkOrigin = '50% 100%';   // feet while he walks the line; '50% 50%' for the flips below
 
       // Line-walk on every leg: wait for the line to reach his feet, walk it, then spin + glide to the next rest spot.
       var ci = legChart[segIdx];
@@ -2384,6 +2576,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
             currentY = startY + H * (1.5 * t * t - 0.5 * t);
             walkerVis = 1;
             flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (1080 * t).toFixed(1) + 'deg)';
+            wkOrigin = '50% 50%';                  // tumbling: spin about his middle, not his feet
             if (t >= 1) active = segIdx + 1;
           } else if (rise < legRise + SPIN_PX) {
             var t1 = (rise - legRise) / SPIN_PX;
@@ -2391,6 +2584,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
             currentY = lerp(sE.y - DISP, flyApexY, t1);
             walkerVis = clamp(1 - t1, 0, 1);
             flip = (mir ? 'scaleX(-1) ' : '') + 'rotate(' + (720 * t1).toFixed(1) + 'deg)';
+            wkOrigin = '50% 50%';                  // tumbling: spin about his middle, not his feet
           } else {
             var t2 = clamp((rise - legRise - SPIN_PX) / DOWN_PX, 0, 1);
             var gravityT = t2 * t2;
@@ -2411,6 +2605,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         wk.style.top = currentY + 'px';
       }
       wk.style.transform = flip;
+      wk.style.transformOrigin = wkOrigin;
       wk.style.opacity = walkerVis;
     }
 
