@@ -403,6 +403,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-source{display:none;position:absolute;right:7px;bottom:7px;max-width:88%;text-align:right;font-family:'DM Sans',sans-serif;font-size:.5rem;font-weight:600;line-height:1.25;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none;z-index:70}
 #walkerFig {
   position: fixed;
+  transform-origin: 50% 100%;   /* pivot at his feet, not his waist. The walker box is placed
+                                   bottom-centre on the line (currentX = pt.x - dw/2,
+                                   currentY = pt.y - DISP), so 50% 100% IS the point he stands on. */
   z-index: 101;
   background-repeat: no-repeat;
   pointer-events: none;
