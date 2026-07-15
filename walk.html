@@ -1408,7 +1408,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var STROKE_BASE_VB = (svgMap.viewBox && svgMap.viewBox.baseVal && svgMap.viewBox.baseVal.width) || 3796;
     function setStroke(){
       var w = (svgMap.viewBox && svgMap.viewBox.baseVal) ? svgMap.viewBox.baseVal.width : STROKE_BASE_VB;
-      poly.setAttribute('stroke-width', (5 * (w / STROKE_BASE_VB)).toFixed(2));
+      poly.setAttribute('stroke-width', (7.5 * (w / STROKE_BASE_VB)).toFixed(2));
     }
     setStroke();
 
