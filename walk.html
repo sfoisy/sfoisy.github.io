@@ -274,9 +274,9 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   /* Sits under the in-flow stand-in (NOT inside .j-map, which is visibility:hidden during the
      ride-up), matching its 75vw column so the arrow points straight up at the map. */
   .map-tap-hint{display:block;width:75vw;margin:.45rem auto 0;text-align:left;
-    font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:1.24rem;line-height:1.3;
+    font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.87rem;line-height:1.3;
     color:#000;pointer-events:none;opacity:1;transition:opacity .25s}
-  .map-tap-hint .mth-arrow{font-style:normal;font-weight:700;font-size:1.56rem;line-height:1}
+  .map-tap-hint .mth-arrow{font-style:normal;font-weight:700;font-size:1.09rem;line-height:1}
 }
 @media(max-width:1100px) and (max-height:600px){.map-tap-hint{display:none}}   /* stand-in is hidden here too */
 .map-town{position:absolute;top:100%;left:0;right:0;margin-top:.55rem;text-align:center;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;background:hsl(210,88%,42%);padding:.5rem .6rem;border-radius:.6rem;letter-spacing:.01em;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.45);opacity:0;transition:opacity .3s}
@@ -350,32 +350,31 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
       if(img.dataset && img.dataset.src && !img.src) img.src=img.dataset.src;
       if(!img.complete) pending.push(img);
     });
-    // 2) Converge. Require TWO stable passes: a single match can just mean nothing rendered yet
-    //    during the gap, which would strand us early.
-    var tries=0, lastY=null, stable=0;
-    function step(){
+    // 2) Converge. Start moving immediately (so the tap feels responsive), but do NOT let the
+    //    loop conclude until every image above has actually landed. The old version raced a 700ms
+    //    timer against ~45 CDN images: on desktop they won, on a phone they didn't, the loop ran
+    //    against a still-collapsed page, hit two matching passes during a network gap, called it
+    //    "converged" and stopped short of the target.
+    var tries=0, lastY=null, stable=0, waiting=pending.length;
+    pending.forEach(function(img){
+      var go=function(){ waiting--; stable=0; };   // an image landed => layout moved => not settled
+      img.addEventListener('load', go, {once:true});
+      img.addEventListener('error', go, {once:true});
+    });
+    (function step(){
       var y=targetY();
       // NOTE: the bare window.scrollTo(0,y) inherits html{scroll-behavior:smooth} and ANIMATES,
-      // so every pass measured a page still in flight and the loop sailed past the target. The
-      // object form with an explicit behavior overrides that CSS — this must stay 'auto'.
+      // so every pass measured a page still in flight. The object form with an explicit behavior
+      // overrides that CSS — this must stay 'auto'.
       if(mobile) window.scrollTo({top:y, behavior:'auto'});
       else window.scrollTo({top:y, behavior: tries===0 ? 'smooth' : 'auto'});
       tries++;
       if(lastY!==null && Math.abs(y-lastY)<=2) stable++; else stable=0;
       lastY=y;
-      if(tries<12 && stable<2) setTimeout(step, mobile ? 200 : 260);
-    }
-    var started=false;
-    function begin(){ if(started) return; started=true; step(); }
-    if(pending.length){
-      var done=0;
-      pending.forEach(function(img){
-        var go=function(){ if(++done>=pending.length) begin(); };
-        img.addEventListener('load', go, {once:true});
-        img.addEventListener('error', go, {once:true});
-      });
-      setTimeout(begin, 700);   // safety net: never wait on an image that stalls
-    } else begin();
+      var settled = (stable>=3 && waiting<=0);
+      if(tries<30 && !settled) setTimeout(step, 200);   // hard cap ~6s for a stalled image
+    })();
+  });
   });
 })();
 </script>
@@ -1985,6 +1984,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
+  var hintFrozen=false;
   var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null}, boxPos=null;
   function setBox(prop,val){ var v=(val==='')?'':Math.round(val); if(boxGeom[prop]===v) return; boxGeom[prop]=v; mapBoxEl.style[prop]=(v==='')?'':(v+'px'); }
   function setPos(p){ if(boxPos===p) return; boxPos=p; mapBoxEl.style.position=p; }
@@ -2283,10 +2283,24 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var _tOp = (cpAnchor<0) ? 0 : (instantScrollFactor*clamp((window.scrollY-cpAnchor)/250,0,1));
       document.querySelector('.map-town').style.opacity = _tOp;
       // instantScrollFactor is 0 through the whole ride-up and only climbs once the map pins and
-      // starts rotating. The hint is in-flow, so once the map goes fixed it would drift up and
-      // away on its own — retire it fast (gone by ~17% of the rotation) rather than let that show.
+      // starts rotating. The hint is in-flow, so the instant the map goes fixed the hint would
+      // keep scrolling away on its own — freeze it to the viewport at that moment so it just
+      // fades in place instead of sliding out from under the map.
       var _hint = document.getElementById('mapTapHint');
-      if(_hint) _hint.style.opacity = clamp(1 - instantScrollFactor*6, 0, 1);
+      if(_hint){
+        if(instantScrollFactor > 0 && !hintFrozen){
+          var _hr = _hint.getBoundingClientRect();
+          _hint.style.position='fixed';
+          _hint.style.top=_hr.top+'px'; _hint.style.left=_hr.left+'px';
+          _hint.style.width=_hr.width+'px'; _hint.style.margin='0';
+          hintFrozen=true;
+        } else if(instantScrollFactor <= 0 && hintFrozen){
+          _hint.style.position=''; _hint.style.top=''; _hint.style.left='';
+          _hint.style.width=''; _hint.style.margin='';
+          hintFrozen=false;
+        }
+        _hint.style.opacity = clamp(1 - instantScrollFactor*6, 0, 1);
+      }
     } else {
       document.querySelector('.map-town').style.opacity = instantScrollFactor;   // desktop unchanged
     }
