@@ -320,6 +320,46 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .map-info:hover .map-info-pop{opacity:1;visibility:visible;transform:translateX(0)}
 .map-info-close{display:none}
 .map-info-close{display:none}
+
+/* ===== info badge on a figure ==========================================
+   Wrap any image in <div class="fig-shot"> and drop a .fig-info beside it.
+   Click to open -- not hover, which strands touch devices. */
+.fig-shot{position:relative}
+.fig-shot>img{display:block}
+.fig-info{position:absolute;top:.5rem;left:.5rem;z-index:9}
+.fig-info-btn{width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;
+  font:italic 700 1.05rem 'Playfair Display',serif;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;line-height:1;transition:background .15s,transform .15s,opacity .22s}
+.fig-info-btn:hover{background:rgba(0,0,0,.85);transform:scale(1.08)}
+.fig-info-btn:focus-visible{outline:3px solid #f5820b;outline-offset:2px}
+.fig-info-pop{position:absolute;top:calc(100% + .5rem);left:0;width:min(310px,84vw);z-index:10;
+  background:#fff;color:#000;border:1px solid rgba(0,0,0,.42);border-radius:.7rem;padding:.95rem 1.05rem;
+  box-shadow:0 14px 38px -10px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.5);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;line-height:1.55;text-align:left;
+  opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:opacity .18s,transform .18s,visibility .18s}
+.fig-info.open .fig-info-pop{opacity:1;visibility:visible;transform:translateY(0)}
+/* Pointer devices: the badge fades in while you're over the picture, and the card opens on hover --
+   no click anywhere. This is pure CSS on purpose: the lightbox CLONES the badge, and a clone can't
+   inherit JS listeners, so anything that depends on the script would be dead in there.
+   Touch has no hover, so the media query leaves the badge visible and the click handler in charge. */
+@media (hover:hover) and (pointer:fine){
+  .fig-shot .fig-info-btn{opacity:0}
+  .fig-shot:hover .fig-info-btn,
+  .fig-info:focus-within .fig-info-btn{opacity:1}
+  .fig-info:hover .fig-info-pop,
+  .fig-info:focus-within .fig-info-pop{opacity:1;visibility:visible;transform:translateY(0)}
+  /* invisible bridge across the gap, or the hover drops on the way down to the card */
+  .fig-info-pop::before{content:'';position:absolute;bottom:100%;left:0;width:100%;height:.6rem}
+  .fig-info-close{display:none}                 /* nothing to close: move the mouse away */
+}
+.fig-info-pop p{margin:0 0 .6rem}
+.fig-info-pop p:last-child{margin:0}
+.fig-info-pop a{color:hsl(0,88%,42%);text-decoration:underline}
+.fig-info-pop q{quotes:'\201C' '\201D';font-style:italic}
+.fig-info-close{position:absolute;top:.3rem;right:.45rem;border:none;background:none;cursor:pointer;
+  font:400 1.15rem/1 'DM Sans',sans-serif;color:#666;padding:.15rem .25rem}
+.fig-info-close:hover{color:#000}
 @media(min-width:1101px){.map-cap-mobile{display:none}}
 @media(max-width:1100px){
   .map-cap-mobile{display:none}                 /* remove MODIS overlay on mobile */
@@ -574,6 +614,77 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     margin:2.5rem auto;                           /* KNOB: space above and below each image */
   }
   .j-fig .j-card-img{ width:100%; float:none; clear:none; margin:0; }
+
+  /* ===== 3D image carousel ================================================
+     A <figure class="j-fig j-carousel"> spanning the full text column. Three
+     slides on screen: one flat in the middle, two turned away at the sides.
+     It loops -- whatever leaves one edge comes back in on the other. */
+  .j-carousel{
+    --jc-w:42%;            /* KNOB: centre slide width, as % of the text column */
+    width:100%;            /* full body-text width, overriding .j-fig's 45% */
+    max-width:100%;
+    /* Match the gap a <br><br> makes in the body copy. At desktop `p{margin:0}` wins, so that
+       gap is purely the empty line box: 1.79rem, plus 0.28rem of half-leading each side = 2.35rem.
+       Subtract the leading that is already there (the paragraph's below, the caption's and the
+       next paragraph's above) and these are what is left. */
+    margin:2.07rem auto 1.96rem;
+  }
+  .j-carousel .jc-stage{
+    position:relative;
+    perspective:900px;                          /* KNOB: lower = more dramatic 3D */
+    perspective-origin:50% 50%;
+    overflow:hidden;                            /* slides leave through the edges */
+    /* No vertical padding: it only existed to keep the CENTRE slide's drop shadow out of the
+       clip, and the centre has no shadow now. The side slides render at 58% (scale .72 x the
+       900/(900+220) perspective squeeze), so they sit 21% of the height inside the frame and
+       their shadow -- which scales down with them -- has room. */
+    padding:0;
+  }
+  /* Invisible copy of slide 1: every real slide is absolutely positioned, so without
+     this the figure would have no height. Deliberately NOT lazy -- a lazy image that
+     never enters the viewport never loads, and the figure would stay collapsed. */
+  .j-carousel .jc-sizer{ display:block; width:var(--jc-w); margin:0 auto; visibility:hidden; pointer-events:none; }
+  .j-carousel .jc-item{
+    position:absolute; left:50%; top:50%; width:var(--jc-w);
+    height:auto; border-radius:.75rem; background:#fff; opacity:0; cursor:pointer;
+    box-shadow:0 14px 34px rgba(0,0,0,.30);
+    backface-visibility:hidden; will-change:transform,opacity;
+    transition:transform .72s cubic-bezier(.25,.8,.28,1), opacity .72s, box-shadow .72s;
+  }
+  /* Before the script runs (or if it never does) show slide 1, centred. */
+  .j-carousel:not([data-jc-ready]) .jc-first{ opacity:1; transform:translate(-50%,-50%); }
+  .j-carousel .jc-item.is-on{ cursor:default; box-shadow:none; }   /* centre sits flat, no shadow */
+  .j-carousel .jc-nav{
+    position:absolute; top:50%; z-index:30; transform:translate(-50%,-50%);
+    border:0; background:none; padding:.4rem; cursor:pointer; color:#000;
+    font:400 2rem/1 'DM Sans',sans-serif;
+    /* bare arrows, but haloed so they stay readable if a slide creeps under them */
+    filter:drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 1px 2px rgba(0,0,0,.35));
+    transition:transform .18s, opacity .2s;
+  }
+  .j-carousel .jc-prev{ left:25% }               /* KNOB: sits in the gap between side and centre */
+  .j-carousel .jc-next{ left:75% }
+  .j-carousel .jc-nav:hover{ transform:translate(-50%,-50%) scale(1.28) }
+  .j-carousel .jc-nav:active{ transform:translate(-50%,-50%) scale(.94) }
+  .j-carousel .jc-nav:focus-visible{ outline:3px solid #f5820b; outline-offset:2px; border-radius:.3rem }
+  .j-carousel:focus{ outline:none }
+  .j-carousel:focus-visible{ outline:3px solid #f5820b; outline-offset:6px; border-radius:.5rem }
+  .j-carousel .jc-dots{ display:flex; justify-content:center; gap:.5rem; margin-top:.9rem }
+  .j-carousel .jc-dot{
+    width:.45rem; height:.45rem; padding:0; border:0; border-radius:50%;
+    background:#d2d2d2; cursor:pointer; transition:background .3s, transform .3s;
+  }
+  .j-carousel .jc-dot.on{ background:#000; transform:scale(1.4) }
+  /* Caption: 80% of the body-text column, centred block, centred text. No longer tied to where
+     the side slides land, so the carousel knobs can move without dragging this along. */
+  .j-carousel figcaption{ width:80%; margin-left:auto; margin-right:auto; text-align:center; }
+  @media (max-width:1100px){
+    .j-carousel{ --jc-w:46% }
+    .j-carousel .jc-nav{ font-size:1.5rem }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .j-carousel .jc-item{ transition:opacity .2s }
+  }
   .j-beat{
     display:flex; align-items:flex-start; clear:both;
     gap:2rem;                                     /* KNOB: gutter between image and text */
@@ -597,8 +708,11 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 #imgLightbox.open{ display:flex; }
 #imgLightboxFig{ display:flex; flex-direction:column; align-items:center;
   max-width:92%; max-height:90%; margin:0; }
+#imgLightboxShot{ position:relative; display:flex; min-height:0; max-width:100%; }
 #imgLightboxImg{ max-width:100%; min-height:0; object-fit:contain; border-radius:.5rem;
   box-shadow:0 20px 60px -10px rgba(0,0,0,.6); }
+/* the badge is cloned in here when the source figure has one, so it survives going full-screen */
+#imgLightboxShot .fig-info-pop{ width:min(340px,40vw); }
 #imgLightboxCap{ margin-top:1rem; font-family:'DM Sans',sans-serif; font-style:italic;
   font-weight:400; font-size:.95rem; line-height:1.5; color:#000; text-align:center;
   max-width:60ch; }
@@ -725,7 +839,18 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         <h3 class="stop-head">Preface</h3>
         <div class="j-beat">
         <figure class="j-fig">
-          <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/hour_0.jpg" alt="Andrew Williams and Syl Foisy co-hosting the opening of the Weather &amp; Climate Livestream">
+          <div class="fig-shot">
+            <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/hour_0.jpg" alt="Andrew Williams and Syl Foisy co-hosting the opening of the Weather &amp; Climate Livestream">
+            <div class="fig-info">
+              <button class="fig-info-btn" type="button" aria-expanded="false" aria-label="About this photo">i</button>
+              <div class="fig-info-pop" role="dialog" aria-label="About this photo">
+                <button class="fig-info-close" type="button" aria-label="Close">&times;</button>
+                <p>A few days after the stream, CBC's <i>What On Earth</i> ran a segment on it, and pulled a clip from some of the early banter Andrew and I had. Specifically, a moment 14:23 into the recording, where I say: <q>Shoutout Accuweather, shoutout Penn State. Let's get some 100 emojis in the chat for 100 hours!!</q></p>
+                <p>Needless to say, I've heard this one said back to me endless times by the friends I shared the clip with.</p>
+                <p><a href="https://www.cbc.ca/listen/live-radio/1-429-what-on-earth/clip/16151044-trumps-slashing-climate-action.-theyre-fighting-back" target="_blank" rel="noopener">Listen to the segment &rarr;</a></p>
+              </div>
+            </div>
+          </div>
           <figcaption>Andrew and me co-hosting hours 0-3 of the 100 from last year's Weather &amp; Climate Livestream!&nbsp;</figcaption>
         </figure>
         <p class="ph-note" style="text-align:left;">On April 25th, I received a message on my phone unlike most. Andrew Williams, whom I fondly <a href="https://www.youtube.com/live/CcWR6CdJnvQ?si=gTucbALIanjXz7ig" target="_blank" rel="noopener">co-hosted</a> the opening of the <a href="https://wclivestream.com/" target="_blank" rel="noopener">Weather &amp; Climate Livestream</a> with last year (and who many have rumored to be my long-lost brother :), had noted in the organizing chat a few alarming facts:<br></p>
@@ -742,8 +867,17 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
         </figure>
         -->
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">With these facts in mind, Andrew suggested the need for a followup to last year's 100 hour Weather and Climate&nbsp;<a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">livestream</a>, which&nbsp;had been seen by nearly 200,000 humans, and resulted in 30,000 calls to members of Congress detailing why climate and weather science is worth funding.<br><br>After a few organizing meetings discussing the urgency of taking action again, I pitched walking from NYC to DC as a way to generate publicity, half jokingly. For some years now, I have been obsessed with the pedestrianism craze that overtook the US in the 1870s, where folks would routinely walk across the country, and around race tracks up to 500 miles in a single week. To my surprise, the idea generated some excitement...<br><br>The organizing team graciously helped shape the idea into a physical manifestation of the Livestream's goal; instead of calling Congress, I would hand deliver real paper letters to members of Congress.&nbsp;And to make matters more epic, a livestream would still be planned to allow for maximum participation from the scientific community, coinciding with the final 50 hours of my walk to the Capitol...<br><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ... a completely and utterly unreal opportunity.<br><br>Thrilled, I spent a good deal of time preparing and imagining what such a walk could shape up to be; how to best craft a narrative that would complement delivering letters to Congress. While an amazing crew of organizers were helping shape details for the 50-hour Livestream logistics (shout-out Andrew Williams, Jonah Bloch-Johnson, Paulina Czarnecki, Stella Heflin, and Clare Singer!),&nbsp;letter collection (shout-out Virginia Schutte!), and letter handoff strategy (shout-out Haley Crim and Marc Alessi!), the walk itself was largely up to me to plan.<br><br>After chatting with some lovely friends and family, I settled on three main objectives:<br><br>&nbsp; &nbsp; &bull;&nbsp;Talk with as many weather and climate scientists as possible about the work they do<br>&nbsp; &nbsp; &bull;&nbsp;Talk with as many non-scientists as possible about the work they value<br>&nbsp; &nbsp; &bull;&nbsp;Have merch in hand to thank those who talk with me<br><br>With these objectives set, I then began the actual planning process. To begin, I reached out to 92 scientists along my planned route (a route in which my dear friend JLD, who walked across the country in 2017 helped me plan), of which I secured 16 in-person meetings. Emails were tricky, as I had to provide the time I would be arriving... something that relied heavily on the assumption my walk wouldn't be delayed! My solution was to provide a 2 hour window, a Whatsapp groupchat for day-of coordinating, and the disclaimer that the time was subject to my trip not being delayed.&nbsp;<br><br>I then purchased -- in part through a generous anonymous donation -- 500 stickers, 25 vintage pins, and 20 embroidered hats. Having all this merch under my watch for a few days before I left for DC felt extremely powerful, I won't lie. :D</p>
-        <figure class="j-fig">
-          <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="Weather and Climate Livestream merch: embroidered hat, t-shirt, two sticker sizes, and a vintage pin">
+        <figure class="j-fig j-carousel">
+          <div class="jc-stage">
+            <img class="jc-sizer" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="" aria-hidden="true">
+            <img class="jc-item jc-first" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="Weather and Climate Livestream merch: embroidered hat, t-shirt, two sticker sizes, and a vintage pin">
+            <img class="jc-item" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="The embroidered hat, close up">
+            <img class="jc-item" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="Stickers in both sizes">
+            <img class="jc-item" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="The vintage pin">
+            <button class="jc-nav jc-prev" type="button" aria-label="Previous image">&#10094;</button>
+            <button class="jc-nav jc-next" type="button" aria-label="Next image">&#10095;</button>
+          </div>
+          <div class="jc-dots"></div>
           <figcaption>To build hype in the organizing chat, I edited a fancy looking merch photo once they had all arrived at my apartment in Manhattan. Embroidered hats, t-shirts, stickers, and vintage pins to go around!!</figcaption>
         </figure>
         <p class="ph-note" style="text-align:left;margin-top:1rem;">As the organizing pieces around the walk began to fall into place, I realized another very important factor regarding all the ambition going into this project: I couldn't do it alone. Incredibly, two fellow Livestream organizers volunteered to join me on the full journey:&nbsp;<a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a>, a climate science postdoc and hall of fame video maker (@zentouro), and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a>, an award-winning freelance science communicator (@vgwschutte). Miriam even volunteered to bring a full-amenities, tricked out, camping van (that would quickly become known as the "content bus") where we could cultivate walk and Livestream related content along the 12 days...<br><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...I remember thinking: Is this real life?!</p>
@@ -2890,7 +3024,9 @@ document.addEventListener('play', function (e) {
 <div id="imgLightbox" aria-hidden="true">
   <button id="imgLightboxClose" aria-label="Close">×</button>
   <figure id="imgLightboxFig">
-    <img id="imgLightboxImg" alt="">
+    <div class="fig-shot" id="imgLightboxShot">
+      <img id="imgLightboxImg" alt="">
+    </div>
     <figcaption id="imgLightboxCap"></figcaption>
   </figure>
 </div>
@@ -2901,8 +3037,17 @@ document.addEventListener('play', function (e) {
   var boxImg=document.getElementById('imgLightboxImg');
   var closeBtn=document.getElementById('imgLightboxClose');
   var boxCap=document.getElementById('imgLightboxCap');
-  function open(src,alt,cap){
+  var boxShot=document.getElementById('imgLightboxShot');
+  function open(src,alt,cap,info){
     if(!DESKTOP()) return;
+    var old=boxShot.querySelector('.fig-info'); if(old) old.remove();
+    if(info){                                   // carry the figure's ⓘ into the overlay
+      var c=info.cloneNode(true);
+      c.classList.remove('open');
+      c.removeAttribute('data-wired');            // cloneNode copies attributes; without this the
+      boxShot.appendChild(c);                     // clone looks already-wired and gets skipped
+      if(window.initFigInfo) window.initFigInfo();   // wire it for touch (hover is handled in CSS)
+    }
     var map=document.querySelector('.j-map');
     var mr=map?map.getBoundingClientRect():null;
     box.style.right=mr?(window.innerWidth-mr.left)+'px':'0px';   // right edge lands on the map's left edge
@@ -2912,7 +3057,12 @@ document.addEventListener('play', function (e) {
     document.body.style.overflow='hidden';                       // freeze the page so the map holds still while open
     setTimeout(function(){ document.addEventListener('click', docClose); }, 0);   // arm "click anywhere closes" next tick
   }
-  function docClose(e){ if(e.target!==boxImg) close(); }   // any click that isn't the picture itself closes
+  // any click that isn't the picture -- or the ⓘ card living on top of it -- closes
+  function docClose(e){
+    if(e.target===boxImg) return;
+    if(e.target.closest && e.target.closest('#imgLightboxShot .fig-info')) return;
+    close();
+  }
   function close(){
     box.classList.remove('open'); box.setAttribute('aria-hidden','true');
     boxImg.src=''; document.body.style.overflow='';
@@ -2922,7 +3072,8 @@ document.addEventListener('play', function (e) {
     img.addEventListener('click',function(){
       var fig=img.closest('.j-fig');
       var cap=fig?fig.querySelector('figcaption'):null;
-      open(img.currentSrc||img.src, img.alt, cap?cap.textContent:'');
+      var info=fig?fig.querySelector('.fig-info'):null;
+      open(img.currentSrc||img.src, img.alt, cap?cap.textContent:'', info);
     });
   });
   closeBtn.addEventListener('click',close);
@@ -3348,6 +3499,157 @@ document.addEventListener('play', function (e) {
       }
     })();
   });
+})();
+</script>
+<script>
+/* ===== 3D image carousel =================================================
+   Three slides on screen: one flat in the middle, two turned away at the sides.
+   It LOOPS -- whatever leaves one edge comes back in on the other.
+
+   How the loop works. Each slide's slot is its offset from the centre, folded to
+   the shortest way round:  d = ((i-idx) mod n), and if d > n/2 then d -= n. Step
+   forward and every d drops by one, so a slide walks 1 -> 0 -> -1 -> -2 ... until
+   it passes the antipode, where d flips sign and it reappears on the far side.
+   That flip is a real jump, so it MUST land on a hidden slot -- otherwise the
+   slide visibly flies back across the frame. With 3 slides showing, that needs
+   n >= 5: at n=4 the slide sitting at -1 IS the antipode and it leaps while you
+   are looking straight at it. So a short set is cloned until there are at least
+   5 nodes (four photos -> two passes, 8 nodes). Only 3 are ever on screen, so a
+   clone never turns up next to its twin.
+   The rest falls out of that: a jump between two hidden slots skips the
+   transition (nobody sees it), and every visible move is exactly one slot, so it
+   just animates. */
+(function(){
+  var MIN=5;                 // fewest nodes that keep the wrap off screen
+  // Slot 0 is the centre, 1 its neighbours, 2 the hidden wings the loop passes through.
+  // SPREAD is in % of the STAGE, so it holds its shape if you change --jc-w.
+  // SPREAD and DEPTH are FRACTIONS OF THE STAGE WIDTH, and the perspective is set from it too.
+  // They used to be absolute px (perspective:900, translateZ:-220) while the slides were sized in
+  // %, so the whole 3D effect got stronger as the column narrowed -- the side slides measured
+  // 0.37 of the centre at a 450px column and 0.29 at 1100px. Same CSS, different window, different
+  // picture. With every length pinned to the column, the projection has no absolute term left and
+  // the ratio holds at 0.52 everywhere.
+  var PERSP=3.0;                      // perspective, x the stage width
+  var SPREAD=[0,.38,.62], ROT=[0,42,52], DEPTH=[0,.10,.18], SCALE=[1,.81,.56], FADE=[1,.34,0];
+  function build(fig){
+    if(fig.dataset.jcReady) return;
+    var stage=fig.querySelector('.jc-stage'),
+        dots=fig.querySelector('.jc-dots'),
+        prev=fig.querySelector('.jc-prev'),
+        next=fig.querySelector('.jc-next');
+    if(!stage||!dots||!prev||!next) return;
+    var uniq=[].slice.call(fig.querySelectorAll('.jc-item'));
+    var count=uniq.length;
+    if(count<2) return;                                  // a lone image is left alone
+    for(var r=1; r<Math.ceil(MIN/count); r++)            // clone up to MIN nodes
+      uniq.forEach(function(el){
+        var c=el.cloneNode(true); c.classList.remove('jc-first'); stage.insertBefore(c, prev);
+      });
+    fig.dataset.jcReady='1';
+    var items=[].slice.call(fig.querySelectorAll('.jc-item')), n=items.length, idx=0;
+    var jcw=parseFloat(getComputedStyle(fig).getPropertyValue('--jc-w'))||42;
+    var sw=1;
+    function measure(){                                  // re-read on resize: every length is relative to this
+      sw=stage.getBoundingClientRect().width||900;
+      stage.style.perspective=(PERSP*sw).toFixed(0)+'px';
+    }
+    for(var k=0;k<count;k++)(function(k){
+      var b=document.createElement('button');
+      b.type='button'; b.className='jc-dot';
+      b.setAttribute('aria-label','Image '+(k+1)+' of '+count);
+      b.addEventListener('click', function(){ toImage(k); });
+      dots.appendChild(b);
+    })(k);
+    function fold(i){ var d=((i-idx)%n+n)%n; return d>n/2 ? d-n : d; }
+    function hidden(x){ return Math.abs(x)>=2; }
+    function paint(el,d,instant){
+      var ad=Math.min(Math.abs(d),2), sgn=d<0?-1:1;
+      // SPREAD is a fraction of the stage; jcw is a PERCENT. Convert once, or the shift collapses.
+      var shift=sgn*SPREAD[ad]/(jcw/100)*100;           // stage fraction -> % of the slide's own width
+      if(instant) el.style.transition='none';
+      // rotateY(+t) sends a slide's RIGHT edge away and brings its LEFT edge forward, so the sign
+      // is sgn (not -sgn): that puts each side slide's NEAR, taller edge against the centre one.
+      el.style.transform='translate(-50%,-50%) translateX('+shift.toFixed(2)+'%) translateZ('+(-DEPTH[ad]*sw).toFixed(1)+'px) rotateY('+(sgn*ROT[ad])+'deg) scale('+SCALE[ad]+')';
+      el.style.opacity=FADE[ad];
+      el.style.zIndex=20-ad;
+      el.style.pointerEvents=(ad===0||FADE[ad]===0)?'none':'auto';
+      el.classList.toggle('is-on', d===0);
+      el.setAttribute('aria-hidden', d===0?'false':'true');
+      if(instant){ void el.offsetWidth; el.style.transition=''; }
+    }
+    function render(first){
+      items.forEach(function(el,i){
+        var d=fold(i), was=el._d;
+        // a leap between two hidden slots is the wrap: do it instantly, nobody sees it
+        var instant=first || (was!==undefined && Math.abs(d-was)>1 && hidden(d) && hidden(was));
+        el._d=d;
+        paint(el,d,instant);
+      });
+      [].forEach.call(dots.children,function(b,k){ b.classList.toggle('on', k===idx%count); });
+    }
+    function go(j){ idx=((j%n)+n)%n; render(false); }
+    function toImage(t){                                 // hop to the nearest copy of image t
+      var best=idx, bd=1e9;
+      for(var j=0;j<n;j++) if(j%count===t){ var d=Math.abs(fold(j)); if(d<bd){ bd=d; best=j; } }
+      go(best);
+    }
+    prev.addEventListener('click', function(){ go(idx-1); });
+    next.addEventListener('click', function(){ go(idx+1); });
+    items.forEach(function(el,i){ el.addEventListener('click', function(){ go(i); }); });
+    fig.tabIndex=0;
+    fig.addEventListener('keydown', function(e){
+      if(e.key==='ArrowLeft'){ go(idx-1); e.preventDefault(); }
+      else if(e.key==='ArrowRight'){ go(idx+1); e.preventDefault(); }
+    });
+    var x0=null;
+    fig.addEventListener('touchstart', function(e){ x0=e.touches[0].clientX; }, {passive:true});
+    fig.addEventListener('touchend', function(e){
+      if(x0===null) return;
+      var dx=e.changedTouches[0].clientX-x0; x0=null;
+      if(Math.abs(dx)>40) go(idx+(dx<0?1:-1));
+    }, {passive:true});
+    measure(); render(true);                             // first paint: no animation
+    var rt; window.addEventListener('resize', function(){ // depth is in px, so it must be re-derived
+      clearTimeout(rt); rt=setTimeout(function(){ measure(); render(true); }, 120);
+    });
+  }
+  function boot(){ document.querySelectorAll('.j-carousel').forEach(build); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+/* ===== info badges on figures ===========================================
+   Click to open, click anywhere else (or Esc) to close, one open at a time. */
+(function(){
+  function boot(){
+    var all=[].slice.call(document.querySelectorAll('.fig-info'));
+    if(!all.length) return;
+    all=all.filter(function(x){ if(x.dataset.wired) return false; x.dataset.wired='1'; return true; });
+    if(!all.length) return;
+    var every=[].slice.call(document.querySelectorAll('.fig-info'));   // close ALL, clones included
+    function shut(x){ x.classList.remove('open'); var b=x.querySelector('.fig-info-btn'); if(b) b.setAttribute('aria-expanded','false'); }
+    function shutAll(){ [].forEach.call(document.querySelectorAll('.fig-info'), shut); }
+    all.forEach(function(info){
+      var btn=info.querySelector('.fig-info-btn'), close=info.querySelector('.fig-info-close');
+      if(!btn) return;
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var open=info.classList.contains('open');
+        shutAll();                               // only ever one at a time
+        if(!open){ info.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
+      });
+      if(close) close.addEventListener('click', function(e){ e.stopPropagation(); shut(info); btn.focus(); });
+      info.addEventListener('click', function(e){ e.stopPropagation(); });   // clicks inside stay inside
+    });
+    if(!wired){                                  // register the page-level listeners exactly once
+      wired=true;                                // (NOT keyed off window.initFigInfo -- that is
+      document.addEventListener('click', shutAll);   //  assigned before the first boot() runs, so
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape') shutAll(); });
+    }
+  }
+  var wired=false;
+  window.initFigInfo=boot;                       // the lightbox calls this to wire its clone
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
 </script>
 </body></html>
