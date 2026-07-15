@@ -1528,14 +1528,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
           var mw=document.querySelector('.mapwrap');
           if(mw && flLbl.parentNode!==mw && parseFloat(flLbl.style.opacity||'0')===0) mw.appendChild(flLbl);
         }, 750);
-      }, 1300);                                  // KNOB: hold. 1300 + 700 fade = ~2s on screen total
+      }, 1000);                                  // KNOB: hold. 1000 + 700 fade = ~1.7s on screen total
     }
     function touchEval(t){
       var cx=t.clientX, cy=t.clientY;
       var el=document.elementFromPoint(cx,cy);
       var mapFrame=document.querySelector('.mapwrap')||svgMap;
       if(!el || !mapFrame.contains(el)) return false;
-      if(el.closest && el.closest('.pin')) return false;      // pin taps keep their own behaviour
+      if(el.closest && el.closest('.pin, .map-info, .map-flow-info, .map-info-pop')) return false;   // controls, not map
       var loc=clientToUser(cx,cy);
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
@@ -1618,6 +1618,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var cx=t.clientX, cy=t.clientY;
       var el=document.elementFromPoint(cx,cy);
       if(!el || !mfEl.contains(el)) return false;
+      if(el.closest && el.closest('.map-flow-info, .map-info, .map-info-pop')) return false;   // its ⓘ, not the map
       var loc=mfClientToUser(cx,cy);
       var hit=-1;
       for(var i=0;i<testPaths.length;i++){ if(testPaths[i].isPointInFill(loc)){ hit=i; break; } }
@@ -1984,7 +1985,6 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
   // makes the crop "jump" behind the composited map transform.
-  var hintFrozen=false;
   var mapBoxEl=document.querySelector('.j-map'), boxGeom={width:null,height:null,top:null,right:null}, boxPos=null;
   function setBox(prop,val){ var v=(val==='')?'':Math.round(val); if(boxGeom[prop]===v) return; boxGeom[prop]=v; mapBoxEl.style[prop]=(v==='')?'':(v+'px'); }
   function setPos(p){ if(boxPos===p) return; boxPos=p; mapBoxEl.style.position=p; }
@@ -2282,24 +2282,14 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(mq.matches){
       var _tOp = (cpAnchor<0) ? 0 : (instantScrollFactor*clamp((window.scrollY-cpAnchor)/250,0,1));
       document.querySelector('.map-town').style.opacity = _tOp;
-      // instantScrollFactor is 0 through the whole ride-up and only climbs once the map pins and
-      // starts rotating. The hint is in-flow, so the instant the map goes fixed the hint would
-      // keep scrolling away on its own — freeze it to the viewport at that moment so it just
-      // fades in place instead of sliding out from under the map.
+      // Retire the hint during the last stretch of the ride-up, so it is already gone BEFORE the
+      // map pins and starts rotating. Here the hint and the map are still travelling together, so
+      // it reads naturally — unlike fading it after the pin, when the map has stopped and the
+      // in-flow hint visibly slides out from under it.
       var _hint = document.getElementById('mapTapHint');
       if(_hint){
-        if(instantScrollFactor > 0 && !hintFrozen){
-          var _hr = _hint.getBoundingClientRect();
-          _hint.style.position='fixed';
-          _hint.style.top=_hr.top+'px'; _hint.style.left=_hr.left+'px';
-          _hint.style.width=_hr.width+'px'; _hint.style.margin='0';
-          hintFrozen=true;
-        } else if(instantScrollFactor <= 0 && hintFrozen){
-          _hint.style.position=''; _hint.style.top=''; _hint.style.left='';
-          _hint.style.width=''; _hint.style.margin='';
-          hintFrozen=false;
-        }
-        _hint.style.opacity = clamp(1 - instantScrollFactor*6, 0, 1);
+        var _dist = (mapSlideTop==null) ? 0 : (mapSlideTop - 10);   // px left before it pins (PIN_TOP=10)
+        _hint.style.opacity = clamp(_dist/160, 0, 1);               // KNOB: 160 = fade runway
       }
     } else {
       document.querySelector('.map-town').style.opacity = instantScrollFactor;   // desktop unchanged
