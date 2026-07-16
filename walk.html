@@ -321,13 +321,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   .map-tap-hint .mth-arrow{font-style:normal;font-weight:700;font-size:1.09rem;line-height:1}
 }
 @media(max-width:1100px) and (max-height:600px){.map-tap-hint{display:none}}   /* stand-in is hidden here too */
-/* Desktop twin of .map-tap-hint. Same format and voice; only the verb and the arrow change.
-   The verb, because the region script keys highlighting off the DEVICE, not the window: a mouse
-   gets hover, only real touch gets tap. The arrow, because the desktop map is pinned up and to
-   the RIGHT rather than sitting directly above this line, so it points that way instead. */
+/* Desktop twin of .map-tap-hint. Same format and voice; only the verb changes, because the region
+   script keys highlighting off the DEVICE, not the window: a mouse gets hover, only real touch gets
+   tap. Clicking the map on desktop does nothing, so it must not say "click".
+   It hangs off the bottom of the fixed .j-map box, in the same slot .map-town uses, which means it
+   inherits the map's JS-driven width and tracks it as it shrinks -- no geometry of its own. It
+   SHARES that slot with the town pill, so the script fades it out over the first fifth of the intro
+   scroll, well before the pill is legible. */
 .map-hover-hint{display:none}
 @media(min-width:1101px){
-  .map-hover-hint{display:block;margin:.9rem 0 0;text-align:left;   /* KNOB: .9rem = gap above */
+  .map-hover-hint{display:block;position:absolute;top:100%;left:0;right:0;margin-top:.55rem;
+    text-align:left;
     font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.87rem;line-height:1.3;
     color:#000;pointer-events:none}
   .map-hover-hint .mth-arrow{font-style:normal;font-weight:700;font-size:1.09rem;line-height:1}
@@ -931,7 +935,6 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
           <button class="map-flow-info" aria-label="About this satellite image">i</button>
         </div>
         <div class="map-tap-hint" id="mapTapHint" aria-hidden="true"><span class="mth-arrow">&#8593;</span> Click the map to highlight states/water features!</div>
-        <div class="map-hover-hint" aria-hidden="true"><span class="mth-arrow">&#8599;</span> Cursor over the map to highlight states/water features!</div>
       </div>
 
 <!-- KNOB: --stop1-offset = how far down the page Stop 1 (Central Park) lands. Bigger = lower. Was 55vh. -->
@@ -1454,6 +1457,7 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     </div>
     <img id="mapLogo" alt="The Weather &amp; Climate Livestream">
     <div class="map-town" id="townName">Manhattan, NY</div>
+    <div class="map-hover-hint" id="mapHoverHint" aria-hidden="true"><span class="mth-arrow">&#8593;</span> Cursor over the map to highlight states/water features!</div>
     <div class="map-caption" id="mapCaption"><span class="cap-full">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</span><span class="cap-mobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span></div>
   </div>
 </div>
@@ -2913,6 +2917,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       }
     } else {
       document.querySelector('.map-town').style.opacity = instantScrollFactor;   // desktop unchanged
+      // Same retirement as the phone's hint, for the same reason: the desktop map RIDES UP the page
+      // before it pins at PIN_TOP (76). Fade over the last stretch of that ride so the hint is gone
+      // before the map reaches the top -- and before the town pill, which shares this slot, arrives.
+      // instantScrollFactor was the wrong clock: it tracks the shrink, not the climb.
+      var _hov = document.getElementById('mapHoverHint');
+      if(_hov){
+        var _hd = (mapSlideTop==null) ? 0 : (mapSlideTop - 76);   // px left before it pins
+        _hov.style.opacity = clamp(_hd/45, 0, 1);                 // KNOB: 45 = fade runway, in px of ride left
+      }
     }
     // Low-height mobile only: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip. Regular-height (hot dog) mobile shows it normally like desktop.
     mapBox.style.opacity = LOWH.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
