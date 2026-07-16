@@ -673,7 +673,12 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
     position:relative;
     perspective:900px;                          /* KNOB: lower = more dramatic 3D */
     perspective-origin:50% 50%;
-    overflow:hidden;                            /* slides leave through the edges */
+    /* The sides must clip (slides leave through the edges) but the top and bottom must NOT: the
+       centre slide is exactly as tall as the stage, so overflow:hidden sliced the hover swell off
+       top and bottom. overflow can't be per-axis -- hidden on one axis forces the other to auto --
+       so clip the sides with a clip-path instead and leave the vertical free. */
+    overflow:visible;
+    clip-path:inset(-100vh 0 -100vh 0);
     /* No vertical padding: it only existed to keep the CENTRE slide's drop shadow out of the
        clip, and the centre has no shadow now. The side slides render at 58% (scale .72 x the
        900/(900+220) perspective squeeze), so they sit 21% of the height inside the frame and
@@ -693,7 +698,16 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   /* Before the script runs (or if it never does) show slide 1, centred. */
   .j-carousel:not([data-jc-ready]) .jc-first{ opacity:1; transform:translate(-50%,-50%); }
-  .j-carousel .jc-item.is-on{ cursor:default; box-shadow:none; }   /* centre sits flat, no shadow */
+  /* Hover swell, on the centre and both side slides alike.
+     A plain CSS :hover{transform:...} is useless here -- paint() rewrites `transform` inline on
+     every move and inline always wins. So paint() ends its transform with scale(var(--jc-hs,1)) and
+     this rule touches only that ONE number; the inline transform re-resolves and nothing else about
+     the 3D placement is disturbed. Appending the scale LAST means it grows the slide about its own
+     centre, after all the positioning, so it swells in place instead of drifting.
+     It rides the existing .72s transform transition -- a transform can't give one of its components
+     its own timing -- so this is a slow swell, not a snap. That matches the rest of the carousel. */
+  .j-carousel .jc-item:hover{ --jc-hs:1.06 }        /* KNOB: hover size bump */
+  .j-carousel .jc-item.is-on{ box-shadow:none; }    /* centre sits flat, no shadow */
   .j-carousel .jc-nav{
     position:absolute; top:50%; z-index:30; transform:translate(-50%,-50%);
     border:0; background:none; padding:.4rem; cursor:pointer; color:#000;
@@ -811,10 +825,19 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
 #imgLightbox{ display:none; position:fixed; top:58px; bottom:0; left:0; right:0; z-index:200;
   align-items:center; justify-content:center; background:#fff; }
 #imgLightbox.open{ display:flex; }
-#imgLightboxFig{ display:flex; flex-direction:column; align-items:center;
-  max-width:92%; max-height:90%; margin:0; }
-#imgLightboxShot{ position:relative; display:flex; min-height:0; max-width:100%; }
-#imgLightboxImg{ max-width:100%; min-height:0; object-fit:contain; border-radius:.5rem;
+/* max-height matters as much as max-width here. The <img> used to have only max-width:100%, so
+   nothing capped its HEIGHT and a tall picture overflowed the figure and got cut off. It never
+   showed up before because every other photo on the page is landscape and hits the width cap first;
+   the near-square merch shot is the first one where height binds. min-height:0 doesn't help --
+   #imgLightboxShot is a ROW flex, so flex shrinking acts on width, not height.
+   For the img's max-height:100% to resolve, each ancestor needs a resolvable height: the figure
+   caps against the fixed overlay (definite), and the shot gets flex:0 1 auto + min-height:0 so the
+   column's layout gives it one. */
+#imgLightboxFig{ display:flex; flex-direction:column; align-items:center; min-height:0;
+  max-width:96%; max-height:94%; margin:0; }
+#imgLightboxShot{ position:relative; display:flex; min-height:0; flex:0 1 auto; max-width:100%; }
+#imgLightboxImg{ max-width:100%; max-height:100%; width:auto; height:auto; min-height:0;
+  object-fit:contain; border-radius:.5rem;
   box-shadow:0 20px 60px -10px rgba(0,0,0,.6); }
 /* the badge is cloned in here when the source figure has one, so it survives going full-screen */
 #imgLightboxShot .fig-info-pop{ width:min(340px,40vw); }
@@ -822,11 +845,25 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   font-weight:400; font-size:.95rem; line-height:1.5; color:#000; text-align:center;
   max-width:60ch; }
 #imgLightboxCap:empty{ display:none; }
-#imgLightboxClose{ position:absolute; top:18px; right:18px; width:44px; height:44px; padding:0;
+/* z-index is load-bearing: #imgLightboxShot is position:relative and sits LATER in the DOM, so with
+   both at z-index:auto the picture's box painted over this button and swallowed every click. */
+#imgLightboxClose{ position:absolute; z-index:3; top:18px; right:18px; width:44px; height:44px; padding:0;
   border:none; border-radius:50%; background:rgba(255,255,255,.94); color:#000; font-size:26px;
   line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
   box-shadow:0 4px 14px rgba(0,0,0,.3); }
 #imgLightboxClose:hover{ background:#fff; }
+/* Full-screen gallery arrows. Only shown when the lightbox was opened from a carousel -- .gal is
+   added by open() when it receives more than one image. */
+#imgLightbox .lb-nav{ position:absolute; z-index:3; top:50%; transform:translateY(-50%);
+  width:44px; height:44px; padding:0; border:none; border-radius:50%;
+  background:rgba(255,255,255,.94); color:#000; font:400 20px/1 'DM Sans',sans-serif;
+  cursor:pointer; display:none; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.3); }
+#imgLightbox.gal .lb-nav{ display:flex; }
+#imgLightbox .lb-nav:hover{ background:#fff; }
+#imgLightbox .lb-nav:focus-visible{ outline:3px solid #f5820b; outline-offset:2px; }
+#imgLightboxPrev{ left:18px; }
+#imgLightboxNext{ right:18px; }
 @media(max-width:1100px){ #imgLightbox{ display:none !important; } }   /* desktop-only feature */
 
 /* ===== Desktop: stop images are centered blocks, never wrapped by text ===== */
@@ -1953,6 +1990,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   sizeWalker();
   window.addEventListener('resize',sizeWalker);
   window.addEventListener('orientationchange',sizeWalker);
+  // ---- Hover the little guy while he's parked in the corner (desktop) -----------------------
+  // No extra hitbox element needed: #walkerFig is a DIV with a background-image, and background
+  // pixels never alpha-hit-test the way an <img>'s do -- the whole border-box is hoverable, which
+  // IS the rectangular dw x DISP box we want, transparent corners included. So this only has to
+  // switch pointer-events on; render() decides frame by frame when that's allowed.
+  var wkHovT0 = null;      // performance.now() when the pointer arrived; null = not on him
+  var WK_HOV_CPS = 2;      // KNOB: walk-cycles per second while hovered
+  wk.addEventListener('mouseenter', function(){ wkHovT0 = performance.now(); });
+  wk.addEventListener('mouseleave', function(){ wkHovT0 = null; });
   if(DATA.logo){ document.getElementById('mapLogo').src="data:image/png;base64,"+DATA.logo.b64; }
   var wkTop=document.getElementById('walkerTop');
   var scrollHintEl=document.getElementById('scrollHint');
@@ -2985,6 +3031,22 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // cover almost no route distance, so a mileage-based cadence crawled; rawP gives every leg the
     // same brisk ~12-cycle stride as the first stops. (KNOB: 60 = strides per leg × 5)
     var cyclePhase = onLineNow ? (rawP * 60) : (walkFrac * STEPS);
+    // Only live while he's parked at a rest spot: rawP <= 0 means the chart line hasn't reached his
+    // feet yet, which is the branch that already comments "desktop: rests fully visible between
+    // legs". walkerVis > .99 keeps him out of it while he's still fading in during the intro.
+    // Anywhere else he's mid-walk, mid-spin or mid-ferry and shouldn't take the pointer.
+    var atCorner = !mq.matches && !!(ci && ci.svg) && rawP <= 0 && walkerVis > 0.99;
+    wk.style.pointerEvents = atCorner ? 'auto' : 'none';
+    // Cancel the hover if he leaves the corner underneath a motionless pointer: dropping
+    // pointer-events won't fire mouseleave until the mouse next moves, so without this he'd still
+    // be flagged as hovered and would start walking again the moment he parked.
+    if(!atCorner) wkHovT0 = null;
+    if(wkHovT0 !== null){
+      // Drive the stride off the CLOCK, not the scroll. cyclePhase above is scroll-derived, and he
+      // is standing still by definition here, so it's frozen and he'd never move. render() is
+      // already on a rAF loop, so overriding the phase is all the animation needs.
+      cyclePhase = ((performance.now() - wkHovT0)/1000) * WK_HOV_CPS * WK.frames;
+    }
     var ferryNow = (dispCur>=FS-0.5 && dispCur<FE);                 // riding the Staten Island Ferry
     if(ferryNow!==boatOn){
       boatOn=ferryNow;
@@ -3141,6 +3203,8 @@ document.addEventListener('play', function (e) {
 </script>
 <div id="imgLightbox" aria-hidden="true">
   <button id="imgLightboxClose" aria-label="Close">×</button>
+  <button id="imgLightboxPrev" class="lb-nav" type="button" aria-label="Previous image">&#10094;</button>
+  <button id="imgLightboxNext" class="lb-nav" type="button" aria-label="Next image">&#10095;</button>
   <figure id="imgLightboxFig">
     <div class="fig-shot" id="imgLightboxShot">
       <img id="imgLightboxImg" alt="">
@@ -3156,8 +3220,23 @@ document.addEventListener('play', function (e) {
   var closeBtn=document.getElementById('imgLightboxClose');
   var boxCap=document.getElementById('imgLightboxCap');
   var boxShot=document.getElementById('imgLightboxShot');
-  function open(src,alt,cap,info){
+  var prevBtn=document.getElementById('imgLightboxPrev');
+  var nextBtn=document.getElementById('imgLightboxNext');
+  var gal=null, galI=0;                     // gal = the carousel's images, or null for a lone photo
+  function galShow(){
+    var el=gal[galI];
+    boxImg.src=el.currentSrc||el.src; boxImg.alt=el.alt||'';
+  }
+  function galStep(d){
+    if(!gal) return;
+    galI=(galI+d+gal.length)%gal.length;    // wraps, like the carousel itself
+    galShow();
+  }
+  function open(src,alt,cap,info,gallery,startIdx){
     if(!DESKTOP()) return;
+    gal=(gallery && gallery.length>1) ? gallery : null;   // one image = no arrows
+    galI=gal?(startIdx||0):0;
+    box.classList.toggle('gal', !!gal);
     var old=boxShot.querySelector('.fig-info'); if(old) old.remove();
     if(info){                                   // carry the figure's ⓘ into the overlay
       var c=info.cloneNode(true);
@@ -3179,11 +3258,13 @@ document.addEventListener('play', function (e) {
   function docClose(e){
     if(e.target===boxImg) return;
     if(e.target.closest && e.target.closest('#imgLightboxShot .fig-info')) return;
+    if(e.target.closest && e.target.closest('.lb-nav')) return;   // stepping is not closing
     close();
   }
   function close(){
     box.classList.remove('open'); box.setAttribute('aria-hidden','true');
     boxImg.src=''; document.body.style.overflow='';
+    gal=null; box.classList.remove('gal');
     document.removeEventListener('click', docClose);
   }
   document.querySelectorAll('.j-card-img').forEach(function(img){
@@ -3194,8 +3275,38 @@ document.addEventListener('play', function (e) {
       open(img.currentSrc||img.src, img.alt, cap?cap.textContent:'', info);
     });
   });
+  // Carousel: the CENTRE slide opens full screen, and hands the whole set over so the overlay gets
+  // its own arrows. Side slides are untouched -- their click still just rotates them to centre.
+  // Delegated rather than bound directly: build() clones slides and rebuilds the stage AFTER this
+  // script runs, and cloneNode doesn't carry listeners.
+  // CAPTURE phase (the `true` below), and that is the whole trick. On the bubble phase the slide's
+  // own listener has already run go(i) -> paint() -> classList.toggle('is-on'), so a side slide you
+  // just clicked HAS become the centre by the time the event reaches document, and it would open
+  // full screen instead of rotating. Capture runs top-down, before the target's own handler, so
+  // .is-on here is still the state from before the click.
+  document.addEventListener('click', function(e){
+    if(!e.target.closest) return;
+    var img=e.target.closest('.jc-item.is-on');
+    if(!img || box.classList.contains('open')) return;
+    var fig=img.closest('.j-carousel');
+    if(!fig) return;
+    // Only the ORIGINAL slides, never build()'s clones, or the overlay would show every photo
+    // twice. The originals are first in DOM order and build() records how many there are.
+    var all=[].slice.call(fig.querySelectorAll('.jc-item'));
+    var n=+fig.dataset.jcCount||all.length;
+    var cap=fig.querySelector('figcaption');
+    open(img.currentSrc||img.src, img.alt, cap?cap.textContent:'',
+         fig.querySelector('.fig-info'), all.slice(0,n), all.indexOf(img)%n);
+  }, true);
+  prevBtn.addEventListener('click',function(){ galStep(-1); });
+  nextBtn.addEventListener('click',function(){ galStep(1); });
   closeBtn.addEventListener('click',close);
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && box.classList.contains('open')) close(); });
+  document.addEventListener('keydown',function(e){
+    if(!box.classList.contains('open')) return;
+    if(e.key==='Escape') close();
+    else if(gal && e.key==='ArrowLeft'){ galStep(-1); e.preventDefault(); }
+    else if(gal && e.key==='ArrowRight'){ galStep(1); e.preventDefault(); }
+  });
 })();
 </script>
 <img id="hatCorner" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="" aria-hidden="true">
@@ -3664,6 +3775,7 @@ document.addEventListener('play', function (e) {
         var c=el.cloneNode(true); c.classList.remove('jc-first'); stage.insertBefore(c, prev);
       });
     fig.dataset.jcReady='1';
+    fig.dataset.jcCount=count;   // originals only -- the lightbox slices the clones back off
     var items=[].slice.call(fig.querySelectorAll('.jc-item')), n=items.length, idx=0;
     var jcw=parseFloat(getComputedStyle(fig).getPropertyValue('--jc-w'))||42;
     var sw=1;
@@ -3687,10 +3799,15 @@ document.addEventListener('play', function (e) {
       if(instant) el.style.transition='none';
       // rotateY(+t) sends a slide's RIGHT edge away and brings its LEFT edge forward, so the sign
       // is sgn (not -sgn): that puts each side slide's NEAR, taller edge against the centre one.
-      el.style.transform='translate(-50%,-50%) translateX('+shift.toFixed(2)+'%) translateZ('+(-DEPTH[ad]*sw).toFixed(1)+'px) rotateY('+(sgn*ROT[ad])+'deg) scale('+SCALE[ad]+')';
+      // scale(var(--jc-hs,1)) rides on the end so the :hover rule can swell the slide by changing
+      // one custom property, without this inline transform stomping it. Last in the list = applied
+      // first to the pixels = about the slide's own centre, so it grows in place.
+      el.style.transform='translate(-50%,-50%) translateX('+shift.toFixed(2)+'%) translateZ('+(-DEPTH[ad]*sw).toFixed(1)+'px) rotateY('+(sgn*ROT[ad])+'deg) scale('+SCALE[ad]+') scale(var(--jc-hs,1))';
       el.style.opacity=FADE[ad];
       el.style.zIndex=20-ad;
-      el.style.pointerEvents=(ad===0||FADE[ad]===0)?'none':'auto';
+      // The centre used to be pointer-events:none, which made it unhoverable and unclickable.
+      // It now takes both: hover swells it, click opens the lightbox. Only the fully-faded wings stay inert.
+      el.style.pointerEvents=(FADE[ad]===0)?'none':'auto';
       el.classList.toggle('is-on', d===0);
       el.setAttribute('aria-hidden', d===0?'false':'true');
       if(instant){ void el.offsetWidth; el.style.transition=''; }
