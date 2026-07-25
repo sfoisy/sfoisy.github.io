@@ -21,7 +21,8 @@ body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-
 /* NAV */
 nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
-.nav-links{display:flex;gap:2.5rem}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a.current{color:var(--purple)}
 .nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
 .nav-links a:hover{color:var(--purple)}
 .nav-cta{background:var(--purple);color:var(--white);font-size:.75rem;font-weight:500;padding:.45rem 1.1rem;border-radius:100px;text-decoration:none;transition:.2s}
@@ -229,7 +230,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
     <a href="#about">About</a>
     <a href="#publications">Publications</a>
     <a href="#outreach">Outreach</a>
-    <a href="#videos">Beyond</a>
+    <a href="#videos">Music</a>
+    <a href="blog.html">Blog</a>
+    <a href="walk.html">Walk</a>
     <a href="#contact">Contact</a>
     <a href="Foisy_CV_long.pdf" target="_blank">CV</a>
   </div>
@@ -241,7 +244,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
   <a href="#about" onclick="toggleMenu()">About</a>
   <a href="#publications" onclick="toggleMenu()">Publications</a>
   <a href="#outreach" onclick="toggleMenu()">Outreach</a>
-  <a href="#videos" onclick="toggleMenu()">Beyond</a>
+  <a href="#videos" onclick="toggleMenu()">Music</a>
+  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="walk.html" onclick="toggleMenu()">Walk</a>
   <a href="#contact" onclick="toggleMenu()">Contact</a>
   <a href="Foisy_CV_long.pdf" target="_blank" onclick="toggleMenu()">CV</a>
 </div>
