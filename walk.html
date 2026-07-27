@@ -3429,6 +3429,15 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
 
   var cur=0, target=0, active=-1, targetActive=-1, introCur=0, targetIntro=0, shownLabel=-9, maxRevealed=-1; var lastTown=''; var labelAnchor=0; var lastVB=''; var cpAnchor=-1, cpDone=false;
   var safariFrozen=false, lastMapTf='', lastD='';   // Safari ride: layer flag + write caches
+  // Map sharpness: the <=1100px block puts will-change:transform on #map so the rotate/zoom runs on
+  // the compositor. The cost is that a promoted layer gets rasterised ONCE, at whatever scale it had
+  // when it was promoted, and every later scale() just stretches that one texture. By the time the
+  // scroll lands on the final 3.15x zoom the browser is blowing up a texture baked at 1.5x, which is
+  // the blur DuckDuckGo (and any WebKit build) shows at the end of the scroll, worse the more the
+  // page is zoomed in, because page zoom multiplies the stretch. Fix: keep the layer while the
+  // transform is actually moving, then drop it ~200ms after it settles so the map repaints at its
+  // true final scale, and put it straight back the moment it starts moving again.
+  var mapWCTimer=null, mapWCParked=false;
   var sbBar=document.getElementById('msbBar'), sbLab=document.getElementById('msbLabel'), lastSbW='', lastSbLab='';   // scale bar handles + write caches
   // Crop-box geometry is written every frame; rounding to whole px and skipping no-op writes
   // collapses the per-frame re-layout/re-raster of the fixed frame (and the SVG it clips) that
@@ -3758,7 +3767,19 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     var shiftY = lerp(9, -20, instantScrollFactor);
     
     var _mapTf = 'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
-    if(_mapTf !== lastMapTf){ lastMapTf = _mapTf; document.getElementById('map').style.transform = _mapTf; }
+    if(_mapTf !== lastMapTf){
+      lastMapTf = _mapTf;
+      var _mapEl = document.getElementById('map');
+      _mapEl.style.transform = _mapTf;
+      // moving again: hand it back to the stylesheet (will-change:transform under 1100px)
+      if(mapWCParked){ mapWCParked = false; _mapEl.style.willChange = ''; }
+      if(mapWCTimer) clearTimeout(mapWCTimer);
+      mapWCTimer = setTimeout(function(){
+        mapWCTimer = null; mapWCParked = true;
+        _mapEl.style.willChange = 'auto';   // de-composite -> fresh raster at the settled scale
+        void _mapEl.getBoundingClientRect().width;   // WebKit: force the recalc so the repaint lands now
+      }, 200);
+    }
     // Compass: counter-rotates against the map's own on-screen rotation so its needle keeps
     // pointing at true north regardless of scroll position or whole-map peek state.
     var _compass=document.getElementById('mapCompass');
