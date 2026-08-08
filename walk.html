@@ -216,6 +216,10 @@ body.mode-quick .j-lead{margin-bottom:150vh}   /* KNOB: Discrete hides the jump 
   /* same -128px trick .j-lead uses: cancel most of the 150px map lane so the
      index is not squeezed into a third of the screen */
   .stop-index{max-width:none;margin:0 -128px 2.25rem 0;padding:0}
+  /* max-width would cap the width the mobile resizer hands this, so it could never reach
+     full-bleed with everything else; margin:0 so it hugs the text edge instead of centring
+     in a lane the map is sitting in. */
+  .stop-index .lfgg-mark{max-width:none;margin:3rem 0}
   .stop-index > *{max-width:none}
   .si-name{font-size:.85rem}
   .si-place{font-size:.7rem}
@@ -292,7 +296,9 @@ body.mode-full  .read-float .rf-toggle .rfl-quick{display:none}
   .read-float .rf-btn span,.read-float .rf-btn{transition:none}
 }
 @media(max-width:1100px){
-  .read-float{top:64px;left:8px;padding:.2rem}
+  /* There is no sticky header on a phone -- the nav scrolls away with the page -- so the top
+     of the window is free and these do not need to duck under anything. */
+  .read-float{top:10px;left:8px;padding:.2rem}
   .read-float .rf-btn{padding:.3rem .4rem}
   .read-float:hover .rf-btn,.read-float:focus-within .rf-btn{padding:.3rem .4rem}
   .read-float .rf-btn span{display:none}     /* no hover on a phone, and the map owns the top of the screen */
@@ -320,10 +326,10 @@ body.mode-full  .read-float .rf-toggle .rfl-quick{display:none}
 
 .j-peek{
   display:none;                       /* only quick scroll ever shows it */
-  width:var(--measure,100%);margin:.9rem auto 0;
+  width:var(--measure,100%);margin:.45rem auto 0;   /* KNOB: leading above the preview (was .9rem) */
   -webkit-appearance:none;appearance:none;font:inherit;text-align:left;
   background:none;border:0;
-  padding:.35rem 0 .2rem;cursor:pointer;color:#000;
+  padding:.18rem 0 .1rem;cursor:pointer;color:#000;
   align-items:center;gap:1rem}
 body.mode-quick .j-peek{display:flex}
 .j-peek:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
@@ -341,17 +347,92 @@ body.mode-quick .j-peek{display:flex}
 .jp-head .si-num{flex:0 0 auto;text-align:left;font-size:.95rem}
 .jp-head .si-pin{flex:0 0 auto;width:23px;height:23px}
 .jp-head .si-pin svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.22))}
-.jp-head .si-marks{margin-left:auto;gap:.34rem}
-.jp-head .si-ic{width:19px;height:19px}
+/* The town line and the read tick. Folded, the tick leaves the flow and drops into the
+   card's bottom-right corner -- the space beside the thumbnail is empty and this costs no
+   extra line. Open, it stays on the town line, because the bottom of an expanded stop is
+   several screens away from anything it refers to.
+   The `right` offset is half of whatever the tinted card leaves over: the card is
+   --measure * 1.04 wide and centred, so (100% - that) / 2 is the gap on each side. */
+.jp-metrow{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+  width:var(--measure,100%); margin:0 auto }
+body.mode-quick .j-sect:not(.is-open) .jp-read{
+  position:absolute; z-index:2;
+  right:calc((100% - var(--measure,100%) * 1.04) / 2 + 10px);
+  bottom:10px; margin:0 }
+/* Open, it does NOT move: --readtop is the bottom of the preview row, written by the
+   resizer, so the tick stays level with where it sat while the card was folded instead of
+   travelling to the far end of an expanded stop. */
+body.mode-quick .j-sect.is-open .jp-read{
+  position:absolute; z-index:2;
+  right:calc((100% - var(--measure,100%) * 1.04) / 2 + 10px);
+  top:var(--readtop, 10px); bottom:auto; margin:0 }
+@media(max-width:1100px){
+  body.mode-quick .j-sect:not(.is-open) .jp-read{ right:8px; bottom:8px }
+  body.mode-quick .j-sect.is-open .jp-read{ right:8px }
+}
+.jp-metrow .met{ margin:0 }
+body.mode-quick .j-sect .si-marks{ display:none }   /* symbols retired from the folded card */
+.jp-head .stop-head{flex:1 1 auto;min-width:0}
+/* ===== Mark as read ========================================================
+   Sits at the far right of the stop header. Quiet until it is on: a hollow outline you can
+   ignore, a solid green tick you cannot miss. The whole card fades a little once ticked, so
+   a screen of stops reads at a glance as "been there / not yet". */
+.jp-read{ -webkit-appearance:none;appearance:none;cursor:pointer;flex:0 0 auto;
+  display:inline-flex;align-items:center;gap:.3rem;margin-left:.5rem;
+  font:600 .64rem 'DM Sans',sans-serif;letter-spacing:.04em;text-transform:uppercase;
+  color:#9a9a9a;background:#fff;border:1px solid rgba(0,0,0,.16);border-radius:999px;
+  padding:.24rem .55rem;transition:background .16s ease,border-color .16s ease,color .16s ease }
+.jp-read svg{ flex:none;opacity:.45 }
+.jp-read:hover{ border-color:#111;color:#111 }
+.jp-read:hover svg{ opacity:1 }
+.jp-read:focus-visible{ outline:3px solid #f5820b;outline-offset:2px }
+.jp-read.on{ background:#0f7a4d;border-color:#0f7a4d;color:#fff }
+.jp-read.on svg{ opacity:1 }
+.jp-read.on:hover{ background:#0b5c3a;border-color:#0b5c3a;color:#fff }
+/* A read stop is NOT dimmed. The green tick is the whole signal -- fading the card as well
+   made a page you had worked through look like a page that had gone stale. */
+@media(max-width:1100px){
+  /* On a phone the tick alone is enough to mean "not yet" -- an empty outline reads as an
+     empty checkbox without help. It is the DONE state that needs a word, so that a green
+     circle is not left to carry the meaning by itself. So: symbol only when off, symbol and
+     "Read" when on. The button shrinks to a circle in the off state to match. */
+  .jp-read{ font-size:.58rem;padding:.24rem .5rem;margin-left:.35rem;gap:.28rem }
+  .jp-read:not(.on){ width:24px;height:24px;padding:0;justify-content:center;gap:0 }
+  .jp-read:not(.on) span{ display:none }
+}.jp-head .si-ic{width:19px;height:19px}
 /* The barrier between one stop and the next. It lands on the header row rather
    than on .j-card, because the header already carries --measure and so lines up
    with the prose; .j-card's box includes the 8rem right gutter and would not.
    Swap rgba(0,0,0,.16) for var(--pin) if you want the rule in the stop's colour. */
-body.mode-quick .jp-head{position:relative;border-top:6px solid rgba(0,0,0,.14);padding-top:2rem;margin-top:0}
+body.mode-quick .jp-head{position:relative;border-top:10px solid rgba(0,0,0,.14);padding-top:.35rem;margin-top:0}   /* KNOB: rule thickness / space above a stop heading */
+/* Each folded stop sits on a wash of its own pin colour rather than plain white. It gives
+   the accordion an edge to read against without a border, and it is the SAME wash the card
+   uses once it is open, so opening a stop reads as the card growing rather than a different
+   surface appearing under it. 7% is enough to see and not enough to fight the type. */
+/* z-index:0 matters. Without it the section is not a stacking context, so the z-index:-1
+   wash below drops behind the nearest ancestor that IS one -- which is the page itself, with
+   its white background painted over the top. That is why the tint vanished. */
+body.mode-quick .j-sect{ position:relative; z-index:0; padding:0 0 .25rem; }
+/* Drawn as a pseudo sized to the TEXT MEASURE, not to the card. On desktop the card box is
+   the full 772px lane while the prose and the coloured rule only occupy --measure of it, so
+   a background on the section itself spilled far past the rule -- a tinted slab with the
+   text floating in the middle of it. 104% matches the open card's panel exactly, so the
+   folded and open states share one silhouette. */
+body.mode-quick .j-sect::after{
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  top:0; bottom:0; left:50%; transform:translateX(-50%);
+  width:calc(var(--measure,100%) * 1.04);
+  border-radius:14px;                       /* KNOB: card corners; the rule above matches this */
+  background:color-mix(in srgb, var(--pin, #7a7a7a) 7%, #fff);
+}
+@supports not (background: color-mix(in srgb, red 5%, white)){
+  body.mode-quick .j-sect::after{ background:#faf9f7 }   /* older engines: a neutral, not nothing */
+}
 /* Each stop's rule carries that stop's own colour, the same one its pin wears on the
    map. Full width closed; it stretches 2% past the text at each end when the stop is
    open, which is the only thing that changes. */
-body.mode-quick .jp-head::before{content:"";position:absolute;top:-6px;left:0;width:100%;height:6px;
+body.mode-quick .jp-head::before{content:"";position:absolute;top:-10px;left:-2%;width:104%;height:10px;   /* KNOB: thickness; 104% matches the tinted card exactly */
+  border-radius:14px 14px 0 0;                        /* KNOB: matches the card's own corner radius */
   background:var(--pin,#000);transition:width .28s cubic-bezier(.3,.8,.3,1), left .28s cubic-bezier(.3,.8,.3,1)}
 /* Nothing sits above the first block but the jump list, so it needs no rule --
    and without one the gap under "here we go!!" matches the gap above it. */
@@ -364,6 +445,17 @@ body.mode-quick .j-sect.is-first .jp-head::before{display:none}
 .j-card.is-open .jp-more svg{transform:rotate(180deg)}
 
 .j-body::after{content:"";display:block;clear:both}   /* the card's own clearfix now sits outside the fold */
+/* ===== Expanded body: tighter =============================================
+   Halves the leading between paragraphs and media inside an OPEN stop. The inline
+   margin-top:1rem on most of those notes is why this needs !important -- the markup sets it
+   per element, so the only way to move all of it at once is from here. Discrete only:
+   Continuous keeps the airier article rhythm. */
+body.mode-quick .j-body .ph-note{ margin-top:.25rem !important; margin-bottom:.25rem }
+body.mode-quick .j-body .j-card-img,
+body.mode-quick .j-body .j-card-video,
+body.mode-quick .j-body .video-share-wrap{ margin-top:.25rem }
+body.mode-quick .j-body > p{ margin-bottom:.25rem }
+body.mode-quick .j-body .vq{ margin-top:.15rem }
 body.mode-quick .j-sect:not(.is-open) .j-body{display:none}
 /* Reading one stop: the page goes dark behind it and the stop is lifted out onto a
    lit card. Fading the neighbours to 26% did not do this -- on a white page, opacity
@@ -373,6 +465,40 @@ body.mode-quick .j-sect:not(.is-open) .j-body{display:none}
    z-index 45 puts it under .j-map (60), the nav (100) and #mapRestore (120), so the
    map, the mileage and the progress bar stay lit -- they are how you know where you
    are -- and over everything in the article column. */
+/* ===== The map's cut-out =================================================
+   Over the article, under the map, filling the map's column. The lit card behind it is a
+   plain full-width rectangle; this is what makes it read as notched around the map.
+
+   OPAQUE, not translucent, and that is the whole trick. rgba(8,10,14,.66) painted on top of
+   the scrim's own rgba(8,10,14,.66) gives you two dims stacked, and the notch came out
+   visibly darker than the dark around it. rgb(92,93,96) is what that scrim ALREADY resolves
+   to over the page -- 8·0.66 + 255·0.34 and so on -- so laying it flat matches the dim
+   exactly instead of doubling it. Change one and change the other.
+
+   z-index 50: above an open card (46), below the map (60). */
+#mapCut{position:fixed;z-index:50;display:none;pointer-events:none;
+  background:rgb(92,93,96);
+  border-bottom-left-radius:18px}
+/* The corner below the map: where the cut ends and the white springs back out to full width,
+   its top-right corner is a bare right angle against the dim. An 18px square just under the
+   cut's bottom edge, filled with the cut's colour everywhere EXCEPT inside a quarter-disc at
+   its own bottom-left -- so it paints out the square corner and leaves a curve. A
+   radial-gradient rather than a border-radius because what is wanted is the COMPLEMENT of a
+   rounded corner, and border-radius can only give you the rounded corner itself.
+
+   26 wide for an 18px arc: the curve occupies the first 18 and the rest is flat colour, or a
+   one-pixel disagreement between the panel's edge and the cut's shows as a hairline.
+
+   This one is STATIONARY -- --curvex is derived from the map's own fixed box, so it is
+   written once and then sits still. Its counterpart, which chased the bottom of the open card
+   down the page, is not coming back: that one had to be recomputed every frame, and it was
+   the expensive half. */
+#mapCut::after{content:"";position:absolute;top:100%;width:26px;height:18px;
+  left:var(--curvex, -999px);
+  background:radial-gradient(circle at 0 100%, transparent 0 18px, rgb(92,93,96) 18px)}
+@media(max-width:1100px){
+  body.mode-quick.has-open:not(.map-off) #mapCut{display:block}
+}
 #dimScrim{position:fixed;inset:0;z-index:45;background:rgba(8,10,14,.66);
   /* The same blur the badge uses. It softens the neighbouring stops rather than only
      darkening them, which is what makes the open one read as lifted off the page instead of
@@ -394,15 +520,58 @@ body.mode-quick.has-open #walkerFig{z-index:44}
 body.mode-quick .j-sect.is-open{position:relative;z-index:46}
 body.mode-quick .j-sect.is-open::before{
   content:"";position:absolute;z-index:-1;
-  top:-1.15rem;bottom:-1.15rem;left:50%;transform:translateX(-50%);   /* KNOB: bleed, keeps the rule clear of the curve */
+  /* top:0, not a bleed. The coloured rule is drawn at the section's own top edge, so any
+     bleed above it put a band of white over the rule -- the card looked like it started
+     above its own header. It caps the panel now; the bleed stays at the bottom, where there
+     is nothing to cap. */
+  top:0;bottom:-.6rem;left:50%;transform:translateX(-50%);
   width:calc(var(--measure,100%) * 1.04);   /* 4% wider than the prose: a sliver of white
                                                either side so the dark never touches a photo */
-  border-radius:22px;                       /* KNOB: corner radius of the lit card */
-  background:var(--fog,#fff);
+  border-radius:14px 14px 22px 22px;        /* KNOB: top corners match the rule, bottom are the card's own */
+  /* The same wash the folded card carries, one notch lighter, so opening a stop is that
+     card growing rather than a white panel appearing behind it. */
+  background:color-mix(in srgb, var(--pin, #7a7a7a) 4%, #fff);
 }
+@supports not (background: color-mix(in srgb, red 5%, white)){
+  body.mode-quick .j-sect.is-open::before{ background:var(--fog,#fff) }
+}
+/* Open: the tint moves to the panel behind, so the card itself stops doubling it. */
+body.mode-quick .j-sect.is-open::after{ display:none }
 @media(max-width:1100px){
-  /* Tighter everything on a phone, so the apron and the curve come down with it. */
-  body.mode-quick .j-sect.is-open::before{top:-.85rem;bottom:-.85rem;border-radius:16px}
+  /* Tighter everything on a phone, so the apron and the curve come down with it.
+     And WIDER: on a phone the photos and videos inside an open stop are pulled full-bleed by
+     the media script, well past the text column, so a panel sized to the text left them
+     sitting on the dark scrim with white only behind the words. The section's left edge is
+     exactly the body's 22px padding, so left:-22px puts this at x=0 and 100vw takes it to
+     the far edge, whatever the media does. */
+  /* Follows the text, not the window. It used to run the full 100vw because the media inside
+     were pulled full-bleed independently; now the whole open section scales as one object
+     (see the mobile resizer), so 104% of it is already the right shape.
+     --openw is written by the resizer each frame; it falls back to the text measure if the
+     script is not running. */
+  /* A plain rectangle, full width, and it stays that way. The notch is #mapCut's job: it
+     lays the map's column back over the top of this, above the white and below the map. A
+     clip-path was the obvious alternative and it does not work here -- clipping squares off
+     every corner the outline passes through, which costs the card its rounded corners. */
+  body.mode-quick .j-sect.is-open::before{
+    /* top:10px = the height of the coloured rule. At 0 the white ran up BEHIND the rule and
+       showed above it; the rule is the card's top edge, so the white starts where it ends.
+       --openx is negative: the rule sits 2% left of the lane, and the white was stopping
+       short of it. Both are written by the resizer. */
+    /* The fallback on --openx is -2%, NOT 0. These variables are only written while the
+       mobile resizer is running, and it stands down in landscape and at in-between widths --
+       at which point the panel fell back to left:0 while the coloured rule above it stayed at
+       its own left:-2%, and the white sat visibly inset from the colour. -2% is the same edge
+       the rule uses, so the two agree whether the script is running or not. */
+    top:10px; bottom:-.45rem; left:var(--openx, -2%); transform:none;
+    width:var(--openw, calc(var(--measure,100%) * 1.04));
+    /* Square across the top. The coloured rule sits directly above this and is already
+       rounded, so curving the white as well put a second, smaller radius immediately under
+       the first -- two arcs a few pixels apart reading as a wobble rather than a corner.
+       The rule caps the card; the white just needs to meet it. */
+    border-radius:0 0 16px 16px}
+  /* The first block has no rule above it, so nothing to sit under. */
+  body.mode-quick .j-sect.is-first.is-open::before{ top:0 }
 }
 /* Close button, parked in the dark margin just outside the lit card. `right` is
    measured from the section's own right edge, so 50% + half the measure lands it
@@ -430,15 +599,21 @@ body.mode-quick .j-sect.is-open .jp-close{display:flex}
 
 @media(max-width:1100px){
   /* No margin to sit in on a phone: it rides the top-right corner of the window. */
-  .jp-close{left:auto !important;right:14px;top:70px;width:32px;height:32px;
-    background:rgba(20,22,26,.72);border-color:rgba(255,255,255,.5)}
+  /* Top LEFT, directly under the mode switch, and above everything. On the right it sat
+     beneath the map -- which is fixed at z-index 60 and owns that whole column -- so the one
+     control that closes a stop was the one control you could not reach. The switch does not
+     move to make room: it lives at one address on a phone and shifting it about while a stop
+     happens to be open is worse than the X sitting a row lower. z-index 210 clears the map,
+     the nav and both scrims. */
+  .jp-close{left:8px !important;right:auto;top:52px;width:32px;height:32px;z-index:210;
+    background:rgba(20,22,26,.82);border-color:rgba(255,255,255,.55)}
 }
 /* The divider above an open stop floods with that stop's own colour: the rule you
    were already using to separate sections becomes the marker for which one you are in. */
 body.mode-quick .j-sect.is-open .jp-head{border-top-color:transparent}
-body.mode-quick .j-sect.is-open .jp-head::before{width:104%;left:-2%}   /* KNOB: 104% = how far an open stop's rule runs past the text */
+/* Open and folded now share the same 104%: the rule is the top edge of the card either way. */
 
-body.mode-quick .j-sect + .j-sect{margin-top:2.2rem}
+body.mode-quick .j-sect + .j-sect{margin-top:.2rem}   /* KNOB: gap between folded stops -- a sliver */
 body.mode-quick .stop-index-title,
 body.mode-quick .stop-legend,
 body.mode-quick .stop-index-list{display:none}
@@ -463,16 +638,29 @@ body.mode-full .stop-index-list{visibility:hidden}
    between stops stayed at the charts-off 6vh/8vh. Two classes on <body> beats one,
    whatever the source order. */
 body.mode-quick.charts-off .j-travel:not(#travelIntro),
-body.mode-quick .j-travel:not(#travelIntro){height:auto !important;padding:2.5vh 0 4vh 0 !important}   /* KNOB: runway between stops in quick scroll */
-body.mode-quick .j-step{margin-bottom:.6rem}
+body.mode-quick .j-travel:not(#travelIntro){height:auto !important;padding:.15vh 0 .25vh 0 !important}   /* KNOB: runway between stops in quick scroll */
+body.mode-quick .j-step{margin-bottom:.05rem}
 /* Quick scroll is a skim: the per-leg charts (and the walker who paces along
    them) are the slowest thing on the page, so they are not just collapsed but
    un-offerable -- the Show/Hide row goes too. Full read hands them back. */
 body.mode-quick .chart-toggle{display:none !important}
 @media(max-width:1100px){
   body.mode-quick.charts-off .j-travel:not(#travelIntro),
-  body.mode-quick .j-travel:not(#travelIntro){padding:2vh 0 3vh 0 !important}
-  .j-peek{gap:.75rem;padding-top:.8rem}
+  body.mode-quick .j-travel:not(#travelIntro){padding:.25vh 0 .4vh 0 !important}
+  .j-peek{gap:.55rem;padding-top:.1rem;margin-top:.15rem}
+  /* Smaller BASE type in the folded cards, which is the only way to get more words on a line
+     without breaking the uniform scale above. Everything here scales together, so these
+     ratios hold at every width the card passes through. */
+  body.mode-quick .jp-head .stop-head{font-size:1.32rem;line-height:1.14}
+  body.mode-quick .jp-head .met{font-size:.78rem}
+  body.mode-quick .jp-desc{font-size:.78rem}
+  body.mode-quick .jp-more{font-size:.64rem}
+  body.mode-quick .jp-thumb{width:132px}
+  body.mode-quick .j-sect + .j-sect{margin-top:.3rem}
+  body.mode-quick .jp-head{padding-top:.28rem}
+  body.mode-quick .j-step{margin-bottom:.08rem}
+  .jp-metrow{gap:.45rem}
+  body.mode-quick .j-sect{padding:0 0 .2rem}
   .jp-thumb{width:156px}
   .jp-desc{font-size:.85rem}
   .jp-more{font-size:.7rem}
@@ -715,7 +903,7 @@ body.charts-off .chart-toggle{ margin-left:0 !important; width:auto !important }
 .map-caption{display:none}
 .map-cap-mobile{display:block;position:absolute;top:.45rem;left:.5rem;right:.5rem;z-index:66;font-family:'DM Sans',sans-serif;font-style:italic;font-weight:400;font-size:.728rem;line-height:1.35;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.92);pointer-events:none}
 /* Map info button + hover tooltip (desktop only for now) */
-.map-info{position:absolute;top:.3rem;left:.5rem;z-index:85}
+.map-info{position:absolute;top:.3rem;left:.5rem;z-index:85;opacity:0;pointer-events:none}
 @media(max-width:1100px){.map-info{top:auto;left:auto;bottom:.5rem;right:.5rem}}
 .map-info-btn{width:21px;height:21px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font:italic 700 .79rem 'Playfair Display',serif;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s}
 .map-info-btn:hover{background:rgba(0,0,0,.82)}
@@ -904,7 +1092,12 @@ body.charts-off .chart-toggle{ margin-left:0 !important; width:auto !important }
   .map-full.on .map-full-btn{background:hsl(210,85%,50%)}
   .map-full-btn svg{width:9px;height:9px}
   .map-big{display:block;position:absolute;top:auto;left:auto;bottom:calc(.5rem + 73px);right:calc(.5rem + 2px);z-index:85;opacity:0;pointer-events:none}
-  .map-hide{display:block;position:absolute;top:50%;left:-17px;bottom:auto;right:auto;transform:translateY(-50%);z-index:85;opacity:0;pointer-events:none}
+  /* Below the map, under the town/progress pill, rather than a tab hanging off the left
+     edge -- on a phone that edge is inches from the text and the map is only 100px wide, so
+     the tab was fighting the article for the same strip of screen. */
+  .map-hide{display:block;position:absolute;top:auto;bottom:-64px;left:50%;right:auto;transform:translateX(-50%);z-index:85;opacity:0;pointer-events:none}
+  .map-hide .map-hide-btn{width:44px;height:20px;border-radius:0 0 .55rem .55rem;box-shadow:0 4px 12px -6px rgba(0,0,0,.6)}
+  .map-hide .map-hide-btn svg{transform:none}   /* the glyph already points right */
   .map-hide-btn{width:17px;height:46px;padding:0;border:none;border-radius:.5rem 0 0 .5rem;
     background:rgba(0,0,0,.62);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
     -webkit-tap-highlight-color:transparent;box-shadow:-4px 0 12px -6px rgba(0,0,0,.6)}
@@ -1129,7 +1322,11 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   body {
     padding-left: 0; /* Clean collapse reset for responsive touch screens */
   }
-  nav { padding: 0 1.25rem; background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
+  /* The desktop rule pulls the bar 5.25rem LEFT and widens it to match, to sit under the
+     body's own left padding. On a phone that padding is reset to 0 (just above), so the
+     negative margin was left dragging the whole bar off the left edge -- which is what cut
+     the name in half. Both have to be undone together. */
+  nav { margin-left:0; width:100%; padding: 0 1.25rem; background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
   .nav-links { display: none; }     /* hide the full link row on phones */
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
@@ -1139,6 +1336,10 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   .hero-row{display:flex;gap:1rem;align-items:flex-start}   /* mobile: two-column hero like desktop */
   .hero-figure{display:block;flex:0 0 42%;max-width:none}   /* mobile: letters image up in the hero, top-right (KNOB: 42%) */
+  /* Byline, headshot and chips on one line is a desktop luxury. On a phone the chips wrap
+     mid-row and read as debris, so they get a line of their own under the name. */
+  .article-meta{flex-wrap:wrap;row-gap:.6rem}
+  .article-meta .meta-chips{flex-basis:100%;margin-left:0}
   .article-hero .eyebrow{padding-right:0}
   .article-hero .article-title{padding-right:0}
   .article-hero .article-dek{padding-right:0}
@@ -1685,8 +1886,8 @@ body.map-off .map-tap-hint{ visibility:hidden !important; pointer-events:none !i
    hidden along with the map -- so the script parks it on <body>. */
 #mapRestore{
   position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:120;
-  display:none; align-items:center; gap:.4rem;
-  padding:.6rem .55rem .6rem .7rem; border:none; border-radius:.7rem 0 0 .7rem;
+  display:none; align-items:center; justify-content:center; gap:0;
+  padding:.62rem .5rem; border:none; border-radius:.7rem 0 0 .7rem;
   background:rgba(0,0,0,.72); color:#fff; cursor:pointer;
   font:600 .72rem 'DM Sans',sans-serif; letter-spacing:.02em;
   box-shadow:0 6px 20px -8px rgba(0,0,0,.6);
@@ -1729,6 +1930,23 @@ body.map-fs #mapFsExit{ display:flex }
 #mapFsExit:focus-visible{ outline:3px solid #f5820b; outline-offset:3px }
 #mapFsExit svg{ display:block; flex:none }
 @media(max-width:1100px){ #mapFsExit{ width:34px; height:34px } }
+/* Full screen on a phone: the map's own controls are sized for a 100px-wide sliver, which is
+   absurd once it fills the screen -- and they are the only way back out of most of the modes.
+   Everything doubles, glyphs included. */
+@media(max-width:1100px){
+  body.map-fs .map-info-btn{width:36px;height:36px;font-size:1.44rem}
+  body.map-fs .map-modes-btn,
+  body.map-fs .map-full-btn,
+  body.map-fs .map-big-btn{width:34px;height:34px}
+  body.map-fs .map-modes-btn svg,
+  body.map-fs .map-full-btn svg,
+  body.map-fs .map-big-btn svg{width:18px;height:18px}
+  body.map-fs .mz-btn{width:52px;height:52px}
+  body.map-fs .mz-btn svg{width:30px;height:30px}
+  body.map-fs .map-hide-btn{width:88px;height:40px}
+  body.map-fs .map-hide-btn svg{width:22px;height:22px}
+  body.map-fs .map-hide{bottom:-84px}
+}
 </style>
 </head>
 <body class="mode-quick">
@@ -2064,7 +2282,7 @@ body.map-fs #mapFsExit{ display:flex }
 <div class="j-travel" id="travelIntro" style="height: var(--stop1-offset, 0px);padding:0;"></div>   <!-- KNOB: the gap below "here we go!!" is the image's own margin now -->
     <div class="j-step" data-i="0">
       <div class="j-card">
-        <h3 class="stop-head" data-peek="How a message in an organizing chat became 270 miles of sidewalk &mdash; the plan, the merch and the crew." data-peek-img="https://wesitefoisy1.b-cdn.net/hour_0.jpg">Preface</h3>
+        <h3 class="stop-head" id="stop-preface" data-peek="How a message in an organizing chat became 270 miles of sidewalk &mdash; the plan, the merch and the crew." data-peek-img="https://wesitefoisy1.b-cdn.net/hour_0.jpg">Preface</h3>
         <p class="met">April 22 to May 22</p>
         <p class="ph-note" style="text-align:left;">On April 25th, I received a message on my phone unlike most. Andrew Williams, whom I fondly <a href="https://www.youtube.com/live/CcWR6CdJnvQ?si=gTucbALIanjXz7ig" target="_blank" rel="noopener">co-hosted</a> the opening of the <a href="https://wclivestream.com/" target="_blank" rel="noopener">Weather &amp; Climate Livestream</a> with last year (and who many have rumored to be my long-lost brother :), had noted in the organizing chat a few alarming facts:<br></p>
         <ul class="ph-note arrow-list" style="text-align:left;margin-top:2rem;padding-left:0;">
@@ -3115,6 +3333,65 @@ body.map-fs #mapFsExit{ display:flex }
 })();
 </script>
 
+<script>
+(function(){
+  /* Long stop names, on one line.
+     "Lt. John Farnkopf American Legion" wraps to two lines in a folded card and pushes the
+     town line and the preview down with it, so every card in the list is a different height.
+     Rather than truncate the name -- it is a place, and half a place name is no use -- the
+     type steps down until it fits.
+
+     Measured ONCE, at the base size, not per frame: the cards are scaled with `zoom`, which
+     is uniform, so a ratio that fits at the base size fits at every size the card passes
+     through on the way past the map. Re-run only when the window changes shape. */
+  var MIN = 0.52;     // KNOB: floor, as a fraction of the normal size. Below this it is unreadable.
+  var STEP = 0.94;    // KNOB: how hard each attempt shrinks
+
+  /* "Fits" means TWO things, and the first attempt only tested one of them.
+     A title can wrap its own text onto a second line -- that is the obvious case -- but it
+     can also sit on a second FLEX line, pushed below the mile marker and the pin because the
+     three of them together are wider than the row. That is what happened to "Leo's Smash
+     Burgers & Dogs": one line of text, but on the wrong line of the card. Only the second
+     test catches it, and it is the one that was missing. */
+  function wrapped(h){
+    var head=h.parentElement;
+    if(!head) return false;
+    var cs=getComputedStyle(h);
+    var lh=parseFloat(cs.lineHeight) || parseFloat(cs.fontSize)*1.2;
+    if(h.getBoundingClientRect().height > lh*1.45) return true;      // its own text wrapped
+    var mark=head.querySelector('.si-num') || head.querySelector('.si-pin');
+    if(!mark) return false;
+    // More than a few px below the mile marker means the flex row broke and the title
+    // dropped to a line of its own.
+    return h.getBoundingClientRect().top - mark.getBoundingClientRect().top > lh*0.55;
+  }
+
+  function fit(h){
+    h.style.fontSize='';
+    var base=parseFloat(getComputedStyle(h).fontSize);
+    if(!base) return;
+    if(!wrapped(h)) return;
+    var size=base, guard=0;
+    while(size > base*MIN && guard++ < 16){
+      size*=STEP;
+      h.style.fontSize=size.toFixed(2)+'px';
+      if(!wrapped(h)) return;
+    }
+  }
+
+  function fitAll(){
+    [].forEach.call(document.querySelectorAll('.jp-head .stop-head'), fit);
+  }
+
+  var t=null;
+  function queue(){ clearTimeout(t); t=setTimeout(fitAll, 160); }   // debounced: each pass reflows
+  window.addEventListener('resize', queue);
+  window.addEventListener('load', queue);
+  setTimeout(fitAll, 0);        // the accordion builds its headings in an earlier script
+  window.__fitHeads=queue;      // the reading-mode switch calls this; the measure changes with it
+})();
+</script>
+
 <footer><span class="fname">Syl Foisy</span><span class="fcredit">Last updated June 11, 2026</span></footer>
 
 <style>
@@ -3782,7 +4059,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         mrBtn.id='mapRestore'; mrBtn.type='button';
         mrBtn.setAttribute('aria-label','Show the map again');
         mrBtn.setAttribute('title','Show the map again');
-        mrBtn.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Map</span>';
+        mrBtn.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>';   // icon only: the tooltip says the rest
         document.body.appendChild(mrBtn);
         function setMapOff(off){
           if(off){                                        // fold everything away before hiding
@@ -5007,6 +5284,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     // the route, the pins and the region polygons all scale with it for free. The
     // frame's right edge is pinned at 22px by the peek, so it grows LEFTWARD over
     // the text, and the back button is the way out.
+    var _fsW=0, _fsH=0;   // full-screen target size, when there is one
     if(_be>0){
       var _bgW, _bgH, _bgAR = 362/400;                                   // KNOB: frame aspect, kept
       if(mq.matches){
@@ -5015,7 +5293,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         // Recompute the WIDTH when the height cap bites. Capping height alone changed
         // the frame's aspect, and with preserveAspectRatio the aspect is exactly what
         // decides how much map you see.
-        var _bgCapM = window.innerHeight*0.84;   // KNOB: was .72, when a pill sat below it
+        var _nvB=0, _nvM=document.querySelector('nav');
+        if(_nvM){ var _nvMr=_nvM.getBoundingClientRect(); if(_nvMr.height) _nvB=Math.max(0,_nvMr.bottom); }
+        var _bgCapM = (window.innerHeight-_nvB)*0.88;   // KNOB: share of the band under the nav
         if(_bgH > _bgCapM){ _bgH = _bgCapM; _bgW = _bgH/_bgAR; }
       } else {
         _bgW = Math.min(880, window.innerWidth*0.62);                    // KNOB: desktop, capped both ways
@@ -5027,6 +5307,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       }
       startWidth  = lerp(startWidth,  _bgW, _be);
       startHeight = lerp(startHeight, _bgH, _be);
+      _fsW = _bgW; _fsH = _bgH;      // remembered for the override at the end of the sizing
     }
     
     // Target dimensions (Thin rectangle stretching down the right margin)
@@ -5067,6 +5348,28 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       computedHeight = lerp(startHeight, endHeight, instantScrollFactor);
     }
     
+    // Full screen, applied LAST and to the computed size directly.
+    //
+    // It used to work only by inflating startWidth/startHeight, which the desktop path reads
+    // through a single lerp. The mobile path does not: past 40% of the shrink it pins the
+    // width to the hotdog's 100px outright, so the full-screen size was thrown away and the
+    // map stayed a sliver behind the backdrop -- a dimmed page with nothing on it. Overriding
+    // here covers both paths and does not depend on the peek having finished easing.
+    if(_be>0 && _fsW){
+      computedWidth  = lerp(computedWidth,  _fsW, _be);
+      computedHeight = lerp(computedHeight, _fsH, _be);
+    }
+    // Where the full-screen map should sit: centred in the space under the site's nav bar,
+    // and CLAMPED so it can never be placed off the top or bottom whatever the arithmetic
+    // upstream produces. The clamp is the point -- an un-clamped centre goes negative the
+    // moment the map is taller than the space it is being centred in, which puts it above
+    // the fold with only its bottom edge showing.
+    function fsTop(h){
+      var nb=0, nv=document.querySelector('nav');
+      if(nv){ var nr=nv.getBoundingClientRect(); if(nr.height) nb=Math.max(0, nr.bottom); }
+      var lo=nb+8, hi=Math.max(lo, window.innerHeight-h-8);
+      return Math.max(lo, Math.min(hi, nb+((window.innerHeight-nb)-h)/2));
+    }
     var mapBox = mapBoxEl;
     setBox('width', computedWidth);
     setBox('height', computedHeight);
@@ -5080,7 +5383,7 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
       var _lowTop = lowTopNow + Math.max(0, (lowBand - computedHeight) / 2);
       if(_be>0){   // full-screen: slide it to the middle of the page, both axes
-        _lowTop = lerp(_lowTop, Math.max(8,(window.innerHeight-computedHeight)/2), _be);
+        _lowTop = lerp(_lowTop, fsTop(computedHeight), _be);
         setBox('right', lerp(22, Math.max(8,(window.innerWidth-computedWidth)/2), _be));
       }
       setBox('top', _lowTop);
@@ -5124,13 +5427,9 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         // eases in and back out again without drift.
         if(_be>0){
           // Centre it in the space BELOW the site's own nav bar, not in the whole window --
-          // the nav is fixed and sits above everything, so a map centred on the viewport
-          // bled up behind it. NAV_TOP is measured from the bar itself so it survives any
-          // change to its height.
-          var _navB=0, _navEl=document.querySelector('nav');
-          if(_navEl){ var _nr=_navEl.getBoundingClientRect(); if(_nr.height) _navB=_nr.bottom; }
-          var _avail=window.innerHeight-_navB;
-          _bxT = lerp(_bxT, Math.max(_navB+8, _navB+(_avail-computedHeight)/2), _be);
+          // the nav sits above everything, so a map centred on the viewport bled up behind
+          // it. fsTop() measures the bar and clamps the result to the visible band.
+          _bxT = lerp(_bxT, fsTop(computedHeight), _be);
           _bxR = lerp(_bxR, Math.max(8,(window.innerWidth -computedWidth )/2), _be);
         }
         setBox('top', _bxT);
@@ -5305,6 +5604,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
       }
       wk.style.transform = flip;
       wk.style.transformOrigin = wkOrigin;
+      // Discrete on a phone: no walker at all. The cards fill the width, scale as they pass
+      // the map and carry their own tint -- he has nowhere to stand that is not on top of
+      // something, and at that size he reads as a smudge rather than a character. He stays
+      // in Continuous, and on desktop in both modes.
+      if(mq.matches && document.body.classList.contains('mode-quick')) walkerVis = 0;
+
       // Quick scroll: he arrives with the hotdog and leaves with the last stop, so he
       // is never loitering next to the comments with nothing to do.
       if(document.body.classList.contains('mode-quick')){
@@ -5481,6 +5786,10 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
     if(_mm){ _mm.style.opacity=_mfShow; _mm.style.pointerEvents=_mfShow>0.5?'auto':'none'; }
     var _mb=document.querySelector('.map-big');     // enlarge + hide: same clock again
     if(_mb){ _mb.style.opacity=_mfShow; _mb.style.pointerEvents=_mfShow>0.5?'auto':'none'; }
+    // The circled i was the odd one out: it sat on the map from the first frame while every
+    // other control faded in with the hotdog. Same clock as the rest now.
+    var _mi=document.querySelector('.map-info');
+    if(_mi){ _mi.style.opacity=_mfShow; _mi.style.pointerEvents=_mfShow>0.5?'auto':'none'; }
     // Collapse is a hotdog-only control: peeked out to the whole map, or full screen,
     // hiding the thing you just asked to see bigger makes no sense -- so it fades with
     // both of those factors as well as the shared one.
@@ -5594,37 +5903,261 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   var MQ=window.matchMedia('(max-width:1100px)');
   // .jc-stage rides along as if it were a plain image: it is the carousel's picture box
   // (sizer, slides and arrows are all 100% of it), so resizing it resizes the whole widget.
-  var media=[].slice.call(document.querySelectorAll('.j-card-img:not(.met-card), .j-card-video, .j-carousel .jc-stage'));
-  var T=85;            // px over which it eases from full-width back to the margin
+  // "here we go" and the folded stop cards ride along with the photographs now: on a phone
+  // they were the only things left sitting at the narrow text measure while everything around
+  // them ran full-bleed and shrank back as it reached the map band. .jp-head comes too, or
+  // the coloured rule above each stop would stay short while the card under it widened.
+  var SEL='.j-card-img:not(.met-card), .j-card-video, .j-carousel .jc-stage, .lfgg-mark, .j-sect';
+  var media=[].slice.call(document.querySelectorAll(SEL));
+  // .j-sect does not exist yet: the accordion builds the sections in a later script. One
+  // re-collect after the parser is done picks them up, and one on load covers anything that
+  // arrives with an image.
+  function collect(){ media=[].slice.call(document.querySelectorAll(SEL)); }
+  setTimeout(collect, 0);
+  window.addEventListener('load', collect);
+  var T=55;            // KNOB: px over which it eases from full-width back to the margin.
+                       // Shorter = full width for longer, since the ramp still ENDS in the
+                       // same place (the map's lower edge) and only starts later.
   var cleaned=false;
   function active(){ return MQ.matches && window.matchMedia('(orientation: portrait)').matches; }
-  function reset(el){ el.style.width=''; el.style.marginLeft=''; el.style.marginRight=''; el.style.maxWidth=''; el.style.display=''; var w=el.parentElement; if(w&&w.classList.contains('video-share-wrap')){ w.style.width=''; w.style.marginLeft=''; w.style.marginRight=''; w.style.maxWidth=''; w.style.display=''; } }
+  function reset(el){ el.style.width=''; el.style.marginLeft=''; el.style.marginRight=''; el.style.maxWidth=''; el.style.display=''; el.style.zoom=''; var w=el.parentElement; if(w&&w.classList.contains('video-share-wrap')){ w.style.width=''; w.style.marginLeft=''; w.style.marginRight=''; w.style.maxWidth=''; w.style.display=''; } }
   function lerp(a,b,f){ return a+(b-a)*f; }
   function update(){
-    if(!active()){ if(!cleaned){ media.forEach(reset); cleaned=true; } return; }
+    if(!active()){
+      if(!cleaned){
+        // The cut only makes sense in the phone layout, where the map stands in the text's
+        // way. In landscape, or at an in-between width where the layout has already changed,
+        // it is a grey rectangle over nothing.
+        var mcOff=document.getElementById('mapCut');
+        if(mcOff) mcOff.style.display='none';
+        media.forEach(reset);
+        // The per-block pass writes onto elements that are not in `media`, so they need
+        // clearing by hand or a card keeps its phone-sized scale on a desktop window.
+        [].forEach.call(document.querySelectorAll('.j-sect .jp-head, .j-sect .jp-metrow, .j-sect .j-peek, .j-sect .j-body > *'), reset);
+        [].forEach.call(document.querySelectorAll('.j-sect'), function(sc){
+          sc.style.removeProperty('--openw'); sc.style.removeProperty('--openx');
+          sc.style.removeProperty('--readtop'); sc.style.removeProperty('--nx'); sc.style.removeProperty('--ny');
+        });
+        cleaned=true;
+      }
+      return;
+    }
     cleaned=false;
     var mapEl=document.querySelector('.j-map'); if(!mapEl) return;
     var mr=mapEl.getBoundingClientRect();
+    // Everything pinned to the map counts, not just the picture: the town pill and the
+    // collapse tab hang below it, and content sliding under those looks like a bug even
+    // though the map proper has ended. One number, used by BOTH the per-block ramp and the
+    // notch in the lit panel, so the white and the text can never disagree about where the
+    // map stops.
     var mapBottom=mr.bottom;
+    ['.map-town','.map-hide'].forEach(function(sel){
+      var e2=document.querySelector(sel);
+      if(!e2) return;
+      var r2=e2.getBoundingClientRect();
+      if(r2.height && r2.bottom>mapBottom) mapBottom=r2.bottom;
+    });
     var vw=document.documentElement.clientWidth;
-    var rightMargin=vw-mr.right;   // match the gap the map leaves on the right
+    // The cut-out covers the map's column: from a little left of the map across to the
+    // window's right edge, and down past everything pinned to it. Straight off the map's own
+    // box, so it cannot drift out of step with the thing it is standing in for.
+    var _mc=document.getElementById('mapCut');
+    if(_mc){
+      _mc.style.display='';                     // hand it back to the media query
+      // Every write here is a style recalculation, and this runs on every scroll frame, so
+      // nothing is written unless it actually differs from what is already there. The map is
+      // fixed: its box barely changes once the page has settled, and most frames now touch
+      // the DOM not at all.
+      if(!_mc._last) _mc._last={};
+      // Measured off the LANE, not off the map. The map's left edge is a few pixels from
+      // where the card's coloured rule stops, and eyeballing those two against each other is
+      // the misalignment: the rule ran to one line and the white was cut on another. The rule
+      // is 104% of the lane starting 2% left of it, so its right edge is lane + 1.02 * lane.
+      // Cut there and the two edges are the same edge. Never past the map, though.
+      var _ln=document.querySelector('.j-narrative');
+      var _lr=_ln ? _ln.getBoundingClientRect() : null;
+      var _cl=_lr ? Math.min(mr.left - 4, _lr.left + _lr.width * 1.02) : Math.max(0, mr.left - 10);
+      _cl=Math.max(0, _cl);
+      var _L=_mc._last;
+      // Handles plain properties and custom properties alike; skips anything unchanged, which
+      // once the page has settled is everything.
+      function _set(k, prop, val){
+        if(_L[k]===val) return;
+        _L[k]=val;
+        if(prop.charAt(0)==='-') _mc.style.setProperty(prop, val); else _mc.style[prop]=val;
+      }
+      _set('l','left',   Math.round(_cl)+'px');
+      _set('t','top',    '0px');
+      _set('w','width',  Math.round(Math.max(0, vw-_cl))+'px');
+      _set('h','height', Math.round(Math.max(0, mapBottom + 12))+'px');
+      // The open card's lit panel always ends at the same place -- its left edge plus its
+      // width resolves to (viewport - SIDE + 10) whatever the card -- so the corner to round
+      // is a fixed x. Expressed relative to the cut, which is what the curve hangs off.
+      var _os=document.querySelector('.j-sect.is-open');
+      _set('cx','--curvex', (_os ? Math.round((vw - 26 + 10) - _cl - 18) : -999)+'px');
+    }
+
+    // Map collapsed: it is still in the layout (hidden, not removed) so its box still reads
+    // as if it were there, and the ramp went on shrinking cards for a map that is not on
+    // screen -- the width wobbled as you scrolled with nothing to show for it. With the map
+    // off there is nothing to dodge, so everything sits at full width and stays there.
+    var mapOff=document.body.classList.contains('map-off');
+    // The gap the map leaves on its right is 22px, and a card run out to that line has its
+    // text almost touching the screen edge. The reference layout leaves noticeably more air
+    // on the right than on the left, and it reads better, so take the larger of the two.
+    // One margin, both sides. The lane's own left edge is 22px, so a card grown out to
+    // "vw minus some right margin" was always left-anchored and never centred -- the wider it
+    // got, the further off-centre it looked. SIDE is the gap it leaves at BOTH edges, and the
+    // offset below walks the card left as it grows so it stays centred the whole way.
+    var SIDE=26;                                // KNOB: side margin at full width
+    var quick=document.body.classList.contains('mode-quick');
     media.forEach(function(el){
-      var card=el.closest('.j-card'); if(!card) return;
+      var isSect = el.classList.contains('j-sect');
+      // A stop card scales as a WHOLE, folded or open, and only in Discrete. Open, that means
+      // the prose and the pictures grow and shrink together instead of the images widening
+      // while the type stands still -- which is the difference between a card that resizes
+      // and a card that re-flows. In Continuous it is off entirely: that layout has its own.
+      // Anything inside a section the per-block pass owns is already sized by it, and that
+      // pass runs FIRST because a section precedes its own children in document order. This
+      // used to reset(el) here, which meant every picture and video had the width it had just
+      // been given wiped off again a few iterations later -- the type scaled and the media
+      // did not. Leave them alone; toggle() hands them back when a stop folds.
+      if(!isSect){
+        var owner=el.closest('.j-sect');
+        if(owner && (!quick || owner.classList.contains('is-open'))) return;
+      }
+
+      // .j-card for the pictures and the sections. The "here we go" mark lives in
+      // .stop-index, which carries a desktop-only 8rem right gutter -- measuring off that
+      // gave it a lane 128px narrower than the text and left it centred in the wrong box,
+      // which is why it kept drifting under the map. .j-narrative is the real column.
+      var card=el.closest('.j-card') || el.closest('.j-narrative');
+      if(!card) return;
       var cr=card.getBoundingClientRect();
       var laneLeft=cr.left, constrainedW=cr.width;
-      var top=el.getBoundingClientRect().top;
-      var d=top-mapBottom-25;   // finish shrinking ~25px sooner so it clears the town-name box
-      var f = d<=0 ? 0 : (d>=T ? 1 : d/T);   // f=1 full-bleed (below map), f=0 back in the lane
-      var fullW=vw-laneLeft-rightMargin;   // text margin left, map margin right
+      var r=el.getBoundingClientRect();
+      var top=r.top;
+      var d=top-mapBottom-14;   // mapBottom already includes the town pill and the collapse tab
+      var f = mapOff ? 1 : (d<=0 ? 0 : (d>=T ? 1 : d/T));   // f=1 full-bleed (below map), f=0 back in the lane
+      // The width that leaves SIDE on both edges, wherever this element's lane happens to
+      // start. The marginLeft written further down walks it out to meet that edge.
+      var fullW=vw-SIDE*2;
+      // No extra clamp here. The map is a TALL sliver on a phone -- it covers most of the
+      // window height -- so "does this element overlap the map vertically" is true for nearly
+      // everything, and clamping on it held every card at the narrow measure permanently.
+      // The f ramp above is the whole mechanism: an element is full-bleed only while it is
+      // below the map's bottom edge, and eases back to the lane as it rises past it.
       // If this video is wrapped for sharing, resize the WRAP (not just the
       // <video>) so the absolutely-positioned share button tracks the video's
       // shrinking/growing right edge on mobile.
       var wrap = el.parentElement && el.parentElement.classList.contains('video-share-wrap') ? el.parentElement : null;
       var tgt = wrap || el;
+      // The whole card scales, as one object: `zoom` takes the type, the thumbnail, the
+      // padding, the coloured rule and the element's own layout box up together, so the
+      // proportions at 100px wide and at full width are identical. Setting a WIDTH instead
+      // just re-wrapped the same 16px type across a longer line, which is what made the
+      // pieces drift out of relation to each other. (A transform would look right and lay
+      // out wrong -- transforms do not affect flow, so the cards below would slide under it.)
+      // An OPEN stop is far too long to scale as one object: its top is off the screen within
+      // a swipe, and one shared factor taken from that top pins the whole thing narrow while
+      // most of its content is nowhere near the map. So an open stop scales BLOCK BY BLOCK --
+      // each paragraph and picture reads its own position and takes its own factor. What you
+      // get scrolling through one is a continuous gradient: full width at the bottom of the
+      // window, easing down to the text measure as each block rises past the map. Within any
+      // one block nothing re-flows, because each is still a uniform scale of itself.
+      // Continuous is the same problem: the whole article is one long run of blocks, none of
+      // which can share a single scale. So it uses the same pass -- every section, all the
+      // time -- and Discrete uses it for whichever stop is open.
+      if(isSect && (!quick || el.classList.contains('is-open'))){
+        el.style.zoom=''; el.style.width=''; el.style.maxWidth=''; el.style.marginLeft='';
+        var kids=el.querySelectorAll(':scope > .jp-head, :scope > .jp-metrow, :scope > .j-peek, :scope > .j-body > *');
+
+        /* READ EVERYTHING, THEN WRITE EVERYTHING. This is the fix for the scrolling lag, and
+           it matters far more than anything cosmetic in here.
+           The old loop read a rect and then wrote four inline styles, for every block, in one
+           pass. Each write invalidates layout; the next read forces the browser to redo it.
+           An open stop with twenty blocks was therefore triggering twenty full synchronous
+           layouts per frame -- the classic layout thrash, and exactly why it got worse the
+           longer the stop was. Split in two, the same work costs ONE layout.
+           The cache on top skips writing values that have not changed, which on a slow scroll
+           is most blocks most frames. */
+        var _plan=[];
+        [].forEach.call(kids, function(kid){
+          var kd=kid.getBoundingClientRect().top - mapBottom - 14;   // same line the notch uses
+          var kf=mapOff ? 1 : (kd<=0 ? 0 : (kd>=T ? 1 : kd/T));
+          _plan.push([kid, kf]);
+        });
+        // Read these in the same phase as everything else above, before any writing starts.
+        var _pkEl=el.querySelector(':scope > .j-peek'), _rdEl=el.querySelector(':scope > .jp-read');
+        var _pkB=_pkEl ? _pkEl.getBoundingClientRect().bottom : 0;
+        var _elT=el.getBoundingClientRect().top;
+        var _rdH=_rdEl ? _rdEl.offsetHeight : 0;
+        _plan.forEach(function(pair){
+          var kid=pair[0], kf=pair[1];
+          if(kid._kf === kf) return;               // nothing to say that was not said last frame
+          kid._kf = kf;
+          var kk=constrainedW ? lerp(1, fullW/constrainedW, kf) : 1;
+          var kw=lerp(constrainedW, fullW, kf), km=lerp(0, SIDE-laneLeft, kf);
+          kid.style.zoom=kk.toFixed(4);
+          kid.style.maxWidth='none';
+          kid.style.width=(kw/kk).toFixed(1)+'px';
+          kid.style.marginLeft=(km/kk).toFixed(1)+'px';
+        });
+        // Where the read tick sits: level with the bottom of the preview row, so it is in the
+        // same place whether the stop is folded or open.
+        if(_pkEl && _rdEl){
+          /* RECTS here, not offsetTop/offsetHeight. The preview row is one of the blocks this
+             pass scales with `zoom`, and the offset properties report a zoomed element in its
+             OWN coordinate space -- so the row measured shorter than it is drawn, and the
+             button sat that fraction too high. The button itself is not zoomed, and neither
+             is an open section, so a rect difference is already in the coordinate space the
+             `top` below is resolved in. Same sum as placeRead() otherwise: preview row, plus
+             the section's own padding, less the button and the inset it hangs by. */
+          var _pad=parseFloat(getComputedStyle(el).paddingBottom)||0;
+          var _rt=Math.round(_pkB - _elT + _pad - _rdH - 8);
+          if(el._rt!==_rt){ el._rt=_rt; el.style.setProperty('--readtop', _rt+'px'); }
+        }
+        // The panel is drawn at the widest a block can ever get and then clipped back to the
+        // shape below. Sizing it to the widest block currently on screen instead would fight
+        // the clip -- two descriptions of the same edge, computed from different things.
+        var _bleed=constrainedW*0.02;   // the 2% the coloured rule hangs past the lane on each side
+        el.style.setProperty('--openx', (-_bleed).toFixed(1)+'px');
+        el.style.setProperty('--openw', Math.round(fullW + Math.max(0, SIDE-laneLeft) + _bleed + 10)+'px');
+
+        // No shape maths here: the card is a rectangle, and #mapCut covers the map's column
+        // once for the whole page, from the map's own fixed box.
+        return;
+      }
+
+      if(isSect){
+        // SHARE is 1, and has to be: at anything less the type scales slower than the box, so
+        // every line break moves as the card shrinks and the whole card visibly re-flows on
+        // the way past the map. A uniform scale re-flows nothing -- it is one photograph of
+        // one layout at two sizes. To fit more words on a line, make the BASE type smaller
+        // (see the mobile block in the stylesheet); do not touch this.
+        var SHARE = 1;
+        var full = constrainedW ? fullW/constrainedW : 1;
+        var k = lerp(1, 1 + (full - 1) * SHARE, f);
+        el.style.zoom = k.toFixed(4);
+        // The width has to be stated, and stated in the card's OWN coordinate space.
+        //
+        // A zoomed block with width:auto does not get wider: the available width it inherits
+        // is divided by the zoom ratio first, so it renders at exactly the parent's width and
+        // only its CONTENTS come out bigger. That is precisely what was on screen -- type
+        // growing while the coloured rule stayed the same length. Specifying constrainedW
+        // here means constrainedW BEFORE zoom, so it lands at constrainedW * k on screen,
+        // which is the full-bleed width we asked for.
+        el.style.maxWidth='none';
+        // Specified in the card's own zoomed space, so it lands at the full width on screen
+        // whatever the type is doing: rendered = (target/k) * k. Same for the offset.
+        el.style.width = (lerp(constrainedW, fullW, f) / k).toFixed(1)+'px';
+        el.style.marginLeft = (lerp(0, SIDE-laneLeft, f) / k).toFixed(1)+'px';
+        return;
+      }
       tgt.style.display='block';
       tgt.style.maxWidth='none';
       tgt.style.width=lerp(constrainedW, fullW, f).toFixed(1)+'px';
-      tgt.style.marginLeft = el.closest('.j-fig') ? 'auto' : '0px';   // figures center; bare media hug the text margin
+      tgt.style.marginLeft = el.closest('.j-fig') ? 'auto' : lerp(0, SIDE-laneLeft, f).toFixed(1)+'px';   // figures center; bare media walk out with the card
       if(el.closest('.j-fig')) tgt.style.marginRight='auto';
       if(wrap){ el.style.width='100%'; el.style.maxWidth='100%'; el.style.marginLeft='0'; el.style.marginRight='0'; }
     });
@@ -5993,6 +6526,13 @@ document.addEventListener('play', function (e) {
     scrim.setAttribute('aria-hidden','true');
     document.body.appendChild(scrim);
   }
+  // The map's cut-out, positioned each frame by the mobile resizer.
+  if(!document.getElementById('mapCut')){
+    var mcut=document.createElement('div');
+    mcut.id='mapCut';
+    mcut.setAttribute('aria-hidden','true');
+    document.body.appendChild(mcut);
+  }
   scrim.addEventListener('click', function(){
     var open=document.querySelector('.j-sect.is-open');
     if(open) toggle(open, false);
@@ -6087,8 +6627,33 @@ document.addEventListener('play', function (e) {
         if(pn) hw.appendChild(pn.cloneNode(true));
       }
       hw.appendChild(headEl);
-      var mk=row && row.querySelector('.si-marks');
-      if(mk) hw.appendChild(mk.cloneNode(true));
+      // Mark as read. 23 stops is a lot to keep in your head across several sittings, and the
+      // folded cards all look alike once you have scrolled past them -- this is the only way
+      // to tell "I have been in there" from "I have not". It ticks itself when you open a
+      // stop, because opening one IS reading it, and the button is there to correct that
+      // either way.
+      if(headEl && headEl.id){
+        var rd=document.createElement('button');
+        rd.type='button';
+        rd.className='jp-read';
+        rd.setAttribute('data-stop-id', headEl.id);
+        rd.innerHTML='<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></svg><span>Read</span>';
+      }
+      // The tick sits on the town line -- "Manhattan, NY  [read]" -- which is the shortest
+      // line in the card and the one with room to spare. The content symbols are gone: three
+      // pictograms competing with the stop's name said less than one word does.
+      if(rd){
+        var metEl=sect.querySelector('.met');
+        if(metEl && metEl.parentNode){
+          var mrow=document.createElement('div');
+          mrow.className='jp-metrow';
+          metEl.parentNode.insertBefore(mrow, metEl);
+          mrow.appendChild(metEl);
+          mrow.appendChild(rd);
+        } else {
+          hw.appendChild(rd);         // no town line: fall back to the heading row
+        }
+      }
     }
 
     peek.addEventListener('click', function(){ toggle(sect, !sect.classList.contains('is-open')); });
@@ -6109,6 +6674,39 @@ document.addEventListener('play', function (e) {
     sects.push(sect);
   }
 
+  /* ===== Mark as read =====================================================
+     Stored the same way the quiz progress is: localStorage wrapped in try/catch with an
+     in-memory fallback, because private browsing and locked-down browsers throw on the very
+     first access and losing a tick is a far smaller problem than the block not running. */
+  var READ_STORE='sylfoisy.walkRead.v1', readSet={};
+  try{ var _rraw=window.localStorage.getItem(READ_STORE); if(_rraw) readSet=JSON.parse(_rraw)||{}; }catch(e){ readSet={}; }
+  function rememberRead(){ try{ window.localStorage.setItem(READ_STORE, JSON.stringify(readSet)); }catch(e){} }
+  function paintRead(sect){
+    var b=sect.querySelector('.jp-read'); if(!b) return;
+    var id=b.getAttribute('data-stop-id'), on=!!readSet[id];
+    sect.classList.toggle('is-read', on);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on?'true':'false');
+    b.title = on ? 'Read \u2014 click to clear' : 'Mark this stop as read';
+    b.querySelector('span').textContent = on ? 'Read' : 'Mark read';
+  }
+  function setRead(sect, on){
+    var b=sect.querySelector('.jp-read'); if(!b) return;
+    var id=b.getAttribute('data-stop-id');
+    if(on) readSet[id]=1; else delete readSet[id];
+    rememberRead();
+    paintRead(sect);
+  }
+  window.__markRead=setRead;
+  document.addEventListener('click', function(e){
+    var b=e.target.closest ? e.target.closest('.jp-read') : null;
+    if(!b) return;
+    e.preventDefault();
+    e.stopPropagation();                      // the header is not a toggle target, but be sure
+    var sect=b.closest('.j-sect'); if(!sect) return;
+    setRead(sect, !b.classList.contains('on'));
+  });
+
   // A fixed button has no idea where the column is, so measure the header it belongs
   // to and park it in the margin just outside the lit card. The card runs 2% wider
   // than the header on each side, hence the extra nudge.
@@ -6116,6 +6714,43 @@ document.addEventListener('play', function (e) {
   // it, so the two read as one stack pushed up against the text. Measured rather than
   // hard-coded because that pill's width depends on what is in it -- the quiz counter only
   // appears once a quiz has been cleared.
+  // The X rides at the top of the window, but as soon as the stop's own top edge scrolls
+  // into view it drops down and sits level with it. Scroll back above the stop and it stays
+  // on that edge; scroll past and it returns to the top of the window. Either way it is
+  // always somewhere on screen, which is the point -- it is the way out.
+  var openSect=null;
+
+  /* The X does not follow anything. It is parked in the top left and stays there.
+     It used to drop down to meet the stop's own top edge, which read well but cost a rect
+     read and a style write on every frame a stop was open -- and no amount of transform or
+     rAF scheduling made that free on a long page. A control that is always in one place is
+     worth more than a control that tracks. */
+
+  // Where the read tick sits on an OPEN card: exactly where it sat before the card opened.
+  //
+  // Folded, CSS parks it in the bottom-right corner -- which is the bottom of the preview
+  // row, since that is all a folded card contains. Opening a stop does not move the preview
+  // row, so measuring from ITS bottom leaves the button on the same pixel it was already on.
+  // Nothing about the tick appears to move; the card just grows underneath it.
+  //
+  // (On a phone the mobile resizer writes this same variable, from the same place. That pass
+  // only runs there, so the two never fight -- and now they agree anyway.)
+  function placeRead(sect){
+    if(!sect) return;
+    var rd=sect.querySelector('.jp-read'), pk=sect.querySelector('.j-peek');
+    if(!rd || !pk || !pk.offsetHeight) return;
+    // The folded rule is `bottom: INSET` against the SECTION, and a folded section is the
+    // preview row PLUS its own padding-bottom. Leave that padding out of the sum and the
+    // button lands a few pixels high the moment the card opens -- which is the drift, and it
+    // is exactly the padding's height. Read it rather than assume it: the value differs
+    // between the phone and desktop rules.
+    var cs=getComputedStyle(sect);
+    var pad=parseFloat(cs.paddingBottom)||0;
+    var inset=(window.matchMedia && window.matchMedia('(max-width:1100px)').matches) ? 8 : 10;  // matches the CSS
+    var t=Math.round(pk.offsetTop + pk.offsetHeight + pad - rd.offsetHeight - inset);
+    if(sect._rdt!==t){ sect._rdt=t; sect.style.setProperty('--readtop', t+'px'); }
+  }
+
   function placeClose(sect){
     var xb=sect && sect._jpx;
     if(!xb) return;
@@ -6126,8 +6761,7 @@ document.addEventListener('play', function (e) {
     if(!r.width){ xb.style.left=''; return; }
     xb.style.left=Math.round(Math.max(6, r.right - xb.offsetWidth))+'px';
   }
-  var openSect=null;
-  window.addEventListener('resize', function(){ if(openSect) placeClose(openSect); });
+  window.addEventListener('resize', function(){ if(openSect){ placeClose(openSect); placeRead(openSect); } });
 
   function toggle(sect, open, noPin){
     // Everything below is about to change height, so something has to be nailed down
@@ -6167,6 +6801,18 @@ document.addEventListener('play', function (e) {
     // Anything inside was never intersected while it was display:none, so the
     // fade-in observer never fired for it. Light it up by hand on the way open.
     if(open) [].forEach.call(sect.querySelectorAll('.reveal'), function(el){ el.classList.add('in'); });
+    if(open && window.__markRead) window.__markRead(sect, true);   // opening one is reading it
+    // Folding a stop hands its blocks back: the per-block pass above only runs while a stop
+    // is open, so without this they would keep whatever scale they were left at.
+    if(!open){
+      [].forEach.call(sect.querySelectorAll('.jp-head, .jp-metrow, .j-peek, .j-body > *'), function(k){
+        k.style.zoom=''; k.style.width=''; k.style.maxWidth=''; k.style.marginLeft='';
+      });
+      sect.style.removeProperty('--openw');
+      sect.style.removeProperty('--openx');
+      sect.style.removeProperty('--nx');
+      sect.style.removeProperty('--ny');
+    }
     // Closing a stop hides its contents but does NOT stop them: a video keeps playing from
     // inside a display:none box, so you shut the card and were left with a voice coming
     // from nowhere. Anything mid-play in there gets paused on the way out.
@@ -6174,9 +6820,12 @@ document.addEventListener('play', function (e) {
       if(!v.paused) try{ v.pause(); }catch(e){}
     });
     openSect = open ? sect : null;
-    if(open) placeClose(sect);
+    if(open){ placeClose(sect); placeRead(sect); }
     body.classList.toggle('has-open', !!document.querySelector('.j-sect.is-open'));
     reflow();
+    // Again after the reflow: opening a stop changes the type's measure, so the heading can
+    // be a different height than it was a moment ago and the first measurement is stale.
+    if(open) requestAnimationFrame(function(){ placeRead(sect); });
     // A jump link is ASKING to move the page, so the anchoring below has to stand down
     // for it -- otherwise the correction lands a frame after the browser's jump and
     // drags you straight back to where you were. This was why the dimming fired but
@@ -6200,6 +6849,8 @@ document.addEventListener('play', function (e) {
   // The page just changed height by thousands of pixels; the map, the walker and
   // the charts all measure off the document, so tell them.
   function reflow(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} }
+
+  sects.forEach(paintRead);   // restore whatever was ticked on a previous visit
 
   var btns=[].slice.call(document.querySelectorAll('.rm-btn'));   // both switches, one contract
 
@@ -6250,6 +6901,19 @@ document.addEventListener('play', function (e) {
       _rfm.setAttribute('aria-label', quick ? 'Reading mode: discrete. Switch to continuous.'
                                             : 'Reading mode: continuous. Switch to discrete.');
     }
+    // Hand every block back before the mode changes. Continuous scales blocks individually
+    // and Discrete scales whole folded cards, and the two write to the same inline
+    // properties -- so a card coming back from Continuous still had a heading and a rule
+    // frozen at Continuous's size, which is why they stopped shrinking with everything else.
+    // The resizer re-applies whichever is right on the next frame.
+    [].forEach.call(document.querySelectorAll(
+      '.j-sect, .j-sect .jp-head, .j-sect .jp-metrow, .j-sect .j-peek, .j-sect .j-body > *'
+    ), function(k){
+      k.style.zoom=''; k.style.width=''; k.style.maxWidth=''; k.style.marginLeft='';
+    });
+
+    if(window.__fitHeads) window.__fitHeads();   // the measure differs per mode, so re-fit the titles
+
     // noPin on each: the one correction below covers the whole change, and 24 of them
     // each nudging the scroll would fight each other.
     if(!quick && userInit) sects.forEach(function(x){ toggle(x, false, true); });   // continuous: is-open is meaningless
@@ -6691,7 +7355,9 @@ document.addEventListener('play', function (e) {
    The dimming is done with one enormous spread shadow on the ring rather than four panels
    or an SVG mask: box-shadow:0 0 0 9999px paints everything OUTSIDE the ring's box, which
    is exactly the hole we want, and it animates on one compositable property. */
-.tour-launch-wrap{ max-width:var(--measure,100%); margin:1.4rem auto 0; text-align:center;
+.tour-launch-wrap{ max-width:var(--measure,100%); margin:.4rem auto 2.8rem; text-align:center;   /* KNOB: space above / below the launcher */
+  /* centred is a desktop luxury: on a phone the lane is narrow and the map takes the right
+     third, so centring pushes this under it. Left-aligned below. */
   opacity:0; transform:translateY(10px);
   transition:opacity .7s ease, transform .8s cubic-bezier(.2,.7,.3,1) }
 .tour-launch-wrap.in{ opacity:1; transform:none }
@@ -6705,6 +7371,10 @@ document.addEventListener('play', function (e) {
 .tour-launch:focus-visible{ outline:3px solid #f5820b;outline-offset:3px }
 .tour-launch svg{ flex:none;opacity:.65 }
 .tour-launch:hover svg{ opacity:1 }
+/* Sits about a quarter of the way higher in the gap between "here we go!!" and the Preface:
+   the space is taken off the top and given back underneath, so the run of the page is the
+   same length. */
+@media(max-width:1100px){ .tour-launch-wrap{ text-align:left; margin-top:.35rem; margin-bottom:2.2rem } }
 /* The trophy in the floating control cluster. Same pill as its neighbours. */
 .rf-quiz[hidden], .rf-sep[hidden]{ display:none }
 .read-float .rf-quiz b{ font:700 .72rem 'DM Sans',sans-serif;font-variant-numeric:tabular-nums }
