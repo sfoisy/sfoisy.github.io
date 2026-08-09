@@ -396,9 +396,10 @@ body.mode-quick .j-sect .si-marks{ display:none }   /* symbols retired from the 
      empty checkbox without help. It is the DONE state that needs a word, so that a green
      circle is not left to carry the meaning by itself. So: symbol only when off, symbol and
      "Read" when on. The button shrinks to a circle in the off state to match. */
-  .jp-read{ font-size:.58rem;padding:.24rem .5rem;margin-left:.35rem;gap:.28rem }
-  .jp-read:not(.on){ width:24px;height:24px;padding:0;justify-content:center;gap:0 }
-  .jp-read:not(.on) span{ display:none }
+  /* Gone on a phone. It is a nicety for someone working through 23 stops at a desk over
+     several sittings; on a phone it is one more thing competing for a narrow header row. The
+     markup and the stored state stay -- open this page on a laptop and your ticks are there. */
+  .jp-read{ display:none }
 }.jp-head .si-ic{width:19px;height:19px}
 /* The barrier between one stop and the next. It lands on the header row rather
    than on .j-card, because the header already carries --measure and so lines up
@@ -1336,6 +1337,9 @@ footer .fcredit{font-size:.72rem;color:#000;letter-spacing:.02em}
   }
   .hero-row{display:flex;gap:1rem;align-items:flex-start}   /* mobile: two-column hero like desktop */
   .hero-figure{display:block;flex:0 0 42%;max-width:none}   /* mobile: letters image up in the hero, top-right (KNOB: 42%) */
+  /* (The lede used to repeat the hero photograph here. Removed from the markup rather than
+     hidden -- a display:none would not have held anyway: the mobile resizer writes
+     display:block inline on every image it sizes, and inline beats a stylesheet.) */
   /* Byline, headshot and chips on one line is a desktop luxury. On a phone the chips wrap
      mid-row and read as debris, so they get a line of their own under the name. */
   .article-meta{flex-wrap:wrap;row-gap:.6rem}
@@ -2046,7 +2050,6 @@ body.map-fs #mapFsExit{ display:flex }
       
       <div class="j-lead">
         <p class="lede">My PhD experience has been anything but typical, featuring an <a href="https://www.nytimes.com/2025/05/16/nyregion/nasa-office-columbia-seinfeld-toms-restaurant.html" target="_blank" rel="noopener">eviction</a> in May 2025, and bouncing between temporary desks and online meetings <a href="https://youtu.be/i3ByIcXFt6Y?si=MDe-R0UBMAcotXf8" target="_blank" rel="noopener">ever since</a>. As such, it felt logical that I take my work to the road… or more accurately… the sidewalk… for an epic quest to share the importance of federally funded weather and climate research.</p>
-        <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/letters.png" alt="Letters delivered to Congress" style="margin-top:1.5rem;">
         <img class="lead-art" src="https://wesitefoisy1.b-cdn.net/art_start.png" alt="A hand-drawn arrow from NYC to DC reading 'a scrolling adventure'" loading="lazy" decoding="async">
         <div class="map-flow" id="mapFlow" aria-hidden="true" style="--mf-x:-12px;--mf-y:10px;--mf-scale:1.5;--mf-rot:-5deg">
           <img src="https://wesitefoisy1.b-cdn.net/open_FINAL.jpg" alt="">
@@ -5912,7 +5915,12 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
   // .j-sect does not exist yet: the accordion builds the sections in a later script. One
   // re-collect after the parser is done picks them up, and one on load covers anything that
   // arrives with an image.
-  function collect(){ media=[].slice.call(document.querySelectorAll(SEL)); }
+  function collect(){
+    media=[].slice.call(document.querySelectorAll(SEL));
+    // Forget every cached signature: the page has changed shape if we are re-collecting.
+    [].forEach.call(document.querySelectorAll('.j-sect .jp-head, .j-sect .jp-metrow, .j-sect .j-peek, .j-sect .j-body > *'),
+      function(k){ k._kf=null; });
+  }
   setTimeout(collect, 0);
   window.addEventListener('load', collect);
   var T=55;            // KNOB: px over which it eases from full-width back to the margin.
@@ -6092,10 +6100,17 @@ const DATA = {"route": [[916.7, 67.3], [915.9, 67.9], [915.7, 68.9], [915.2, 69.
         var _pkB=_pkEl ? _pkEl.getBoundingClientRect().bottom : 0;
         var _elT=el.getBoundingClientRect().top;
         var _rdH=_rdEl ? _rdEl.offsetHeight : 0;
+        // The cache key carries the GEOMETRY, not just the factor. Keyed on kf alone, a block
+        // that had already been written at kf=1 was skipped forever after -- so when the lane
+        // or the viewport changed under it (which on a phone happens as the map settles on
+        // first load) it kept the width it was given before the change and never caught up.
+        // Scrolling backwards happened to move it through a different kf and unstick it,
+        // which is exactly the shape of the bug you would see.
+        var _key=Math.round(fullW)+':'+Math.round(constrainedW)+':'+Math.round(laneLeft);
         _plan.forEach(function(pair){
-          var kid=pair[0], kf=pair[1];
-          if(kid._kf === kf) return;               // nothing to say that was not said last frame
-          kid._kf = kf;
+          var kid=pair[0], kf=pair[1], sig=kf.toFixed(4)+'|'+_key;
+          if(kid._kf === sig) return;              // nothing to say that was not said last frame
+          kid._kf = sig;
           var kk=constrainedW ? lerp(1, fullW/constrainedW, kf) : 1;
           var kw=lerp(constrainedW, fullW, kf), km=lerp(0, SIDE-laneLeft, kf);
           kid.style.zoom=kk.toFixed(4);
@@ -6688,7 +6703,7 @@ document.addEventListener('play', function (e) {
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on?'true':'false');
     b.title = on ? 'Read \u2014 click to clear' : 'Mark this stop as read';
-    b.querySelector('span').textContent = on ? 'Read' : 'Mark read';
+    b.querySelector('span').textContent = on ? 'Read' : 'Unread';
   }
   function setRead(sect, on){
     var b=sect.querySelector('.jp-read'); if(!b) return;
