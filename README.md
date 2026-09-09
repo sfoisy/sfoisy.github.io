@@ -1,15 +1,13 @@
 # NYC to DC walk — site files
 
-Nine files, no build step, no dependencies. Drop them in the repo root next to your
+Seven files, no build step, no dependencies. Drop them in the repo root next to your
 existing images and GitHub Pages serves them as they are.
 
 | File | What it is |
 |---|---|
 | `index.html` | The home page. Also the news digest (`#news`) and the blog's three cards (`#blog`). |
 | `walk.html` | The article. Links out to the interviews, both games, and the home page. |
-| `blog.html` | **Back.** The original blog page, whole — reached from "See all blog posts". |
-| `interviews.html` | The fourteen conversations, and the player they open in. |
-| `challenges.html` | The two games. |
+| `blog.html` | The blog page, whole — reached from "See all blog posts". |
 | `news.html` | The full dated list. Add entries at the top of the `<ul>`. |
 | `letters.html` | The Letter Collection Game. |
 | `quiz.html` | Quiz Time: Climate Walk Trivia. |
@@ -25,18 +23,29 @@ and the "See all blog posts" button under the three cards is the way to it.
 
 ## The blog, folded into the home page
 
-`index.html#blog` is the old blog front page: the same three cards, in the home page's
-own light palette instead of the blog's dark one. Every card is a plain anchor that leaves
-for a page of its own — no script, no panel, and middle-click and cmd-click behave.
+`index.html#blog` shows **the same three screens `blog.html` shows**, in the home page's
+light furniture instead of the blog's dark, and inside the section rather than on pages of
+their own. Only one is ever visible, and none of it is a page load — the section keeps its
+place and the page scrolls to the top of it, so the bar, the news above and the publications
+below never move.
 
-- **Card 1** → `walk.html`, as it did before.
-- **Card 2** → `interviews.html`. Clicking a portrait there opens the clip over the page.
-- **Card 3** → `challenges.html`. The tiles are real links now — `quiz.html` and
-  `letters.html`.
+- **The cards** — the front page. Card 1 is a plain `<a>` to `walk.html` and works with no
+  script at all.
+- **The wall** — card 2 opens the fourteen portraits, `#hub`, with the standing bio under
+  them. Same anchor `blog.html` uses.
+- **A post** — a portrait on the wall, or card 3, opens one post: heading, date, the clip with
+  its captions, then the standing block. `#post-hikaru`, `#post-games` — again the same
+  anchors `blog.html` uses, so a link shared from either page lands on the same thing.
+
+The way back is a button at the **foot** of the post, where `blog.html` puts it: you have
+finished reading, and a control at the top would sit in front of the thing you came for. It
+returns you to whichever screen you came from — the wall, or the cards.
+
+`interviews.html` and `challenges.html` are gone; those two views live here now.
 
 **To add a fifteenth interview:** add a row to `INTERVIEWS` in the script at the foot of
-`interviews.html` — name, title, mile, date, cover, poster, video, srt — and nothing else.
-The wall builds itself from that list and the player reads it.
+`index.html` — name, mile, date, cover, poster, video, srt — and nothing else. The wall, the
+deep links and the player all follow.
 
 **Captions** are the same `CC_CUES` block the blog carried, moved across word for word, so
 the clips caption exactly as they did and exactly as they do on `walk.html`. A clip with no
@@ -97,8 +106,8 @@ inside its own box with a tighter 1.6rem gap, and below 701 the hamburger takes 
   half second the sheet fades.
 - The livestream logo in the bottom right of both games is at 60% — every number in the rule,
   phone sizes included.
-- `quiz.html`: the Interviews chip points at `interviews.html`.
-- `walk.html`: the "Blogs" pill points at `interviews.html`. `walk-WRITE.html` got the
+- `quiz.html`: the Interviews chip points at `index.html#hub`.
+- `walk.html`: the "Blogs" pill points at `index.html#hub`. `walk-WRITE.html` got the
   same link edits, so the two stay in step for the merge tool.
 - **The middle of the page is one gradient cut into four.** The cloud chamber, News, Blog and
   Publications used to be flat blocks with hard edges between them; each now carries a
@@ -150,9 +159,8 @@ What you get: views per page, referring hosts, and a 30-day chart. What you do n
 unique visitors, sessions, or where anyone went next — those need an identifier, which is
 the thing this deliberately does not mint.
 
-The dashboard still asks for the `blog` key. The page is gone, so the number stops climbing,
-but the views it took before the merge are still there and dropping the name is the one way
-to lose them.
+`blog` is in the dashboard's list and is a live page again; its tally is unbroken across the
+round it spent off the site, because the key was never dropped from that list.
 
 ## About that "private" link
 

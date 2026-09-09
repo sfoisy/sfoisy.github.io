@@ -46,14 +46,14 @@ a{ color:#2c62a8 }
 <div class="wrap">
 
   <h1>Site stats</h1>
-  <p class="sub">index &middot; walk &middot; blog &middot; interviews &middot; challenges &middot; news &middot; letters &middot; quiz &nbsp;|&nbsp; <span id="when">—</span></p>
+  <p class="sub">index &middot; walk &middot; blog &middot; news &middot; letters &middot; quiz &nbsp;|&nbsp; <span id="when">—</span></p>
 
   <div id="setup" class="card warn" hidden>
     <p class="note" style="margin:0">
       <b>No counter connected yet.</b> These pages are static files on GitHub Pages, which has
       no server to keep a tally on, so the count has to live somewhere that does. Pick a
       counter service, then put its base URL in two places: <code>COUNTER</code> in the snippet
-      at the foot of each of the eight pages, and <code>COUNTER</code> at the top of the script
+      at the foot of each of the six pages, and <code>COUNTER</code> at the top of the script
       in this file. Nothing else changes, and until then every page records nothing and breaks
       nothing.
     </p>
@@ -93,10 +93,10 @@ a{ color:#2c62a8 }
 
 <script>
 (function(){
-  /* Same value as the snippet at the foot of the eight pages. Empty = nothing to read. */
+  /* Same value as the snippet at the foot of the six pages. Empty = nothing to read. */
   var COUNTER = '';
 
-  /* The eight pages that carry the snippet. A key-value
+  /* The six pages that carry the snippet. A key-value
      counter cannot list its own keys, so every page has to be asked for by name: add a page
      to the site, add its name here. The name is the file name without .html, which is what
      the snippet sends.
@@ -104,7 +104,7 @@ a{ color:#2c62a8 }
      `blog` is the whole blog -- blog.html, the page the home page's "See all blog posts"
      button goes to. It was off the site for a round and its tally is unbroken across that,
      because the key was never dropped from this list. */
-  var PAGES = ['index', 'walk', 'interviews', 'challenges', 'news', 'letters', 'quiz', 'blog'];
+  var PAGES = ['index', 'walk', 'blog', 'news', 'letters', 'quiz'];
 
   document.getElementById('when').textContent = new Date().toLocaleString();
 
