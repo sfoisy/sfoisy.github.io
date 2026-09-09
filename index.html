@@ -386,9 +386,30 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    KNOB: --date-col is that column's width. Widen it for longer date labels. */
 .newsfeed{}
 .newsfeed .news-list{--date-col:9.5rem;list-style:none;max-width:760px;margin:0 auto}
+/* BASELINE, not the grid's default stretch. The date and the entry are two
+   pieces of one sentence and have to sit ON the same line -- which a grid does
+   not do by itself: each cell is its own block, and two blocks with different
+   line-heights put their first line at different heights. So they are aligned on
+   the baseline of their first line, and the date is given the entry's own
+   line-height, which is the other half of it. Between them they made the date
+   ride a few pixels high. */
 .newsfeed .news-list li{
-  display:grid;grid-template-columns:var(--date-col) 1fr;gap:1.25rem;
+  display:grid;grid-template-columns:var(--date-col) 1fr;gap:.9rem;
+  align-items:baseline;
   padding:1.1rem 0;border-bottom:1px solid var(--pale)
+}
+/* THE LEADER. A row of dots between the date and the entry, the way a contents
+   page runs them out to a page number: it ties the two ends of the line together
+   so the eye tracks across the gap instead of reading the date and the sentence
+   as two separate things.
+
+   On the entry rather than after the date, so it wraps with the sentence and
+   cannot end up alone at the end of the date column. Set well back -- it is
+   punctuation, not content. */
+.newsfeed .entry::before{
+  content:"\2022\2022\2022\2022\2022\2022\2022";
+  margin-right:.55rem; letter-spacing:.16em; font-size:.72em;
+  opacity:.38; vertical-align:.08em;
 }
 .newsfeed .news-list li:last-child{border-bottom:0}
 /* THE DATE IS THE SAME SENTENCE AS THE ENTRY, one weight up. It was a .7rem
@@ -399,7 +420,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    difference between them.
    The column is 9.5rem, which fits "September 12, 2026" at this size with room;
    check that if you ever write a longer label. */
-.newsfeed time{font-size:1rem;font-weight:700;color:inherit;padding-top:0;white-space:nowrap}
+.newsfeed time{font-size:1rem;font-weight:700;line-height:1.75;color:inherit;padding-top:0;white-space:nowrap}
 .newsfeed .entry{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75}
 .newsfeed .entry a{color:var(--mid);font-weight:400;text-decoration:underline;text-decoration-color:var(--lavender)}
 .newsfeed .entry a:hover{text-decoration-color:var(--purple)}
@@ -499,6 +520,9 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
   .card-grid{grid-template-columns:1fr;max-width:420px}
   .newsfeed .news-list li{grid-template-columns:1fr;gap:.2rem}
   .newsfeed time{padding-top:0}
+  /* The date sits ABOVE the entry at this width, and a leader that runs between
+     two things one under the other is pointing at nothing. */
+  .newsfeed .entry::before{content:none}
 }
 
 /* ===== THE PHOTOGRAPH RUNS TO THE TOP OF THE WINDOW ========================
@@ -636,6 +660,54 @@ nav, .nav-mobile-menu{
 /* Cards, panels and photo frames inside all of this stay white: that contrast
    against the block behind them is what makes them read as objects sitting on
    the page rather than as areas of it. */
+
+/* ===== THE TWO COLUMN HEADINGS =============================================
+   "I research the sky" and "I love trying new things" sit at the head of a
+   column of prose rather than at the head of a full-width section, and they are
+   set on ONE LINE and centred over that column.
+
+   The break came out with the centring, and the two go together: a hard <br>
+   splits a line at a point chosen for one window width, and a centred heading
+   with a hand-placed break reads as two ragged lines rather than as one
+   deliberate one. One line, centred on the paragraph under it, is the same
+   treatment the full-width headings get from .sec-hd -- so all six headings
+   down the page now agree on where a heading sits.
+
+   The measure is what keeps them honest: both are short enough to hold one line
+   down to about 420px, below which the column is narrow enough that a natural
+   wrap is fine and lands where the words allow rather than where a <br> was
+   typed. */
+.about-right .section-title,
+.chamber-text .section-title{ text-align:center }
+
+/* ===== SCIENCE COMMUNICATION ===============================================
+   THE HEADING, on one line and centred over the column it belongs to, like the
+   other two column headings above it. It was set at clamp(2.5rem, 5vw, 4rem)
+   with a hard break in the middle -- nearly twice the size of every other
+   heading on the page, and broken at a point chosen for one window width. The
+   inline size is gone with the break; it takes .section-title's own scale, which
+   is what "Publications & Presentations" and "I research the sky" are set at.
+
+   THE TWO PHOTOGRAPHS, brought inside the height of the text beside them. The
+   column was 1fr against the text's 1fr, so the pictures ran a long way below
+   the last line and the section ended on a column of photographs with nothing
+   opposite. Two changes do it: the column is narrower than the text's now, and
+   each picture is capped so the pair cannot outgrow the paragraphs whatever the
+   window is doing.
+
+   KNOBS: the .78fr, and --sc-shot (how tall either picture may go). Raise both
+   together or the pictures get wider without getting taller and the crop tightens. */
+.scicomm{ grid-template-columns:1fr .78fr; gap:3rem; align-items:start }
+.scicomm .section-title{ text-align:center }
+.scicomm{ --sc-shot:190px }
+.scicomm img{ max-height:var(--sc-shot); width:100%; object-fit:cover; object-position:center top }
+
+@media(max-width:900px){
+  /* One column at this width, so the pictures have the full lane and no text to
+     stay level with. The cap comes off and they take their natural height. */
+  .scicomm{ --sc-shot:none }
+  .scicomm img{ max-height:none }
+}
 </style>
 </head>
 <body>
@@ -723,7 +795,7 @@ function toggleMenu(){
   </div>
   <div class="about-right">
     
-    <h2 class="section-title">I research<br>the sky</h2>
+    <h2 class="section-title">I research the sky</h2>
     <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from <strong><a href="https://pace.oceansciences.org/data_table.htm" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">NASA's PACE mission</a></strong> and <strong><a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">NASA GISS ModelE</a></strong> climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by <strong><a href="https://people.climate.columbia.edu/users/profile/susanne-e-bauer" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Dr. Susanne Bauer</a> and <a href="https://people.climate.columbia.edu/users/profile/kostas-tsigaridis" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Dr. Kostas Tsigaridis</a></strong>.</p>
     
     <!-- 
@@ -738,7 +810,7 @@ function toggleMenu(){
   <div class="chamber-inner">
     <div class="chamber-text">
       
-      <h2 class="section-title">I love trying<br>new things</h2>
+      <h2 class="section-title">I love trying new things</h2>
       <p>Before starting my PhD, I built a cloud chamber at Williams College in collaboration with <strong><a href="https://www.williams.edu/profile/ajc7/" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Prof. Anthony Carrasquillo</a></strong> and <strong><a href="https://science.psu.edu/chem/people/maf43" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Prof. Miriam Freedman</a></strong> to study how aerosols respond to changes in humidity. Many undergo a striking transformation, separating into two distinct liquid phases much like oil and water, with real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today.</p>
     </div>
     <div class="chamber-img">
@@ -843,7 +915,7 @@ function toggleMenu(){
     <div class="pub">
       <p class="pub-title">Mutual Constraints on Global Aerosol Composition from Novel PACE Data and ModelE</p>
       <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
-      <span class="pub-badge">In prep</span>
+      <span class="pub-badge">Submitted</span>
     </div>
     <div class="pub">
       <p class="pub-year">2024 · Highest Honors</p>
@@ -864,7 +936,7 @@ function toggleMenu(){
 <!-- SCICOMM -->
 <section class="scicomm" id="outreach">
   <div class="scicomm-text">
-    <h2 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">Science<br>Communication</h2>
+    <h2 class="section-title">Science Communication</h2>
     <p>I believe science only matters <a href="https://talkstem.org/williams-college-x-talkstem-environmental-field-methods-summer-science-program-2024/" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">as much as it is understood.</a></p>
     <p>In 2025, I served as opening host for the <strong><a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">100-Hour Weather &amp; Climate Livestream</a></strong>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
     <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">walked</a></strong> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">here</a>!</p>
