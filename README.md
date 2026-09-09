@@ -5,8 +5,10 @@ existing `index.html` and GitHub Pages serves them as they are.
 
 | File | What it is |
 |---|---|
+| `index.html` | The home page. |
 | `walk.html` | The article. Links out to the blog, both games, and the home page. |
 | `blog.html` | The interview blog. `walk.html#games` sends readers here via `blog.html#hub`. |
+| `news.html` | A dated list of what you have been up to. Add entries at the top of the `<ul>`. |
 | `letters.html` | The Letter Collection Game. |
 | `quiz.html` | Quiz Time: Climate Walk Trivia. |
 | `stats-7f3a9c21.html` | Your visit counter. Unlisted, not linked from anywhere. |
@@ -23,12 +25,18 @@ existing `index.html` and GitHub Pages serves them as they are.
   now, which is what `blog.html` already used and which works either way — user site,
   project site under `/reponame/`, or a custom domain.
 
-**`index.html` is not in this folder.** Every page's nav points at it, so keep your
-existing one in the same directory.
+**The bar is the same six items on all four pages that have one** -- About, Music, Blog,
+News, Contact, CV. On `index.html` the two hash links are bare fragments (`#about`); on the
+other three they carry the file name (`index.html#about`), because from those pages they are
+pointing home rather than at themselves. The two games have no bar.
+
+**`index.html` needs its images.** Twenty files it references -- `aurora.png` is gone but
+`photo.jpg`, `favicon.png`, `animation_fixed.mp4`, `snow1`-`snow7.png` and the rest are not
+in this folder. They should already be in the repo; only the HTML changed.
 
 ## The visit counter
 
-Each page carries a small snippet at the very bottom that records one view, plus the host
+All six pages carry a small snippet at the very bottom that records one view, plus the host
 the visitor arrived from. No cookies, no identifiers, nothing written to the reader's
 machine — so no consent banner and nothing to click past.
 
@@ -37,7 +45,7 @@ you give it one, every page records nothing and breaks nothing: the request is w
 fails silently.
 
 **To switch it on:** pick a counter service, then set `COUNTER` to its base URL in two
-places — the snippet at the foot of each of the four pages, and the top of the script in
+places — the snippet at the foot of each of the six pages, and the top of the script in
 `stats-7f3a9c21.html`. That is the only edit.
 
 What you get: views per page, referring hosts, and a 30-day chart. What you do not get:

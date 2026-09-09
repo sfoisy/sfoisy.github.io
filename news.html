@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="News and recent activity — Syl Foisy, PhD Candidate in Atmospheric Science at NASA GISS / Columbia University.">
+<title>News · Syl Foisy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- ===========================================================================
+     NEWS
+
+     A list, and deliberately nothing more. Every other page on this site has a
+     job that needs machinery -- a map, a reader, a game -- and this one has a
+     job that needs a <ul>: say what happened and when, newest first. Adding a
+     filter, a tag system or a "load more" to a page with six entries on it costs
+     the reader nothing and costs you every future edit.
+
+     TO ADD AN ENTRY: copy one <li> block, put it at the TOP of the list, change
+     the date and the words. That is the whole workflow. The date and the text
+     are two separate elements so the dates line up down the page as a column
+     rather than running into the sentences beside them.
+
+     A YEAR HEADING is optional. Start one when the list gets long enough that
+     scanning it stops being instant -- there is a commented-out example below.
+     ========================================================================= -->
+<style>
+:root{
+  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
+  --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
+  --white:#fff;--text:#1a1830;--muted:#6b6882
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);line-height:1.65;-webkit-font-smoothing:antialiased}
+
+/* NAV -- the same bar as the rest of the site, base rules copied from index.html so this
+   page needs nothing from anywhere else. The colour block at the foot of the file paints it. */
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
+.nav-links a:hover{color:var(--purple)}
+.nav-hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:.5rem}
+.nav-hamburger span{width:22px;height:2px;background:var(--deep);transition:.3s}
+.nav-hamburger.active span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav-hamburger.active span:nth-child(2){opacity:0}
+.nav-hamburger.active span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nav-mobile-menu{display:none;flex-direction:column;background:var(--white);border-bottom:1px solid var(--pale);padding:.5rem 0;position:sticky;top:58px;z-index:99}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
+
+/* MASTHEAD -- the same solid navy as the home page's hero, so the two tops match. */
+.news-head{background:#0f1e35;padding:3.25rem 4rem 2.75rem}
+.news-head h1{font-family:'Playfair Display',serif;font-size:clamp(2.1rem,4vw,3rem);font-weight:700;color:var(--white);letter-spacing:-.02em;line-height:1.1}
+/* Unused as it stands -- the masthead is the word "News" and nothing else. Kept because a
+   line of standfirst under the heading is one <p> away if it ever wants one. */
+.news-head p{color:rgba(255,255,255,.72);font-size:.98rem;font-weight:300;margin-top:.6rem;max-width:46ch}
+
+/* THE LIST ---------------------------------------------------------------
+   A two-column grid per row: the date in the left column, the entry in the right.
+   grid rather than a float or an inline date, so every date starts at the same x
+   however long the entry beside it runs -- which is the whole reason a list of
+   dated things is readable at a glance.
+   KNOB: --date-col is that column's width. Widen it if you start writing longer
+   date labels ("Spring 2026", "May–June 2026"). */
+.news{--date-col:9.5rem;max-width:820px;margin:0 auto;padding:3rem 1.5rem 5rem}
+.news ul{list-style:none}
+.news li{
+  display:grid; grid-template-columns:var(--date-col) 1fr; gap:1.25rem;
+  padding:1.15rem 0; border-bottom:1px solid var(--pale);
+}
+.news li:last-child{border-bottom:0}
+.news time{
+  font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--purple); padding-top:.28rem; white-space:nowrap;
+}
+.news .entry{font-size:1rem;color:var(--text)}
+.news .entry a{color:var(--mid);text-decoration:underline;text-decoration-color:rgba(46,125,212,.4)}
+.news .entry a:hover{text-decoration-color:var(--purple)}
+/* Optional year divider. */
+.news h2{
+  font-family:'DM Sans',sans-serif; font-size:.72rem; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+  margin:2.5rem 0 .5rem; padding-bottom:.4rem; border-bottom:1px solid var(--pale);
+}
+/* For an empty list. Unused now there is an entry, and left here for the day the list is
+   cleared out or a second one is started. */
+.news .empty{color:var(--muted);font-style:italic}
+
+footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+
+@media(max-width:900px){
+  nav{padding:0 1.5rem}
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .news-head{padding:2.25rem 1.5rem 2rem}
+  footer{padding:1.5rem;flex-direction:column;gap:.5rem;text-align:center}
+}
+/* On a phone the date sits ABOVE its entry rather than beside it: a 9.5rem column out of a
+   360px screen is a third of the width given to two words. */
+@media(max-width:600px){
+  .news li{grid-template-columns:1fr;gap:.2rem}
+  .news time{padding-top:0}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-name">Syl Foisy</a>
+  <div class="nav-links">
+    <a href="index.html#about">About</a>
+    <a href="index.html#videos">Music</a>
+    <a href="blog.html">Blog</a>
+    <a href="news.html" class="current">News</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <a href="index.html#about" onclick="toggleMenu()">About</a>
+  <a href="index.html#videos" onclick="toggleMenu()">Music</a>
+  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="news.html" onclick="toggleMenu()">News</a>
+  <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
+  <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
+</div>
+
+<header class="news-head">
+  <h1>News</h1>
+</header>
+
+<main class="news">
+  <ul>
+
+    <!-- ================= ADD NEW ENTRIES AT THE TOP OF THIS LIST =================
+         Copy one <li> and change the two lines inside it. <time datetime="..."> is the
+         machine-readable date -- YYYY-MM for a month, YYYY-MM-DD for a day. It is what a
+         browser or a feed reader would use; the words a person sees are the ones between
+         the tags.
+
+    <li>
+      <time datetime="2026-05">May 2026</time>
+      <p class="entry">I walked from NYC to DC! <a href="walk.html">Read the whole thing here</a>.</p>
+    </li>
+
+         And a year heading, if the list ever wants one. It goes BETWEEN two </li> and <li>
+         rather than inside either:
+
+    <h2>2025</h2>
+    ========================================================================== -->
+
+    <li>
+      <time datetime="2026-06-03">June 3, 2026</time>
+      <p class="entry">I finished my walk from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
+    </li>
+
+  </ul>
+</main>
+
+<footer>
+  <span class="fname">Syl Foisy</span>
+  <span class="fcredit">Last updated September 2026</span>
+</footer>
+
+<script>
+function toggleMenu(){
+  var m = document.getElementById('mobileMenu');
+  var b = document.querySelector('.nav-hamburger');
+  m.classList.toggle('open');
+  b.classList.toggle('active');
+}
+</script>
+
+<!-- ===== The bar, in the walk's colours ======================================
+     The same four values the other pages carry, last in the document so these
+     selectors beat the base rules above by source order alone.
+     KNOB: --nav-ink is the type, --nav-bar the glass, --nav-rule the hairline,
+     --nav-sheet the phone menu, --nav-under what the bar composites onto where
+     the blur is switched off. -->
+<style>
+nav, .nav-mobile-menu{
+  --nav-ink:#fff;
+  --nav-bar:rgba(10,20,38,.72);
+  --nav-rule:rgba(255,255,255,.30);
+  --nav-sheet:rgba(10,20,38,.95);
+  --nav-under:#c8dcf5;
+}
+nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
+@media(max-width:700px){
+  nav{ background:linear-gradient(var(--nav-bar), var(--nav-bar)), var(--nav-under) }
+}
+.nav-name{ color:var(--nav-ink) }
+.nav-links a{ color:var(--nav-ink) }
+.nav-links a:hover{ color:var(--nav-ink); opacity:.55 }
+.nav-links a.current{ color:var(--nav-ink); opacity:.55 }
+.nav-hamburger span{ background:var(--nav-ink) }
+.nav-mobile-menu{ background:var(--nav-sheet); border-bottom:1px solid var(--nav-rule) }
+.nav-mobile-menu a{ color:var(--nav-ink); border-bottom:1px solid var(--nav-rule) }
+</style>
+
+<!-- ===== visit counter =======================================================
+     One page view, counted, plus where it came from. Four lines of work and a
+     lot of comment, because the interesting part is what it deliberately does
+     NOT do.
+
+     NO COOKIES, NO IDS, NO CONSENT BANNER. Nothing is written to the visitor's
+     machine and no identifier is minted, so there is nothing to ask permission
+     for and no banner to click past. The trade is real and worth stating: these
+     are VIEWS, not people. One reader who opens the walk three times is three.
+
+     WHAT IT SENDS: the page name, and the HOST the visitor came from -- t.co,
+     reddit.com, bsky.app -- never the full referring URL, which can carry search
+     terms and private paths. Same-site hops (walk -> quiz) resolve to "direct",
+     since they are not a new arrival.
+
+     WHERE IT SENDS IT: --COUNTER-- below. A static site on GitHub Pages has no
+     server of its own, so the count has to live somewhere that does; stats.html
+     reads back from the same place. Set it once, in every file, or leave it as
+     it stands and the page records nothing and breaks nothing -- the fetch is
+     wrapped and the failure is silent, because a reader should never see a
+     counter fall over.
+
+     It runs after load and out of the way of everything else: a counter is the
+     least important thing on any of these pages. -->
+<script>
+(function(){
+  var COUNTER = '';           /* <-- your counter's base URL. Empty = count nothing. */
+  var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+
+  function source(){
+    if(!document.referrer) return 'direct';
+    try{
+      var h = new URL(document.referrer).hostname.replace(/^www\./, '');
+      return h === location.hostname.replace(/^www\./, '') ? 'direct' : h;
+    }catch(e){ return 'direct'; }
+  }
+
+  function bump(key){
+    if(!COUNTER) return;
+    try{
+      fetch(COUNTER.replace(/\/$/, '') + '/hit/' + encodeURIComponent(key),
+            { mode:'no-cors', keepalive:true }).catch(function(){});
+    }catch(e){}
+  }
+
+  function go(){
+    bump('page:' + PAGE);                       /* views of this page          */
+    bump('from:' + source());                   /* where the visitor came from */
+    bump('day:' + new Date().toISOString().slice(0,10));   /* views per day    */
+  }
+
+  if(document.readyState === 'complete') setTimeout(go, 0);
+  else window.addEventListener('load', function(){ setTimeout(go, 0); });
+})();
+</script>
+</body>
+</html>

@@ -248,13 +248,20 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
      being able to name it. Four is what survives on a phone without wrapping, and the
      sections that came out are all still reachable from the page they live on.
 
-     .nav-links already sets text-transform:uppercase, so these render as ABOUT, BLOG,
-     CONTACT, CV whatever case they are written in here. -->
+     Six items, and the same six on walk.html, blog.html and news.html. Music points at the
+     #videos section of this page and News at news.html; on the other pages those two carry
+     the file name (index.html#videos) because they are pointing here rather than at
+     themselves.
+
+     .nav-links already sets text-transform:uppercase, so these render as ABOUT, MUSIC,
+     BLOG, NEWS, CONTACT, CV whatever case they are written in here. -->
 <nav>
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="#about">About</a>
+    <a href="#videos">Music</a>
     <a href="blog.html">Blog</a>
+    <a href="news.html">News</a>
     <a href="#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -264,7 +271,9 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#videos" onclick="toggleMenu()">Music</a>
   <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="news.html" onclick="toggleMenu()">News</a>
   <a href="#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
@@ -282,7 +291,7 @@ function toggleMenu(){
   <div class="hero-left">
     <h1>Syl Foisy</h1>
     <p class="hero-sub"><strong style="color:rgba(255,255,255,.95)">Hi!</strong> I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">aerosols</a>, the tiny liquid and solid particles in the atmosphere that have an outsized influence on our climate, our weather, and the air we breathe.</p>
-    <p class="hero-sub2">Outside of research, I have many interests, ranging from <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">filmmaking</a> and <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">snow sculpture</a> to <a href="https://en.wikipedia.org/wiki/Pedestrianism" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">long-distance walking</a>, which occasionally, and delightfully, <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">collide with my science</a>.</p>
+    <p class="hero-sub2">Outside of research, I have many interests, ranging from <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" rel="noopener" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">filmmaking</a> to <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" rel="noopener" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">snow sculpture</a>, which occasionally, and delightfully, collide with my science.</p>
     <!-- One button. The two it replaces were "My research" and the walk, and the first of
          them scrolled to a section of this page that a reader arrives at by scrolling
          anyway -- so it was competing with the walk for attention while pointing at
@@ -382,7 +391,7 @@ function toggleMenu(){
     <h2 class="section-title" style="color:var(--white);font-size:clamp(2.5rem,5vw,4rem)">Science<br>Communication</h2>
     <p>I believe science only matters <a href="https://talkstem.org/williams-college-x-talkstem-environmental-field-methods-summer-science-program-2024/" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">as much as it is understood.</a></p>
     <p>In 2025, I served as opening host for the <strong><a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">100-Hour Weather &amp; Climate Livestream</a></strong>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
-    <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">walked 270.4 miles from New York City to Washington D.C.</a></strong>, visiting 20 climate and weather scientists from 12 institutions along the way. I interviewed each of them about their research, then finished with a press conference on the steps of the U.S. Capitol, where I spoke to <strong>seven members of Congress</strong> about the importance of weather and climate science funding. <a href="walk.html" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">Read more about the walk here!</a></p>
+    <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">walked</a></strong> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">here</a>!</p>
   </div>
   <div>
     <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2)">

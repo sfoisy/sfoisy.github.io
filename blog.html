@@ -1020,20 +1020,25 @@ video:fullscreen::cue{
 </head>
 <body>
 
-<!-- THE SAME FOUR ITEMS ON EVERY PAGE THAT HAS A BAR. About, Blog, Contact, CV -- and
-     nothing else. The bar had drifted into three different shapes across the site (eight
-     items here, seven on the blog, six on the walk, with "Music" in one and "Beyond" in
-     another), which is the kind of difference a reader feels as disorientation without
-     being able to name it. Four is what survives on a phone without wrapping, and the
-     sections that came out are all still reachable from the page they live on.
+<!-- THE SAME SIX ITEMS ON EVERY PAGE THAT HAS A BAR. About, Music, Blog, News, Contact,
+     CV -- in that order, everywhere. The bar had drifted into three different shapes across
+     the site (eight items on the home page, seven on the blog, six here, with "Music" in one
+     and "Beyond" in another), which is the kind of difference a reader feels as
+     disorientation without being able to name it.
 
-     .nav-links already sets text-transform:uppercase, so these render as ABOUT, BLOG,
-     CONTACT, CV whatever case they are written in here. -->
+     The two hash links point at sections of the HOME page, so from here they carry the file
+     name; on index.html itself the same two are bare fragments, because index.html#about
+     from index.html reloads the page to scroll to where it already is.
+
+     .nav-links already sets text-transform:uppercase, so these render as ABOUT, MUSIC, BLOG,
+     NEWS, CONTACT, CV whatever case they are written in here. -->
 <nav>
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
+    <a href="index.html#videos">Music</a>
     <a href="blog.html" class="current">Blog</a>
+    <a href="news.html">News</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -1043,7 +1048,9 @@ video:fullscreen::cue{
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
+  <a href="index.html#videos" onclick="toggleMenu()">Music</a>
   <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="news.html" onclick="toggleMenu()">News</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
