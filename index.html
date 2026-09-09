@@ -29,7 +29,28 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .nav-cta:hover{background:var(--mid)}
 
 /* HERO */
-.hero{background:url('aurora.png') center center / cover no-repeat;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:3rem 4rem 3rem;position:relative;overflow:hidden}
+/* THE PHOTOGRAPH, AND A SCRIM OVER IT. background_Main.png is a sunset sky, and a sunset
+   sky is a MID-TONE -- I measured it at roughly 126 on the left where the type sits and 155
+   on the right. White text on that is legible in the way a faded sign is legible: you can
+   read it, and you have to work. The gradient in front of it is not decoration, it is what
+   makes the words safe to read, and it is angled so it does its work on the left and lets
+   the sky come through on the right where the portrait is.
+
+   center 55% rather than dead centre: the image is wide and short (2912x1342), so on a
+   desktop-shaped hero the top and bottom get cropped, and the part worth keeping is the
+   band of orange low in the frame rather than the flat grey above it. On a phone the box
+   is taller than the picture is, the crop moves to the sides instead, and this has no
+   effect either way.
+
+   KNOBs: the two alpha values in the gradient are the scrim's strength at the left edge
+   and the right. Raise the first if the headline ever needs more separation. */
+.hero{
+  background:
+    linear-gradient(100deg, rgba(9,18,34,.62) 0%, rgba(9,18,34,.46) 42%, rgba(9,18,34,.14) 100%),
+    url('background_Main.png') center 55% / cover no-repeat;
+  display:grid; grid-template-columns:1fr 1fr; align-items:center;
+  padding:3rem 4rem 3rem; position:relative; overflow:hidden;
+}
 .hero-left{position:relative;z-index:2}
 h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,5.5vw,5rem);font-weight:700;color:var(--white);line-height:1.05;letter-spacing:-.02em;margin-bottom:1.75rem}
 h1 em{color:#a89fd8;font-style:italic}
@@ -266,13 +287,14 @@ function toggleMenu(){
     <h1>Syl Foisy</h1>
     <p class="hero-sub"><strong style="color:rgba(255,255,255,.95)">Hi!</strong> I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">aerosols</a>, the tiny liquid and solid particles in the atmosphere that have an outsized influence on our climate, our weather, and the air we breathe.</p>
     <p class="hero-sub2">Outside of research, I have many interests, ranging from <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">filmmaking</a> and <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">snow sculpture</a> to <a href="https://en.wikipedia.org/wiki/Pedestrianism" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">long-distance walking</a>, which occasionally, and delightfully, <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" style="color:rgba(255,255,255,.95);font-weight:500;text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">collide with my science</a>.</p>
-    <!-- Two buttons, and the second one now leaves the page. It read "Other adventures"
-         and scrolled to #outreach, which is a section of this page a reader reaches by
-         scrolling anyway; the walk is the thing worth a button. Same ghost styling as
-         before -- it earns attention by where it goes, not by shouting. -->
+    <!-- One button. The two it replaces were "My research" and the walk, and the first of
+         them scrolled to a section of this page that a reader arrives at by scrolling
+         anyway -- so it was competing with the walk for attention while pointing at
+         somewhere the page was already taking them. With one, there is no competition and
+         no choice to make. .btn-ghost's rules are left in the stylesheet; nothing uses them
+         now, and a second button is one line away if that changes. -->
     <div class="hero-btns">
-      <a href="#about" class="btn-primary">My research</a>
-      <a href="walk.html" class="btn-ghost">NYC &rarr; DC walk!</a>
+      <a href="walk.html" class="btn-primary">Check out my recent NYC to DC walk!</a>
     </div>
   </div>
   <div class="hero-right">
