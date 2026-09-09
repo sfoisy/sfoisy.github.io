@@ -528,11 +528,8 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 }
 @media(max-width:600px){
   .card-grid{grid-template-columns:1fr;max-width:420px}
-  .newsfeed .news-list li{grid-template-columns:1fr;gap:.2rem}
-  .newsfeed time{padding-top:0}
-  /* The date sits ABOVE the entry at this width, and a leader that runs between
-     two things one under the other is pointing at nothing. */
-  .newsfeed .entry::before{content:none}
+  /* Nothing to stack any more -- see the note on .news-list li. The line simply
+     wraps, and the leader stays where it is, inside it. */
 }
 
 /* ===== THE PHOTOGRAPH RUNS TO THE TOP OF THE WINDOW ========================
@@ -744,6 +741,57 @@ nav, .nav-mobile-menu{
   .chamber-text p,
   .scicomm-text p{ text-align:left; hyphens:manual; -webkit-hyphens:manual }
 }
+
+/* ===== THE NEWS ROW IS ONE LINE OF TYPE ===================================
+   It was a two-column grid: a date cell and an entry cell, which is the right
+   shape for a long dated list where the dates line up down the page and you scan
+   the column. With one entry on the home page it was the wrong shape entirely --
+   two boxes side by side, aligned by machinery, reading as two separate things.
+
+   So there is no grid. The date, the leader and the sentence are inline: one line
+   of type, centred, with the date in bold and the dots running out of it into the
+   sentence. Nothing is a block, so nothing has an edge, and the line wraps the way
+   a sentence does when the window is narrow -- which is also why the phone rule
+   that used to stack them is gone. Nothing to stack. */
+.newsfeed .news-list li{
+  display:block; text-align:center;
+  padding:1.1rem 0; border-bottom:1px solid var(--pale);
+}
+.newsfeed time,
+.newsfeed .entry{ display:inline }
+.newsfeed .entry{ font-weight:300 }
+
+/* ===== THE HERO PARAGRAPHS, JUSTIFIED =====================================
+   The same treatment the three prose columns below get, for the same reason:
+   each is a solid block at a fixed measure, and both edges straight is what makes
+   it read as a block. The mobile rule further up already sets these back to
+   left-aligned, where the measure is too short to justify against. */
+.hero-sub, .hero-sub2{ text-align:justify; hyphens:auto; -webkit-hyphens:auto }
+
+/* ===== THE BUTTONS TAKE THEIR SECTION'S COLOUR ============================
+   Every "see the rest of it" button was the same blue, which on a page of ten
+   coloured blocks made each one look like it had been dropped in from somewhere
+   else. Each now carries a deep version of the hue of the block it sits on: the
+   violet section gets a violet button, the rose section a rose one, and so on.
+   The button belongs to its section rather than to the site.
+
+   DEEP, NOT THE BLOCK'S OWN TINT. The blocks are near-white by design and a
+   button in one of those would be invisible; these are the same hues at full
+   strength, chosen so white type clears 5:1 on every one -- which is the number
+   to check if you retune them.
+
+   One variable per section and one rule for the button, so a new section needs a
+   --btn and nothing else. Anything without one falls back to the site's blue. */
+.about        { --btn:#5b3fa8 }   /* violet  */
+.newsfeed     { --btn:#b23a52 }   /* rose    */
+.blogsec      { --btn:#a05f18 }   /* amber   */
+.publications { --btn:#7c690f }   /* yellow  */
+.videos       { --btn:#1e7a4e }   /* green   */
+.more-btn{ background:var(--btn, var(--purple)) }
+/* One hover for all of them: the same colour, darker. A hand-picked hover per
+   section would be five more values to keep in step with the five above. */
+.more-btn:hover{ background:var(--btn, var(--purple)); filter:brightness(.86) }
+.more-btn:focus-visible{ outline:2px solid var(--btn, var(--deep)); outline-offset:3px }
 </style>
 </head>
 <body>
@@ -838,7 +886,7 @@ function toggleMenu(){
     <p>I'm advised by <strong><a href="https://people.climate.columbia.edu/users/profile/susanne-e-bauer" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Dr. Susanne Bauer</a> and <a href="https://people.climate.columbia.edu/users/profile/kostas-tsigaridis" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Dr. Kostas Tsigaridis</a></strong>, and supported by a <strong><a href="https://science.nasa.gov/earth-science/early-career-opportunities/" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">NASA FINESST Graduate Fellowship</a></strong>.</p>
     -->
 
-    <p style="margin-top:.5rem"><a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" style="color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">Columbia DEES profile →</a></p>
+    <p class="more-line" style="text-align:center"><a class="more-btn" href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" rel="noopener">Columbia DEES profile</a></p>
 </div>
 </section>
 
