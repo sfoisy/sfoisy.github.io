@@ -10,7 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* AUTO, not smooth. An in-page link is a jump: the reader has already decided where they
+   want to be, and animating the trip there makes them wait to arrive somewhere they chose.
+   It also made every menu click on this site feel slower than the click before it, because
+   the animation's length depends on how far down the page the target happens to be.
+
+   Deliberate animations are unaffected -- those pass behavior:'smooth' explicitly at the
+   call site, which beats this. This only governs what the browser does on its own. */
+html{scroll-behavior:auto}
 body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
 :root{
   --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
@@ -21,7 +28,13 @@ body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-
 /* NAV */
 nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
-.nav-links{display:flex;gap:1.5rem}
+/* 2.5rem, the same on every page. It was 1.5 on the home page and the news page and 2.5
+   on the walk and the blog, which reads as the bar subtly resizing itself as you move
+   around the site. The wider figure wins because these labels are uppercase and letter-
+   spaced: tight gaps make ABOUT MUSIC BLOG NEWS run together into one word.
+   KNOB: this gap. If a seventh item is ever added, check it still fits at 900px before
+   the hamburger takes over. */
+.nav-links{display:flex;gap:2.5rem}
 .nav-links a.current{color:var(--purple)}
 .nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
 .nav-links a:hover{color:var(--purple)}

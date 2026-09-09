@@ -36,7 +36,14 @@
    one place below and every paragraph, picture and video moves with it.
 ========================================================================== */
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* AUTO, not smooth. An in-page link is a jump: the reader has already decided where they
+   want to be, and animating the trip there makes them wait to arrive somewhere they chose.
+   It also made every menu click on this site feel slower than the click before it, because
+   the animation's length depends on how far down the page the target happens to be.
+
+   Deliberate animations are unaffected -- those pass behavior:'smooth' explicitly at the
+   call site, which beats this. This only governs what the browser does on its own. */
+html{scroll-behavior:auto}
 /* --- Palette, inverted ------------------------------------------------------
    Everything on this page is now white type over back2.jpg. --pale was the
    hairline grey used for every rule and border; on a dark photograph a grey
@@ -215,7 +222,15 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
    under the first with a field of empty page beside it. The max-width is three
    cards at the size the two used to be (271px each plus two 18px gaps), so
    nothing got bigger; the row just got wider. */
-.card-grid.index-grid{grid-template-columns:repeat(3,1fr);column-gap:1.125rem;row-gap:1.125rem;max-width:850px}
+/* CENTRED AT EVERY WIDTH. The lane already has even gutters -- body's 5.25rem down the
+   left, .grid-wrap's 5.25rem on the right -- so auto margins put these three cards on the
+   middle of the PAGE, not just the middle of the lane. Before this they sat hard against
+   the left with a field of empty screen beside them on anything wide, and only centred
+   once the layout dropped below 900px, which is the one width where it was already
+   obvious. The heading above keeps its left edge: three cards on the centre line under a
+   left-set title reads as deliberate, and a centred title over centred cards would have
+   turned the front page into a poster. */
+.card-grid.index-grid{grid-template-columns:repeat(3,1fr);column-gap:1.125rem;row-gap:1.125rem;max-width:850px;margin-left:auto;margin-right:auto}
 /* --- Air under the front page -----------------------------------------------
    Two poster cards is a very short page: the footer rode up under the second
    row and the backdrop ran out about a third of the way down a laptop screen.
@@ -574,7 +589,7 @@ footer .fcredit{font-size:.72rem;color:#fff;opacity:.7;letter-spacing:.02em}
      for as long as they fit (see the 900 and 600 steps below) and is centred
      from here down -- the left-aligned front page is a wide-window look; there
      is no site margin to hang off once body{padding-left:0} kicks in. */
-  .card-grid.index-grid{ margin-left:auto; margin-right:auto; row-gap:1.1rem }
+  .card-grid.index-grid{ row-gap:1.1rem }   /* centring is in the base rule now */
   #indexView .grid-wrap{ display:flex; flex-direction:column; align-items:center }
   #indexView .blog-head{ width:100% }
   /* Two on a phone-width column, matching the rest of the grids here. Three put

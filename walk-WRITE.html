@@ -66,7 +66,16 @@
 /* KNOB: the canvas — what shows above the page when it is pulled past its own top, and below
    it at the bottom. White, matching the opening layer and the backstop below: all three can end
    up filling that gap depending on the browser, so they have to agree. */
-html{scroll-behavior:smooth;background:#fff}
+/* AUTO, not smooth. An in-page link is a jump: the reader has already decided where they
+   want to be, and animating the trip there makes them wait to arrive somewhere they chose.
+   The animation's length also depends on how far the target happens to be, so every menu
+   click felt like a different speed from the one before it.
+
+   The comments further down this file that talk about fighting html{scroll-behavior:smooth}
+   are now describing a fight that no longer happens -- those de.style.scrollBehavior='auto'
+   lines are harmless and were correct when written, so they are left alone. Deliberate
+   animations still animate: they pass behavior:'smooth' at the call site, which beats this. */
+html{scroll-behavior:auto;background:#fff}
 
 /* --- The purple opening ----------------------------------------------------
    The page starts on purple and changes to the sky as you read past the headline. Both are
@@ -6224,6 +6233,9 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
 <div id="skyFix" aria-hidden="true">
   <img src="https://wesitefoisy1.b-cdn.net/new_backgund.png" alt="" decoding="async">
 </div>
+<!-- The page always opens Discrete: the folded stop list is the way in, and
+     Continuous is something you choose once you know what you are choosing. --><div id="walkerFig"></div>
+  
 <!-- THE SAME SIX ITEMS ON EVERY PAGE THAT HAS A BAR. About, Music, Blog, News, Contact,
      CV -- in that order, everywhere. The bar had drifted into three different shapes across
      the site (eight items on the home page, seven on the blog, six here, with "Music" in one
@@ -8723,7 +8735,7 @@ DATA.stops.forEach(function(s){
       if(sect && sect._jpOpen) sect._jpOpen();
       if(document.body.classList.contains('stop-modal')) return;   // the sheet is the destination
       var top=target.getBoundingClientRect().top+window.scrollY-window.innerHeight*af()+24;
-      window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+      window.scrollTo({top:Math.max(0,top),behavior:'auto'});   // a jump-list click is a jump
     });
     g.addEventListener('mouseenter',function(){
       if(mq.matches) return;                              // desktop only
