@@ -6,6 +6,21 @@
 <title>Quiz Time! Climate Walk Trivia</title>
 <meta name="description" content="Twelve questions drawn from fourteen scientist interviews recorded on a 270-mile walk from New York City to the United States Capitol.">
 <meta name="color-scheme" content="dark">
+<!-- ===== Social share card (Open Graph + Twitter) =====
+     The picture and the sentence a link to this page shows in a feed. The
+     same pair on every page of the site: the walk's own poster, and the one
+     headline the share buttons send as text -- so a link previews the same
+     way whether it was pasted or shared from a button. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.sylfoisy.com/quiz.html">
+<meta property="og:title" content="Check out Quiz Time: Climate Walk Trivia!">
+<meta property="og:description" content="A climate and weather trivia quiz built from fourteen interviews recorded on a 250-mile walk from NYC to DC.">
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Check out Quiz Time: Climate Walk Trivia!">
+<meta name="twitter:description" content="A climate and weather trivia quiz built from fourteen interviews recorded on a 250-mile walk from NYC to DC.">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800;9..40,900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -623,12 +638,19 @@ body{ padding-top:74px }
   position:fixed; left:12px; top:70px; z-index:41;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .6rem;
   border-radius:999px; text-decoration:none;
-  color:rgba(255,255,255,.34); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  border:1px solid transparent;
+  /* THE SAME PILL AS EVERY OTHER PAGE. It was a third-alpha word with no fill and
+     no border, which reads as a hint rather than as a control -- and over a photograph
+     it disappeared entirely against a light patch. Same weight as the walk, the news
+     page and the blog now: a smoked navy chip with a hairline and blurred glass behind
+     it, so it holds its shape on any picture.
+     KNOBS: the .5 fill and the .62 resting type. */
+  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   transition:color .18s ease, border-color .18s ease, background .18s ease;
 }
 .backw svg{ width:13px; height:13px; flex:0 0 13px }
-.backw:hover{ color:var(--acc); border-color:rgba(168,182,251,.35); background:rgba(168,182,251,.1) }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
 .backw:focus-visible{ outline:2px solid var(--acc); outline-offset:2px }
 @media(max-width:520px){ .backw span{ display:none } .backw{ opacity:.75 } }
 
@@ -644,6 +666,61 @@ body{ padding-top:74px }
   body{ padding-top:16px }
   .backw{ top:10px }        /* no bar to clear */
 }
+
+/* ===== Share ==============================================================
+   Both of walk.html's share surfaces, because it has two for a reason:
+
+     #sharePop   a small dropdown that opens under the button. What a pointer
+                 gets -- it is one short movement from the button to a target,
+                 and it does not take the page over to ask a small question.
+     #vsharePop  the centred sheet, with big targets and a copy field. What a
+                 touch screen gets, where a 44px grid of tiny icons anchored to
+                 a 24px button is not a reachable thing.
+
+   Which one opens is decided by (hover:hover) and (pointer:fine) at click time,
+   the same test walk.html uses. Class names are kept identical to that file so
+   the two can be read side by side. */
+#sharePop{
+  position:fixed; left:0; top:0; z-index:9999; display:none;
+  padding:.5rem; border-radius:14px; background:#fff;
+  border:1px solid rgba(0,0,0,.10); box-shadow:0 18px 44px -16px rgba(0,0,0,.5);
+  font-family:'DM Sans',sans-serif; text-shadow:none;
+  opacity:0; transform:translateY(-5px);
+  transition:opacity .15s ease, transform .18s cubic-bezier(.3,.8,.3,1);
+}
+#sharePop.on{ display:block }
+#sharePop.vis{ opacity:1; transform:none }
+#sharePop .sp-grid{ display:grid; grid-template-columns:repeat(4, 44px); gap:.3rem }
+#sharePop .sp-opt{
+  display:flex; flex-direction:column; align-items:center; gap:.25rem;
+  width:44px; padding:.3rem .1rem; border:0; background:none; cursor:pointer;
+  text-decoration:none; border-radius:9px; transition:background .14s ease;
+}
+#sharePop .sp-opt:hover{ background:rgba(0,0,0,.055) }
+#sharePop .sp-opt:focus-visible{ outline:2px solid #f5820b; outline-offset:1px }
+#sharePop .sp-ic{ width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:none }
+#sharePop .sp-ic svg{ width:14px;height:14px;fill:currentColor }
+#sharePop .sp-ic img{ width:26px;height:26px;border-radius:50%;object-fit:cover;display:block }
+#sharePop .sp-lab{ font-size:.58rem;font-weight:600;color:#444;line-height:1.1;text-align:center;letter-spacing:.01em }
+@media(prefers-reduced-motion:reduce){ #sharePop{ transition:opacity .1s ease } }
+
+#vsharePop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:1rem}
+#vsharePop.open{display:flex}
+.vsp-card{background:#fff;border-radius:18px;max-width:520px;width:100%;padding:1.6rem 0;position:relative;box-shadow:0 20px 60px -10px rgba(0,0,0,.5);font-family:'DM Sans',sans-serif;text-shadow:none}
+.vsp-close{position:absolute;top:10px;right:16px;background:none;border:none;font-size:1.8rem;line-height:1;cursor:pointer;color:#000;z-index:2}
+.vsp-head{font-size:1.35rem;font-weight:400;color:#000;margin:0 0 1.2rem 1.6rem}
+.vsp-row{display:flex;gap:.4rem;overflow-x:auto;padding:0 1.2rem .5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.vsp-row::-webkit-scrollbar{display:none}
+.vsp-opt{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.55rem;width:88px;text-decoration:none;background:none;border:none;cursor:pointer;padding:.3rem .2rem}
+.vsp-ic{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .15s}
+.vsp-opt:hover .vsp-ic{transform:scale(1.06)}
+.vsp-ic svg{width:30px;height:30px;fill:currentColor}
+.vsp-ic img{width:64px;height:64px;border-radius:50%;object-fit:cover}
+.vsp-lab{font-size:.86rem;color:#000;font-weight:400;text-align:center;line-height:1.2}
+.vsp-copy{display:flex;align-items:center;gap:.6rem;margin:1.2rem 1.6rem 0;border:1px solid #d8d8d8;border-radius:14px;padding:.55rem .6rem .55rem 1rem}
+.vsp-copy input{flex:1;min-width:0;border:none;outline:none;font:400 .95rem 'DM Sans',sans-serif;color:#333;background:none}
+.vsp-copybtn{flex:0 0 auto;border:1px solid #cfcfcf;background:#fff;border-radius:999px;font:700 .9rem 'DM Sans',sans-serif;color:#000;padding:.55rem 1.3rem;cursor:pointer;transition:background .15s}
+.vsp-copybtn:hover{background:#f2f2f2}
 </style>
 </head>
 <body>
@@ -821,6 +898,17 @@ function toggleMenu(){
       <span>The walk</span>
     </a>
    </nav>
+   <!-- Share, in the same row and the same chip as the two links beside it: this
+        is a way OUT of the page like they are, it just carries the page with it.
+        A button rather than an anchor -- it opens a panel rather than going
+        anywhere -- and it stops the click propagating so the document handler
+        that closes the panel does not close it on the way up. -->
+   <button class="way" id="shareBtn" type="button" title="Share this game" aria-label="Share this game"
+           onclick="event.stopPropagation(); openShare(this)">
+     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z" fill="currentColor"/></svg>
+     <span>Share</span>
+   </button>
+
    <!-- Sound is on, quietly, and one press turns it off for good on this device. -->
    <button class="way" id="sndBtn" type="button" aria-pressed="true" title="Sound on">
      <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1714,6 +1802,171 @@ function goBack(e){
   }
   return true;
 }
+</script>
+<script>
+(function(){
+  /* ===== SHARE, THE SAME POPUP THE REST OF THE SITE USES ===================
+     Lifted from blog.html with the class names intact, so the three files can be
+     read side by side: a small dropdown under the button for a pointer, a centred
+     sheet with big targets and a copy field for a touch screen, chosen at click
+     time by (hover:hover) and (pointer:fine).
+
+     THE LINE IT SENDS is the site's one share line with this game's headline in
+     front of it:
+
+         Check out <game>!  <url>  |  @wclivestream
+
+     Facebook and LinkedIn take no text and build their card from the og: tags in
+     the head, which say the same sentence over this game's title slide. */
+  var SHARE_HEADLINE = "Check out Quiz Time: Climate Walk Trivia!";
+  var SHARE_HANDLE = '@wclivestream';
+  var SHARE_URL = "https://www.sylfoisy.com/quiz.html";
+  function shareLine(url){ return SHARE_HEADLINE + ' ' + url + ' | ' + SHARE_HANDLE; }
+
+  var CDN = 'https://wesitefoisy1.b-cdn.net/';
+  function targets(url){
+    var line = shareLine(url);
+    var enc = encodeURIComponent(url), el = encodeURIComponent(line);
+    return [
+      { label:'Copy link', bg:'#eeeeee', dark:true,
+        svg:'<svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 013.1-3.1h4V7h-4a5 5 0 000 10h4v-1.9h-4A3.1 3.1 0 013.9 12zm4.1 1h8v-2H8v2zm8-6h-4v1.9h4a3.1 3.1 0 010 6.2h-4V19h4a5 5 0 000-10z"/></svg>',
+        action:function(){ copy(line); } },
+      { label:'Email', bg:'#7d7d7d',
+        svg:'<svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 2v.5l8 5 8-5V6H4zm16 12V9l-8 5-8-5v9h16z"/></svg>',
+        href:'mailto:?subject=' + encodeURIComponent(SHARE_HEADLINE) + '&body=' + el },
+      { label:'Messages', bg:'#e8eefc', img:CDN+'messages.png', href:'sms:?&body=' + el },
+      { label:'WhatsApp', bg:'#25d366', img:CDN+'whatsapp.png', href:'https://wa.me/?text=' + el },
+      { label:'Facebook', bg:'#3b5998', img:CDN+'facebook.png', href:'https://www.facebook.com/sharer/sharer.php?u=' + enc },
+      /* text= and NOT url=: passing both makes X append the link after the text,
+         which would put the handle in the middle and the link at the end. */
+      { label:'X',        bg:'#000000', img:CDN+'x.png',        href:'https://twitter.com/intent/tweet?text=' + el },
+      { label:'LinkedIn', bg:'#0a66c2', img:CDN+'linkedin.png', href:'https://www.linkedin.com/sharing/share-offsite/?url=' + enc },
+      { label:'Bluesky',  bg:'#1185fe', img:CDN+'bluesky.png',  href:'https://bsky.app/intent/compose?text=' + el }
+    ];
+  }
+
+  var flashBtn = null;
+  function copy(t){
+    function done(){
+      if(!flashBtn) return;
+      var b = flashBtn, o = b.textContent;
+      b.textContent = 'Copied!';
+      setTimeout(function(){ b.textContent = o; }, 1400);
+    }
+    if(navigator.clipboard) navigator.clipboard.writeText(t).then(done, done);
+    else { var ta = document.createElement('textarea'); ta.value = t;
+           document.body.appendChild(ta); ta.select();
+           try{ document.execCommand('copy'); }catch(e){} ta.remove(); done(); }
+  }
+
+  var sp = null;
+  function panel(){
+    if(sp) return sp;
+    sp = document.createElement('div');
+    sp.id = 'sharePop';
+    sp.setAttribute('role','dialog');
+    sp.setAttribute('aria-label','Share');
+    document.body.appendChild(sp);
+    return sp;
+  }
+  function hidePanel(){
+    if(!sp) return;
+    sp.classList.remove('vis');
+    setTimeout(function(){ if(!sp.classList.contains('vis')) sp.classList.remove('on'); }, 200);
+  }
+  function fillPanel(url){
+    var grid = document.createElement('div');
+    grid.className = 'sp-grid';
+    targets(url).forEach(function(it){
+      var el = document.createElement(it.href ? 'a' : 'button');
+      if(!it.href) el.type = 'button';
+      el.className = 'sp-opt';
+      el.title = it.label;
+      el.innerHTML = '<span class="sp-ic" style="background:' + it.bg + ';' + (it.dark ? 'color:#333;' : '') + '">' +
+                     (it.img ? '<img src="' + it.img + '" alt="">' : it.svg) + '</span>' +
+                     '<span class="sp-lab">' + it.label + '</span>';
+      if(it.href){ el.href = it.href; el.target = '_blank'; el.rel = 'noopener'; }
+      el.addEventListener('click', function(){
+        if(it.action){ flashBtn = el.querySelector('.sp-lab'); it.action(); }
+        setTimeout(hidePanel, 160);
+      });
+      grid.appendChild(el);
+    });
+    sp.innerHTML = '';
+    sp.appendChild(grid);
+  }
+  function placePanel(trigger){
+    var r = trigger.getBoundingClientRect();
+    sp.style.left = '0px'; sp.style.top = '-9999px';
+    var b = sp.getBoundingClientRect();
+    var x = r.left + r.width/2 - b.width/2;
+    x = Math.min(Math.max(x, 8), window.innerWidth - b.width - 8);
+    var y = r.bottom + 8;
+    if(y + b.height > window.innerHeight - 8) y = Math.max(8, r.top - b.height - 8);
+    sp.style.left = Math.round(x) + 'px';
+    sp.style.top  = Math.round(y) + 'px';
+  }
+
+  var vp = null;
+  function sheet(){
+    if(vp) return vp;
+    vp = document.createElement('div');
+    vp.id = 'vsharePop';
+    vp.innerHTML =
+      '<div class="vsp-card"><button class="vsp-close" aria-label="Close">&times;</button>' +
+      '<div class="vsp-head">Share</div><div class="vsp-row"></div>' +
+      '<div class="vsp-copy"><input type="text" readonly aria-label="Share link">' +
+      '<button class="vsp-copybtn">Copy</button></div></div>';
+    document.body.appendChild(vp);
+    vp.addEventListener('click', function(e){ if(e.target === vp) vp.classList.remove('open'); });
+    vp.querySelector('.vsp-close').addEventListener('click', function(){ vp.classList.remove('open'); });
+    return vp;
+  }
+  function openSheet(url){
+    var pop = sheet();
+    var input = pop.querySelector('.vsp-copy input');
+    var cbtn  = pop.querySelector('.vsp-copybtn');
+    input.value = url;
+    cbtn.onclick = function(){ flashBtn = cbtn; copy(shareLine(url)); };
+    var row = pop.querySelector('.vsp-row');
+    row.innerHTML = '';
+    targets(url).forEach(function(it){
+      var el = document.createElement(it.href ? 'a' : 'button');
+      if(!it.href) el.type = 'button';
+      el.className = 'vsp-opt';
+      el.innerHTML = '<span class="vsp-ic" style="background:' + it.bg + ';' + (it.dark ? 'color:#333;' : '') + '">' +
+                     (it.img ? '<img src="' + it.img + '" alt="">' : it.svg) + '</span>' +
+                     '<span class="vsp-lab">' + it.label + '</span>';
+      if(it.href){ el.href = it.href; el.target = '_blank'; el.rel = 'noopener';
+                   el.addEventListener('click', function(){ setTimeout(function(){ pop.classList.remove('open'); }, 150); }); }
+      else if(it.action){ el.addEventListener('click', function(){ flashBtn = cbtn; it.action(); }); }
+      row.appendChild(el);
+    });
+    pop.classList.add('open');
+  }
+
+  var fine = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  window.openShare = function(trigger, url){
+    url = url || SHARE_URL;
+    if(!fine){ openSheet(url); return; }
+    panel();
+    fillPanel(url);
+    sp.classList.add('on');
+    placePanel(trigger);
+    requestAnimationFrame(function(){ sp.classList.add('vis'); });
+  };
+  document.addEventListener('pointerdown', function(e){
+    if(!sp || !sp.classList.contains('on')) return;
+    if(e.target.closest && e.target.closest('#sharePop')) return;
+    hidePanel();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    hidePanel();
+    if(vp) vp.classList.remove('open');
+  });
+  window.addEventListener('resize', hidePanel, {passive:true});
+})();
 </script>
 </body>
 </html>

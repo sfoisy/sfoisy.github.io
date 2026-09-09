@@ -6,6 +6,21 @@
 <meta name="description" content="Syl Foisy, PhD Candidate in Atmospheric Science at NASA GISS / Columbia University.">
 <title>Syl Foisy</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<!-- ===== Social share card (Open Graph + Twitter) =====
+     The picture and the sentence a link to this page shows in a feed. The
+     same pair on every page of the site: the walk's own poster, and the one
+     headline the share buttons send as text -- so a link previews the same
+     way whether it was pasted or shared from a button. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.sylfoisy.com/">
+<meta property="og:title" content="Walking 250 miles from NYC to DC">
+<meta property="og:description" content="Syl Foisy, PhD candidate in atmospheric science at NASA GISS and Columbia University.">
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Walking 250 miles from NYC to DC">
+<meta name="twitter:description" content="Syl Foisy, PhD candidate in atmospheric science at NASA GISS and Columbia University.">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
+
 <!-- The hero photograph, asked for before the stylesheet has been parsed: it is the
      first thing on the page and the only image above the fold. -->
 <link rel="preload" as="image" href="back_new.png">
@@ -376,7 +391,15 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
   padding:1.1rem 0;border-bottom:1px solid var(--pale)
 }
 .newsfeed .news-list li:last-child{border-bottom:0}
-.newsfeed time{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);padding-top:.3rem;white-space:nowrap}
+/* THE DATE IS THE SAME SENTENCE AS THE ENTRY, one weight up. It was a .7rem
+   uppercase tracked-out label in the site's blue, which made it a different kind
+   of thing from the line beside it -- a tag, in an accent colour, set in a face
+   that appears nowhere else in the row. Now it is the entry's own size and face
+   at 700, in the same black: a date and a sentence, and the bold is the only
+   difference between them.
+   The column is 9.5rem, which fits "September 12, 2026" at this size with room;
+   check that if you ever write a longer label. */
+.newsfeed time{font-size:1rem;font-weight:700;color:inherit;padding-top:0;white-space:nowrap}
 .newsfeed .entry{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75}
 .newsfeed .entry a{color:var(--mid);font-weight:400;text-decoration:underline;text-decoration-color:var(--lavender)}
 .newsfeed .entry a:hover{text-decoration-color:var(--purple)}
@@ -689,7 +712,7 @@ function toggleMenu(){
 <section class="about" id="about">
   <div class="about-left">
     <div style="display:flex;flex-direction:column;gap:1rem">
-      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
+      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
         <video autoplay loop muted playsinline style="width:100%;display:block">
           <source src="animation_fixed.mp4" type="video/mp4">
         </video>
@@ -719,7 +742,7 @@ function toggleMenu(){
       <p>Before starting my PhD, I built a cloud chamber at Williams College in collaboration with <strong><a href="https://www.williams.edu/profile/ajc7/" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Prof. Anthony Carrasquillo</a></strong> and <strong><a href="https://science.psu.edu/chem/people/maf43" target="_blank" style="color:var(--text);text-decoration:underline;text-decoration-color:var(--lavender)">Prof. Miriam Freedman</a></strong> to study how aerosols respond to changes in humidity. Many undergo a striking transformation, separating into two distinct liquid phases much like oil and water, with real consequences for how aerosols scatter light, facilitate cloud formation, and shape climate. I'm proud that students at Williams continue this research today.</p>
     </div>
     <div class="chamber-img">
-      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale)">
+      <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
         <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;height:auto;display:block">
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Images I took of super-coarse aerosol droplets undergoing liquid-liquid phase separation in the new cloud chamber.</p>
       </div>

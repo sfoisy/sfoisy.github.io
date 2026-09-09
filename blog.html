@@ -10,13 +10,15 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/blog.html">
-<meta property="og:title" content="Interviews from the road — NYC to DC">
+<meta property="og:title" content="Walking 250 miles from NYC to DC">
 <meta property="og:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
-<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/z_walk.png">
+<!-- The site's card image. A post opened in the reader swaps this for that
+     interview's own title card -- see setCardImage in the script. -->
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Interviews from the road — NYC to DC">
+<meta name="twitter:title" content="Walking 250 miles from NYC to DC">
 <meta name="twitter:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
-<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/z_walk.png">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
 <!-- =================================================== -->
 
 <link rel="icon" type="image/png" href="https://wesitefoisy1.b-cdn.net/favicon.png">
@@ -310,21 +312,15 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
 .hub-note .walk-cta{text-decoration:none;color:#fff}
 .hub-note .walk-cta:hover{opacity:1}
 
-/* ===== BACK, IN THE FLOW ===================================================
-   The pill in the top corner is the one you reach for mid-page; this is the one
-   you reach for having finished. Two controls for one action, deliberately: on a
-   screen you scroll to the end of, the end is where the decision to leave gets
-   made, and a fixed control at the top is somewhere you have to go rather than
-   somewhere you already are.
+/* ===== BACK, IN THE FLOW -- RETIRED =======================================
+   There was a Back button at the foot of the wall and at the foot of every post
+   for a round. Two controls for one action turned out to be one too many now
+   that the pill in the corner is a real chip rather than a faint word: the
+   button under "All views on this website are my own" was the last thing on
+   every screen, which gave every screen a full stop that was a control.
 
-   It is written once -- in the standing block at the foot of the wall, and in
-   #aboutTpl, which is cloned into every post as it opens. So the Challenges post
-   has one for the same reason interview #7 does, without either being mentioned
-   by name.
-
-   Both call the same goBack() the corner pill does: back a SCREEN, not back a
-   page -- a conversation returns to the wall, the wall to the front page -- and
-   only out of the site once there is nothing of ours behind us. */
+   The rules are left because bringing it back is putting the one <p> back in
+   #aboutTpl and in the wall's standing block -- nothing else changed. */
 .screen-back{ margin-top:1.6rem }
 .back-btn{
   font:700 .74rem 'DM Sans',sans-serif; letter-spacing:.04em;
@@ -767,9 +763,13 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    fourteen posts. Set quieter than the caption above it: this is the footer of
    a post, not part of it, and a reader who has already read it once on another
    interview should be able to skim past. */
+/* Under the bio now, so the spacing turns over with it: a shorter gap above,
+   where it is closing a paragraph, and a longer one below, where it is opening
+   the row of buttons. It was 2.6rem over and 1.6 under when it sat above the
+   whole block. */
 .post-rule{
   border:0; border-top:1px solid var(--pale);
-  margin:2.6rem 0 1.6rem;
+  margin:1.7rem 0 1.9rem;
 }
 .post-about{ text-align:center }
 .post-about p{
@@ -1231,7 +1231,6 @@ function toggleMenu(){
         <a href="#post-games">Challenges</a>
       </p>
       <p class="post-about-fine">All views on this website are my own.</p>
-      <p class="screen-back"><button type="button" class="back-btn" onclick="goBack()">&larr; Back</button></p>
     </div>
   </div>
 </div>
@@ -1248,9 +1247,14 @@ function toggleMenu(){
      bare #hub href on purpose: the click handler further down catches it and
      swaps the reader for the wall, which a real navigation could not do. -->
 <template id="aboutTpl">
-  <hr class="post-rule">
   <section class="post-about">
     <p class="about-bio">Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!</p>
+    <!-- UNDER the paragraph, not over it. The line used to sit above the bio,
+         where it closed off the clip -- but the clip has its own title card and
+         needs no closing, and what actually wants separating is the bio (which
+         is about the walk) from the buttons under it (which are about where to
+         go next). Same rule, one element further down. -->
+    <hr class="post-rule">
     <p>For more walk content:</p>
     <p class="post-about-links">
       <a href="walk.html">Full adventure</a>
@@ -1258,7 +1262,6 @@ function toggleMenu(){
       <a href="#post-games" class="about-games">Challenges</a>
     </p>
     <p class="post-about-fine">All views on this website are my own.</p>
-    <p class="screen-back"><button type="button" class="back-btn" onclick="goBack()">&larr; Back</button></p>
   </section>
 </template>
 
@@ -1944,9 +1947,23 @@ function showIndex(){
    draws the front page instead, because history.back() there would leave the
    site altogether. */
 function goBack(){
+  /* A screen of ours behind us: step back through them. */
   if(depth > 0){ history.back(); return; }
-  showIndex();
-  try{ history.replaceState(null, '', location.pathname); }catch(e){}
+  /* No screen of ours, but we are not on the front one either -- someone opened
+     #hub or #post-becki directly. Draw the front page; that is the way "back"
+     out of a deep link. */
+  if(indexView.style.display === 'none'){
+    showIndex();
+    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    return;
+  }
+  /* ON THE FRONT PAGE ALREADY, which is where this used to do nothing at all:
+     it called showIndex() to redraw the screen you were looking at, and the
+     press appeared to be ignored. Back from here means back a PAGE -- out of
+     the blog to wherever you came from. With nothing behind us in this tab
+     either (opened in a new one, or a bookmark) the home page is the landing. */
+  if(history.length > 1){ history.back(); return; }
+  location.href = 'index.html';
 }
 function closeHub(){ goBack(); }
 window.addEventListener('popstate', function(){
@@ -2004,13 +2021,14 @@ function openPost(id, push, from){
     var sh = document.createElement('button');
     sh.type = 'button';
     sh.className = 'post-share';
-    var shTitle = 'Interview #' + (p.dataset.n || '') + ': ' + (p.dataset.name || '');
+    /* No per-post title any more: every share carries the same headline about the
+       walk, and the link says which interview it is. See the note above targets(). */
     sh.setAttribute('aria-label', 'Share this interview');
     sh.title = 'Share this interview';
     sh.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
     sh.addEventListener('click', function(e){
       e.stopPropagation();
-      openShare(sh, location.origin + location.pathname + '#' + p.id, shTitle);
+      openShare(sh, location.origin + location.pathname + '#' + p.id);
     });
     when.appendChild(sh);
 
@@ -2081,11 +2099,17 @@ function openPost(id, push, from){
     if(p.dataset.nobio){
       var bio = frag.querySelector('.about-bio');
       if(bio) bio.parentNode.removeChild(bio);
+      /* And the rule under it, which now divides the bio from the buttons. With
+         no bio there is nothing above the line, so it would open the block with
+         a stray hairline. */
+      var rule = frag.querySelector('.post-rule');
+      if(rule) rule.parentNode.removeChild(rule);
     }
     /* "Other interviews" only makes sense while you are IN one. From the games
        post -- or anything else added later that is not a conversation -- the
        same button leads to all fourteen, so it says so. Keyed on what the post
        IS rather than on its id, so a second non-interview post needs nothing. */
+    setCardImage(p);
     var hubLink = frag.querySelector('.about-hub');
     if(hubLink && p.dataset.hub !== 'interviews') hubLink.textContent = 'All interviews';
     /* ...and no button pointing at the post you are already reading. The wall
@@ -2108,9 +2132,42 @@ function openPost(id, push, from){
   if(push) pushView('#' + id);
 }
 
+/* ===== THE CARD IMAGE FOLLOWS THE OPEN POST ==============================
+   og:image and twitter:image start as the site's own picture and are swapped for
+   the open interview's title card -- the same still the clip opens on -- so a link
+   pasted from the address bar carries the face that belongs to it.
+
+   WHAT THIS DOES AND DOES NOT REACH. A person pasting a link into a chat window
+   that renders previews client-side gets the right picture. A crawler does not:
+   Facebook and X fetch blog.html and read the <head> as SERVED, before a line of
+   this has run, so their card is whatever the static tags say -- the site image.
+   Per-interview cards for crawlers need one small HTML file per interview with its
+   own tags, which is what the z_<key>.html pages beside walk.html are.
+
+   Kept anyway because it costs two lines and is right wherever it is read. */
+function setCardImage(p){
+  var src = null, v = p.querySelector('video[poster]');
+  if(v) src = v.getAttribute('poster');
+  if(!src) src = p.dataset.cover || null;
+  if(!src) return;
+  ['meta[property="og:image"]', 'meta[name="twitter:image"]'].forEach(function(sel){
+    var m = document.head.querySelector(sel);
+    if(m) m.setAttribute('content', src);
+  });
+}
+/* ...and back to the site's own when nothing is open. */
+var SITE_CARD = 'https://wesitefoisy1.b-cdn.net/full_scroll.png';
+function resetCardImage(){
+  ['meta[property="og:image"]', 'meta[name="twitter:image"]'].forEach(function(sel){
+    var m = document.head.querySelector(sel);
+    if(m) m.setAttribute('content', SITE_CARD);
+  });
+}
+
 function closePost(){
   /* Stop any clip that is still playing before the post leaves the screen. */
   stopClips();
+  resetCardImage();
   /* One step back, and the entry behind this one is by definition the screen the
      post was opened from -- so the returnView bookkeeping this used to do is the
      browser's job now. It is still set by openPost, because popstate reads it
@@ -2369,25 +2426,51 @@ function fitHeading(h){
 })();
 
 (function(){
-  var BLURB = "Following Syl Foisy's 250-mile walk from NYC to DC, " +
-              "interviewing weather and climate scientists along the route.";
+  /* ===== ONE SHARE LINE, EVERYWHERE =========================================
+     Every network that carries text gets the same three parts in the same order:
+
+         Walking 250 miles from NYC to DC  <url>  |  @wclivestream
+
+     the headline, the bare link, a pipe, the handle. Nothing else -- no blurb, no
+     per-item title, no hashtags. It is one sentence someone can read at a glance
+     in a feed, and the handle at the end is the only thing after the link, which
+     is where a reader's eye stops.
+
+     THE HEADLINE IS FIXED, and deliberately not the name of the thing being
+     shared. A post title ("Interview #6: Bernadette Woods Placky") means nothing
+     to someone who has not read it; the walk is the thing that makes anyone click.
+     The link already carries which interview it is.
+
+     X GETS text= AND NOT url=. Passing both makes X append the URL after whatever
+     text you gave it, which would put the handle in the middle and the link at the
+     end -- the opposite of this. One parameter, the whole line, in order.
+
+     FACEBOOK AND LINKEDIN TAKE NO TEXT AT ALL: they build their card from the OG
+     tags in the page's <head>, and anything passed alongside is dropped. That is
+     why the og:title in this file says the headline word for word -- it is the
+     same sentence, arriving by the only route those two will accept. */
+  var SHARE_HEADLINE = "Walking 250 miles from NYC to DC";
+  var SHARE_HANDLE = '@wclivestream';
+  /* The whole line, ready to hand to anything that takes text. */
+  function shareLine(url){ return SHARE_HEADLINE + ' ' + url + ' | ' + SHARE_HANDLE; }
   var CDN = 'https://wesitefoisy1.b-cdn.net/';
 
-  function targets(url, title){
-    var enc = encodeURIComponent(url), et = encodeURIComponent(title);
+  function targets(url){
+    var line = shareLine(url);
+    var enc = encodeURIComponent(url), el = encodeURIComponent(line);
     return [
       { label:'Copy link', bg:'#eeeeee', dark:true,
         svg:'<svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 013.1-3.1h4V7h-4a5 5 0 000 10h4v-1.9h-4A3.1 3.1 0 013.9 12zm4.1 1h8v-2H8v2zm8-6h-4v1.9h4a3.1 3.1 0 010 6.2h-4V17h4a5 5 0 000-10z"/></svg>',
         action:function(){ copy(url); } },
       { label:'Email', bg:'#7d7d7d',
         svg:'<svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 2v.5l8 5 8-5V6H4zm16 12V9l-8 5-8-5v9h16z"/></svg>',
-        href:'mailto:?subject=' + et + '&body=' + encodeURIComponent(BLURB + '\n\n' + url) },
-      { label:'Messages', bg:'#e8eefc', img:CDN+'messages.png', href:'sms:?&body=' + encodeURIComponent(title + ' ' + url) },
-      { label:'WhatsApp', bg:'#25d366', img:CDN+'whatsapp.png', href:'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url) },
+        href:'mailto:?subject=' + encodeURIComponent(SHARE_HEADLINE) + '&body=' + el },
+      { label:'Messages', bg:'#e8eefc', img:CDN+'messages.png', href:'sms:?&body=' + el },
+      { label:'WhatsApp', bg:'#25d366', img:CDN+'whatsapp.png', href:'https://wa.me/?text=' + el },
       { label:'Facebook', bg:'#3b5998', img:CDN+'facebook.png', href:'https://www.facebook.com/sharer/sharer.php?u=' + enc },
-      { label:'X',        bg:'#000000', img:CDN+'x.png',        href:'https://twitter.com/intent/tweet?url=' + enc + '&text=' + et },
+      { label:'X',        bg:'#000000', img:CDN+'x.png',        href:'https://twitter.com/intent/tweet?text=' + el },
       { label:'LinkedIn', bg:'#0a66c2', img:CDN+'linkedin.png', href:'https://www.linkedin.com/sharing/share-offsite/?url=' + enc },
-      { label:'Bluesky',  bg:'#1185fe', img:CDN+'bluesky.png',  href:'https://bsky.app/intent/compose?text=' + encodeURIComponent(title + ' ' + url) }
+      { label:'Bluesky',  bg:'#1185fe', img:CDN+'bluesky.png',  href:'https://bsky.app/intent/compose?text=' + el }
     ];
   }
   var flashBtn = null;
@@ -2420,10 +2503,10 @@ function fitHeading(h){
     sp.classList.remove('vis');
     setTimeout(function(){ if(!sp.classList.contains('vis')) sp.classList.remove('on'); }, 200);
   }
-  function fillPanel(url, title){
+  function fillPanel(url){
     var grid = document.createElement('div');
     grid.className = 'sp-grid';
-    targets(url, title).forEach(function(it){
+    targets(url).forEach(function(it){
       var el = document.createElement(it.href ? 'a' : 'button');
       if(!it.href) el.type = 'button';
       el.className = 'sp-opt';
@@ -2472,7 +2555,7 @@ function fitHeading(h){
     vp.querySelector('.vsp-close').addEventListener('click', function(){ vp.classList.remove('open'); });
     return vp;
   }
-  function openSheet(url, title){
+  function openSheet(url){
     var pop = sheet();
     var input = pop.querySelector('.vsp-copy input');
     var cbtn  = pop.querySelector('.vsp-copybtn');
@@ -2480,7 +2563,7 @@ function fitHeading(h){
     cbtn.onclick = function(){ flashBtn = cbtn; copy(url); };
     var row = pop.querySelector('.vsp-row');
     row.innerHTML = '';
-    targets(url, title).forEach(function(it){
+    targets(url).forEach(function(it){
       var el = document.createElement(it.href ? 'a' : 'button');
       if(!it.href) el.type = 'button';
       el.className = 'vsp-opt';
@@ -2496,10 +2579,10 @@ function fitHeading(h){
   }
 
   var fine = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-  window.openShare = function(trigger, url, title){
-    if(!fine){ openSheet(url, title); return; }
+  window.openShare = function(trigger, url){
+    if(!fine){ openSheet(url); return; }
     panel();
-    fillPanel(url, title);
+    fillPanel(url);
     sp.classList.add('on');
     placePanel(trigger);
     requestAnimationFrame(function(){ sp.classList.add('vis'); });
