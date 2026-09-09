@@ -508,7 +508,7 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
 
 footer{background:transparent;border-top:1px solid var(--pale);padding:2rem 3rem 2rem 0;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:#fff;font-size:.9rem}
-footer .fcredit{font-size:.72rem;color:#fff;opacity:.7;letter-spacing:.02em}
+footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 
 /* ===== DESKTOP MEASURE ==================================================
    One number. 82% of the 772px lane, centred — walk.html's --measure, doing
@@ -1052,7 +1052,7 @@ video:fullscreen::cue{
   <div class="nav-links">
     <a href="index.html#about">About</a>
     <a href="index.html#videos">Music</a>
-    <a href="blog.html" class="current">Blog</a>
+    <a href="index.html#blog">Blog</a>
     <a href="news.html">News</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
@@ -1064,7 +1064,7 @@ video:fullscreen::cue{
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
   <a href="index.html#videos" onclick="toggleMenu()">Music</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
   <a href="news.html" onclick="toggleMenu()">News</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
@@ -1225,12 +1225,11 @@ function toggleMenu(){
        The two games, and nothing else. NO data-hub, so it does not join the
        fourteen on the interviews wall -- it is a front-page card of its own.
 
-       THE TILES DO NOT GO ANYWHERE, and that is copied from walk.html rather
-       than overlooked: neither game has a page yet. Over there they are
-       <button>s with no handler, on the reasoning that a control which exists
-       and does nothing is easier to finish than one that has to be invented
-       later. Same here. When there is somewhere to send people, give each tile
-       an href (or a handler) and nothing else in this article changes.
+       THE TILES ARE LINKS. Both games exist now -- quiz.html and letters.html,
+       in this folder -- so they are anchors rather than the dead <button>s they
+       were written as, which means middle-click, cmd-click and the status bar
+       all behave. walk.html's pair and the home page's pair point at the same
+       two files.
 
        Each tile is the picture and nothing else -- the titles are printed IN
        the artwork, in the games' own type, so a caption underneath would say
@@ -1250,14 +1249,14 @@ function toggleMenu(){
     <h2 class="post-hd">Walk Challenges</h2>
 
     <div class="game-grid">
-      <button type="button" class="game-tile" aria-label="Quiz Time: Climate Walk Trivia">
+      <a class="game-tile" href="quiz.html" aria-label="Quiz Time: Climate Walk Trivia">
         <img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png"
              alt="Quiz Time: Climate Walk Trivia" loading="lazy" decoding="async">
-      </button>
-      <button type="button" class="game-tile" aria-label="The Letter Collection Game">
+      </a>
+      <a class="game-tile" href="letters.html" aria-label="The Letter Collection Game">
         <img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/letter_game.png"
              alt="The Letter Collection Game" loading="lazy" decoding="async">
-      </button>
+      </a>
     </div>
 
     <p class="game-note">Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
@@ -2767,6 +2766,27 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
 
 .nav-mobile-menu{ background:var(--nav-sheet); border-bottom:1px solid var(--nav-rule) }
 .nav-mobile-menu a{ color:var(--nav-ink); border-bottom:1px solid var(--nav-rule) }
+
+/* ===== The bar between 701 and 1100 =======================================
+   The same rule walk.html, index.html and the two games carry: the link row
+   does not shrink at a middle width, it SCROLLS sideways inside its own box.
+   All six are still there, in order, and the row says so by moving. The fade at
+   the right edge is a mask rather than a gradient laid over the top, so it works
+   on whatever the bar's colour happens to be.
+   KNOB: the 1.6rem gap -- tighter than the full-width 2.5rem. */
+@media(min-width:701px) and (max-width:1100px){
+  nav{ padding:0 1.25rem; gap:1rem; margin-left:0; width:100% }
+  .nav-name{ flex:0 0 auto; white-space:nowrap }
+  .nav-links{
+    flex:1 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden; gap:1.6rem;
+    scrollbar-width:none; -ms-overflow-style:none;
+    -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+            mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+  }
+  .nav-links::-webkit-scrollbar{ display:none }
+  .nav-links a{ flex:0 0 auto; white-space:nowrap }
+}
+
 </style>
 </body>
 </html>

@@ -6001,13 +6001,40 @@ body.map-fs #mapFsExit{ display:flex }
 }
 html.pre-gone #preload{ opacity:0; pointer-events:none }
 html.pre-off  #preload{ display:none }
-/* The nav is NOT raised over the sheet. It was for a couple of rounds -- z-index above
-   #preload, its own bar made transparent so the gradient ran behind the links -- on the
-   argument that the menu is the one thing that is useful before the article has assembled
-   itself. It isn't worth it: the point of the sheet is that there is nothing to look at but
-   the sheet, and a row of links across the top of it is exactly the furniture-being-carried-in
-   that the sheet exists to hide. It goes back under, at its ordinary z-index, and comes out
-   from behind the fade with the rest of the page. */
+/* ===== THE BAR STAYS UP WHILE THE SHEET IS DOWN =============================
+   The menu rides OVER the loading sheet rather than under it. This page is 1.9 MB and the
+   sheet can be up for several seconds on a slow connection; a reader who arrived by mistake,
+   or who only wanted the blog, should not have to watch a progress bar finish before the site
+   will admit it has other pages. It is also the one piece of furniture that is finished
+   before anything else on the page is -- six links and a name, no measuring, no images -- so
+   it is not part of the assembly the sheet exists to hide.
+
+   THREE THINGS MAKE IT LOOK DELIBERATE rather than like a bar that failed to get covered:
+
+   1. It is lighter over the sheet than it is over the article. The sheet is a pale sky and a
+      72%-opaque navy bar lands on it as a hard black stripe; .62 lets the sky through and the
+      white type still clears 9:1 against it.
+   2. The hairline under it goes to a soft white, which reads as an edge on a pale ground
+      where the dark rule it normally wears reads as a crack.
+   3. It arrives on its own, once, with a short rise -- so the first thing the page does is
+      hand you the menu, rather than have the menu simply be there as if the sheet had not
+      loaded properly.
+
+   Both selectors are html-qualified, which is what lets them beat the palette block at the
+   foot of the file without !important: specificity settles it, not source order.
+   KNOBS: the .62 alpha, and the .55s rise. */
+html:not(.pre-off) nav,
+html:not(.pre-off) .nav-mobile-menu{ z-index:2147483001 }
+html:not(.pre-gone) nav{
+  background:linear-gradient(rgba(10,20,38,.62), rgba(10,20,38,.62));
+  border-bottom:1px solid rgba(255,255,255,.24);
+  animation:navRise .55s cubic-bezier(.2,.9,.3,1) both;
+}
+/* Back to the ordinary bar as the sheet fades, on the same half second, so the two changes
+   read as one movement rather than as the bar changing colour after the fact. */
+html.pre-gone nav{ transition:background .5s ease, border-color .5s ease }
+@keyframes navRise{ from{ opacity:0; transform:translateY(-8px) } }
+@media(prefers-reduced-motion:reduce){ html:not(.pre-gone) nav{ animation:none } }
 
 /* NO SCROLLING WHILE THE SHEET IS UP. The article underneath is still measuring itself -- the
    map is sizing, the accordion is building its sections -- and scrolling through that lands

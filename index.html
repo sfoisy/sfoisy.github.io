@@ -10,14 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-/* AUTO, not smooth. An in-page link is a jump: the reader has already decided where they
-   want to be, and animating the trip there makes them wait to arrive somewhere they chose.
-   It also made every menu click on this site feel slower than the click before it, because
-   the animation's length depends on how far down the page the target happens to be.
+/* SMOOTH, and only here. The home page is one long page with six places to be and a bar
+   that points at four of them, so a menu click is a TRAVEL between two parts of the same
+   thing -- and the glide is what says so. It also keeps the reader oriented: you can see
+   which way you went and roughly how far, which a hard cut throws away.
 
-   Deliberate animations are unaffected -- those pass behavior:'smooth' explicitly at the
-   call site, which beats this. This only governs what the browser does on its own. */
-html{scroll-behavior:auto}
+   The other pages stay on auto. There a fragment link is a jump to a spot on a page you have
+   just arrived at, and animating that is a wait for somewhere you already chose to be.
+
+   scroll-padding-top is the other half of this: the bar is sticky and 58px tall, so without
+   it every glide parks the section's heading underneath the bar. It works for keyboard
+   focus and the browser's own find-in-page too, which scroll-margin on each section does
+   not always reach. */
+html{scroll-behavior:smooth;scroll-padding-top:58px}
+/* A glide is motion, and someone who has asked for less of it gets the jump instead. */
+@media(prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
 body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-x:hidden}
 :root{
   --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
@@ -101,8 +108,27 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .about-right p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:.25rem}
 .about-right p strong{color:var(--text);font-weight:500}
 
-/* PUBLICATIONS */
-.chamber{background:var(--fog)}
+/* ===== THE TONAL RAMP =====================================================
+   Four sections run together through the middle of the page -- the cloud chamber,
+   News, Blog, Publications -- and they used to be flat blocks of three different
+   colours with hard edges between them: fog, white, fog, pale blue.
+
+   They are one gradient now, cut into four. Each section carries a gradient from
+   the colour the one above it ENDED on to its own end colour, so the seams land
+   on matching values and there is no visible edge anywhere -- the page just cools
+   from an almost-white lavender into the pale sky blue Publications already wore,
+   which is the hero's own blue several shades up. The About section above is white
+   and the sky divider below is a photograph, so the ramp starts and ends where it
+   has to.
+
+   KNOB: the five stops below. Change one and change it in BOTH places it appears,
+   or a seam opens where the two sections meet.
+     #faf9ff  About's white, warmed        -> chamber
+     #f4f4fc                               -> News
+     #ecf1fa                               -> Blog
+     #e1ecf8                               -> Publications
+     #d4e9f7  the pale blue it already had */
+.chamber{background:linear-gradient(#faf9ff, #f4f4fc)}
 .chamber-inner{display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:center}
 .chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
 .chamber-text p strong{color:var(--text);font-weight:500}
@@ -177,8 +203,11 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .clink-primary:hover{background:#7a6fdf}
 
 footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
-footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
-footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+/* WHITE, both of them. They were set at half and a fifth alpha on a near-black bar,
+   which put the credit line at about 1.6:1 -- legible only if you already knew what it
+   said. The footer is two short facts; if they are worth printing they are worth reading. */
+footer .fname{font-family:'Playfair Display',serif;color:#fff;font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 
 @media(max-width:900px){
   .nav-cta-desktop{display:none}
@@ -296,19 +325,15 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
    headline pairs the middle of the page had grown -- "News" over "What's new",
    "Blog" over "Blog posts" -- which said the same thing twice at two sizes.
 
-   The rule is not decoration: it is what makes a centred line read as the top of
-   a section rather than a stray sentence, now that there is no second line under
-   it to do that job.
-   KNOB: the 54px width and the 2px weight. */
+   Nothing under it. There was a short rule for a round, on the argument that a
+   centred line needs something to sit on -- but six of them down one page read as
+   six horizontal marks, and the tone change between the sections does that job
+   better and without drawing a single line. */
 .sec-hd{
   font-family:'Playfair Display',serif;
   font-size:clamp(1.75rem,2.6vw,2.4rem);
   font-weight:700; color:var(--deep); letter-spacing:-.02em; line-height:1.15;
   text-align:center; margin:0 0 2rem;
-}
-.sec-hd::after{
-  content:""; display:block; width:54px; height:2px;
-  background:var(--lavender); margin:.8rem auto 0;
 }
 
 /* ===== NEWS, ON THE HOME PAGE ==============================================
@@ -326,7 +351,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
    running into the sentences beside them. The list is centred under the
    heading rather than flush left, because the heading above it is.
    KNOB: --date-col is that column's width. Widen it for longer date labels. */
-.newsfeed{background:var(--white)}
+.newsfeed{background:linear-gradient(#f4f4fc, #ecf1fa)}
 .newsfeed .news-list{--date-col:9.5rem;list-style:none;max-width:760px;margin:0 auto}
 .newsfeed .news-list li{
   display:grid;grid-template-columns:var(--date-col) 1fr;gap:1.25rem;
@@ -340,6 +365,15 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 .more-line{text-align:center;margin-top:1.75rem}
 .more-link{display:inline-block;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none}
 .more-link:hover{color:var(--mid)}
+/* The same idea one weight up: a pill rather than a line of type, because under three
+   large cards a bare link disappears. Same blue as the hero's light corner. */
+.more-btn{
+  display:inline-block;padding:.7rem 1.6rem;border-radius:100px;
+  background:var(--purple);color:var(--white);
+  font-size:.82rem;font-weight:500;text-decoration:none;transition:.2s
+}
+.more-btn:hover{background:var(--mid)}
+.more-btn:focus-visible{outline:2px solid var(--deep);outline-offset:3px}
 
 /* ===== BLOG, ON THE HOME PAGE ==============================================
    Three doors, in the order someone should meet them: the walk itself, the
@@ -349,7 +383,7 @@ footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em
 
    The poster art carries its own title, so nothing is printed over it -- only
    the date underneath, which the artwork cannot say. */
-.blogsec{background:var(--fog)}
+.blogsec{background:linear-gradient(#ecf1fa, #e1ecf8)}
 .blog-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto}
 .bpost{
   display:block;border:1px solid var(--pale);border-radius:1.25rem;
@@ -552,10 +586,15 @@ function toggleMenu(){
     </a>
 
   </div>
+
+  <!-- THE WHOLE BLOG. The three cards above are the doors people take; this is the
+       shelf they came off. blog.html is the original blog page -- its own front
+       page, the wall of fourteen behind it, and every post in one place. -->
+  <p class="more-line"><a class="more-btn" href="blog.html">See all blog posts</a></p>
 </section>
 
 <!-- PUBLICATIONS -->
-<section class="publications" id="publications" style="background:#d4e9f7">
+<section class="publications" id="publications" style="background:linear-gradient(#e1ecf8, #d4e9f7)">
   <h2 class="sec-hd">Publications &amp; Presentations</h2>
   <div class="pub-layout">
     <div class="pub-right">

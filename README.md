@@ -1,21 +1,27 @@
 # NYC to DC walk — site files
 
-Eight files, no build step, no dependencies. Drop them in the repo root next to your
+Nine files, no build step, no dependencies. Drop them in the repo root next to your
 existing images and GitHub Pages serves them as they are.
 
 | File | What it is |
 |---|---|
-| `index.html` | The home page. Also the news digest (`#news`) and the blog's front page (`#blog`). |
+| `index.html` | The home page. Also the news digest (`#news`) and the blog's three cards (`#blog`). |
 | `walk.html` | The article. Links out to the interviews, both games, and the home page. |
-| `interviews.html` | **New.** The fourteen conversations, and the player they open in. |
-| `challenges.html` | **New.** The two games. |
+| `blog.html` | **Back.** The original blog page, whole — reached from "See all blog posts". |
+| `interviews.html` | The fourteen conversations, and the player they open in. |
+| `challenges.html` | The two games. |
 | `news.html` | The full dated list. Add entries at the top of the `<ul>`. |
 | `letters.html` | The Letter Collection Game. |
 | `quiz.html` | Quiz Time: Climate Walk Trivia. |
 | `stats-7f3a9c21.html` | Your visit counter. Unlisted, not linked from anywhere. |
 
-`blog.html` is gone. Its front page is the `#blog` section of `index.html`; its two inner
-views are `interviews.html` and `challenges.html`.
+**`blog.html` is on the site again**, unchanged in look and behaviour — its own front page,
+the wall of fourteen behind it, and every post in one place. Three things were reconnected:
+the bar's Blog link points home to `index.html#blog` like every other page's does, the two
+game tiles in the Challenges post are real links to `quiz.html` and `letters.html` instead of
+the dead `<button>`s they were written as, and the bar picked up the 701–1100 squeeze the
+rest of the site uses. The home page's `#blog` section is the shop window; this is the shelf,
+and the "See all blog posts" button under the three cards is the way to it.
 
 ## The blog, folded into the home page
 
@@ -74,19 +80,40 @@ inside its own box with a tighter 1.6rem gap, and below 701 the hamburger takes 
 
 ## Other changes in this round
 
-- Both games have "Back to the walk" now, top left under the bar, same pill in both.
+- Both games have a **Back** button, top left under the bar, same pill in both.
   `letters.html`'s moved there from the bottom right corner; `quiz.html` had none.
   "Call your reps" stays bottom left on the letter game.
-- **The back link goes BACK, not to a fresh copy of the walk.** If you reached the game from
-  `walk.html` in the same tab, `backToWalk()` calls `history.back()` — so the browser restores
-  the article at the scroll position you left it at, and does not refetch 1.9 MB. A shared
-  link, a bookmark, or a game opened in a new tab has nothing behind it, so the press falls
-  through and follows the href as before.
+- **Back means back.** `goBack()` calls `history.back()` — one step in this tab, wherever you
+  came from, restored at the scroll position you left it at and with nothing refetched. It
+  used to insist the previous page was the walk and navigate there otherwise, which said "back
+  to the walk" to people who had never been on it. The only condition left is
+  `history.length > 1`, false when the game was opened in a new tab; there the press follows
+  the href, which still points at `walk.html` as the sensible place to land.
+- **`walk.html` keeps its menu up while the loading sheet is down.** The article is 1.9 MB and
+  the sheet can hold for several seconds; someone who only wanted the blog should not have to
+  watch a progress bar finish first. Over the sheet the bar is lighter (`.62` rather than `.72`
+  alpha, so the pale sky shows through instead of a black stripe), its hairline goes soft
+  white, and it arrives once with a short rise. It settles back to the ordinary bar on the same
+  half second the sheet fades.
 - The livestream logo in the bottom right of both games is at 60% — every number in the rule,
   phone sizes included.
 - `quiz.html`: the Interviews chip points at `interviews.html`.
 - `walk.html`: the "Blogs" pill points at `interviews.html`. `walk-WRITE.html` got the
   same link edits, so the two stay in step for the merge tool.
+- **The middle of the page is one gradient cut into four.** The cloud chamber, News, Blog and
+  Publications used to be flat blocks with hard edges between them; each now carries a
+  gradient from the colour the section above it ended on to its own end colour, so the page
+  cools from an almost-white lavender into the pale blue Publications already wore without a
+  visible seam anywhere. Five stops, listed above `.chamber` — change one and change it in
+  both places it appears or a seam opens.
+- The short rules under the centred headings are gone. Six of them down one page read as six
+  horizontal marks, and the tone change between sections does that job without drawing a line.
+- The footer's two lines are white. They were at half and a fifth alpha on a near-black bar,
+  which put the credit at about 1.6:1.
+- **Smooth scrolling is back, on `index.html` only.** The home page is one long page with a
+  bar pointing at four parts of it, so a menu click is travel between two parts of the same
+  thing and the glide says so. `scroll-padding-top:58px` is the other half — without it every
+  glide parks the heading under the sticky bar. Reduced motion gets the jump.
 - The hero is a gradient rather than a flat navy — deep navy at the top left, where the name
   and both paragraphs sit, opening to the blue the buttons use by the far corner. Three
   knobs: `--hero-1`, `--hero-2`, `--hero-3` on `.hero`.

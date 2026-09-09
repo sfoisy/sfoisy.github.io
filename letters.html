@@ -1712,10 +1712,10 @@ function toggleMenu(){
   <span>Call your reps</span>
 </a>
 
-<a class="backw" href="walk.html" onclick="return backToWalk(event)">
+<a class="backw" href="walk.html" onclick="return goBack(event)">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  <span>Back to the walk</span>
+  <span>Back</span>
 </a>
 
 
@@ -10783,28 +10783,25 @@ if(!raf) raf = requestAnimationFrame(tick);
 })();
 </script>
 <script>
-/* BACK, NOT A NEW TRIP. If you got here from the walk in this tab, the way out is the
-   history entry you came from -- which the browser restores complete with the scroll
-   position you left it at, and without fetching a 1.9 MB article a second time.
+/* BACK. Wherever you came from -- the walk, the home page, the challenges page, a search
+   result -- one step back in this tab, which the browser restores complete with the scroll
+   position you left it at and without refetching anything.
 
-   The three conditions are all necessary. Same origin, or "back" is somebody else's page.
-   The referring path is walk.html, or back is wherever you actually came from, which is not
-   what this link says it does. And history.length > 1, which is false when the game was
-   opened in a new tab -- there is nothing behind it, so back does nothing at all and the
-   link has to be a real navigation instead.
+   It used to insist the previous page was walk.html and navigate there otherwise, which was
+   wrong twice over: it said "Back to the walk" to someone who had never been on the walk,
+   and it reloaded 1.9 MB for someone who had arrived from the home page. The button says
+   "Back" now and means it.
 
-   Anything else falls through and follows the href: a shared link, a bookmark, a reload. */
-function backToWalk(e){
-  try{
-    var u = new URL(document.referrer);
-    if(u.hostname === location.hostname &&
-       /(^|\/)walk\.html$/.test(u.pathname) &&
-       history.length > 1){
-      e.preventDefault();
-      history.back();
-      return false;
-    }
-  }catch(err){}
+   history.length > 1 is the one condition left. It is false when the game was opened in a
+   new tab: there is nothing behind it, back does nothing at all, and the href has to carry
+   the press instead -- which is why the link still points at walk.html, as the sensible
+   place to land for someone who arrived with no history at all. */
+function goBack(e){
+  if(history.length > 1){
+    e.preventDefault();
+    history.back();
+    return false;
+  }
   return true;
 }
 </script>
