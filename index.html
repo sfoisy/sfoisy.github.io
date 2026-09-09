@@ -29,25 +29,21 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .nav-cta:hover{background:var(--mid)}
 
 /* HERO */
-/* THE PHOTOGRAPH, AND A SCRIM OVER IT. background_Main.png is a sunset sky, and a sunset
-   sky is a MID-TONE -- I measured it at roughly 126 on the left where the type sits and 155
-   on the right. White text on that is legible in the way a faded sign is legible: you can
-   read it, and you have to work. The gradient in front of it is not decoration, it is what
-   makes the words safe to read, and it is angled so it does its work on the left and lets
-   the sky come through on the right where the portrait is.
+/* A SOLID, and no photograph. The scrim that used to sit over the sky is gone with it:
+   a scrim exists to make white type safe on a mid-tone image, and a colour you choose
+   yourself can simply BE dark enough. One declaration instead of two layers, nothing to
+   download, and nothing that shifts as the hero crops at different widths.
 
-   center 55% rather than dead centre: the image is wide and short (2912x1342), so on a
-   desktop-shaped hero the top and bottom get cropped, and the part worth keeping is the
-   band of orange low in the frame rather than the flat grey above it. On a phone the box
-   is taller than the picture is, the crop moves to the sides instead, and this has no
-   effect either way.
+   This navy is the same family as the nav bar above it and the walk's own furniture, so the
+   top of the page reads as one object rather than a bar sitting on a picture. White type on
+   it lands at about 15:1, which is far past what it needs.
 
-   KNOBs: the two alpha values in the gradient are the scrim's strength at the left edge
-   and the right. Raise the first if the headline ever needs more separation. */
+   KNOB: --hero-bg. Anything darker than roughly #4a4a4a keeps the white type comfortable;
+   go lighter than that and the headline, the two paragraphs and the button all need
+   rethinking together, since they are all white. */
 .hero{
-  background:
-    linear-gradient(100deg, rgba(9,18,34,.62) 0%, rgba(9,18,34,.46) 42%, rgba(9,18,34,.14) 100%),
-    url('background_Main.png') center 55% / cover no-repeat;
+  --hero-bg:#0f1e35;
+  background:var(--hero-bg);
   display:grid; grid-template-columns:1fr 1fr; align-items:center;
   padding:3rem 4rem 3rem; position:relative; overflow:hidden;
 }
