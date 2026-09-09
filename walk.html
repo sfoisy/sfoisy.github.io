@@ -6209,9 +6209,31 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
   background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
   -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-  transition:color .18s ease, border-color .18s ease, background .18s ease;
+  transition:color .18s ease, border-color .18s ease, background .18s ease,
+             opacity .25s ease, transform .25s ease, visibility .25s;
 }
 .backw svg{ width:13px; height:13px; flex:0 0 13px }
+
+/* ===== IT GOES AWAY ONCE YOU HAVE STARTED READING =========================
+   The pill is for the first few seconds: you opened this by mistake, or from a
+   link, and you want out. Past that it is a control sitting over a 250-mile
+   article for the length of a very long read, and the browser's own Back does
+   the same job without taking up a corner of the picture.
+
+   So it leaves at 120px of scroll and comes back when you return to the top --
+   which is where someone who wants to leave is heading anyway. It fades and
+   lifts rather than vanishing, and takes visibility with it so it is out of the
+   tab order and cannot be clicked while invisible.
+
+   THE CLASS GOES ON <html>, not <body>. body's class list is busy on this page --
+   the map's render loop writes to it every frame and the trail watches it -- and
+   a pill fading in a corner has no business waking either of them.
+   KNOB: the 120px, in the script at the foot of the file. */
+html.back-gone .backw{
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(-6px);
+}
+@media(prefers-reduced-motion:reduce){ .backw{ transition:none } }
 .backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } }
@@ -25640,5 +25662,32 @@ function goBack(e){
   }
   return true;
 }
+
+/* The pill's one job is the first screenful, so it stands down after 120px and
+   comes back at the top. See the .backw rules for why the class goes on <html>.
+
+   Read on a rAF rather than in the scroll handler itself: a scroll listener that
+   touches layout runs on every event, which on a trackpad is dozens a second and
+   on this page is dozens a second alongside a map render loop. The flag means the
+   position is read once per frame at most, and the class is only written when it
+   actually changes -- a classList write that changes nothing still invalidates
+   style for the whole document. */
+(function(){
+  var HIDE_AT = 120;          /* KNOB: how far down it leaves, px */
+  var root = document.documentElement, pending = false, gone = false;
+  function read(){
+    pending = false;
+    var past = (window.pageYOffset || root.scrollTop || 0) > HIDE_AT;
+    if(past === gone) return;
+    gone = past;
+    root.classList.toggle('back-gone', past);
+  }
+  window.addEventListener('scroll', function(){
+    if(pending) return;
+    pending = true;
+    requestAnimationFrame(read);
+  }, {passive:true});
+  read();
+})();
 </script>
 </body></html>
