@@ -171,7 +171,11 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .pub-title{font-size:.95rem;font-weight:500;color:var(--deep);margin-bottom:.3rem;line-height:1.4}
 .pub-authors{font-size:.82rem;color:var(--muted);font-weight:300}
 .pub-journal{font-size:.78rem;color:var(--purple);font-weight:400;margin-top:.35rem;font-style:italic}
-.pub-badge{display:inline-block;margin-top:.4rem;font-size:.62rem;font-weight:500;color:#0f6e56;background:rgba(29,158,117,.1);padding:.2rem .6rem;border-radius:100px}
+/* GREY, not green. Green is a verdict -- accepted, passing, done -- and this
+   chip says where a paper is in a queue, which is a fact and not good news. The
+   neutral pair reads as a label: dark grey type on the faintest grey fill, no
+   hue at all, so it sits under the title without competing with it. */
+.pub-badge{display:inline-block;margin-top:.4rem;font-size:.62rem;font-weight:500;color:#3f3f46;background:rgba(0,0,0,.06);padding:.2rem .6rem;border-radius:100px}
 
 /* SCICOMM */
 .scicomm{background:var(--navy);color:var(--white);display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
@@ -579,33 +583,21 @@ nav, .nav-mobile-menu{
    the order of the sections in the HTML is now load-bearing. Move one and it
    lands out of sequence with its neighbours; move its colour with it.
 
+   TEN SECTIONS, ONE FULL TURN OF THE WHEEL, in order -- which is why the order of
+   the sections in the HTML is load-bearing. Move one and it lands out of sequence
+   with its neighbours; move its colour with it.
+
    IT STARTS ON VIOLET, directly under the photograph, and goes round from there:
    violet, magenta, rose, amber, yellow, lime, green, teal, sky, indigo. A wheel
-   has no first spoke, so where it starts is a choice -- and violet is the one
-   that carries down out of the night sky above it rather than cutting against
-   it, which a rose block immediately under a navy photograph did. Rotating the
-   whole run is turning this list by however many places; the sequence is what
-   matters, not which end it begins at.
+   has no first spoke, so where it starts is a choice -- and violet is the one that
+   carries down out of the night sky above it rather than cutting against it, which
+   a rose block immediately under a navy photograph did.
 
-   NOT A GRADIENT. A ramp ran through the middle of the page for a round and four
-   sections read as one long pale nothing. The visible edge is the point: it is
-   what says a new section has started before you have read a word of it.
-
-   BLACK TYPE ON ALL OF THEM, which is the constraint the palette is built
-   around -- though at this weight it is not the binding one. These went a step
-   lighter again for a round and came back: at that weight you could still name
-   each hue but the blocks stopped separating from one another, and the edge
-   between two sections is the thing the whole scheme is for. This is the middle
-   setting of the three, and the one to keep. Every tint clears 15:1 against
-   #000; the darkest, green, is about 16:1. The type is the same black on all ten
-   and never has to be checked again per section. The vars are reset per block rather than per element, so
-   anything that reads --text, --muted, --deep or --mid inside a section picks up
-   the black without knowing it is in a coloured block.
-
-   TWO SECTIONS CHANGED SIDES. Science Communication and Let's chat were navy
-   with white type; they are teal and magenta with black now, which is why their
-   inline white colours were edited out of the markup above. Only the footer is
-   still dark.
+   TWO OTHER VERSIONS WERE TRIED AND ARE NOT HERE. Alternating violet and blue read
+   as one colour with a flicker in it; a single continuous arc from purple through
+   to cyan read as one long fade -- elegant, and it said nothing about where on the
+   page you were. Ten distinct hues is the version where a section has a colour
+   rather than a position.
 
    KNOBS: the ten values. There is a lot of room below these before black is
    working for its contrast -- anything above roughly #b9e0d8 is safe -- so the
@@ -759,7 +751,17 @@ nav, .nav-mobile-menu{
    flush against the first letter of the sentence. */
 .newsfeed .entry{ font-weight:300 }
 .newsfeed .entry time{ font-weight:700 }
-.newsfeed .entry .lead{ font-weight:400; letter-spacing:.2em; margin-right:-.2em }
+/* FULL STOPS, not bullets, and in a <span> rather than a <b>. Bullets are a
+   heavy glyph set on the middle of the line -- next to a bold date they read as a
+   third thing shouting, which is what they looked like. Periods sit on the
+   baseline, in the paragraph's own weight, and are the same mark the sentence
+   ends on. The element changed with them: <b> means bold, and turning that off in
+   CSS while leaving the tag in the markup is two rules arguing.
+
+   The negative margin cancels the tracking after the last stop -- letter-spacing
+   adds its gap after every character, including the final one -- so the run ends
+   flush against the first letter of the sentence. */
+.newsfeed .entry .lead{ font-weight:inherit; letter-spacing:.28em; margin-right:-.28em }
 
 /* ===== THE HERO PARAGRAPHS, JUSTIFIED =====================================
    The same treatment the three prose columns below get, for the same reason:
@@ -799,21 +801,32 @@ nav, .nav-mobile-menu{
    section and a left-aligned column of two cards in the middle of it read as
    having lost something.
 
-   IN THE SECTION'S COLOURS, not white. Every other white panel on this page is a
-   picture in a frame; these are text on a coloured block, and a white card there
-   is a hole punched in the colour. They take a deeper step of the same yellow
-   instead, with the accent rule down the left in the full-strength version --
-   which is the same --btn the section's button uses, so the card and the button
-   cannot drift apart.
-   KNOB: --pub-card. Keep it between the section's own tint and the button. */
-.publications{ --pub-card:#fdf2c4 }
+   WHITE, WITH BLACK TYPE, on the section's yellow. They were tinted to match the
+   block for a round, on the reasoning that a white card punches a hole in a
+   coloured section -- which is true of a caption strip under a photograph and not
+   of these. A citation is a record: it wants to look like something set down on
+   the page rather than part of the page's colour, and white is what says so. The
+   yellow around them is what makes them read as set down.
+
+   The accent rule down the left is the section's own --btn, so the card and the
+   button below it cannot drift apart -- one line of colour is enough to tie the
+   card to the block without tinting the whole thing. */
 .pub-list{ margin-left:auto; margin-right:auto; text-align:center }
 .pub{
-  background:var(--pub-card);
-  border-left:3px solid var(--btn);
+  background:var(--white);
+  color:#000;
+  /* NO ACCENT RULE. There was a 3px bar of the section's colour down the left
+     edge. On a square card that reads as a rule; on a 1rem corner radius the bar
+     has to curve around the corner with it, which leaves a thin crescent of
+     colour arcing over the top-left of a white card -- a sliver, not a rule. It
+     is the card's own shape that made it wrong, so the fix is the bar rather than
+     the radius: the white block on a coloured section already reads as set down,
+     and it does not need a line to tie it there. */
+  border-left:0;
   border-radius:1rem;
 }
-.pub:hover{ background:#fbeaa8 }
+.pub:hover{ background:#fff }
+.pub-title, .pub-title a, .pub-authors, .pub-journal, .pub-year{ color:#000 }
 .pub-title, .pub-authors, .pub-journal, .pub-year{ text-align:center }
 /* The badge is a chip and centres like one -- inline-block in a centred line. */
 .pub-badge{ margin-left:auto; margin-right:auto }
@@ -966,11 +979,11 @@ function toggleMenu(){
          of text that cannot come apart, which is what was wanted all along.
 
          COPY A WHOLE <li> TO ADD ONE, newest at the top, and keep the three parts
-         in this order: <time>, <b class="lead">, then the words. <time datetime>
+         in this order: <time>, <span class="lead">, then the words. <time datetime>
          is the machine-readable date -- YYYY-MM-DD for a day, YYYY-MM for a
          month; the words a person sees are the ones between the tags. -->
     <li>
-      <p class="entry"><time datetime="2026-06-03">June 3, 2026</time><b class="lead">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</b>I finished my walk from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
+      <p class="entry"><time datetime="2026-06-03">June 3, 2026</time><span class="lead">.......</span>I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
     </li>
 
   </ul>
@@ -1057,12 +1070,17 @@ function toggleMenu(){
       <p class="pub-authors">Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G.</p>
       <span class="pub-badge">Submitted</span>
     </div>
+    <!-- THE THESIS, COMMENTED OUT rather than deleted. The markup is exactly as it
+         was -- the year line, the linked title, the author line and the journal line
+         so putting it back is removing these two comment markers and nothing else.
+         With it out, the list is one entry; nothing in the stylesheet assumes two.
     <div class="pub">
       <p class="pub-year">2024 · Highest Honors</p>
       <p class="pub-title"><a href="https://librarysearch.williams.edu/discovery/fulldisplay?docid=alma991014147706402786&context=L&vid=01WIL_INST:01WIL_SPECIAL&lang=en&search_scope=MyInst_and_CI&adaptor=Local%20Search%20Engine&tab=Everything&query=any,contains,Liquid-Liquid%20Phase%20Separation:%20Exploring%20the%20Effects%20of%20Hofmeister%20Salts%20and%20Organonitrates&offset=0" target="_blank" style="color:var(--deep);text-decoration:underline;text-decoration-color:var(--lavender)">Liquid-Liquid Phase Separation: Exploring the Effects of Hofmeister Salts and Organonitrates</a></p>
       <p class="pub-authors">Foisy, S.</p>
       <p class="pub-journal">B.A. Thesis · Williams College, Department of Geosciences</p>
     </div>
+    -->
   </div>
       <p class="more-line"><a class="more-btn" href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">View full list on Google Scholar</a></p>
     </div>
