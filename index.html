@@ -535,19 +535,29 @@ nav, .nav-mobile-menu{
 /* ===== THE SECTIONS, IN RAINBOW ORDER ======================================
    Every section below the photograph is a flat block of colour with a hard edge
    top and bottom, and the blocks run through the spectrum from the hero down to
-   the footer: rose, amber, yellow, lime, green, teal, sky, indigo, violet,
-   magenta. Ten sections, one turn of the wheel, in order -- which is why the
-   order of the sections in the HTML is now load-bearing. Move one and it lands
-   out of sequence with its neighbours; move its colour with it.
+   the footer. Ten sections, one full turn of the wheel, in order -- which is why
+   the order of the sections in the HTML is now load-bearing. Move one and it
+   lands out of sequence with its neighbours; move its colour with it.
+
+   IT STARTS ON VIOLET, directly under the photograph, and goes round from there:
+   violet, magenta, rose, amber, yellow, lime, green, teal, sky, indigo. A wheel
+   has no first spoke, so where it starts is a choice -- and violet is the one
+   that carries down out of the night sky above it rather than cutting against
+   it, which a rose block immediately under a navy photograph did. Rotating the
+   whole run is turning this list by however many places; the sequence is what
+   matters, not which end it begins at.
 
    NOT A GRADIENT. A ramp ran through the middle of the page for a round and four
    sections read as one long pale nothing. The visible edge is the point: it is
    what says a new section has started before you have read a word of it.
 
    BLACK TYPE ON ALL OF THEM, which is the constraint the palette is built
-   around. Every tint here clears 7:1 against #000 -- the darkest, teal, is about
-   11:1 -- so the type is the same black on all ten and never has to be checked
-   again per section. The vars are reset per block rather than per element, so
+   around -- though at this weight it is not the binding one. These have been
+   lightened twice from the first set and now sit around a tenth to a fifth of
+   full saturation: enough that you can name the hue of each block, not enough
+   that any of them competes with what is printed on it. Every tint clears 18:1
+   against #000. The type is the same black on all ten and never has to be
+   checked again per section. The vars are reset per block rather than per element, so
    anything that reads --text, --muted, --deep or --mid inside a section picks up
    the black without knowing it is in a coloured block.
 
@@ -556,23 +566,26 @@ nav, .nav-mobile-menu{
    inline white colours were edited out of the markup above. Only the footer is
    still dark.
 
-   KNOBS: the ten values. Keep them all lighter than about #b9e0d8 or the black
-   starts to work for its contrast. */
+   KNOBS: the ten values. There is a lot of room below these before black is
+   working for its contrast -- anything above roughly #b9e0d8 is safe -- so the
+   thing to watch when darkening them is not legibility, it is whether the white
+   cards sitting on top still read as objects on the block rather than holes in
+   it. */
 .about, .chamber, .newsfeed, .blogsec, .publications,
 .scicomm, .videos, .tiktok-section, .beyond, .contact{
   --text:#000; --muted:#111; --deep:#000; --mid:#000;
   color:#000;
 }
-.about          { background:#fbdcdc }   /* rose    -- I research the sky       */
-.chamber        { background:#fde3c8 }   /* amber   -- I love trying new things */
-.newsfeed       { background:#fdf3c4 }   /* yellow  -- News                     */
-.blogsec        { background:#e6f4c4 }   /* lime    -- Blog                     */
-.publications   { background:#cdf0d3 }   /* green   -- Publications             */
-.scicomm        { background:#c6efe9 }   /* teal    -- Science Communication    */
-.videos         { background:#cfe6fb }   /* sky     -- Music making             */
-.tiktok-section { background:#d7dcfb }   /* indigo  -- TikTok                   */
-.beyond         { background:#e2d7fa }   /* violet  -- Photo Gallery            */
-.contact        { background:#f6d7f2 }   /* magenta -- Let's chat               */
+.about          { background:#f4f1fe }   /* violet  -- I research the sky       */
+.chamber        { background:#fdf2fb }   /* magenta -- I love trying new things */
+.newsfeed       { background:#fef2f2 }   /* rose    -- News                     */
+.blogsec        { background:#fff5eb }   /* amber   -- Blog                     */
+.publications   { background:#fffbea }   /* yellow  -- Publications             */
+.scicomm        { background:#f6fbeb }   /* lime    -- Science Communication    */
+.videos         { background:#ecfaee }   /* green   -- Music making             */
+.tiktok-section { background:#e9f9f6 }   /* teal    -- TikTok                   */
+.beyond         { background:#eef7fe }   /* sky     -- Photo Gallery            */
+.contact        { background:#f0f2fe }   /* indigo  -- Let's chat               */
 
 /* The two that used to be dark, brought the rest of the way over. Their labels,
    headings, body copy and captions were all set in white or in a low-alpha white

@@ -6187,6 +6187,35 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   .dw-btn{ display:none !important }
   .read-float .rf-mail{ display:none !important }
 }
+
+/* ===== BACK ================================================================
+   The same control the games, the news page and the blog carry, in the same
+   corner: top left, under the bar, one press, one step. Fixed rather than in the
+   flow because this is the longest page on the site and the whole point of it is
+   that you never have to scroll back to the top to leave.
+
+   It sits ABOVE the loading sheet on the same z-index the bar gets, so it is
+   there for the several seconds the sheet can be up on a slow connection -- which
+   is exactly when someone who opened this by mistake wants it most.
+
+   The floating chip group at the left edge is pushed down 42px to clear it. That
+   group hangs off --map-pin-top, which is also what the map's pins hang off, so
+   the offset is added HERE rather than by changing the variable -- the pins have
+   to stay where they are. */
+.backw{
+  position:fixed; left:12px; top:70px; z-index:2147483001;
+  display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
+  border-radius:999px; text-decoration:none; cursor:pointer;
+  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  transition:color .18s ease, border-color .18s ease, background .18s ease;
+}
+.backw svg{ width:13px; height:13px; flex:0 0 13px }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
+.backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
+@media(max-width:600px){ .backw span{ display:none } }
+.read-float{ top:calc(var(--map-pin-top,76px) + 42px) }
 </style>
 </head>
 <body class="mode-quick">
@@ -6297,6 +6326,13 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
+
+<!-- The way back, top left under the bar: one step in this tab. -->
+<a class="backw" href="index.html" onclick="return goBack(event)">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  <span>Back</span>
+</a>
 
 <!-- Always-there version of the reading-mode switch. Discrete = the folded stop list,
      Continuous = the article running unbroken. Unlike the pair in the stop index this is a
@@ -26163,4 +26199,22 @@ body.wr-marks .wr-live.wr-gone::before{
 })();
 </script>
 
+<script>
+/* BACK. One step in this tab, wherever you came from, restored at the scroll
+   position you left it at and with nothing refetched. The same function the two
+   games, the news page and the blog carry.
+
+   history.length > 1 is the only condition. It is false when this page was opened
+   in a new tab: there is nothing behind it, back does nothing at all, and the href
+   carries the press instead -- which is why it points at the home page, the
+   sensible landing for someone who arrived with no history. */
+function goBack(e){
+  if(history.length > 1){
+    e.preventDefault();
+    history.back();
+    return false;
+  }
+  return true;
+}
+</script>
 </body></html>

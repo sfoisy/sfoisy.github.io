@@ -310,6 +310,74 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
 .hub-note .walk-cta{text-decoration:none;color:#fff}
 .hub-note .walk-cta:hover{opacity:1}
 
+/* ===== BACK, IN THE FLOW ===================================================
+   The pill in the top corner is the one you reach for mid-page; this is the one
+   you reach for having finished. Two controls for one action, deliberately: on a
+   screen you scroll to the end of, the end is where the decision to leave gets
+   made, and a fixed control at the top is somewhere you have to go rather than
+   somewhere you already are.
+
+   It is written once -- in the standing block at the foot of the wall, and in
+   #aboutTpl, which is cloned into every post as it opens. So the Challenges post
+   has one for the same reason interview #7 does, without either being mentioned
+   by name.
+
+   Both call the same goBack() the corner pill does: back a SCREEN, not back a
+   page -- a conversation returns to the wall, the wall to the front page -- and
+   only out of the site once there is nothing of ours behind us. */
+.screen-back{ margin-top:1.6rem }
+.back-btn{
+  font:700 .74rem 'DM Sans',sans-serif; letter-spacing:.04em;
+  background:rgba(0,0,0,.42); color:#fff;
+  border:1.5px solid rgba(255,255,255,.55); border-radius:999px;
+  padding:.46rem 1.15rem; cursor:pointer;
+  transition:background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.back-btn:hover{ background:rgba(0,0,0,.68); transform:translateY(var(--lift)) }
+.back-btn:focus-visible{ outline:3px solid #f5820b; outline-offset:3px }
+
+
+/* ===== THE INTRO ABOVE THE WALL ===========================================
+   .hub-note and .hub-intro are the same block in two positions, and the second
+   one has to undo three things the first sets -- so it is written AFTER it and
+   on both classes at once. Specificity and source order both settle it; either
+   alone was enough, and the first attempt had neither, which is why the rule
+   turned up ABOVE the paragraph instead of below it and the type stayed centred.
+
+   WHAT CHANGES, and why each one:
+
+   THE RULE FLIPS. A line over this paragraph closes off the heading, which is
+   the one thing on the screen it belongs to. Under it, the same line is a lid on
+   the fourteen cards -- introduction, rule, wall -- which is the order the page
+   actually reads in.
+
+   THE TYPE STOPS BEING CENTRED. Centred is right for the block at the foot: two
+   short lines and a row of buttons under a grid. It is wrong for eight lines of
+   prose, where every line starts at a different x and the eye has to find the
+   beginning of each one. Justified instead, which is what this same paragraph
+   does on the home page and inside a post.
+
+   THE MEASURE COMES IN, from 900px to 70 characters. 900 is about 120 characters
+   a line; this is the only solid block of prose on the screen and it is the one
+   place on the page where the line length is worth spending space on.
+   KNOB: the 70ch. */
+.hub-note.hub-intro{
+  max-width:70ch;
+  margin:0 auto 2.75rem;
+  padding:0 0 1.9rem;
+  border-top:0;
+  border-bottom:1px solid var(--pale);
+  text-align:left;
+}
+.hub-note.hub-intro p{
+  font-size:1.02rem; line-height:1.8; margin-bottom:0;
+  text-align:justify; hyphens:auto;
+}
+/* Justified prose needs a measure a phone does not have: at 390px the spaces
+   stretch far enough to open rivers down the middle of the paragraph. */
+@media(max-width:700px){ .hub-note.hub-intro p{ text-align:left; hyphens:manual } }
+
+
 /* Back out of the wall to the two-door index. Same button as the reader's. */
 /* The grid cell. Holds the date line and, under it, the button. */
 .card-slot{display:flex;flex-direction:column;min-width:0}
@@ -1046,12 +1114,13 @@ video:fullscreen::cue{
   position:fixed; left:12px; top:70px; z-index:90;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
   border-radius:999px; text-decoration:none; cursor:pointer;
-  color:rgba(255,255,255,.34); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  background:none; border:1px solid transparent;
+  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   transition:color .18s ease, border-color .18s ease, background .18s ease;
 }
 .backw svg{ width:13px; height:13px; flex:0 0 13px }
-.backw:hover{ color:#fff; border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.12) }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
 </style>
@@ -1136,24 +1205,33 @@ function toggleMenu(){
   </section>
 
   <div class="grid-wrap">
+
+    <!-- ABOVE THE CARDS, not under them. It is the standing paragraph every post
+         carries (see #aboutTpl), and on this screen it is doing a different job:
+         under fourteen thumbnails it was a footnote nobody scrolled to, and over
+         them it is the caption that says what the fourteen ARE before you start
+         choosing between them.
+
+         The rest of the block stays where it was, beneath the wall -- "for more
+         walk content" and the disclaimer are what you want AFTER looking, not
+         before. So the one block is now two, top and tail. -->
+    <div class="hub-note hub-intro">
+      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!</p>
+    </div>
+
     <div class="card-grid hub-grid" id="hubGrid"></div>
 
-    <!-- The same standing text every post carries (see #aboutTpl), with one line
-         changed: on the wall you are looking at all fourteen at once, so it says
-         so rather than naming a number. Written out here rather than cloned from
-         the template because of that one line -- if it ever matches word for
-         word, this should become another clone. -->
+    <!-- No "Other interviews" here: this IS the other interviews. The post
+         template below keeps it, because from inside one conversation the wall
+         is somewhere else to go. -->
     <div class="hub-note">
-      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!</p>
       <p>For more walk content:</p>
-      <!-- No "Other interviews" here: this IS the other interviews. The post
-           template below keeps it, because from inside one conversation the
-           wall is somewhere else to go. -->
       <p class="post-about-links">
         <a href="walk.html">Full adventure</a>
         <a href="#post-games">Challenges</a>
       </p>
       <p class="post-about-fine">All views on this website are my own.</p>
+      <p class="screen-back"><button type="button" class="back-btn" onclick="goBack()">&larr; Back</button></p>
     </div>
   </div>
 </div>
@@ -1180,6 +1258,7 @@ function toggleMenu(){
       <a href="#post-games" class="about-games">Challenges</a>
     </p>
     <p class="post-about-fine">All views on this website are my own.</p>
+    <p class="screen-back"><button type="button" class="back-btn" onclick="goBack()">&larr; Back</button></p>
   </section>
 </template>
 
