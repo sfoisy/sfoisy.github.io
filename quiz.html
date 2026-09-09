@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Time! Climate Walk Trivia</title>
+<meta name="description" content="Twelve questions drawn from fourteen scientist interviews recorded on a 270-mile walk from New York City to the United States Capitol.">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800;9..40,900&display=swap" rel="stylesheet">
+
+<!-- ===========================================================================
+     QUIZ TIME! CLIMATE WALK TRIVIA
+
+     One rectangle, one button. Everything the game has to say it says inside the box: no
+     title above it, no instructions beside it, no footer under it. A game with its manual
+     printed in the margin is a game you read instead of play.
+
+     THE SHAPE OF IT
+       Title      -> PLAY, or LEADERBOARD to look at the board without playing.
+                     A mark, a name, a button: nothing on it to read.
+       Setup      -> one sentence and two links, reached by pressing PLAY and left by
+                     pressing START. It is not on the title screen because a title screen
+                     with instructions on it is a page you read instead of a door you open,
+                     and it is one sentence rather than a rulebook because a three-answer
+                     quiz teaches itself on the first question.
+       12 rounds  -> one question, three answers, no clock, no second chances
+       Scoreboard -> every run before it on this machine, in full -- the same board shown
+                     twice: once with a name box over it, once on its own. The name box is
+                     the only difference between the two, and it appears only for someone
+                     who just finished. Arriving from the title screen is a visit.
+
+     WHY NO SECOND CHANCES
+       The version that used to sit under the interview videos handed the question back when
+       you got it wrong, which was right for a quiz under a video someone had just watched.
+       This has a score at the end, and a score you cannot lose points from is not a score.
+       Miss it, you are told the answer, you are told who said it, you move on.
+
+     THE SOURCE LINE
+       Every question comes out of something one of fourteen scientists actually said on
+       camera between Central Park and the Capitol, or out of the walk's own record. After
+       you answer -- and only then, so it can never work as a hint -- the box names them.
+       That line is the part doing the teaching. The score is what keeps you there for it.
+
+       NAMING: everyone in that line is "Dr. Firstname Lastname" -- the two exceptions are
+       Hikaru Hayakawa and Bernadette Woods Placky, who are named without it. If a question
+       is ever added, copy the source string off an existing row from the same interview
+       rather than typing the name again, and the rule keeps itself.
+
+     THE BANK
+       92 questions. Twelve per run, dealt at random and then nudged so two from the same
+       interview do not land back to back. Twelve rather than twenty because the run has to
+       stay shorter than the patience of someone who only meant to try one; seven runs before
+       the bank repeats itself is plenty of rope. Adding more is adding a row: [ question, [answers], index of the right one, source ].
+
+     ONE RULE FOR WHAT GOES IN THE BANK
+       Every question is a science question. The test is the answer, not the topic: if the
+       answer is a fact about the world -- a number, a mechanism, a definition, a cause --
+       it belongs. If it is a job title, a degree, a lab's budget, a building, a mileage, a
+       sandwich, or what got thrown on a campus lawn, it does not, however good the story
+       behind it. Thirty-six questions were pulled out on that test.
+
+       The names still appear, but only in the source line after you have answered, which is
+       where credit belongs and where it cannot double as a hint. Questions are therefore
+       written impersonally -- "why test a model against the deep past", not "why does she".
+=========================================================================== -->
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+/* ===== The palette =========================================================
+   The orange is gone. It was a second sunset arguing with the one in the photograph,
+   and every warm accent on the page was tuned to it.
+
+   What is here instead is three cool notes and two verdicts:
+     --acc      iris        the interface accent -- counters, rules, headings
+     --acc-2    violet      the second note, for the one word that carries the title
+     --acc-3    seafoam     the cool corner of the box and the gradients
+     --good     mint        correct, and only correct
+     --bad      rose        wrong, and nothing else
+   Nothing else is allowed a colour. If a new element needs one it takes one of these
+   five, which is the whole reason they are named up here rather than typed inline. */
+:root{
+  --acc:#a8b6fb;
+  --acc-2:#c8b2f7;
+  --acc-3:#79dfd0;
+  --acc-deep:#6f63e8;
+  --good:#5eead4;
+  --bad:#fb7185;
+}
+
+/* ===== The backdrop ========================================================
+   back2.jpg, the same photograph blog.html sits on, so the three pages read as one place.
+
+   Two decisions worth writing down. It is on a pseudo-element rather than on <body> itself
+   because iOS Safari quietly ignores background-attachment:fixed, and a fixed pseudo works
+   everywhere. And there is a dark wash over the top of it: back2.jpg is a photograph with
+   bright patches, the box floating on it is translucent, and without the wash the type inside
+   the box would fall off a cloud. Set --veil to 0 to see what it is for. */
+body{
+  display:flex; align-items:center; justify-content:center; padding:16px;
+  position:relative; min-height:100%;
+  background:#16243d;              /* fallback while the photo loads, and the floor under it */
+  font-family:'DM Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+  --veil:.42;                      /* KNOB: how far the photograph is pushed back */
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    linear-gradient(rgba(9,16,32,var(--veil)), rgba(9,16,32,var(--veil))),
+    url("https://wesitefoisy1.b-cdn.net/back2.jpg") center / cover no-repeat;
+  background-color:#16243d;
+}
+
+/* ===== The box =============================================================
+   Fixed aspect, capped width, shrinks with the window rather than reflowing -- so the
+   composition inside is the same composition on a laptop and on a phone. */
+/* The box is glass, not a painted sky of its own. The photograph behind it does the colour;
+   this only darkens it enough to read against and blurs it enough that the type is never
+   fighting a tree branch.
+
+   THE WASHES ARE THE THEME
+     Two soft corners of colour -- one top right, one bottom left -- laid over the dark base.
+     They are painted from --t1 and --t2, which the script rewrites the moment a category is
+     chosen, so the whole box changes temperature for the length of the run and slides back
+     when it ends. The values are plain hex with an alpha suffix rather than rgba(), because
+     that is the one way to build a translucent colour out of a variable that every browser
+     this page will meet has always understood.
+
+     They are held low on purpose. This is a wash, not a paint job: the question has to stay
+     the brightest thing in the frame on all five. */
+.box{
+  --t1:#967cf033;   /* top-right wash    -- the default violet */
+  --t2:#48c8be29;   /* bottom-left wash  -- the default seafoam */
+  position:relative; z-index:1; width:100%; max-width:940px; aspect-ratio:16/10; min-height:540px;
+  border-radius:20px; overflow:hidden; color:#eef2ff;
+  background:
+    radial-gradient(120% 90% at 78% 8%, var(--t1), transparent 58%),
+    radial-gradient(90% 80% at 8% 98%, var(--t2), transparent 60%),
+    linear-gradient(168deg, rgba(9,15,34,.76), rgba(15,21,46,.80) 55%, rgba(24,20,52,.78));
+  transition:background .5s ease;
+  -webkit-backdrop-filter:blur(9px) saturate(1.15);
+  backdrop-filter:blur(9px) saturate(1.15);
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.13) inset;
+}
+@media(max-width:760px){ .box{ aspect-ratio:auto; height:min(90vh,760px) } }
+
+.screen{ position:absolute; inset:0; z-index:2; display:none; flex-direction:column; padding:clamp(20px,3.4vw,40px) }
+.screen.on{ display:flex }
+
+/* ===== Title ===============================================================
+   No glow behind the letters. White type at that weight on a veiled photograph is already
+   the brightest thing in the frame; a halo underneath it only softens the edges it is
+   meant to be sharpening. The second line carries the violet and that is the whole of it. */
+#sTitle{ align-items:center; justify-content:center; text-align:center }
+.logo{ font:900 clamp(2.1rem,6.4vw,4rem)/.92 'DM Sans',sans-serif; letter-spacing:-.045em; color:#fff }
+.logo em{ font-style:normal; display:block; color:var(--acc-2); font-size:.62em; letter-spacing:-.03em; margin-top:.22em }
+
+/* ===== The mark ============================================================
+   ONE card, not a stack. The letter game opens on three envelopes fanned out because it is
+   about carrying eleven legs' worth of post; this is about one question at a time, one
+   attempt at it, and a verdict you cannot take back -- so the emblem is a single card with
+   the question on it and the answer landing on the corner.
+
+   The badge is mint, and mint means correct and nothing else on this page. It is the only
+   place on the title screen any of the five colours is used as a verdict, which is the point:
+   you are looking at the thing you are about to go and earn.
+
+   Same 3px iris stroke and the same two violets as the fill on the letters page, so the two
+   marks are recognisably drawn by the same hand without being the same drawing. */
+.mark{
+  width:clamp(92px,13.5vw,148px); height:auto; margin-bottom:1.15rem;
+  filter:drop-shadow(0 16px 30px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(0,0,0,.45));
+}
+.mark .q{ font:900 58px 'DM Sans',sans-serif; fill:var(--acc-deep) }
+
+/* ===== The way in =========================================================
+   One sequence, once, on load: the card arrives, the answer lands on it, then the name, then
+   the sentence, then the button -- in the order you would read them anyway. Nothing on this
+   screen animates after 1.2s except the card breathing, and nothing else on the page animates
+   at all. A quiz that is still moving while you are reading the question is a quiz arguing
+   with itself.
+
+   The sway is a rotation rather than a float on purpose: the letters mark bobs, this one
+   tilts, and two pages that move differently read as two places. */
+#sTitle .mark  { animation:markIn .8s cubic-bezier(.2,.9,.3,1) both, sway 7s ease-in-out 1.2s infinite }
+#sTitle .badge { transform-box:fill-box; transform-origin:center;
+                 animation:badgeIn .5s cubic-bezier(.34,1.56,.64,1) .62s both }
+#sTitle .logo     { animation:riseIn .7s cubic-bezier(.2,.9,.3,1) .16s both }
+#sTitle .titlebtns{ animation:riseIn .7s cubic-bezier(.2,.9,.3,1) .3s both }
+
+@keyframes markIn{ from{ opacity:0; transform:translateY(15px) rotate(-5deg) scale(.93) } }
+@keyframes badgeIn{ from{ opacity:0; transform:scale(.2) rotate(-30deg) } }
+@keyframes riseIn{ from{ opacity:0; transform:translateY(13px) } }
+@keyframes sway  { 0%,100%{ transform:rotate(0) } 32%{ transform:rotate(-1.7deg) } 68%{ transform:rotate(1.7deg) } }
+
+/* There was a 44px gradient rule between the name and the buttons. It was the only ornament
+   on the screen and it was doing the job of a margin, so the margin does it now. */
+#sTitle .titlebtns{ margin-top:1.35rem }
+/* On a short window the card is the first thing that can afford to give. */
+@media(max-height:620px){ .mark{ width:80px; margin-bottom:.7rem } }
+.namewrap{ display:flex; gap:.5rem; align-items:stretch; flex-wrap:wrap; justify-content:center }
+input.name{
+  width:min(260px,60vw); padding:.78rem 1rem; border-radius:12px;
+  border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.07); color:#fff;
+  font:700 1rem 'DM Sans',sans-serif; text-align:center;
+}
+input.name::placeholder{ color:rgba(255,255,255,.34); font-weight:500 }
+input.name:focus{ outline:3px solid var(--acc); outline-offset:2px; background:rgba(255,255,255,.12) }
+.play{
+  cursor:pointer; border:0; border-radius:12px; padding:.78rem 2.1rem;
+  background:linear-gradient(135deg,#8f9dfa,#b48af0); color:#fff;
+  font:900 1.02rem 'DM Sans',sans-serif; letter-spacing:.06em; text-transform:uppercase;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.16) inset;
+  transition:transform .14s cubic-bezier(.3,.8,.3,1), filter .14s ease;
+}
+.play:hover{ transform:translateY(-2px); filter:brightness(1.07) }
+.play:focus-visible{ outline:3px solid #fff; outline-offset:3px }
+/* The way in. One button, bigger than anything else on the screen, because it is the only
+   thing on that screen there is to do -- with the board sitting quietly beside it for the
+   people who came back to see whether their score survived the week. */
+.play.big{ padding:1rem 3.2rem; font-size:1.16rem; letter-spacing:.08em }
+.play.small{ padding:.72rem 1.3rem; font-size:.84rem }
+.titlebtns{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; justify-content:center }
+.savewrap{ display:flex; gap:.45rem; align-items:stretch; flex-wrap:wrap; justify-content:center; margin-bottom:.85rem }
+.savewrap.saved{ display:none }
+
+/* ===== The two ways out ====================================================
+   The rules screen is gone -- PLAY now opens question one -- and it was the only place
+   the interviews and the walk were linked. The links move to the corner of the box as
+   two chips, and they stay there on every screen, including while a question is up.
+
+   WHY THEY ARE ICONS UNTIL YOU TOUCH THEM
+     Something that sits on the screen for the whole game has to earn its space every
+     second it is there, and two words of navigation cannot. So the resting state is the
+     icon alone -- a 32px disc at a little over half opacity, quiet enough to read a
+     question over -- and the label unrolls to the right on hover or keyboard focus. The
+     name is always in the markup, so a screen reader hears it whatever the pill is doing.
+
+   Not mint. Mint is the colour of a right answer on this page and nothing else, so the
+   chips take the iris the rest of the interface uses.
+
+   The three screens with something at the bottom of them are given the height of a chip
+   to clear, so nothing is ever sitting on top of anything. */
+.ways{
+  position:absolute; z-index:5; display:flex; gap:.4rem; align-items:center;
+  left:clamp(20px,3.4vw,40px); bottom:clamp(16px,2.6vw,26px);
+}
+.waylinks{ display:flex; gap:.4rem }
+#sPick, #sPlay, #sEnd, #sBoard, #sRecap{ padding-bottom:calc(clamp(20px,3.4vw,40px) + 2.3rem) }
+/* Muted is a state, not a different button: same chip, one bar of the icon gone, and the
+   whole thing dimmed so the corner reads at a glance. */
+#sndBtn{ cursor:pointer; font-family:inherit }
+#sndBtn.off{ opacity:.45 }
+#sndBtn.off .wave{ display:none }
+
+.way{
+  display:inline-flex; align-items:center; text-decoration:none;
+  padding:.46rem; border-radius:99px;
+  border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.05);
+  -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+  color:rgba(255,255,255,.58); font:800 .72rem 'DM Sans',sans-serif; letter-spacing:.03em;
+  transition:transform .16s cubic-bezier(.3,.8,.3,1), border-color .16s ease,
+             background .16s ease, color .16s ease;
+}
+/* The label is folded away rather than removed: max-width animates, display does not. */
+.way span{
+  max-width:0; opacity:0; overflow:hidden; white-space:nowrap;
+  transition:max-width .26s cubic-bezier(.3,.8,.3,1), opacity .16s ease, margin .26s cubic-bezier(.3,.8,.3,1);
+}
+.way:hover span, .way:focus-visible span{ max-width:8rem; opacity:1; margin:0 .32rem 0 .42rem }
+/* One SVG convention for both marks: hairline strokes in currentColor, and the one
+   solid piece (the play triangle, the far pin) painted with .tip. */
+.way svg{
+  width:17px; height:17px; flex:0 0 auto; fill:none; stroke:currentColor;
+  stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1);
+}
+.way .tip{ fill:currentColor; stroke:none }
+.way:hover, .way:focus-visible{ transform:translateY(-2px); border-color:var(--acc);
+  background:rgba(168,182,251,.17); color:#fff }
+/* Each chip's icon does the thing the chip is about: the tape rolls forward a pixel,
+   the route walks its last step. */
+.way:hover .ico-play, .way:focus-visible .ico-play{ transform:translateX(1.2px) scale(1.06) }
+.way:hover .ico-route, .way:focus-visible .ico-route{ transform:translate(1px,-1px) scale(1.06) }
+.way:active{ transform:translateY(0) }
+.way:focus-visible{ outline:3px solid var(--acc); outline-offset:3px }
+/* A phone has no hover to unroll them with, and the first tap is the trip anyway. */
+@media(hover:none){ .way span{ display:none } }
+
+/* ===== The picker ==========================================================
+   PLAY opens this rather than question one. It is the one screen between the title and the
+   quiz, and it earns the interruption by being a choice rather than an instruction: the whole
+   bank, or one corner of it.
+
+   The buttons are built from CATS, not written out here, so a category added to the table
+   appears on this screen with its own colour and its own count and nothing else to do.
+
+   A category that cannot fill a run is shown but not offered. Dealing eight questions into a
+   ten-question scoreboard would put a score on the board that nobody could beat honestly. */
+#sPick{ align-items:center; text-align:center; justify-content:center }
+#sPick > *{ flex:0 0 auto; max-width:100% }
+/* A column header, not a title. One word over a list of six wants to look like a label. */
+.pickhead{ margin:0 0 .8rem; font:800 .74rem/1.3 'DM Sans',sans-serif; letter-spacing:.16em;
+  text-transform:uppercase; color:rgba(255,255,255,.5) }
+.picks{ display:grid; gap:.42rem; width:min(430px,100%) }
+/* Each row is painted its category's colour flat -- the colour IS the category, here, on the
+   ring at the end, and on everything in between once one is chosen. --c comes in from the
+   script; a row with no colour set falls back to the plain white of Mix.
+
+   The type is the box's ink rather than white, because all five hues are light: white on
+   them is the one combination on this page that would fail to read. */
+.pick{
+  display:block; width:100%; cursor:pointer; text-align:center;
+  padding:.8rem 1rem; border-radius:12px; border:0;
+  background:var(--c, #fff); color:#141a33;
+  font:800 .98rem/1.25 'DM Sans',sans-serif; letter-spacing:-.01em;
+  box-shadow:0 10px 24px -16px rgba(0,0,0,.9);
+  transition:filter .13s ease, transform .13s ease;
+}
+.pick:hover:not(:disabled){ filter:brightness(1.06); transform:translateY(-2px) }
+.pick:active:not(:disabled){ transform:translateY(0) }
+/* White ring, not the accent: an iris outline on an iris button is not an outline. */
+.pick:focus-visible{ outline:3px solid #fff; outline-offset:3px }
+.pick:disabled{ cursor:default; opacity:.34 }
+/* Mix is the odd one out and looks it: no hue at all, just the white the others fall back to. */
+.pick.mix{ background:#fff }
+.pickfoot{ display:flex; gap:.5rem; margin-top:1rem; justify-content:center; flex-wrap:wrap }
+
+/* ===== Play ================================================================ */
+.top{ display:flex; align-items:center; gap:.8rem }
+.pips{ display:flex; gap:3px; flex:1 1 auto }
+.pip{ height:4px; border-radius:2px; background:rgba(255,255,255,.16); flex:1 1 4px }
+.pip.hit{ background:var(--good) } .pip.miss{ background:var(--bad) } .pip.now{ background:var(--acc) }
+.count{ font:800 .72rem 'DM Sans',sans-serif; letter-spacing:.1em; color:rgba(255,255,255,.5); white-space:nowrap }
+.score{ font:900 1.1rem 'DM Sans',sans-serif; color:var(--acc); font-variant-numeric:tabular-nums }
+
+/* The clock is gone. It was ten seconds of pressure on a question whose whole point is the
+   sentence underneath the answer, and pressure is the wrong thing to put on someone who is
+   trying to remember what a scientist said. Take as long as you like; there is still only
+   one attempt, which is what keeps the score meaning something.
+
+   With the bar removed, the question needs the top margin the bar used to hold. Auto above
+   and auto on .reveal below leaves the question and its answers floating in the middle of
+   the box rather than clinging to the header. */
+.qtext{ font:800 clamp(1.1rem,2.8vw,1.68rem)/1.28 'DM Sans',sans-serif; letter-spacing:-.02em; color:#fff; margin:auto 0 1rem }
+.opts{ display:grid; gap:.45rem }
+.opt{
+  display:flex; align-items:center; gap:.72rem; text-align:left; cursor:pointer;
+  padding:.66rem .85rem; border-radius:12px;
+  border:1px solid rgba(255,255,255,.17); background:rgba(255,255,255,.06); color:#fff;
+  font:500 clamp(.84rem,1.7vw,.98rem)/1.28 'DM Sans',sans-serif;
+  transition:background .12s ease, border-color .12s ease, transform .12s ease;
+}
+.opt:hover:not(:disabled){ background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.4); transform:translateX(3px) }
+.opt:focus-visible{ outline:3px solid var(--acc); outline-offset:2px }
+.opt b{ flex:0 0 auto; width:1.55rem; height:1.55rem; border-radius:7px; display:flex; align-items:center;
+  justify-content:center; background:rgba(255,255,255,.15); font:800 .74rem 'DM Sans',sans-serif }
+.opt.right{ background:rgba(16,122,102,.62); border-color:var(--good) }
+.opt.wrong{ background:rgba(150,40,66,.46); border-color:var(--bad) }
+.opt.fade{ opacity:.34 }
+.opt:disabled{ cursor:default }
+
+/* Verdict, then the source. Always that order, always after the answer, never with it.
+
+   NOTHING MOVES WHEN YOU ANSWER
+   The question and its options are floated in the middle of the box by two auto margins,
+   which means they sit wherever the rest of the column leaves room. So anything down here
+   that appears out of nowhere steals height from those margins and drags the question up
+   the screen -- and the one thing a reader wants to keep looking at, at the moment they
+   find out whether they were right, is the question they just answered.
+
+   The fix is that this block never changes size. The verdict has a min-height, the button
+   was already reserving its space with visibility rather than display, and the source box
+   now does the same: it is laid out and holding its ground from the first frame, empty and
+   invisible, and answering only fades the text in. The min-height is set for a source that
+   wraps to two lines, which is the longest any of them run at this width, so a short one
+   and a long one occupy exactly the same space. */
+.reveal{ margin-top:auto; padding-top:.9rem }
+.verdict{ font:900 1rem 'DM Sans',sans-serif; min-height:1.25rem }
+.verdict.ok{ color:var(--good) } .verdict.no{ color:#ffa8b4 }
+.src{
+  visibility:hidden; opacity:0; min-height:4.3rem;
+  margin-top:.45rem; padding:.55rem .8rem;
+  /* White, whatever the run is themed. This is the sentence the whole game exists to show,
+     and the one thing on the screen that should read the same on every category. */
+  border-left:3px solid rgba(255,255,255,.85); border-radius:0 9px 9px 0; background:rgba(255,255,255,.10);
+  font:500 .82rem/1.35 'DM Sans',sans-serif; color:rgba(255,255,255,.84);
+  transition:opacity .2s ease;
+}
+.src.on{ visibility:visible; opacity:1 }
+/* Narrow enough and the same sources take three lines. */
+@media(max-width:560px){ .src{ min-height:5.5rem } }
+.src span{ display:block; margin-bottom:.1rem; font-weight:800; color:rgba(255,255,255,.72); letter-spacing:.08em; text-transform:uppercase; font-size:.64rem }
+.src em{ font-style:normal }
+.next{
+  margin-top:.75rem; cursor:pointer; border:0; border-radius:10px; padding:.55rem 1.35rem;
+  background:#fff; color:#141a33; font:800 .78rem 'DM Sans',sans-serif; letter-spacing:.06em; text-transform:uppercase;
+  visibility:hidden;
+}
+.next.on{ visibility:visible }
+.next:focus-visible{ outline:3px solid var(--acc); outline-offset:3px }
+
+/* ===== The recap slide =====================================================
+   Between the last answer and the scoreboard, one screen that is not about the number. The
+   twelve questions are counted by category and drawn as a ring, so the run reads as a shape
+   -- four on models, three on the ocean, one on language -- rather than as a fraction.
+
+   The ring is a single circle per slice: one stroke, dashed so that only its own arc shows,
+   rotated to where that arc starts. Growing the dash from zero is the whole animation, and
+   because each slice is its own element they can be staggered a tenth of a second apart and
+   the ring draws itself round like a clock hand.
+
+   Everything here is stroke and transform, which the compositor can do on its own thread, so
+   the slide stays smooth on a phone that is already holding a photograph behind it. */
+#sRecap{ align-items:center; text-align:center; justify-content:center }
+#sRecap > *{ flex:0 0 auto; max-width:100% }
+.recaphead{ margin:0 0 .9rem; font:800 .74rem/1.3 'DM Sans',sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--acc) }
+.recapwrap{ display:flex; align-items:center; gap:clamp(1rem,3.4vw,2.4rem); flex-wrap:wrap; justify-content:center }
+
+.ring{ width:clamp(132px,17vw,168px); height:auto; flex:0 0 auto; transform:rotate(-90deg) }
+.ring circle{ fill:none; stroke-linecap:butt; transition:stroke-dasharray .62s cubic-bezier(.25,.9,.35,1) }
+.ring .hole{ stroke:rgba(255,255,255,.07) }
+/* The number in the middle is upright, so it is a sibling of the ring rather than a child of
+   the rotated group. */
+.ringwrap{ position:relative; display:flex; align-items:center; justify-content:center }
+.ringmid{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none }
+.ringmid b{ font:900 clamp(1.5rem,3.6vw,2rem)/1 'DM Sans',sans-serif; color:#fff; letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums }
+.ringmid i{ font-style:normal; font:800 .58rem 'DM Sans',sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; color:rgba(255,255,255,.45); margin-top:.2rem }
+
+.key{ display:grid; gap:.3rem; text-align:left; min-width:min(280px,72vw) }
+.keyrow{ display:flex; align-items:center; gap:.55rem; font:600 .8rem/1.2 'DM Sans',sans-serif;
+  color:rgba(255,255,255,.82);
+  opacity:0; transform:translateY(6px); transition:opacity .34s ease, transform .34s ease }
+.keyrow.in{ opacity:1; transform:none }
+.keyrow s{ flex:0 0 auto; width:.72rem; height:.72rem; border-radius:4px; background:currentColor }
+/* Only the swatch takes the category's colour. The label stays near-white, because seven
+   hues of body text at .8rem is a legend nobody can read. */
+.keyrow em{ font-style:normal; flex:1 1 auto; color:rgba(255,255,255,.84) }
+/* n right out of n asked. Tabular so the column does not shuffle as the numbers change. */
+.keyrow b{ flex:0 0 auto; font-variant-numeric:tabular-nums; font-weight:800; color:#fff }
+.keyrow b u{ text-decoration:none; color:rgba(255,255,255,.4); font-weight:700 }
+
+.recapbtns{ display:flex; gap:.5rem; margin-top:1.1rem; flex-wrap:wrap; justify-content:center }
+@media(max-width:620px){
+  .recapwrap{ gap:.9rem }
+  .key{ min-width:0; width:100% }
+  .keyrow{ font-size:.74rem }
+}
+
+/* The confetti canvas covers the box and nothing else. pointer-events:none so it can never
+   eat the click on the button underneath it, and it is only in the DOM while it is running. */
+.confetti{ position:absolute; inset:0; z-index:6; pointer-events:none }
+
+/* ===== Scoreboard ==========================================================
+   The same board is used twice: once at the end of a run, where the name box is offered
+   above it, and once from the title screen, where it is the whole screen. Two lists, one
+   painter, and the same heading over both -- the end of a run is not a different place, it
+   is the same board arriving with something to add to it.
+
+   WHY EVERY ITEM DECLARES ITS OWN FLEX
+     Both of these screens are flex columns inside a box of fixed height, and a flex item's
+     default is flex-shrink:1 -- so when the heading, the name box, the list and the buttons
+     together want more height than the box has, the browser shrinks all of them, including
+     lines of type that do not get any shorter just because their box did.
+
+     The fix is to say which item is allowed to give: everything is flex:0 0 auto and keeps
+     its natural height, and the list alone is flex:1 1 auto with min-height:0 so it can take
+     whatever is left and scroll inside it. min-height:0 is the non-obvious half -- without
+     it a flex item refuses to shrink below its content, and the list would push the buttons
+     off the bottom instead of scrolling. That matters more now than it did: the board is no
+     longer capped at ten rows, so the list is the item that has to absorb the difference. */
+#sEnd, #sBoard{ align-items:center; text-align:center; justify-content:center; min-height:0 }
+#sEnd > *, #sBoard > *{ flex:0 0 auto; max-width:100% }
+#sEnd .lb, #sBoard .lb{ flex:1 1 auto; min-height:0 }
+.boardhead{ font:900 clamp(1.7rem,4.6vw,2.4rem)/1.1 'DM Sans',sans-serif; color:#fff; letter-spacing:-.04em;
+  margin-bottom:.9rem }
+.lb{ width:min(510px,100%); max-height:100%; overflow:auto; padding:.4rem;
+  border-radius:13px; border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.26) }
+.lbrow{ display:flex; align-items:center; gap:.6rem; padding:.32rem .6rem; border-radius:8px;
+  font:600 .84rem 'DM Sans',sans-serif; color:rgba(255,255,255,.72) }
+.lbrow.me{ background:rgba(168,182,251,.22); color:#fff }
+.lbrow i{ font-style:normal; width:1.5rem; text-align:right; color:rgba(255,255,255,.4); font-weight:800 }
+.lbrow em{ font-style:normal; flex:1 1 auto; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+/* Which category the run was drawn from, in that category's own colour, clipped rather than
+   wrapped -- a long label must never push the clock off the end of the row. */
+.lbrow .ct{ flex:0 0 auto; max-width:9.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font:800 .7rem 'DM Sans',sans-serif; color:rgba(255,255,255,.5) }
+.lbrow b{ font-variant-numeric:tabular-nums; font-weight:800; white-space:nowrap }
+/* The clock rides along quietly next to the score: it is what separates two rows that got the
+   same number right, so it belongs beside the fraction rather than in place of it. */
+.lbrow b u{ text-decoration:none; margin-left:.35rem; font:700 .72rem 'DM Sans',sans-serif;
+  color:rgba(255,255,255,.4) }
+@media(max-width:520px){ .lbrow .ct{ max-width:5.5rem } }
+.endbtns{ display:flex; gap:.5rem; margin-top:.85rem; flex-wrap:wrap; justify-content:center }
+.ghost{ cursor:pointer; border:1px solid rgba(255,255,255,.28); border-radius:12px; padding:.72rem 1.3rem;
+  background:rgba(255,255,255,.04); color:rgba(255,255,255,.8); font:800 .8rem 'DM Sans',sans-serif;
+  letter-spacing:.06em; text-transform:uppercase; transition:border-color .14s ease, color .14s ease, background .14s ease }
+.ghost:hover{ border-color:var(--acc); color:#fff; background:rgba(168,182,251,.12) }
+.ghost:focus-visible{ outline:3px solid var(--acc); outline-offset:3px }
+
+/* ===== The stamp ==========================================================
+   The livestream set, parked in the bottom right of the page. It sits on the page and not
+   inside the box, so it stays in the same corner whichever of the four screens is showing,
+   and it is pointer-events:none so it can never eat a click meant for a button underneath
+   it on a narrow phone. Decorative only -- no alt text worth reading aloud, hence alt="". */
+.stamp{
+  position:fixed; right:clamp(10px,2vw,26px); bottom:clamp(6px,1.6vw,18px); z-index:3;
+  width:clamp(96px,11vw,168px); height:auto; pointer-events:none; user-select:none;
+  opacity:.95; filter:drop-shadow(0 10px 22px rgba(0,0,0,.55));
+}
+@media(max-width:760px){ .stamp{ width:88px; opacity:.85 } }
+
+/* ===== DEBUG (OFF) =========================================================
+   Jumped straight to the scoreboard so the end screen could be looked at without playing
+   twelve questions to get there. Commented out in three places that travel together: this
+   rule, the <button id="dbg"> in the markup, and the block marked DEBUG in the script.
+   Uncomment all three to bring it back, or delete all three to be rid of it.
+
+#dbg{
+  position:fixed; left:10px; bottom:10px; z-index:4; cursor:pointer;
+  border:1px dashed rgba(255,255,255,.3); border-radius:8px; padding:.3rem .6rem;
+  background:rgba(0,0,0,.4); color:rgba(255,255,255,.55);
+  font:700 .62rem 'DM Sans',sans-serif; letter-spacing:.1em; text-transform:uppercase;
+}
+#dbg:hover{ color:#fff; border-color:#fff }
+*/
+
+/* The title screen is now the only thing on the page that moves, so this has to cover
+   animation as well as transition -- otherwise the card keeps swaying for someone who has
+   asked the machine to hold still. `both` fill means everything still ends up visible. */
+@media(prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important } }
+</style>
+</head>
+<body>
+
+<div class="box">
+
+  <section class="screen on" id="sTitle">
+    <!-- One card, one question on it, one verdict landing on the corner. Decorative, so it is
+         hidden from a screen reader entirely -- the logo underneath already says the name. -->
+    <svg class="mark" viewBox="0 0 158 128" aria-hidden="true">
+      <g transform="rotate(-5 76 58)">
+        <rect x="24" y="12" width="104" height="90" rx="15"
+              fill="#e4e0ff" stroke="#6f63e8" stroke-width="3"/>
+        <!-- dy=.35em rather than dominant-baseline:central. Same optical centring, without
+             relying on a property Safari has historically been shaky about. -->
+        <text class="q" x="76" y="57" dy=".35em" text-anchor="middle">?</text>
+      </g>
+      <g class="badge">
+        <circle cx="121" cy="97" r="21" fill="#5eead4" stroke="#6f63e8" stroke-width="3"/>
+        <path d="M111 97 l7 8 14-17" fill="none" stroke="#0f312c"
+              stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </svg>
+    <div class="logo">Quiz Time!<em>Climate Walk Trivia</em></div>
+    <div class="titlebtns">
+      <button class="play big" id="playBtn">Play</button>
+      <button class="ghost" id="boardBtn">Leaderboard</button>
+    </div>
+  </section>
+
+  <!-- The picker. Buttons are drawn from CATS at load, so this markup never lists a
+       category by name. -->
+  <section class="screen" id="sPick">
+    <div class="pickhead" id="pickHead">Category</div>
+    <div class="picks" id="picks"></div>
+    <!-- The board is reachable from here as well as from the title, because this is the
+         screen someone is on when they are deciding whether to play at all. -->
+    <div class="pickfoot">
+      <button class="ghost" id="pickBoardBtn">Leaderboard</button>
+      <button class="ghost" id="pickBackBtn">Back</button>
+    </div>
+  </section>
+
+  <section class="screen" id="sPlay">
+    <div class="top">
+      <div class="pips" id="pips"></div>
+      <div class="count" id="count">1 / 10</div>
+      <div class="score" id="scoreNow">0</div>
+    </div>
+    <h2 class="qtext" id="qText">&mdash;</h2>
+    <div class="opts" id="opts"></div>
+    <div class="reveal">
+      <div class="verdict" id="verdict"></div>
+      <div class="src" id="src"><span>Interview source</span><em id="srcTxt"></em></div>
+      <button class="next" id="nextBtn">Next</button>
+    </div>
+  </section>
+
+  <!-- The recap. Shown once, between the last answer and the board, and skippable in one
+       press. The ring is drawn from the run itself, so it is a different shape every time. -->
+  <section class="screen" id="sRecap">
+    <div class="recaphead" id="recapHead">What you were quizzed on</div>
+    <div class="recapwrap">
+      <div class="ringwrap">
+        <svg class="ring" id="ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="hole" cx="60" cy="60" r="46" stroke-width="17"></circle>
+        </svg>
+        <div class="ringmid"><b id="ringN">0</b><i id="ringLbl">right</i></div>
+      </div>
+      <div class="key" id="key"></div>
+    </div>
+    <div class="recapbtns">
+      <button class="play" id="recapBtn">Scoreboard</button>
+      <button class="ghost" id="recapAgainBtn">Play again</button>
+    </div>
+  </section>
+
+  <section class="screen" id="sEnd">
+    <div class="boardhead">Leaderboard</div>
+    <!-- The name is asked for HERE, not on the way in. A name box on the title screen is a
+         form standing between someone and a game they have not decided to play yet. Asked
+         afterwards, it is what you do with a score that already exists -- and a score only
+         exists if twelve questions were actually answered, which is why this row is hidden
+         unless the run that led here was finished. -->
+    <div class="savewrap" id="saveWrap">
+      <input class="name" id="nameIn" maxlength="14" placeholder="your name" autocomplete="off" spellcheck="false">
+      <button class="play small" id="saveBtn">Save score</button>
+    </div>
+    <div class="lb" id="lb"></div>
+    <div class="endbtns">
+      <button class="play" id="againBtn">Play again</button>
+    </div>
+  </section>
+
+  <!-- The board on its own. Same list, same storage, no name box on top of it -- this is
+       the screen for someone who came back to find out whether the run they saved on Tuesday
+       is still at the top, and it is reachable in one click from the way in. Nothing here
+       writes: arriving without playing is a visit, not an entry. -->
+  <section class="screen" id="sBoard">
+    <div class="boardhead">Leaderboard</div>
+    <div class="lb" id="lb2"></div>
+    <div class="endbtns">
+      <button class="play" id="boardPlayBtn">Play</button>
+      <button class="ghost" id="backBtn">Back</button>
+    </div>
+  </section>
+
+  <!-- The two ways out. Inside the box so they travel with it, absolute so they sit in
+       the same corner on every screen, and icons until they are hovered so that sitting
+       there for the whole game costs almost nothing.
+
+       THE ADDRESSES: pointed at the sibling pages by default. Change these two hrefs and
+       nothing else on the page has to move.
+         id="lnkBlog" -> the interview write-ups
+         id="lnkWalk" -> the walk itself, end to end
+       They open in a new tab so pressing one never throws away a run in progress. -->
+  <div class="ways">
+   <nav class="waylinks" aria-label="Where the questions come from">
+    <a class="way" id="lnkBlog" href="blog.html" target="_blank" rel="noopener">
+      <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2.6" y="4.8" width="18.8" height="14.4" rx="3.6"/>
+        <path class="tip" d="M10.1 9.35 15 12l-4.9 2.65z"/>
+      </svg>
+      <span>Interviews</span>
+    </a>
+    <a class="way" id="lnkWalk" href="walk.html" target="_blank" rel="noopener">
+      <svg class="ico-route" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5.2 18.6c3.6 0 2.6-6.2 6.6-6.2s3-6.2 6.9-6.2" stroke-dasharray="3.2 3.2"/>
+        <circle cx="5.2" cy="18.6" r="2.1"/>
+        <circle class="tip" cx="18.7" cy="6.2" r="2.4"/>
+      </svg>
+      <span>The walk</span>
+    </a>
+   </nav>
+   <!-- Sound is on, quietly, and one press turns it off for good on this device. -->
+   <button class="way" id="sndBtn" type="button" aria-pressed="true" title="Sound on">
+     <svg viewBox="0 0 24 24" aria-hidden="true">
+       <path class="tip" d="M5 9.4h3.3L13 5.4v13.2l-4.7-4H5z"/>
+       <path class="wave" d="M16.6 9.1a4.1 4.1 0 0 1 0 5.8"/>
+       <path class="wave" d="M19.2 6.5a7.8 7.8 0 0 1 0 11"/>
+     </svg>
+     <span>Sound</span>
+   </button>
+  </div>
+
+</div>
+
+<img class="stamp" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="" aria-hidden="true">
+
+<!-- DEBUG (OFF): the button, the #dbg CSS rule, and the DEBUG block in the script are
+     commented out together. Uncomment all three to bring it back.
+<button id="dbg" type="button">Debug &rarr; end</button>
+-->
+
+<script>
+(function(){
+'use strict';
+
+/* ===== The bank ============================================================
+   [ question, [answers], index of the right one, source, category ]
+
+   The category is the fifth slot. It does nothing during the run -- it is what the recap
+   slide counts up at the end, so a reader can see the shape of the twelve they were dealt.
+   Every row needs one, and it has to be a key that exists in CATS below. 
+   Grouped by speaker so that adding one means finding a name rather than scrolling. The
+   dealer spreads them out again. */
+var BANK = [
+// ---- Hikaru Hayakawa, Climate Cardinals -----------------------------------
+["Depending on the type, how much of climate science exists only in English?",["Up to 40%","Up to 70%","Up to 98%"],2,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["Roughly how many people in the world do not speak English at all?",["1.2 billion","6.5 billion","3 billion"],1,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["How many native English speakers are there worldwide?",["400 million","1.4 billion","900 million"],0,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["In Arabic, which two weather words are the same \u2014 a real problem for emergency alerts?",["Flood and mudslide","Tornado and hurricane","Blizzard and hailstorm"],1,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["How many Americans speak a language other than English at home?",[">50 million","12 million","4 million"],0,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["Beyond the words, what do translated emergency alerts often fail to carry?",["The correct time zone","Cultural context","The wind speed"],1,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+["What is missing from most climate science conferences?",["Interpreters and translation","Coffee","Poster sessions"],0,"Hikaru Hayakawa \u2014 executive director, Climate Cardinals","society"],
+
+// ---- Allegra LeGrande, paleoclimate ---------------------------------------
+["Which can be used to reconstruct past surface temperatures on Earth?",["Water isotopes","Pollen grains","Radiocarbon in coral"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+["What makes an atom an isotope?",["Extra neutrons","Extra electrons","A missing proton"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+["Which helps reconstruct past ocean temperatures?",["Calcareous shells in sediment cores","Beach sand grains","Deep-sea basalt"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+["Why test a climate model against the deep past?",["To vet the toolkit we use on the future","To find oil","Because the future is easier"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+["Why do past climates interest anthropologists as well as geophysicists?",["They shaped how societies could develop","They were warmer","They had no ice"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+["What do a couple of extra neutrons do to a water molecule?",["Make it slightly heavier, which can allow it to reveal past surface temperatures","Make it radioactive, which can make them more buoyant","Make it freeze at 0\u00B0F, from colligative properties"],0,"Dr. Allegra LeGrande \u2014 climate scientist, water isotopes","models"],
+
+// ---- Alan Robock, Rutgers -------------------------------------------------
+["During a volcanic eruption, which gases enter the atmosphere in bulk?",["Helium, neon, and xenon","Oxygen, nitrogen, and argon","Sulfur dioxide, carbon dioxide and water vapor"],2,"Dr. Alan Robock \u2014 professor, Rutgers University","air"],
+["In a hypothetical nuclear winter, what would be the biggest risk to human life?",["Famine \u2014 no crops could be grown","Blast injuries","Radiation sickness"],0,"Dr. Alan Robock \u2014 professor, Rutgers University","society"],
+
+// ---- Nadir Jeevanjee, GFDL ------------------------------------------------
+["Where was the first valid computer weather forecast produced?",["The Institute for Advanced Study, Princeton, NJ","SUNY Potsdam, Potsdam, NY","Kennedy Center, Willingboro, NJ"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Who led the effort to put the atmosphere's equations on a computer?",["John von Neumann, alongside Jule Charney","Alan Turing, alongside Norbert Wiener","Marie Curie, alongside Rosalind Franklin"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Von Neumann realized an 'infinite forecast' would generate what?",["Climate \u2014 the statistics of weather","A perfect ten-day forecast","Nothing useful"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Which federal laboratory grew out of von Neumann's proposal?",["Geophysical Fluid Dynamics Laboratory (GFDL)","National Center for Atmospheric Research (NCAR)","Goddard Institute for Space Studies (GISS)"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Who led atmospheric model development at GFDL for decades?",["Suki Manabe","Kirk Bryan","Jule Charney"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Who led GFDL's ocean model development alongside Suki Manabe?",["Kirk Bryan","Carl-Gustaf Rossby","Henry Stommel"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["GFDL's atmospheric model treats the planet as which shape?",["A cube sphere","A flat plane","An icosahedron"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["Since 2017, what has driven the US weather forecast on your phone?",["A dynamical core developed at GFDL","A European model","A private company's model"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+["What is one thing that has made GFDL's early climate predictions so remarkable?",["They were confirmed decades after being made","They were made without computers","They were never published"],0,"Dr. Nadir Jeevanjee \u2014 NOAA Geophysical Fluid Dynamics Laboratory","models"],
+
+// ---- Mitch Bushuk, GFDL ---------------------------------------------------
+["Which four components does a climate model couple together?",["Ocean, atmosphere, sea ice and land","Ocean, air, rock and fire","Clouds, rain, wind and sun"],0,"Dr. Mitch Bushuk \u2014 research oceanographer, NOAA GFDL","models"],
+["What is the key part of a climate model?",["Coupling the components so they feel each other","The graphics","The file format"],0,"Dr. Mitch Bushuk \u2014 research oceanographer, NOAA GFDL","models"],
+["Besides the climate model itself, what does a seasonal forecast need?",["High-quality initial conditions","A bigger screen","More forecasters"],0,"Dr. Mitch Bushuk \u2014 research oceanographer, NOAA GFDL","models"],
+["Which large seasonal event was GFDL recently forecasting? (as of Summer 2026 :)",["A very large El Ni\u00F1o","A polar vortex collapse","A Saharan dust year"],0,"Dr. Mitch Bushuk \u2014 research oceanographer, NOAA GFDL","weather"],
+
+// ---- Tim Merlis, Princeton ------------------------------------------------
+["Which phrase describes what a climate model actually is?",["Numerical laboratories","Crystal balls","Weather machines"],0,"Dr. Tim Merlis \u2014 Princeton Atmospheric and Oceanic Sciences","models"],
+["What kind of experiment is humanity running on the climate?",["An inadvertent one","A controlled one","A double-blind one"],0,"Dr. Tim Merlis \u2014 Princeton Atmospheric and Oceanic Sciences","models"],
+["Asking a model 'what if humans never emitted CO\u2082' generates what?",["A counterfactual climate history","A weather forecast","A carbon budget"],0,"Dr. Tim Merlis \u2014 Princeton Atmospheric and Oceanic Sciences","models"],
+["Which familiar body behaves like a synchronously orbiting exoplanet?",["The Moon","Venus","Halley's Comet"],0,"Dr. Tim Merlis \u2014 Princeton Atmospheric and Oceanic Sciences","models"],
+
+// ---- Bernadette Woods Placky ----------------------------------------------
+["What three ingredients go into a weather forecast?",["Observations, computer models and scientific knowledge","Satellites, radar and luck","Pressure, temperature and prayers"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["Which weather app do most meteorologists actually keep on their phone?",["RadarScope","A default weather widget","None of them"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["Which variable helps predict likelihood of severe weather and human comfort?",["Dew point","Barometric pressure","Wind chill"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["A dew point climbing into the 60s (\u00B0F) means what?",["Thick, muggy air","A cold front","Clear skies"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["A dew point above 65\u00B0F is an ingredient for what?",["Severe weather potential","Fog only","A frost warning"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["For frozen precipitation, the dew point generally needs to be below what?",["32\u00B0F","45\u00B0F","20\u00B0F"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+["When does 100% relative humidity actually happen?",["Snowing at 32\u00B0F","On a muggy August day","Inside a rainforest"],0,"Bernadette Woods Placky \u2014 meteorologist, 25+ years","weather"],
+
+// ---- Becki Beadling, Temple -----------------------------------------------
+["What does AMOC stand for?",["Atlantic Meridional Overturning Circulation","Arctic Marine Oscillation Cycle","Atlantic Mid-Ocean Current"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["Which two properties drive the ocean density changes behind AMOC's overturning?",["Temperature and salinity","Pressure and depth","Oxygen and pH"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["How much of the planet's excess heat has gone into the ocean?",["Over 90%","About half","About 20%"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["Where is most of the ocean's heat uptake happening?",["The Southern Ocean","The Gulf of Mexico","The Baltic"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["The Antarctic ice sheet holds fresh water worth how much sea level rise?",["About 58 meters (190 feet)","About 5 meters (16 feet)","About 200 meters (656 feet)"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["What happens when meltwater is added on top of a salty ocean?",["Large changes in circulation","Nothing measurable","It sinks immediately"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["Why can the ocean soak up so much heat for so little warming?",["Water has a high heat capacity","It is very deep","It is salty"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+["In shorthand, global warming is really what?",["Ocean warming","Air warming","City warming"],0,"Dr. Becki Beadling \u2014 assistant professor, Temple University","ocean"],
+
+// ---- Andra Garner, Rowan --------------------------------------------------
+["Why is New Jersey's sea level rising faster than the global average?",["The land is sinking from sediment compaction, groundwater withdrawal, and post-glacial adjustment","The Gulf Stream stopped in 2018","More rivers drain into it in the 2000s due to climate change"],0,"Dr. Andra Garner \u2014 associate professor, Rowan University","ocean"],
+["How are hurricanes changing as the ocean warms?",["They strengthen more quickly","They only move more slowly","They form further from the equator"],0,"Dr. Andra Garner \u2014 associate professor, Rowan University","weather"],
+["What do hurricanes feed off?",["Warm ocean waters","Cold fronts","Dry desert air"],0,"Dr. Andra Garner \u2014 associate professor, Rowan University","weather"],
+["Roughly what fraction of global sea-level projections are led by US scientists?",["About a third","About a tenth","Nearly all"],0,"Dr. Andra Garner \u2014 associate professor, Rowan University","society"],
+["Which two hazards are making places uninsurable right now?",["Wildfires and flooding","Hail and fog","Drought and dust"],0,"Dr. Andra Garner \u2014 associate professor, Rowan University","society"],
+
+// ---- Lauren Kipp, Rowan ---------------------------------------------------
+["How much faster is the Arctic warming than the rest of the planet?",["About 4 times","About the same","About 10 times"],0,"Dr. Lauren Kipp \u2014 assistant professor, Rowan University","ocean"],
+["Thawing permafrost can release which toxic element into the ocean?",["Mercury","Neon","Silicon"],0,"Dr. Lauren Kipp \u2014 assistant professor, Rowan University","ocean"],
+
+// ---- Charles Schutte, Rowan -----------------------------------------------
+["What do you call a scientist who studies the chemistry of water and wetlands?",["An aquatic biogeochemist","A palaeobotanist","A glaciologist"],0,"Dr. Charles Schutte \u2014 associate professor, Rowan University","society"],
+["Why does wet wetland soil bury carbon so well?",["There is no oxygen in it","It is very cold","It is very acidic"],0,"Dr. Charles Schutte \u2014 associate professor, Rowan University","society"],
+["What effect does adding wetlands back to the landscape have on climate?",["A long-term cooling effect on the climate","A long-term warming effect","No measurable effect"],0,"Dr. Charles Schutte \u2014 associate professor, Rowan University","society"],
+
+// ---- Kelsey Malloy, Delaware ----------------------------------------------
+["If weather is a workout, climate is what?",["Your fitness","Your gym","Your diet"],0,"Dr. Kelsey Malloy \u2014 assistant professor, University of Delaware","weather"],
+["What does CAPE stand for?",["Convective Available Potential Energy","Cloud And Precipitation Estimate","Coastal Atmospheric Pressure Event"],0,"Dr. Kelsey Malloy \u2014 assistant professor, University of Delaware","weather"],
+["In a warming climate, what happens to the heaviest rainfall?",["It gets heavier","It gets lighter","It stays the same"],0,"Dr. Kelsey Malloy \u2014 assistant professor, University of Delaware","weather"],
+["What does NCAR stand for?",["National Center for Atmospheric Research","Northern Climate and Arctic Registry","National Cloud and Aerosol Record"],0,"Dr. Kelsey Malloy \u2014 assistant professor, University of Delaware","models"],
+["Why might a warmer atmosphere fuel storms more?",["It holds more moisture and more CAPE","It spins faster","It is thinner"],0,"Dr. Kelsey Malloy \u2014 assistant professor, University of Delaware","weather"],
+
+// ---- Ross Salawitch, Maryland ---------------------------------------------
+["In January 2020 the IMO sharply cut what in ships' fuel?",["Sulfur","Lead","Nitrogen"],0,"Dr. Ross Salawitch \u2014 professor of atmospheric chemistry, University of Maryland","air"],
+["Why did cutting sulfur from ships' fuel contribute to warming?",["It removed aerosols that reflected sunlight","It released methane","It warmed the fuel"],0,"Dr. Ross Salawitch \u2014 professor of atmospheric chemistry, University of Maryland","air"],
+["What does AMOC's heat transport make possible?",["A habitable Europe","Atlantic hurricanes","The Gulf of Mexico's warmth"],0,"Dr. Ross Salawitch \u2014 professor of atmospheric chemistry, University of Maryland","ocean"],
+["AMOC is driven by water at high latitudes that is what?",["Cold and salty","Warm and fresh","Still and shallow"],0,"Dr. Ross Salawitch \u2014 professor of atmospheric chemistry, University of Maryland","ocean"],
+["Which three things stack up to explain the 2023\u201324 warming?",["Greenhouse gases, ship sulfur cuts and El Ni\u00F1o","Volcanoes, sunspots and clouds","Ozone, aerosols and tides"],0,"Dr. Ross Salawitch \u2014 professor of atmospheric chemistry, University of Maryland","air"],
+
+// ---- Rob Levy, NASA -------------------------------------------------------
+["Which sensor has produced a long satellite aerosol record?",["MODIS","AIRS","Landsat"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["When was the MODIS satellite launched?",["1999","2009","1989"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["How long was the MODIS mission supposed to last?",["5 to 7 years","25 years","1 year"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["What is an aerosol?",["A tiny liquid or solid particulate suspended in the air","A type of cloud","A greenhouse gas that warms the climate"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["Set against the hazy DC summers of the 1980s, what does the aerosol record show?",["That clean air acts really work","That summers were cooler","That satellites were wrong"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["Saharan mineral dust carries iron across the Atlantic to influence plant growth where?",["The Amazon","East Asia","The Arctic"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["Why are aerosols so hard for models to pin down?",["They are highly diverse","There are too few of them","They never move"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["What is a common atmospheric aerosol?",["Ammonium sulfate","Glucose","Nitrogen"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+["What is the value of MODIS being a 26-year single-instrument record?",["You can see how things change over time","It is cheaper","It needs no calibration"],0,"Dr. Rob Levy \u2014 research scientist, aerosol remote sensing","air"],
+
+// ---- Picked up along the way ----------------------------------------------
+["Which bacteria help seed snowflakes?",["Pseudomonas syringae","Nitrogen fixing bacteria","Cyanobacteria"],0,"The walk \u2014 South Brunswick Township, New Jersey","society"]
+];
+
+/* ===== The seven categories ================================================
+   Each question carries one of these keys. The recap slide at the end of a run counts the
+   twelve it dealt, draws them as a ring, and names them with these labels.
+
+   The colours are a spread around the hue wheel rather than a scale, because the slices are
+   seven unrelated things and nothing about "past climates" is more or less than "oceans".
+   Mint is deliberately absent: on the play screen it is the colour of a right answer, and
+   letting it also mean a topic here would spend a meaning that is already doing a job.
+
+   Adding a category means adding a key here and using it in the bank. Nothing else. */
+var CATS = {
+  society: { label:'Science & society',       color:'#a8b6fb' },
+  models:  { label:'Climate: past and future', color:'#7fc4f5' },
+  weather: { label:'Weather & forecasting',   color:'#f6c76b' },
+  ocean:   { label:'Oceans, ice & sea level', color:'#79dfd0' },
+  air:     { label:'Aerosols & atmosphere',  color:'#ff9aa8' }
+};
+
+/* KNOB: the score, as a fraction, at or above which the run counts as a win -- confetti,
+   and the loudest of the four sounds. 1 means nothing but a perfect run will do it. */
+var WIN_AT = 0.75;
+
+/* What the whole bank is called -- on the picker, and on the board next to a run that was
+   drawn from all of it. One string, two places. */
+var MIX_LABEL = 'Mix';
+
+/* ===== Dealing ============================================================= */
+var ROUNDS = 10;   // KNOB: questions per run
+
+function shuffle(a){
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+/* Twelve at random, then nudged so two from the same interview are not adjacent where that can
+   be avoided. A run opening with four Rob Levy questions feels like a bug even when it is only
+   the shuffle being honest. */
+function deal(cat){
+  // No category means the whole bank. A category means only that slice of it, which is why
+  // the picker refuses to offer one that cannot fill a run.
+  var from = cat ? BANK.filter(function(q){ return q[4] === cat; }) : BANK.slice();
+  var pool = shuffle(from).slice(0, ROUNDS);
+  for(var i=1;i<pool.length;i++){
+    if(pool[i][3] !== pool[i-1][3]) continue;
+    for(var j=i+1;j<pool.length;j++){
+      if(pool[j][3] !== pool[i-1][3] && (i+1>=pool.length || pool[j][3] !== pool[i+1][3])){
+        var t=pool[i]; pool[i]=pool[j]; pool[j]=t; break;
+      }
+    }
+  }
+  // The answers get shuffled too, or the right one would sit in the same slot every time.
+  return pool.map(function(q){
+    var opts = q[1].map(function(text,i){ return { text:text, right:i===q[2] }; });
+    shuffle(opts);
+    return { q:q[0], opts:opts, src:q[3], cat:q[4] };
+  });
+}
+
+/* ===== The board ===========================================================
+   Top ten in the world, with this device as the fallback.
+
+   ONE BOARD, RANKED ON SPEED
+     There is no longer a board per round length or per category -- everybody is on the same
+     list, and each row says who, which category they took, and how long they spent answering.
+     The clock only runs while a question is on the screen: it starts when the options appear
+     and stops the moment one is pressed, so the time is thinking time and reading the source
+     afterwards costs nothing.
+
+     Rows are ordered by score first and time second. Speed is the tiebreak rather than the
+     whole contest, because a board sorted on time alone rewards answering ten questions at
+     random faster than anyone can read them.
+
+   SETTING UP THE CLOUD BOARD  (five minutes, once)
+     A static file on a CDN cannot keep a shared list by itself -- something has to hold the
+     rows. Supabase is the least trouble: a hosted Postgres with a REST endpoint and a public
+     key that is *designed* to be readable in page source, which is what makes it safe to
+     paste below in a way that a normal API key would not be.
+
+       1. supabase.com -> new project (free tier is plenty)
+       2. SQL editor -> run this:
+
+            create table quiz_scores (
+              id         bigint generated always as identity primary key,
+              name       text        not null check (char_length(name) between 1 and 14),
+              score      int         not null check (score >= 0 and score <= 40),
+              rounds     int         not null default 10,
+              category   text,                     -- null means the whole bank
+              ms         int         not null check (ms > 0),
+              created_at timestamptz not null default now()
+            );
+
+          -- If the table already exists from an earlier version, this is the whole change:
+          --   alter table quiz_scores add column category text,
+          --                           add column ms int not null default 0;
+            alter table quiz_scores enable row level security;
+            create policy "read"  on quiz_scores for select to anon using (true);
+            create policy "write" on quiz_scores for insert to anon with check (true);
+
+       3. Settings -> API -> copy the Project URL and the anon/publishable key into CLOUD
+          below. That is the whole job; leave them empty and the page quietly keeps using
+          this device's localStorage exactly as it did before.
+
+     One thing worth knowing before it goes live: anyone who reads the page source can post a
+     score, because that is what an open insert policy means. It is a trivia game and the
+     honest version of the fix is caring less, but if it is ever abused, drop the write policy
+     and the board freezes read-only. */
+var CLOUD = {
+  url:   '',              // e.g. 'https://abcdefghijkl.supabase.co'  (no trailing slash)
+  key:   '',              // the anon / publishable key
+  table: 'quiz_scores'
+};
+var cloudOn = !!(CLOUD.url && CLOUD.key);
+
+/* v2: the rows carry a category and a time now, and a row from v1 has neither, so the old
+   key is left where it is rather than half-read into the new board. */
+var STORE='sylfoisy.quizBoard.v2';
+function board(){ try{ return JSON.parse(localStorage.getItem(STORE)||'[]')||[]; }catch(e){ return []; } }
+/* The board is not a top ten any more, it is the board. CAP is a ceiling on what one
+   device's localStorage is asked to hold, not a leaderboard rule -- raise it and nothing
+   else on the page has to change. */
+var CAP = 500;
+function saveBoard(b){ try{ localStorage.setItem(STORE, JSON.stringify(b.slice(0,CAP))); }catch(e){} }
+
+function cloudHead(extra){
+  var h = { apikey:CLOUD.key, Authorization:'Bearer '+CLOUD.key, 'Content-Type':'application/json' };
+  if(extra) for(var k in extra) h[k] = extra[k];
+  return h;
+}
+
+/* Always resolves, never rejects. A leaderboard is not worth an unhandled promise, and a
+   reader on hotel wifi should see their own scores rather than an error. */
+function allScores(){
+  if(!cloudOn) return Promise.resolve({ rows:board(), where:'device' });
+  var q = CLOUD.url + '/rest/v1/' + CLOUD.table +
+          '?select=name,score,rounds,category,ms,created_at' +
+          '&order=score.desc,ms.asc&limit=' + CAP;
+  return fetch(q, { headers:cloudHead() })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(rows){
+      return { rows: rows.map(function(r){
+        return { n:r.name, s:r.score, r:r.rounds, cat:r.category, ms:r.ms, d:r.created_at };
+      }), where:'world' };
+    })
+    .catch(function(){ return { rows:board(), where:'offline' }; });
+}
+
+function postScore(entry){
+  if(!cloudOn) return Promise.resolve(false);
+  return fetch(CLOUD.url + '/rest/v1/' + CLOUD.table, {
+    method:'POST',
+    headers:cloudHead({ Prefer:'return=minimal' }),
+    body: JSON.stringify({ name:entry.n, score:entry.s, rounds:entry.r,
+                           category:entry.cat, ms:entry.ms })
+  }).then(function(r){ return r.ok; }).catch(function(){ return false; });
+}
+
+/* ===== Wiring ============================================================== */
+var $ = function(id){ return document.getElementById(id); };
+var boxEl = document.querySelector('.box');
+var sTitle=$('sTitle'), sPick=$('sPick'), sPlay=$('sPlay'), sRecap=$('sRecap'), sEnd=$('sEnd'), sBoard=$('sBoard');
+var nameIn=$('nameIn'), pips=$('pips'), countEl=$('count'), scoreNow=$('scoreNow');
+var qText=$('qText'), optsEl=$('opts');
+var verdict=$('verdict'), srcBox=$('src'), srcTxt=$('srcTxt'), nextBtn=$('nextBtn');
+
+var run=null, idx=0, score=0, locked=false;
+/* True once a run has actually reached the end. It is the only thing standing between
+   someone and the name box, so it is set in exactly one place -- the top of recap() -- and
+   cleared the moment a new run starts. */
+var finishedRun=false;
+/* runCat is the category the run was drawn from, or null for a Mix. runMs is the clock: it
+   only accumulates between a question appearing and an answer being pressed. */
+var runCat=null, runMs=0, qT0=0;
+
+/* 42.6s under the minute, 1:24 over it. Tenths matter on a board where the top few rows are
+   going to be seconds apart; minutes do not need them. */
+function fmt(ms){
+  if(typeof ms !== 'number' || !(ms > 0)) return '\u2014';
+  var s = Math.round(ms / 100) / 10;
+  if(s < 60) return s.toFixed(1) + 's';
+  var m = Math.floor(s / 60);
+  return m + ':' + ('0' + Math.round(s - m * 60)).slice(-2);
+}
+
+/* ===== Sound ===============================================================
+   Four sounds, no files. Every one is a couple of oscillators through a gain envelope, which
+   costs nothing to ship and cannot arrive late. They are quiet on purpose: this is a page
+   someone might have open at a desk, and a trivia game is not entitled to a room.
+
+   The context is built on the first press rather than on load, because a browser will not
+   let a page make noise before it has been touched, and a suspended context left lying
+   around is a warning in the console for no reason.
+
+   Muting is remembered on the device. The chip in the corner is the only control. */
+var AC=null, sndOff=false;
+try{ sndOff = localStorage.getItem('sylfoisy.quizMute') === '1'; }catch(e){}
+
+function actx(){
+  if(sndOff) return null;
+  if(!AC){
+    var C = window.AudioContext || window.webkitAudioContext;
+    if(!C) return null;
+    AC = new C();
+  }
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+/* One note. Sine unless asked otherwise, always with a fade out -- a square edge on the end
+   of a tone is the click you can hear on cheap interfaces. */
+function note(freq, at, dur, peak, type){
+  var c = actx(); if(!c) return;
+  var t = c.currentTime + at;
+  var o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+var sfx = {
+  tap:   function(){ note(520, 0, .07, .045, 'triangle'); },
+  right: function(){ note(660, 0, .1, .05); note(990, .07, .16, .04); },
+  wrong: function(){ note(200, 0, .16, .05, 'triangle'); },
+  win:   function(){ [523,659,784,1046].forEach(function(f,i){ note(f, i*.09, .3, .045); }); }
+};
+
+function paintSound(){
+  var b = $('sndBtn');
+  b.classList.toggle('off', sndOff);
+  b.setAttribute('aria-pressed', sndOff ? 'false' : 'true');
+  b.title = sndOff ? 'Sound off' : 'Sound on';
+}
+
+/* ===== Confetti ============================================================
+   Canvas, two and a half seconds, then it takes itself out of the DOM. Paper is drawn as a
+   line with a wide cap rather than a rectangle, so each piece can be spun by drawing it
+   shorter without any matrix work: cheap, and it reads as a tumbling flake.
+
+   Nothing here runs for a reader who has asked for less motion. */
+function confetti(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var box = document.querySelector('.box');
+  var cv = document.createElement('canvas');
+  cv.className = 'confetti';
+  var w = box.clientWidth, h = box.clientHeight, dpr = Math.min(window.devicePixelRatio||1, 2);
+  cv.width = w*dpr; cv.height = h*dpr; cv.style.width = w+'px'; cv.style.height = h+'px';
+  box.appendChild(cv);
+  var g = cv.getContext('2d'); g.scale(dpr, dpr);
+
+  var colors = [];
+  for(var k in CATS) colors.push(CATS[k].color);
+  var bits = [];
+  for(var i=0;i<140;i++){
+    bits.push({
+      x: w*(.5 + (Math.random()-.5)*.5), y: h*.42 + Math.random()*20,
+      vx: (Math.random()-.5)*8.4, vy: -6 - Math.random()*8,
+      len: 5 + Math.random()*6, w: 2 + Math.random()*2.4,
+      a: Math.random()*Math.PI, spin: (Math.random()-.5)*.34,
+      c: colors[i % colors.length]
+    });
+  }
+  var t0 = performance.now();
+  (function frame(now){
+    var age = (now - t0) / 1000;
+    if(age > 2.8){ cv.remove(); return; }
+    g.clearRect(0,0,w,h);
+    g.globalAlpha = age > 2 ? Math.max(0, 1 - (age-2)/0.8) : 1;
+    bits.forEach(function(p){
+      p.vy += 0.34; p.vx *= 0.995; p.x += p.vx; p.y += p.vy; p.a += p.spin;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.a);
+      g.strokeStyle = p.c; g.lineWidth = p.w; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-p.len/2, 0); g.lineTo(p.len/2, 0); g.stroke();
+      g.restore();
+    });
+    requestAnimationFrame(frame);
+  })(t0);
+}
+
+
+
+function show(el){ [sTitle,sPick,sPlay,sRecap,sEnd,sBoard].forEach(function(s){ s.classList.toggle('on', s===el); }); }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+/* PLAY starts the quiz. There is nothing between the title screen and question one:
+   a three-answer quiz teaches itself on the first question, and the sentence that used
+   to sit in between is now two chips in the corner of the box, readable from anywhere. */
+
+/* PLAY lands here. The buttons are built once, on first sight of the screen, from whatever
+   is in CATS and whatever the bank actually holds -- so a category emptied in the editor
+   stops being offered without anything here being touched. */
+var picksBuilt = false;
+function openPick(){
+  if(!picksBuilt){
+    var picks = $('picks');
+
+    var keys = Object.keys(CATS);
+
+    var mix = document.createElement('button');
+    mix.className = 'pick mix'; mix.type = 'button';
+    mix.textContent = MIX_LABEL;
+    mix.addEventListener('click', function(){ start(null); });
+    picks.appendChild(mix);
+
+    keys.forEach(function(key){
+      var n = BANK.filter(function(q){ return q[4] === key; }).length;
+      var b = document.createElement('button');
+      b.className = 'pick'; b.type = 'button';
+      b.textContent = CATS[key].label;
+      b.style.setProperty('--c', CATS[key].color);
+      if(n < ROUNDS){
+        b.disabled = true;
+        b.title = 'Needs at least ' + ROUNDS + ' questions';
+      } else {
+        b.addEventListener('click', function(){ start(key); });
+      }
+      picks.appendChild(b);
+    });
+    picksBuilt = true;
+  }
+  tint(null);            // the picker itself is never wearing the last run's colour
+  show(sPick);
+  $('picks').firstChild.focus();
+}
+
+/* THE RUN TAKES THE CATEGORY'S COLOUR
+   --acc is the one accent the interface is built on: the counter, the live score, the rail
+   under the source, every focus ring. Overriding it on the box alone re-tints all of them at
+   once, for as long as the run lasts, without a single rule being written twice.
+
+   Mint is untouched on purpose. On the play screen it means a right answer, and a page where
+   the colour of correct depends on which category you picked is a page that has spent its
+   most important colour on decoration. */
+function tint(cat){
+  var c = cat && CATS[cat] ? CATS[cat].color : null;
+  if(c){
+    boxEl.style.setProperty('--acc', c);
+    // The same hue twice at two strengths: a firmer corner top right, a whisper bottom left.
+    boxEl.style.setProperty('--t1', c + '3d');
+    boxEl.style.setProperty('--t2', c + '1f');
+  } else {
+    boxEl.style.removeProperty('--acc');
+    boxEl.style.removeProperty('--t1');
+    boxEl.style.removeProperty('--t2');
+  }
+}
+
+function start(cat){
+  tint(cat);
+  finishedRun = false;
+  run = deal(cat); idx = 0; score = 0; runCat = cat || null; runMs = 0;
+  pips.innerHTML = '';
+  for(var i=0;i<ROUNDS;i++){ var p=document.createElement('i'); p.className='pip'; pips.appendChild(p); }
+  show(sPlay);
+  ask();
+}
+
+function ask(){
+  locked=false;
+  var q = run[idx];
+  countEl.textContent = (idx+1)+' / '+ROUNDS;
+  scoreNow.textContent = score;
+  [].forEach.call(pips.children, function(p,i){ p.classList.toggle('now', i===idx); });
+  qText.textContent = q.q;
+  optsEl.innerHTML = '';
+  q.opts.forEach(function(o,i){
+    var b=document.createElement('button');
+    b.className='opt'; b.type='button';
+    b.innerHTML='<b></b><span></span>';
+    b.querySelector('b').textContent = String(i+1);
+    b.querySelector('span').textContent = o.text;
+    b.addEventListener('click', function(){ answer(i); });
+    optsEl.appendChild(b);
+  });
+  verdict.textContent=''; verdict.className='verdict';
+  srcBox.classList.remove('on');
+  nextBtn.classList.remove('on');
+  qT0 = Date.now();          // the clock starts with the options, not with the screen
+}
+
+function answer(pickIdx){
+  if(locked) return;
+  locked = true;
+  runMs += Date.now() - qT0;
+  var q = run[idx], ok = false;
+  [].forEach.call(optsEl.children, function(b,i){
+    b.disabled = true;
+    if(q.opts[i].right){ b.classList.add('right'); if(i===pickIdx) ok=true; }
+    else if(i===pickIdx){ b.classList.add('wrong'); }
+    else{ b.classList.add('fade'); }
+  });
+  if(ok){ score++; scoreNow.textContent = score; }
+  run[idx].wasRight = ok;
+  (ok ? sfx.right : sfx.wrong)();
+  pips.children[idx].classList.remove('now');
+  pips.children[idx].classList.add(ok ? 'hit' : 'miss');
+
+  verdict.textContent = ok
+    ? pick(['Correct!','Got it.','Yes \u2014 exactly.','That\u2019s the one.'])
+    : pick(['Not that one.','No \u2014 sorry.','Missed it.','Nope.']);
+  verdict.className = 'verdict ' + (ok ? 'ok' : 'no');
+  srcTxt.textContent = q.src;
+  srcBox.classList.add('on');
+  nextBtn.textContent = (idx+1 < ROUNDS) ? 'Next' : 'See your score';
+  nextBtn.classList.add('on');
+  nextBtn.focus();
+}
+
+function advance(){
+  idx++;
+  if(idx < ROUNDS){ ask(); return; }
+  // recap() sends a single-category run straight on to the score itself.
+  recap();
+}
+
+/* ===== The recap ===========================================================
+   Count the run by category, draw the ring, then walk the legend in a row at a time. The
+   counting is done on the run that was actually dealt, not on the bank, so the slide is
+   about the twelve questions this reader saw and nobody else's.
+
+   Categories are kept in the order they are declared in CATS rather than sorted by size, so
+   the same topic is the same colour in the same place every time somebody plays. */
+function recap(){
+  // Every route to the end of a run comes through here, so this is where "finished" is true.
+  finishedRun = true;
+
+  /* MIX ONLY. This used to be decided by the caller, which meant every route into the slide
+     had to remember the rule and the debug shortcut did not. The rule lives here now, so
+     there is no path -- keyboard, button, or shortcut -- that can reach a breakdown of a run
+     that only ever had one thing in it. */
+  if(runCat){ finish(); return; }
+
+  var seen = {}, order = [];
+  run.forEach(function(q, i){
+    var k = q.cat || 'society';
+    if(!seen[k]){ seen[k] = { n:0, got:0 }; }
+    seen[k].n++;
+    if(run[i].wasRight) seen[k].got++;
+  });
+  for(var k in CATS) if(seen[k]) order.push(k);
+
+  var ring = $('ring'), key = $('key');
+  [].slice.call(ring.querySelectorAll('.slice')).forEach(function(s){ s.remove(); });
+  key.innerHTML = '';
+
+  var R = 46, C = 2 * Math.PI * R, at = 0;
+  order.forEach(function(k, i){
+    var part = seen[k], frac = part.n / run.length, len = C * frac;
+
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('class', 'slice');
+    c.setAttribute('cx', 60); c.setAttribute('cy', 60); c.setAttribute('r', R);
+    c.setAttribute('stroke-width', 17);
+    c.setAttribute('stroke', CATS[k].color);
+    // A hairline gap between neighbours, so seven slices do not read as one ring.
+    c.setAttribute('stroke-dasharray', '0 ' + C);
+    c.setAttribute('transform', 'rotate(' + (at / C * 360) + ' 60 60)');
+    ring.appendChild(c);
+    at += len;
+
+    var row = document.createElement('div');
+    row.className = 'keyrow';
+    row.style.color = CATS[k].color;
+    row.innerHTML = '<s></s><em></em><b><span></span><u></u></b>';
+    row.querySelector('em').textContent = CATS[k].label;
+    row.querySelector('b span').textContent = part.got;
+    row.querySelector('b u').textContent = '/' + part.n;
+    key.appendChild(row);
+
+    // Two frames of delay: one for the element to exist, one for the browser to have taken
+    // its starting value, or the transition has nothing to move from.
+    setTimeout(function(){
+      c.setAttribute('stroke-dasharray', Math.max(0, len - 1.6) + ' ' + (C - len + 1.6));
+      row.classList.add('in');
+    }, 90 + i * 110);
+  });
+
+  $('ringN').textContent = score;
+  // {n} rather than concatenation, so the whole line is one editable string.
+  $('ringLbl').textContent = 'of {n} right'.replace('{n}', run.length);
+  show(sRecap);
+  $('recapBtn').focus();
+
+  if(score / ROUNDS >= WIN_AT){
+    setTimeout(function(){ confetti(); sfx.win(); }, 120 + order.length * 110);
+  }
+}
+
+/* The run is over and nothing has been written down yet. The board is shown as it currently
+   stands and the name box is offered above it -- saving is a thing you choose, which is also
+   why a run you are not proud of can simply be walked away from.
+
+   The name box is drawn only when finishedRun is true, so the one screen serves both cases:
+   a run that went the distance gets somewhere to type, anything else gets the board to look
+   at. That flag is set in recap() and nowhere else. */
+var lastEntry = null;
+function finish(){
+  lastEntry = null;
+  $('saveWrap').classList.remove('saved');
+  $('saveWrap').style.display = finishedRun ? '' : 'none';
+
+  paintBoard();
+  show(sEnd);
+  // Focused, but not so eagerly that a phone keyboard flies up over the board the reader
+  // came here to look at.
+  if(finishedRun) setTimeout(function(){ if(window.innerWidth > 760) nameIn.focus(); }, 260);
+}
+
+/* One painter, two lists: the one under the final score and the one on the standalone board.
+   Pass it the element to fill; default to the end-of-run list so the old calls still read. */
+/* One painter, two lists, and now a round trip in the middle of it. The token guards against
+   the slow request: open the board, go back, open it again, and the first response must not
+   be allowed to land in a list that has moved on. */
+var paintToken = 0;
+function row(cls, html){
+  var d = document.createElement('div');
+  d.className = 'lbrow' + (cls ? ' '+cls : '');
+  d.innerHTML = html;
+  return d;
+}
+function paintBoard(lb){
+  lb = lb || $('lb');
+  var token = ++paintToken;
+
+  lb.innerHTML = '';
+  lb.appendChild(row('', '<em>' + (cloudOn ? 'Loading the board\u2026' : 'Reading scores\u2026') + '</em>'));
+
+  allScores().then(function(res){
+    if(token !== paintToken) return;          // a newer paint has already started
+    lb.innerHTML = '';
+
+    if(!res.rows.length){
+      lb.appendChild(row('', '<em>No scores yet \u2014 be the first</em>'));
+    } else {
+      // Cloud rows come back without the timestamp we saved locally, so "me" is matched on
+      // name and score, first hit only, which is close enough to highlight one line.
+      var mine = !!lastEntry;
+      res.rows.forEach(function(r,i){
+        var isMe = mine && r.n === lastEntry.n && r.s === lastEntry.s;
+        if(isMe) mine = false;
+        var el = row(isMe ? 'me' : '', '<i></i><em></em><span class="ct"></span><b><span></span><u></u></b>');
+        el.querySelector('i').textContent = (i+1)+'.';
+        el.querySelector('em').textContent = r.n;
+        var cat = r.cat && CATS[r.cat];
+        var ct = el.querySelector('.ct');
+        ct.textContent = cat ? cat.label : MIX_LABEL;
+        if(cat) ct.style.color = cat.color;
+        el.querySelector('b span').textContent = r.s + '/' + (r.r || ROUNDS);
+        el.querySelector('b u').textContent = fmt(r.ms);
+        lb.appendChild(el);
+      });
+    }
+  });
+}
+
+function saveScore(){
+  var name = (nameIn.value||'').trim().slice(0,14) || 'Anonymous';
+  try{ localStorage.setItem('sylfoisy.quizName', name); }catch(e){}
+  lastEntry = { n:name, s:score, r:ROUNDS, cat:runCat, ms:runMs, d:Date.now() };
+
+  // The device copy is written either way: it is the fallback the board falls back to.
+  var b = board();
+  b.push(lastEntry);
+  b.sort(function(x,y){ return y.s - x.s || (x.ms||1e9) - (y.ms||1e9) || x.d - y.d; });
+  saveBoard(b);
+
+  $('saveWrap').classList.add('saved');
+  postScore(lastEntry).then(function(){ paintBoard(); });
+}
+
+$('recapBtn').addEventListener('click', finish);
+$('recapAgainBtn').addEventListener('click', openPick);
+$('pickBackBtn').addEventListener('click', function(){ show(sTitle); $('playBtn').focus(); });
+$('sndBtn').addEventListener('click', function(){
+  sndOff = !sndOff;
+  try{ localStorage.setItem('sylfoisy.quizMute', sndOff ? '1' : '0'); }catch(e){}
+  paintSound();
+  if(!sndOff) sfx.tap();           // a sample of what was just switched back on
+});
+/* Every button on the page taps except the answers, which have their own two sounds, and the
+   chip that turns the sound off, which speaks for itself above. */
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('button') : null;
+  if(!b || b.classList.contains('opt') || b.id === 'sndBtn') return;
+  sfx.tap();
+});
+$('playBtn').addEventListener('click', openPick);
+$('saveBtn').addEventListener('click', saveScore);
+/* The board is one screen with two doors -- the title and the picker -- and BACK has to
+   return through the one that was used, or pressing it lands somebody two steps behind
+   where they were. */
+var boardFrom = null;
+function openBoard(from){
+  boardFrom = from;
+  paintBoard($('lb2'));
+  show(sBoard);
+  $('boardPlayBtn').focus();
+}
+function leaveBoard(){
+  if(boardFrom === sPick){ openPick(); return; }
+  show(sTitle); $('playBtn').focus();
+}
+$('boardBtn').addEventListener('click', function(){ openBoard(sTitle); });
+$('pickBoardBtn').addEventListener('click', function(){ openBoard(sPick); });
+$('boardPlayBtn').addEventListener('click', openPick);
+$('backBtn').addEventListener('click', leaveBoard);
+/* There is no CLEAR on either screen. A wipe button on a page anyone can open is a delete
+   key for other people's runs once the cloud is on, and on a local board it is a button
+   whose only outcome is losing something. Clearing this device by hand, if it is ever
+   needed: localStorage.removeItem('sylfoisy.quizBoard.v2') in the console. */
+$('againBtn').addEventListener('click', openPick);
+nextBtn.addEventListener('click', advance);
+nameIn.addEventListener('keydown', function(e){ if(e.key==='Enter'){ saveScore(); e.preventDefault(); } });
+
+// Number keys answer; Enter or space moves on. A trivia game where you reach for the mouse
+// between every question is a trivia game with a pause in it.
+window.addEventListener('keydown', function(e){
+  if(sBoard.classList.contains('on') && e.key === 'Escape'){ leaveBoard(); e.preventDefault(); return; }
+  if(sRecap.classList.contains('on') && (e.key === 'Enter' || e.key === ' ')){ finish(); e.preventDefault(); return; }
+  if(sTitle.classList.contains('on') && (e.key === 'Enter' || e.key === ' ')){ openPick(); e.preventDefault(); return; }
+  // On the picker, 1 is Mix and the rest run down the list in the order they are drawn.
+  if(sPick.classList.contains('on')){
+    if(e.key === 'Escape'){ show(sTitle); $('playBtn').focus(); e.preventDefault(); return; }
+    if(e.key >= '1' && e.key <= '9'){
+      var b = $('picks').children[+e.key - 1];
+      if(b && !b.disabled){ b.click(); e.preventDefault(); }
+    }
+    return;
+  }
+  if(!sPlay.classList.contains('on')) return;
+  if(!locked && e.key >= '1' && e.key <= '4'){
+    var i = +e.key - 1;
+    if(optsEl.children[i]){ optsEl.children[i].click(); e.preventDefault(); }
+  } else if(locked && (e.key === 'Enter' || e.key === ' ')){
+    advance(); e.preventDefault();
+  }
+});
+
+/* ===== DEBUG (OFF) =========================================================
+   Straight to the scoreboard, no questions asked. If a run is in progress it keeps the real
+   score; otherwise it invents a plausible one so the layout can be looked at. Commented out
+   along with the #dbg rule in the stylesheet and the button in the markup -- the listener
+   has to stay off while the button is gone, or $('dbg') is null and the script dies here
+   before anything below it runs. Uncomment all three together.
+
+$('dbg').addEventListener('click', function(){
+  if(!sPlay.classList.contains('on')){ score = Math.round(ROUNDS * 0.67); }
+  locked = true; idx = ROUNDS;
+  if(!run){
+    run = deal(null); runCat = null;
+    run.forEach(function(q,i){ q.wasRight = i < score; });
+    runMs = 4000 + Math.round(Math.random() * 90000);
+  }
+  recap();          // which forwards to finish() by itself if the run had a category
+});
+*/
+
+// Whatever you called yourself last time is waiting in the box, so a second run is one tap.
+try{ nameIn.value = localStorage.getItem('sylfoisy.quizName') || ''; }catch(e){}
+paintSound();
+/* PLAY is deliberately NOT focused on load. Focusing it programmatically before anyone has
+   touched the page makes the browser draw its keyboard ring around a button nobody has
+   reached for, so the game opens looking half-pressed. The focus() calls that move BACK to
+   this button later are fine and stay: by then there has been an interaction, and the ring
+   only appears for the reader who is actually navigating by keyboard. */
+})();
+</script>
+
+<!-- ===== visit counter =======================================================
+     One page view, counted, plus where it came from. Four lines of work and a
+     lot of comment, because the interesting part is what it deliberately does
+     NOT do.
+
+     NO COOKIES, NO IDS, NO CONSENT BANNER. Nothing is written to the visitor's
+     machine and no identifier is minted, so there is nothing to ask permission
+     for and no banner to click past. The trade is real and worth stating: these
+     are VIEWS, not people. One reader who opens the walk three times is three.
+
+     WHAT IT SENDS: the page name, and the HOST the visitor came from -- t.co,
+     reddit.com, bsky.app -- never the full referring URL, which can carry search
+     terms and private paths. Same-site hops (walk -> quiz) resolve to "direct",
+     since they are not a new arrival.
+
+     WHERE IT SENDS IT: --COUNTER-- below. A static site on GitHub Pages has no
+     server of its own, so the count has to live somewhere that does; stats.html
+     reads back from the same place. Set it once, in every file, or leave it as
+     it stands and the page records nothing and breaks nothing -- the fetch is
+     wrapped and the failure is silent, because a reader should never see a
+     counter fall over.
+
+     It runs after load and out of the way of everything else: a counter is the
+     least important thing on any of these pages. -->
+<script>
+(function(){
+  var COUNTER = '';           /* <-- your counter's base URL. Empty = count nothing. */
+  var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+
+  function source(){
+    if(!document.referrer) return 'direct';
+    try{
+      var h = new URL(document.referrer).hostname.replace(/^www\./, '');
+      return h === location.hostname.replace(/^www\./, '') ? 'direct' : h;
+    }catch(e){ return 'direct'; }
+  }
+
+  function bump(key){
+    if(!COUNTER) return;
+    try{
+      fetch(COUNTER.replace(/\/$/, '') + '/hit/' + encodeURIComponent(key),
+            { mode:'no-cors', keepalive:true }).catch(function(){});
+    }catch(e){}
+  }
+
+  function go(){
+    bump('page:' + PAGE);                       /* views of this page          */
+    bump('from:' + source());                   /* where the visitor came from */
+    bump('day:' + new Date().toISOString().slice(0,10));   /* views per day    */
+  }
+
+  if(document.readyState === 'complete') setTimeout(go, 0);
+  else window.addEventListener('load', function(){ setTimeout(go, 0); });
+})();
+</script>
+</body>
+</html>
