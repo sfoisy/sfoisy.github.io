@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site stats</title>
+<!-- Out of every index that respects it. Worth being blunt about what that is and is not:
+     this file sits in a public repository on a public host, so the address is UNLISTED,
+     not private. Nothing links to it, search engines are asked to skip it, and the name
+     is a random string nobody will guess -- but anyone who learns the URL can open it.
+     Do not put anything here you would mind being read. -->
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#0c1628; --pale:#f4f6f9; --line:rgba(10,20,40,.12); --accent:#f5820b; --dim:rgba(10,20,40,.55) }
+*{ box-sizing:border-box }
+body{
+  margin:0; padding:2.5rem 1.25rem 5rem;
+  font-family:'DM Sans',system-ui,sans-serif; color:var(--ink); background:var(--pale);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{ max-width:820px; margin:0 auto }
+h1{ font-size:1.6rem; letter-spacing:-.02em; margin:0 0 .15rem }
+.sub{ color:var(--dim); font-size:.85rem; margin:0 0 2rem }
+h2{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent);
+    margin:2.25rem 0 .75rem }
+.card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.15rem }
+table{ width:100%; border-collapse:collapse; font-size:.92rem }
+td{ padding:.5rem .25rem; border-bottom:1px solid var(--line) }
+tr:last-child td{ border-bottom:0 }
+td.n{ text-align:right; font-variant-numeric:tabular-nums; font-weight:700; white-space:nowrap }
+.bar{ height:6px; border-radius:999px; background:rgba(245,130,11,.18); margin-top:.35rem }
+.bar i{ display:block; height:100%; border-radius:999px; background:var(--accent) }
+.tot{ font-size:2.4rem; font-weight:700; letter-spacing:-.03em; line-height:1 }
+.note{ font-size:.8rem; color:var(--dim); line-height:1.55 }
+.note code{ background:rgba(10,20,40,.06); padding:.1rem .3rem; border-radius:5px; font-size:.95em }
+.warn{ border-left:3px solid var(--accent); padding-left:.85rem }
+a{ color:#2c62a8 }
+.spark{ display:flex; align-items:flex-end; gap:2px; height:52px; margin-top:.5rem }
+.spark i{ flex:1 1 0; background:rgba(245,130,11,.55); border-radius:2px 2px 0 0; min-height:2px }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Site stats</h1>
+  <p class="sub">walk &middot; blog &middot; letters &middot; quiz &nbsp;|&nbsp; <span id="when">—</span></p>
+
+  <div id="setup" class="card warn" hidden>
+    <p class="note" style="margin:0">
+      <b>No counter connected yet.</b> These pages are static files on GitHub Pages, which has
+      no server to keep a tally on, so the count has to live somewhere that does. Pick a
+      counter service, then put its base URL in two places: <code>COUNTER</code> in the snippet
+      at the foot of each of the four pages, and <code>COUNTER</code> at the top of the script
+      in this file. Nothing else changes, and until then every page records nothing and breaks
+      nothing.
+    </p>
+  </div>
+
+  <div id="live" hidden>
+    <h2>Total views</h2>
+    <div class="card"><div class="tot" id="total">—</div>
+      <p class="note" style="margin:.4rem 0 0">Page views, not people. Nothing is stored on a
+      visitor's machine, so a reader who comes back twice counts twice.</p></div>
+
+    <h2>By page</h2>
+    <div class="card"><table id="pages"></table></div>
+
+    <h2>Where they came from</h2>
+    <div class="card"><table id="froms"></table>
+      <p class="note" style="margin:.75rem 0 0">Host only, never the full referring address.
+      "Direct" covers typed addresses, apps that strip the referrer, and hops between your own
+      pages.</p></div>
+
+    <h2>Last 30 days</h2>
+    <div class="card"><div class="spark" id="spark"></div>
+      <p class="note" id="sparkNote" style="margin:.5rem 0 0"></p></div>
+  </div>
+
+  <h2>What this does not do</h2>
+  <div class="card">
+    <p class="note" style="margin:0">
+      No cookies, no fingerprint, no identifier, so no consent banner and nothing for a reader
+      to click past. That is a deliberate trade: you get views and referring hosts, and you do
+      not get unique visitors, sessions, or where anyone went next. If you ever need those,
+      the honest step up is a privacy-first analytics service rather than more code here.
+    </p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  /* Same value as the snippet at the foot of the four pages. Empty = nothing to read. */
+  var COUNTER = '';
+
+  var PAGES = ['walk', 'blog', 'letters', 'quiz'];
+
+  document.getElementById('when').textContent = new Date().toLocaleString();
+
+  if(!COUNTER){ document.getElementById('setup').hidden = false; return; }
+  document.getElementById('live').hidden = false;
+
+  /* One read per key. A counter service that can count can nearly always report, and the
+     shape of that report differs between them -- so the parsing is kept in one place: give
+     it whatever the service returns and it digs out the first number it finds. */
+  function read(key){
+    return fetch(COUNTER.replace(/\/$/, '') + '/get/' + encodeURIComponent(key))
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(typeof j === 'number') return j;
+        var v = j && (j.value !== undefined ? j.value : (j.count !== undefined ? j.count : 0));
+        return Number(v) || 0;
+      })
+      .catch(function(){ return 0; });
+  }
+
+  function rows(el, pairs, total){
+    el.innerHTML = pairs.map(function(p){
+      var pct = total ? Math.round(p[1] / total * 100) : 0;
+      return '<tr><td>' + p[0] +
+             '<div class="bar"><i style="width:' + pct + '%"></i></div></td>' +
+             '<td class="n">' + p[1].toLocaleString() + '</td></tr>';
+    }).join('') || '<tr><td class="n">nothing yet</td></tr>';
+  }
+
+  Promise.all(PAGES.map(function(p){ return read('page:' + p); })).then(function(counts){
+    var pairs = PAGES.map(function(p, i){ return [p, counts[i]]; })
+                     .sort(function(a, b){ return b[1] - a[1]; });
+    var total = counts.reduce(function(a, b){ return a + b; }, 0);
+    document.getElementById('total').textContent = total.toLocaleString();
+    rows(document.getElementById('pages'), pairs, Math.max.apply(null, counts.concat([1])));
+  });
+
+  /* The referrers worth naming. A key-value counter cannot list its own keys, so the hosts
+     have to be asked for by name -- these are the ones a link to this site actually comes
+     from. Add any that start showing up in the wild. */
+  var HOSTS = ['direct', 't.co', 'x.com', 'bsky.app', 'reddit.com', 'news.ycombinator.com',
+               'facebook.com', 'instagram.com', 'linkedin.com', 'youtube.com', 'google.com',
+               'tiktok.com', 'mail.google.com', 'substack.com'];
+  Promise.all(HOSTS.map(function(h){ return read('from:' + h); })).then(function(counts){
+    var pairs = HOSTS.map(function(h, i){ return [h, counts[i]]; })
+                     .filter(function(p){ return p[1] > 0; })
+                     .sort(function(a, b){ return b[1] - a[1]; });
+    rows(document.getElementById('froms'), pairs,
+         Math.max.apply(null, counts.concat([1])));
+  });
+
+  var days = [];
+  for(var i = 29; i >= 0; i--){
+    var d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  Promise.all(days.map(function(d){ return read('day:' + d); })).then(function(counts){
+    var peak = Math.max.apply(null, counts.concat([1]));
+    document.getElementById('spark').innerHTML = counts.map(function(c, i){
+      return '<i title="' + days[i] + ': ' + c + '" style="height:' +
+             Math.max(2, Math.round(c / peak * 52)) + 'px"></i>';
+    }).join('');
+    document.getElementById('sparkNote').textContent =
+      'Busiest day: ' + peak.toLocaleString() + ' views. Oldest bar ' + days[0] + ', newest today.';
+  });
+})();
+</script>
+</body>
+</html>
