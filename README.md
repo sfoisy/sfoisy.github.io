@@ -1,42 +1,44 @@
 # NYC to DC walk — site files
 
-Six files, no build step, no dependencies. Drop them in the repo root next to your
+Eight files, no build step, no dependencies. Drop them in the repo root next to your
 existing images and GitHub Pages serves them as they are.
 
 | File | What it is |
 |---|---|
-| `index.html` | The home page. Also the news digest (`#news`) and the blog (`#blog`). |
-| `walk.html` | The article. Links out to the blog section, both games, and the home page. |
+| `index.html` | The home page. Also the news digest (`#news`) and the blog's front page (`#blog`). |
+| `walk.html` | The article. Links out to the interviews, both games, and the home page. |
+| `interviews.html` | **New.** The fourteen conversations, and the player they open in. |
+| `challenges.html` | **New.** The two games. |
 | `news.html` | The full dated list. Add entries at the top of the `<ul>`. |
 | `letters.html` | The Letter Collection Game. |
 | `quiz.html` | Quiz Time: Climate Walk Trivia. |
 | `stats-7f3a9c21.html` | Your visit counter. Unlisted, not linked from anywhere. |
 
-`blog.html` is gone. Everything it did is a section of `index.html` now — see below.
+`blog.html` is gone. Its front page is the `#blog` section of `index.html`; its two inner
+views are `interviews.html` and `challenges.html`.
 
 ## The blog, folded into the home page
 
 `index.html#blog` is the old blog front page: the same three cards, in the home page's
-own light palette instead of the blog's dark one.
+own light palette instead of the blog's dark one. Every card is a plain anchor that leaves
+for a page of its own — no script, no panel, and middle-click and cmd-click behave.
 
-- **Card 1** goes to `walk.html`, as it did before.
-- **Card 2** opens the fourteen interviews in a panel directly under the cards
-  (`index.html#interviews`). Clicking a portrait opens the clip over the page.
-- **Card 3** opens the two games (`index.html#challenges`). The tiles are real links now
-  — they point at `quiz.html` and `letters.html`.
+- **Card 1** → `walk.html`, as it did before.
+- **Card 2** → `interviews.html`. Clicking a portrait there opens the clip over the page.
+- **Card 3** → `challenges.html`. The tiles are real links now — `quiz.html` and
+  `letters.html`.
 
-**To add a fifteenth interview:** add a row to `INTERVIEWS` in the script near the foot of
-`index.html` — name, title, mile, date, cover, poster, video, srt — and nothing else. The
-wall builds itself from that list and the player reads it.
+**To add a fifteenth interview:** add a row to `INTERVIEWS` in the script at the foot of
+`interviews.html` — name, title, mile, date, cover, poster, video, srt — and nothing else.
+The wall builds itself from that list and the player reads it.
 
 **Captions** are the same `CC_CUES` block the blog carried, moved across word for word, so
 the clips caption exactly as they did and exactly as they do on `walk.html`. A clip with no
 entry in `CC_CUES` falls back to fetching its `.srt` from the CDN, which works only if the
 CDN sends `Access-Control-Allow-Origin` for `.srt` files.
 
-**Old links still land.** `#hub` and `#games` — the anchors `blog.html` answered to — are
-mapped to `#interviews` and `#challenges`, so anything shared before the merge still works
-once it reaches `index.html`.
+**Old post links still land.** `interviews.html#post-hikaru` and the rest are the same
+anchors `blog.html` used, so a link to one conversation still opens that conversation.
 
 What did not come across: the blog's custom video curtain, its share sheet, and its
 poster-hover animation. The player is the browser's own, which is what makes the CC button
@@ -72,11 +74,26 @@ inside its own box with a tighter 1.6rem gap, and below 701 the hamburger takes 
 
 ## Other changes in this round
 
-- `letters.html`: "Back to the walk" moved from the bottom right corner to the top left,
-  under the bar. "Call your reps" stays bottom left.
-- `quiz.html`: the Interviews chip points at `index.html#interviews`.
-- `walk.html`: the "Blogs" pill points at `index.html#interviews`. `walk-WRITE.html` got the
+- Both games have "Back to the walk" now, top left under the bar, same pill in both.
+  `letters.html`'s moved there from the bottom right corner; `quiz.html` had none.
+  "Call your reps" stays bottom left on the letter game.
+- **The back link goes BACK, not to a fresh copy of the walk.** If you reached the game from
+  `walk.html` in the same tab, `backToWalk()` calls `history.back()` — so the browser restores
+  the article at the scroll position you left it at, and does not refetch 1.9 MB. A shared
+  link, a bookmark, or a game opened in a new tab has nothing behind it, so the press falls
+  through and follows the href as before.
+- The livestream logo in the bottom right of both games is at 60% — every number in the rule,
+  phone sizes included.
+- `quiz.html`: the Interviews chip points at `interviews.html`.
+- `walk.html`: the "Blogs" pill points at `interviews.html`. `walk-WRITE.html` got the
   same link edits, so the two stay in step for the merge tool.
+- The hero is a gradient rather than a flat navy — deep navy at the top left, where the name
+  and both paragraphs sit, opening to the blue the buttons use by the far corner. Three
+  knobs: `--hero-1`, `--hero-2`, `--hero-3` on `.hero`.
+- The middle of the home page had grown eyebrow-plus-headline pairs that said the same thing
+  twice ("News" over "What's new"). Those sections — News, Blog, Publications, Music, TikTok,
+  Photo Gallery — now carry one centred `.sec-hd` heading with a short rule under it, and the
+  standfirst lines under Music and TikTok are gone.
 - The standing bio paragraph under the interviews is justified — both edges straight — and
   falls back to left-aligned below 600px, where there is no measure to justify against.
 
@@ -90,7 +107,7 @@ CDN and need nothing local.
 
 ## The visit counter
 
-All five pages carry a small snippet at the very bottom that records one view, plus the host
+All seven pages carry a small snippet at the very bottom that records one view, plus the host
 the visitor arrived from. No cookies, no identifiers, nothing written to the reader's
 machine — so no consent banner and nothing to click past.
 
@@ -99,7 +116,7 @@ you give it one, every page records nothing and breaks nothing: the request is w
 fails silently.
 
 **To switch it on:** pick a counter service, then set `COUNTER` to its base URL in two
-places — the snippet at the foot of each of the five pages, and the top of the script in
+places — the snippet at the foot of each of the seven pages, and the top of the script in
 `stats-7f3a9c21.html`. That is the only edit.
 
 What you get: views per page, referring hosts, and a 30-day chart. What you do not get:

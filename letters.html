@@ -1394,6 +1394,13 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
   .box{ width:min(100%, 560px, calc((100dvh - var(--ctl) - 30px - 58px) * 16 / 9)) }
 }
 
+
+/* THE LIVESTREAM LOGO, AT 60%. It was competing with the game for the bottom right
+   corner -- clamp(78px, 9vw, 124px) is a fair chunk of a small frame. Same rule at
+   six tenths of every number, including the phone one. */
+.brand{ width:clamp(47px, 5.4vw, 74px) }
+@media(max-width:520px){ .brand{ width:38px } }
+
 /* THE WAY BACK, TOP LEFT. It was a pill in the bottom right corner, mirroring
    "Call your reps" on the other side. It sits under the bar's left edge now,
    which is where a reader looks for a way out and where the site's own name is
@@ -1705,7 +1712,7 @@ function toggleMenu(){
   <span>Call your reps</span>
 </a>
 
-<a class="backw" href="walk.html">
+<a class="backw" href="walk.html" onclick="return backToWalk(event)">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
   <span>Back to the walk</span>
@@ -10774,6 +10781,32 @@ if(!raf) raf = requestAnimationFrame(tick);
   if(document.readyState === 'complete') setTimeout(go, 0);
   else window.addEventListener('load', function(){ setTimeout(go, 0); });
 })();
+</script>
+<script>
+/* BACK, NOT A NEW TRIP. If you got here from the walk in this tab, the way out is the
+   history entry you came from -- which the browser restores complete with the scroll
+   position you left it at, and without fetching a 1.9 MB article a second time.
+
+   The three conditions are all necessary. Same origin, or "back" is somebody else's page.
+   The referring path is walk.html, or back is wherever you actually came from, which is not
+   what this link says it does. And history.length > 1, which is false when the game was
+   opened in a new tab -- there is nothing behind it, so back does nothing at all and the
+   link has to be a real navigation instead.
+
+   Anything else falls through and follows the href: a shared link, a bookmark, a reload. */
+function backToWalk(e){
+  try{
+    var u = new URL(document.referrer);
+    if(u.hostname === location.hostname &&
+       /(^|\/)walk\.html$/.test(u.pathname) &&
+       history.length > 1){
+      e.preventDefault();
+      history.back();
+      return false;
+    }
+  }catch(err){}
+  return true;
+}
 </script>
 </body>
 </html>

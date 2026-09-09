@@ -611,12 +611,38 @@ input.name:focus{ outline:3px solid var(--acc); outline-offset:2px; background:r
    else has to move. */
 body{ padding-top:74px }
 
+
+/* THE WAY BACK, TOP LEFT. The letter game grew one first and this page had none: the two
+   chips in the corner of the box point AWAY -- the walk and the interviews, both in a new
+   tab so a run in progress survives the press -- and neither of them is a way out of the
+   game. Same pill, same corner, same third opacity as over there, so the two games agree.
+
+   Under the bar rather than beside it: the bar's own left corner is the site's name, and
+   two things pointing home from the same pixel is one too many. */
+.backw{
+  position:fixed; left:12px; top:70px; z-index:41;
+  display:flex; align-items:center; gap:.4rem; padding:.4rem .6rem;
+  border-radius:999px; text-decoration:none;
+  color:rgba(255,255,255,.34); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  border:1px solid transparent;
+  transition:color .18s ease, border-color .18s ease, background .18s ease;
+}
+.backw svg{ width:13px; height:13px; flex:0 0 13px }
+.backw:hover{ color:var(--acc); border-color:rgba(168,182,251,.35); background:rgba(168,182,251,.1) }
+.backw:focus-visible{ outline:2px solid var(--acc); outline-offset:2px }
+@media(max-width:520px){ .backw span{ display:none } .backw{ opacity:.75 } }
+
+/* THE STAMP, AT 60%. Same rule at six tenths of every number, phone size included. */
+.stamp{ width:clamp(58px, 6.6vw, 101px) }
+@media(max-width:760px){ .stamp{ width:53px } }
+
 /* Sideways on a phone the bar stands down: 58px out of about 400 is a seventh
    of the frame, and the two chips in the corner of the box are the way out at
    that size. */
 @media (orientation:landscape) and (max-height:500px){
   .site-nav, .nav-mobile-menu{ display:none }
   body{ padding-top:16px }
+  .backw{ top:10px }        /* no bar to clear */
 }
 </style>
 </head>
@@ -776,12 +802,12 @@ function toggleMenu(){
 
        THE ADDRESSES: pointed at the sibling pages by default. Change these two hrefs and
        nothing else on the page has to move.
-         id="lnkBlog" -> the interviews, now a section of the home page
+         id="lnkBlog" -> the interviews, on their own page
          id="lnkWalk" -> the walk itself, end to end
        They open in a new tab so pressing one never throws away a run in progress. -->
   <div class="ways">
    <nav class="waylinks" aria-label="Where the questions come from">
-    <a class="way" id="lnkBlog" href="index.html#interviews" target="_blank" rel="noopener">
+    <a class="way" id="lnkBlog" href="interviews.html" target="_blank" rel="noopener">
       <svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="2.6" y="4.8" width="18.8" height="14.4" rx="3.6"/>
         <path class="tip" d="M10.1 9.35 15 12l-4.9 2.65z"/>
@@ -811,6 +837,14 @@ function toggleMenu(){
 </div>
 
 <img class="stamp" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="" aria-hidden="true">
+
+<!-- The way back to the article, top left under the bar. -->
+<a class="backw" href="walk.html" onclick="return backToWalk(event)">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  <span>Back to the walk</span>
+</a>
+
 
 <!-- DEBUG (OFF): the button, the #dbg CSS rule, and the DEBUG block in the script are
      commented out together. Uncomment all three to bring it back.
@@ -1659,6 +1693,32 @@ paintSound();
   if(document.readyState === 'complete') setTimeout(go, 0);
   else window.addEventListener('load', function(){ setTimeout(go, 0); });
 })();
+</script>
+<script>
+/* BACK, NOT A NEW TRIP. If you got here from the walk in this tab, the way out is the
+   history entry you came from -- which the browser restores complete with the scroll
+   position you left it at, and without fetching a 1.9 MB article a second time.
+
+   The three conditions are all necessary. Same origin, or "back" is somebody else's page.
+   The referring path is walk.html, or back is wherever you actually came from, which is not
+   what this link says it does. And history.length > 1, which is false when the game was
+   opened in a new tab -- there is nothing behind it, so back does nothing at all and the
+   link has to be a real navigation instead.
+
+   Anything else falls through and follows the href: a shared link, a bookmark, a reload. */
+function backToWalk(e){
+  try{
+    var u = new URL(document.referrer);
+    if(u.hostname === location.hostname &&
+       /(^|\/)walk\.html$/.test(u.pathname) &&
+       history.length > 1){
+      e.preventDefault();
+      history.back();
+      return false;
+    }
+  }catch(err){}
+  return true;
+}
 </script>
 </body>
 </html>

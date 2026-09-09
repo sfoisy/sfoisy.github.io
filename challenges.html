@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Two games built from a 250-mile walk from New York City to Washington, DC: a climate trivia quiz and a letter collection game.">
+<title>Walk Challenges &middot; Syl Foisy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- ===========================================================================
+     Walk Challenges
+
+     One of the two pages the blog's front page opens. The front page itself is
+     the #blog section of index.html; this is what a card on it goes to.
+
+     Everything here is in the home page's furniture -- same six colours, same
+     bar, same footer -- so moving between them does not feel like leaving.
+     ========================================================================= -->
+<style>
+:root{
+  --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
+  --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
+  --white:#fff;--text:#1a1830;--muted:#6b6882
+}
+*{margin:0;padding:0;box-sizing:border-box}
+/* AUTO, not smooth. An in-page link is a jump: the reader has already decided where they
+   want to be, and animating the trip there makes them wait to arrive somewhere they chose. */
+html{scroll-behavior:auto}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);line-height:1.65;-webkit-font-smoothing:antialiased}
+
+/* NAV -- the same six items, the same geometry, the same two breakpoints as every
+   other page with a bar. The colour block at the foot of the file paints it. */
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem 0 5.25rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+.nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
+.nav-links{display:flex;gap:2.5rem}
+.nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
+.nav-links a:hover{color:var(--purple)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--deep);border-radius:2px;transition:.3s}
+.nav-hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-hamburger.active span:nth-child(2){opacity:0}
+.nav-hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-mobile-menu{display:none;flex-direction:column;background:var(--white);border-bottom:1px solid var(--pale);padding:.5rem 0;position:sticky;top:58px;z-index:99}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu a{padding:.85rem 1.5rem;font-size:.9rem;font-weight:500;text-decoration:none;color:var(--text);border-bottom:1px solid var(--pale)}
+/* Between 701 and 1100 the link row scrolls sideways inside its own box rather than
+   shrinking; below 701 it goes and the hamburger answers instead. */
+@media(min-width:701px) and (max-width:1100px){
+  nav{padding:0 1.25rem;gap:1rem}
+  .nav-name{flex:0 0 auto;white-space:nowrap}
+  .nav-links{
+    flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;gap:1.6rem;
+    scrollbar-width:none;-ms-overflow-style:none;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
+            mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);
+  }
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{flex:0 0 auto;white-space:nowrap}
+}
+@media(max-width:700px){
+  nav{padding:0 1.25rem}
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+}
+
+/* MASTHEAD -- the same solid navy band news.html wears, so the tops match. */
+.page-head{background:#0f1e35;padding:3.25rem 4rem 2.75rem;text-align:center}
+.page-head h1{font-family:'Playfair Display',serif;font-size:clamp(2.1rem,4vw,3rem);font-weight:700;color:var(--white);letter-spacing:-.02em;line-height:1.1}
+.page-head p{color:rgba(255,255,255,.72);font-size:.98rem;font-weight:300;margin:.6rem auto 0;max-width:52ch}
+.page-head a{color:#fff;text-decoration:underline;text-decoration-color:rgba(168,159,216,.6)}
+
+main{max-width:1100px;margin:0 auto;padding:3rem 1.5rem 4rem}
+
+/* THE STANDING BLOCK: who I am and what the walk was, once.
+   JUSTIFIED -- it is a solid block of prose at a fixed measure rather than a
+   caption, and both edges straight is how it was asked for. Left-aligned below
+   600px, where there is no measure to justify against. */
+.note{max-width:760px;margin:2.5rem auto 0}
+.note p{font-size:.95rem;color:var(--muted);line-height:1.85;font-weight:300;text-align:justify;hyphens:auto}
+.note p a{color:var(--mid);text-decoration:underline;text-decoration-color:var(--lavender)}
+.note .lead{text-align:left;margin-top:1rem}
+.note .fine{font-size:.78rem;margin-top:1rem;text-align:left}
+.links{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+.links a{
+  display:inline-flex;align-items:center;padding:.55rem 1.2rem;border-radius:100px;
+  border:1px solid var(--lavender);color:var(--mid);background:var(--white);
+  font-size:.8rem;font-weight:500;text-decoration:none;transition:.2s
+}
+.links a:hover{background:var(--pale)}
+
+footer{background:#08071e;padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between}
+footer .fname{font-family:'Playfair Display',serif;color:rgba(255,255,255,.5);font-size:.9rem}
+footer .fcredit{font-size:.72rem;color:rgba(255,255,255,.2);letter-spacing:.02em}
+
+@media(max-width:900px){
+  .page-head{padding:2.25rem 1.5rem 2rem}
+  footer{padding:1.5rem;flex-direction:column;gap:.5rem;text-align:center}
+}
+@media(max-width:600px){ .note p{text-align:left} }
+
+/* THE TWO GAMES. Each tile is the artwork and nothing else -- the titles are
+   printed IN the pictures, in the games' own type, so a caption underneath
+   would say everything twice in two voices. The names are in aria-label, which
+   is where a screen reader looks and where the artwork cannot help. */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:900px;margin:0 auto}
+.tiles a{display:block;border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white);transition:.2s}
+.tiles a:hover{border-color:var(--lavender);transform:translateY(-3px)}
+.tiles a:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.tiles img{width:100%;display:block}
+@media(max-width:900px){ .tiles{grid-template-columns:1fr} }
+
+</style>
+</head>
+<body>
+
+<!-- THE SAME SIX ITEMS AS EVERY OTHER PAGE WITH A BAR. About, Music, Blog, News,
+     Contact, CV. Four of them are sections of the home page, so from here they carry
+     the file name; on index.html itself the same four are bare fragments. -->
+<nav>
+  <a href="index.html" class="nav-name">Syl Foisy</a>
+  <div class="nav-links">
+    <a href="index.html#about">About</a>
+    <a href="index.html#videos">Music</a>
+    <a href="index.html#blog">Blog</a>
+    <a href="news.html">News</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <a href="index.html#about" onclick="toggleMenu()">About</a>
+  <a href="index.html#videos" onclick="toggleMenu()">Music</a>
+  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
+  <a href="news.html" onclick="toggleMenu()">News</a>
+  <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
+  <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
+</div>
+<script>
+function toggleMenu(){
+  var m=document.getElementById('mobileMenu');
+  var b=document.querySelector('.nav-hamburger');
+  m.classList.toggle('open');
+  b.classList.toggle('active');
+}
+</script>
+
+<header class="page-head">
+  <h1>Walk Challenges</h1>
+  <p>Two games built out of the walk &mdash; and out of the data I logged while walking it.</p>
+</header>
+
+<main>
+  <div class="note" style="margin-top:0">
+    <p>Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
+  </div>
+
+  <div class="tiles" style="margin-top:2.5rem">
+    <a href="quiz.html" aria-label="Quiz Time: Climate Walk Trivia">
+      <img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png"
+           alt="Quiz Time: Climate Walk Trivia" loading="lazy" decoding="async">
+    </a>
+    <a href="letters.html" aria-label="The Letter Collection Game">
+      <img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/letter_game.png"
+           alt="The Letter Collection Game" loading="lazy" decoding="async">
+    </a>
+  </div>
+
+  <div class="note">
+    <p class="lead">For more walk content:</p>
+    <div class="links">
+      <a href="walk.html">Full adventure</a>
+      <a href="interviews.html">Scientist interviews</a>
+    </div>
+    <p class="fine">All views on this website are my own.</p>
+  </div>
+</main>
+
+<footer>
+  <span class="fname">Syl Foisy</span>
+  <span class="fcredit">Last updated September 2026</span>
+</footer>
+
+<!-- ===== The bar, in the walk's colours ======================================
+     The same four values the other pages carry, last in the document so these
+     selectors beat the base rules above by source order alone.
+     KNOB: --nav-ink is the type, --nav-bar the glass, --nav-rule the hairline,
+     --nav-sheet the phone menu, --nav-under what the bar composites onto where
+     the blur is switched off. -->
+<style>
+nav, .nav-mobile-menu{
+  --nav-ink:#fff;
+  --nav-bar:rgba(10,20,38,.72);
+  --nav-rule:rgba(255,255,255,.30);
+  --nav-sheet:rgba(10,20,38,.95);
+  --nav-under:#c8dcf5;
+}
+nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
+@media(max-width:700px){
+  nav{ background:linear-gradient(var(--nav-bar), var(--nav-bar)), var(--nav-under) }
+}
+.nav-name{ color:var(--nav-ink) }
+.nav-links a{ color:var(--nav-ink) }
+.nav-links a:hover{ color:var(--nav-ink); opacity:.55 }
+.nav-links a.current{ color:var(--nav-ink); opacity:.55 }
+.nav-hamburger span{ background:var(--nav-ink) }
+.nav-mobile-menu{ background:var(--nav-sheet); border-bottom:1px solid var(--nav-rule) }
+.nav-mobile-menu a{ color:var(--nav-ink); border-bottom:1px solid var(--nav-rule) }
+</style>
+
+<!-- ===== visit counter =======================================================
+     One page view, counted, plus the HOST the visitor came from -- never the
+     full referring URL, which can carry search terms and private paths. No
+     cookies, no identifiers, nothing written to the reader's machine, so no
+     consent banner and nothing to click past. The trade is real and worth
+     stating: these are VIEWS, not people.
+
+     Set COUNTER to a counter service's base URL -- the same value every other
+     page carries, and the one at the top of the stats page. Left empty it
+     records nothing and breaks nothing: the fetch is wrapped and fails
+     silently, because a reader should never see a counter fall over. -->
+<script>
+(function(){
+  var COUNTER = '';           /* <-- your counter's base URL. Empty = count nothing. */
+  var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+
+  function source(){
+    if(!document.referrer) return 'direct';
+    try{
+      var h = new URL(document.referrer).hostname.replace(/^www\./, '');
+      return h === location.hostname.replace(/^www\./, '') ? 'direct' : h;
+    }catch(e){ return 'direct'; }
+  }
+
+  function bump(key){
+    if(!COUNTER) return;
+    try{
+      fetch(COUNTER.replace(/\/$/, '') + '/hit/' + encodeURIComponent(key),
+            { mode:'no-cors', keepalive:true }).catch(function(){});
+    }catch(e){}
+  }
+
+  function go(){
+    bump('page:' + PAGE);
+    bump('from:' + source());
+    bump('day:' + new Date().toISOString().slice(0,10));
+  }
+
+  if(document.readyState === 'complete') setTimeout(go, 0);
+  else window.addEventListener('load', function(){ setTimeout(go, 0); });
+})();
+</script>
+</body>
+</html>
