@@ -161,7 +161,7 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .chamber-inner{display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:center}
 .chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
 .chamber-text p strong{color:var(--text);font-weight:500}
-.pub-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:3rem;align-items:start}
+.pub-layout{display:grid;grid-template-columns:1fr;gap:3rem;align-items:start}
 .pub-left{display:flex;flex-direction:column}
 .pub-right{}
 .pub-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:0;max-width:800px}
@@ -406,21 +406,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    On the entry rather than after the date, so it wraps with the sentence and
    cannot end up alone at the end of the date column. Set well back -- it is
    punctuation, not content. */
-/* NO GAP AT EITHER END. The dots run straight out of the date and straight into
-   the sentence -- date, dots, sentence, one unbroken line -- so the grid gap is 0
-   and the leader carries no margin of its own. The letter-spacing is inside the
-   run only; the last dot has none after it.
 
-   THE COST, and it is worth naming: the date column is `auto` rather than a fixed
-   9.5rem, because a fixed column would leave a gap between a short date and the
-   dots. So the dates no longer line up down the page once there are several
-   entries -- each row's leader starts where its own date ends. If you would
-   rather have the column back, put --date-col in the grid and accept the space. */
-.newsfeed .entry::before{
-  content:"\2022\2022\2022\2022\2022\2022\2022";
-  letter-spacing:.16em; margin-right:-.16em; font-size:.72em;
-  opacity:.38; vertical-align:.08em;
-}
 .newsfeed .news-list li:last-child{border-bottom:0}
 /* THE DATE IS THE SAME SENTENCE AS THE ENTRY, one weight up. It was a .7rem
    uppercase tracked-out label in the site's blue, which made it a different kind
@@ -430,7 +416,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    difference between them.
    The column is 9.5rem, which fits "September 12, 2026" at this size with room;
    check that if you ever write a longer label. */
-.newsfeed time{font-size:1rem;font-weight:700;line-height:1.75;color:inherit;padding-top:0;white-space:nowrap}
+
 .newsfeed .entry{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75}
 .newsfeed .entry a{color:var(--mid);font-weight:400;text-decoration:underline;text-decoration-color:var(--lavender)}
 .newsfeed .entry a:hover{text-decoration-color:var(--purple)}
@@ -757,9 +743,23 @@ nav, .nav-mobile-menu{
   display:block; text-align:center;
   padding:1.1rem 0; border-bottom:1px solid var(--pale);
 }
-.newsfeed time,
-.newsfeed .entry{ display:inline }
+/* THE DATE AND THE LEADER ARE THE SENTENCE. Both are inline elements inside the
+   paragraph, so they inherit its size, its colour, its weight of black and its
+   baseline -- there is nothing left to align because there are no longer two
+   things to align. The date is bold and the dots are tracked out; that is the
+   whole of the difference between them and the words after them.
+
+   The leader is a <b> in the markup rather than a ::before on the paragraph. A
+   pseudo-element cannot be part of the text run the way an element can: it took
+   its own font-size and its own vertical-align, which is exactly why the dots
+   came out small, grey and sitting off the line.
+
+   The negative margin cancels the tracking after the LAST dot -- letter-spacing
+   adds its gap after every character, including the final one -- so the run ends
+   flush against the first letter of the sentence. */
 .newsfeed .entry{ font-weight:300 }
+.newsfeed .entry time{ font-weight:700 }
+.newsfeed .entry .lead{ font-weight:400; letter-spacing:.2em; margin-right:-.2em }
 
 /* ===== THE HERO PARAGRAPHS, JUSTIFIED =====================================
    The same treatment the three prose columns below get, for the same reason:
@@ -792,6 +792,49 @@ nav, .nav-mobile-menu{
    section would be five more values to keep in step with the five above. */
 .more-btn:hover{ background:var(--btn, var(--purple)); filter:brightness(.86) }
 .more-btn:focus-visible{ outline:2px solid var(--btn, var(--deep)); outline-offset:3px }
+
+/* ===== THE PUBLICATION CARDS ==============================================
+   CENTRED, because there is one column now: the cloud photographs that used to
+   sit beside the list are commented out in the markup, so the list has the whole
+   section and a left-aligned column of two cards in the middle of it read as
+   having lost something.
+
+   IN THE SECTION'S COLOURS, not white. Every other white panel on this page is a
+   picture in a frame; these are text on a coloured block, and a white card there
+   is a hole punched in the colour. They take a deeper step of the same yellow
+   instead, with the accent rule down the left in the full-strength version --
+   which is the same --btn the section's button uses, so the card and the button
+   cannot drift apart.
+   KNOB: --pub-card. Keep it between the section's own tint and the button. */
+.publications{ --pub-card:#fdf2c4 }
+.pub-list{ margin-left:auto; margin-right:auto; text-align:center }
+.pub{
+  background:var(--pub-card);
+  border-left:3px solid var(--btn);
+  border-radius:1rem;
+}
+.pub:hover{ background:#fbeaa8 }
+.pub-title, .pub-authors, .pub-journal, .pub-year{ text-align:center }
+/* The badge is a chip and centres like one -- inline-block in a centred line. */
+.pub-badge{ margin-left:auto; margin-right:auto }
+
+/* ===== THE PICTURE CAPTION ================================================
+   Italic, on white, inside the frame -- the same treatment the aerosol animation
+   and the cloud-chamber photograph get further up the page. It was set against
+   the section's colour, which made the frame look like a picture with a line of
+   type loose underneath it rather than a captioned picture.
+
+   The white ground is on the frame itself (see the inline style on the div) so
+   the caption and the photograph share one box; this only sets the type. */
+.scicomm-caption{
+  font-style:italic; color:var(--muted); font-size:.75rem; line-height:1.6;
+  font-weight:300; text-align:left; padding:.75rem 1rem;
+  border-top:1px solid var(--pale);
+}
+.scicomm-caption a{ color:var(--muted); text-decoration:underline; text-decoration-color:var(--lavender) }
+/* One photograph rather than two, so it can be taller without pushing the column
+   past the paragraphs beside it. */
+.scicomm{ --sc-shot:300px }
 </style>
 </head>
 <body>
@@ -915,12 +958,19 @@ function toggleMenu(){
   <h2 class="sec-hd">News</h2>
   <ul class="news-list">
 
-    <!-- NEWEST AT THE TOP. <time datetime="..."> is the machine-readable date --
-         YYYY-MM-DD for a day, YYYY-MM for a month. The words a person sees are
-         the ones between the tags. -->
+    <!-- ONE PARAGRAPH PER ENTRY, and the date is INSIDE it. It used to be a
+         sibling of the sentence -- a <time> and a <p> side by side, joined by CSS
+         -- and two elements joined by CSS are two elements: they can fall onto
+         two lines, they take their own type sizes, and they align to each other
+         only as well as the rule says. Written into the sentence they are one run
+         of text that cannot come apart, which is what was wanted all along.
+
+         COPY A WHOLE <li> TO ADD ONE, newest at the top, and keep the three parts
+         in this order: <time>, <b class="lead">, then the words. <time datetime>
+         is the machine-readable date -- YYYY-MM-DD for a day, YYYY-MM for a
+         month; the words a person sees are the ones between the tags. -->
     <li>
-      <time datetime="2026-06-03">June 3, 2026</time>
-      <p class="entry">I finished my walk from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
+      <p class="entry"><time datetime="2026-06-03">June 3, 2026</time><b class="lead">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</b>I finished my walk from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
     </li>
 
   </ul>
@@ -988,12 +1038,18 @@ function toggleMenu(){
 <section class="publications" id="publications">
   <h2 class="sec-hd">Publications &amp; Presentations</h2>
   <div class="pub-layout">
+    <!-- THE CLOUD PHOTOGRAPHS, COMMENTED OUT rather than deleted -- the picture and
+         its caption are exactly as they were, so bringing them back is removing these
+         two comment markers. Note that .pub-layout is one column while this is out:
+         put it back in the stylesheet at the same time or the list keeps the whole
+         width and this lands underneath it.
     <div class="pub-right">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
         <img src="sky_composite.png" alt="Sky photos" style="width:100%;display:block;margin-top:0">
         <p style="font-size:.75rem;color:var(--muted);padding:.75rem 1rem;line-height:1.6;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Some random cloud photos I've taken that I love. The sky is full of beauty!!</p>
       </div>
     </div>
+    -->
     <div class="pub-left">
       <div class="pub-list">
     <div class="pub">
@@ -1008,7 +1064,7 @@ function toggleMenu(){
       <p class="pub-journal">B.A. Thesis · Williams College, Department of Geosciences</p>
     </div>
   </div>
-      <p class="more-line" style="text-align:left"><a class="more-btn" href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">View full list on Google Scholar</a></p>
+      <p class="more-line"><a class="more-btn" href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">View full list on Google Scholar</a></p>
     </div>
   </div>
 </section>
@@ -1026,15 +1082,20 @@ function toggleMenu(){
     <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">walked</a></strong> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">here</a>!</p>
   </div>
   <div>
+    <!-- THE HOUR 0 STILL, COMMENTED OUT rather than deleted. Two photographs in a
+         column beside three paragraphs is more picture than text; one is the right
+         number, and the Capitol is the one that ends the story the paragraphs tell.
+         The markup is untouched inside here: uncomment to bring it back.
     <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14)">
       <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank">
         <img src="hour_0.png" alt="Hosting Hour 0 of the 100-Hour Weather and Climate Livestream" style="width:100%;display:block">
       </a>
       <p class="scicomm-caption" style="padding:.6rem 1rem">Hosting Hour 0 of the <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3)">100-Hour Weather & Climate Livestream</a>, 2025</p>
     </div>
-    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14);margin-top:1rem">
+    -->
+    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:var(--white)">
       <img src="speech.png" alt="Syl speaking at the Capitol podium" style="width:100%;display:block;object-fit:cover;max-height:240px;object-position:center top">
-      <p class="scicomm-caption" style="padding:.6rem 1rem">Speaking at the U.S. Capitol press conference</p>
+      <p class="scicomm-caption">Speaking at the U.S. Capitol press conference in June 2026!</p>
     </div>
   </div>
 </section>
