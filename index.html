@@ -394,7 +394,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    line-height, which is the other half of it. Between them they made the date
    ride a few pixels high. */
 .newsfeed .news-list li{
-  display:grid;grid-template-columns:var(--date-col) 1fr;gap:.9rem;
+  display:grid;grid-template-columns:auto 1fr;gap:0;
   align-items:baseline;
   padding:1.1rem 0;border-bottom:1px solid var(--pale)
 }
@@ -406,9 +406,19 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    On the entry rather than after the date, so it wraps with the sentence and
    cannot end up alone at the end of the date column. Set well back -- it is
    punctuation, not content. */
+/* NO GAP AT EITHER END. The dots run straight out of the date and straight into
+   the sentence -- date, dots, sentence, one unbroken line -- so the grid gap is 0
+   and the leader carries no margin of its own. The letter-spacing is inside the
+   run only; the last dot has none after it.
+
+   THE COST, and it is worth naming: the date column is `auto` rather than a fixed
+   9.5rem, because a fixed column would leave a gap between a short date and the
+   dots. So the dates no longer line up down the page once there are several
+   entries -- each row's leader starts where its own date ends. If you would
+   rather have the column back, put --date-col in the grid and accept the space. */
 .newsfeed .entry::before{
   content:"\2022\2022\2022\2022\2022\2022\2022";
-  margin-right:.55rem; letter-spacing:.16em; font-size:.72em;
+  letter-spacing:.16em; margin-right:-.16em; font-size:.72em;
   opacity:.38; vertical-align:.08em;
 }
 .newsfeed .news-list li:last-child{border-bottom:0}
@@ -707,6 +717,32 @@ nav, .nav-mobile-menu{
      stay level with. The cap comes off and they take their natural height. */
   .scicomm{ --sc-shot:none }
   .scicomm img{ max-height:none }
+}
+
+/* ===== THE THREE PROSE COLUMNS, JUSTIFIED =================================
+   "I research the sky", "I love trying new things" and "Science Communication"
+   are each a solid block of copy in a column of its own, under a centred
+   heading -- which is the one shape where justified type earns its keep: both
+   edges straight, so the block reads as a column rather than as a paragraph
+   that happens to be in one. It is the same treatment the walk's standing bio
+   gets on the blog.
+
+   hyphens:auto is not optional here. Justification works by stretching the
+   spaces, and without hyphenation a long word at the end of a line pushes the
+   rest apart far enough to open rivers down the middle of the block --
+   "microphysical", "Carrasquillo" and "Communication" are all long enough to do
+   it in a column this narrow.
+
+   Below 900px these sections go to one column and the measure gets short. A
+   short line has too few spaces to absorb the stretch, so they go back to
+   ragged-right there. */
+.about-right p,
+.chamber-text p,
+.scicomm-text p{ text-align:justify; hyphens:auto; -webkit-hyphens:auto }
+@media(max-width:900px){
+  .about-right p,
+  .chamber-text p,
+  .scicomm-text p{ text-align:left; hyphens:manual; -webkit-hyphens:manual }
 }
 </style>
 </head>

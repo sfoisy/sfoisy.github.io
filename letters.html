@@ -1465,10 +1465,16 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
 }
 #sharePop.on{ display:block }
 #sharePop.vis{ opacity:1; transform:none }
-#sharePop .sp-grid{ display:grid; grid-template-columns:repeat(4, 44px); gap:.3rem }
+/* 58px cells, not 44. At 44 the labels were wider than the cells they sat in --
+   "Messages" and "WhatsApp" ran into each other, and "Copy link" wrapped onto a
+   second line, which made the first row taller than the second and knocked the
+   two rows out of alignment. The widest label sets the cell, and the labels are
+   the fixed part here: the names belong to the networks and cannot be shortened.
+   align-items:start so a cell that does grow keeps its icon on the row's line. */
+#sharePop .sp-grid{ display:grid; grid-template-columns:repeat(4, 58px); gap:.25rem; align-items:start }
 #sharePop .sp-opt{
   display:flex; flex-direction:column; align-items:center; gap:.25rem;
-  width:44px; padding:.3rem .1rem; border:0; background:none; cursor:pointer;
+  width:58px; padding:.3rem .1rem; border:0; background:none; cursor:pointer;
   text-decoration:none; border-radius:9px; transition:background .14s ease;
 }
 #sharePop .sp-opt:hover{ background:rgba(0,0,0,.055) }
@@ -1476,7 +1482,9 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
 #sharePop .sp-ic{ width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:none }
 #sharePop .sp-ic svg{ width:14px;height:14px;fill:currentColor }
 #sharePop .sp-ic img{ width:26px;height:26px;border-radius:50%;object-fit:cover;display:block }
-#sharePop .sp-lab{ font-size:.58rem;font-weight:600;color:#444;line-height:1.1;text-align:center;letter-spacing:.01em }
+/* One line each, and nowrap says so: at this size every label fits 58px, and a
+   label that wraps is the thing that breaks the grid. */
+#sharePop .sp-lab{ font-size:.55rem;font-weight:600;color:#444;line-height:1.1;text-align:center;letter-spacing:.01em;white-space:nowrap }
 @media(prefers-reduced-motion:reduce){ #sharePop{ transition:opacity .1s ease } }
 
 #vsharePop{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:1rem}
@@ -1496,14 +1504,6 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
 .vsp-copy input{flex:1;min-width:0;border:none;outline:none;font:400 .95rem 'DM Sans',sans-serif;color:#333;background:none}
 .vsp-copybtn{flex:0 0 auto;border:1px solid #cfcfcf;background:#fff;border-radius:999px;font:700 .9rem 'DM Sans',sans-serif;color:#000;padding:.55rem 1.3rem;cursor:pointer;transition:background .15s}
 .vsp-copybtn:hover{background:#f2f2f2}
-
-/* The share pill takes .calls' shape and sits one row above it. font:inherit and
-   the reset are because this one is a <button>: it opens a panel rather than going
-   anywhere, and a button does not inherit type or lose its chrome on its own. */
-.shareg{
-  bottom:52px; cursor:pointer; background:none; font:700 .7rem 'DM Sans',sans-serif;
-}
-@media(max-width:520px){ .shareg{ bottom:46px } }
 </style>
 </head>
 <body>
@@ -1584,7 +1584,22 @@ function toggleMenu(){
         <path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         <path class="slash" d="M3 21 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
-    <button class="cb" id="escBtn" title="Route">&#9776;</button>
+    <!-- Share, in the corner group with the two toggles rather than as a pill of its
+         own in the bottom left. It belongs with them: three small round controls that
+         are about the page rather than about the game, always in the same place on
+         every screen. A button, not a link -- it opens a panel -- and the click is
+         stopped so the document handler that closes that panel does not close it on
+         the way back up. -->
+    <button class="cb" id="shareBtn" title="Share this game" aria-label="Share this game"
+            onclick="event.stopPropagation(); openShare(this)">
+      <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z" fill="currentColor"/></svg>
+    </button>
+    <!-- HIDDEN UNTIL YOU ARE WALKING. screen() shows this only on a level and on the
+         win screen, but it had no starting state, so between the page painting and the
+         first screen() call it was there on the title -- a route menu offered before
+         there is a route, and before you have even chosen who is walking it. The
+         inline display:none is that starting state; screen() takes it from here. -->
+    <button class="cb" id="escBtn" title="Route" style="display:none">&#9776;</button>
   </div>
 
   <section class="screen on" id="sTitle">
@@ -1788,15 +1803,6 @@ function toggleMenu(){
 </div>
 
 <img class="brand" id="brandPage" src="https://wesitefoisy1.b-cdn.net/hat.png" alt="The Weather &amp; Climate Livestream">
-
-<!-- Share, stacked directly over "Call your reps" in the same corner and the same
-     pill. Stacked rather than set beside it because the two labels unroll on hover
-     and a row of two would have to reserve the width of both. -->
-<button class="calls shareg" type="button" title="Share this game" aria-label="Share this game"
-        onclick="event.stopPropagation(); openShare(this)">
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z" fill="currentColor"/></svg>
-  <span>Share</span>
-</button>
 
 <a class="calls" href="https://5calls.org/issue/weather-climate-science-funding/" target="_blank" rel="noopener">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"

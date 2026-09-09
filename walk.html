@@ -16679,10 +16679,16 @@ video:-webkit-full-screen::cue{
 }
 #sharePop.on{ display:block }
 #sharePop.vis{ opacity:1; transform:none }
-#sharePop .sp-grid{ display:grid; grid-template-columns:repeat(4, 44px); gap:.3rem }
+/* 58px cells, not 44. At 44 the labels were wider than the cells they sat in --
+   "Messages" and "WhatsApp" ran into each other, and "Copy link" wrapped onto a
+   second line, which made the first row taller than the second and knocked the
+   two rows out of alignment. The widest label sets the cell, and the labels are
+   the fixed part here: the names belong to the networks and cannot be shortened.
+   align-items:start so a cell that does grow keeps its icon on the row's line. */
+#sharePop .sp-grid{ display:grid; grid-template-columns:repeat(4, 58px); gap:.25rem; align-items:start }
 #sharePop .sp-opt{
   display:flex; flex-direction:column; align-items:center; gap:.25rem;
-  width:44px; padding:.3rem .1rem; border:0; background:none; cursor:pointer;
+  width:58px; padding:.3rem .1rem; border:0; background:none; cursor:pointer;
   text-decoration:none; border-radius:9px; transition:background .14s ease;
 }
 #sharePop .sp-opt:hover{ background:rgba(0,0,0,.055) }
@@ -16690,7 +16696,9 @@ video:-webkit-full-screen::cue{
 #sharePop .sp-ic{ width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:none }
 #sharePop .sp-ic svg{ width:14px;height:14px;fill:currentColor }
 #sharePop .sp-ic img{ width:26px;height:26px;border-radius:50%;object-fit:cover;display:block }
-#sharePop .sp-lab{ font-size:.58rem;font-weight:600;color:#444;line-height:1.1;text-align:center;letter-spacing:.01em }
+/* One line each, and nowrap says so: at this size every label fits 58px, and a
+   label that wraps is the thing that breaks the grid. */
+#sharePop .sp-lab{ font-size:.55rem;font-weight:600;color:#444;line-height:1.1;text-align:center;letter-spacing:.01em;white-space:nowrap }
 #sharePop .sp-note{ font-size:.58rem;color:#8a8a8a;text-align:center;margin:.35rem .1rem 0 }
 @media(prefers-reduced-motion:reduce){ #sharePop{ transition:opacity .1s ease } }
 
