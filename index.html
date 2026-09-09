@@ -6,6 +6,9 @@
 <meta name="description" content="Syl Foisy, PhD Candidate in Atmospheric Science at NASA GISS / Columbia University.">
 <title>Syl Foisy</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<!-- The hero photograph, asked for before the stylesheet has been parsed: it is the
+     first thing on the page and the only image above the fold. -->
+<link rel="preload" as="image" href="back_new.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -49,106 +52,62 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 .nav-cta:hover{background:var(--mid)}
 
 /* HERO */
-/* A GRADIENT, and no photograph. The scrim that used to sit over the sky is gone with it:
-   a scrim exists to make white type safe on a mid-tone image, and colours you choose
-   yourself can simply BE dark enough. Nothing to download, and nothing that shifts as the
-   hero crops at different widths.
+/* A PHOTOGRAPH AND A SCRIM. It has been three things now -- a sky picture, then a flat
+   navy, then a painted gradient with a drifting starfield over it -- and this is the sky
+   picture again, with the difference that the sky is the point rather than the backdrop:
+   the page is about the atmosphere, and the top of it is the atmosphere.
 
-   NIGHT SKY TO DAY SKY, top left to bottom right -- deep navy where the name and the two
-   paragraphs sit, opening out to the same blue the buttons and links use by the far corner.
-   The dark end is the same family as the nav bar above it and the walk's own furniture, so
-   the top of the page still reads as one object rather than a bar sitting on a picture.
-
-   THE ANGLE IS DOING THE WORK. 155deg puts the darkest corner behind the type and the
-   lightest one out past the photograph, so the paragraphs never sit on the pale end.
-
-   KNOBS: --hero-1 (the dark corner), --hero-2 (the middle), --hero-3 (the light corner).
-   White type on --hero-3 lands at about 6.5:1 and on --hero-1 at about 17:1. Take --hero-3
-   much lighter than this and the headline, the two paragraphs and the button all need
-   rethinking together, since they are all white. */
+   The angled wash over the photograph is what makes the white type safe. See the two
+   blocks below for what each layer is doing and which numbers to turn. */
 .hero{
-  --hero-1:#0a1a33;
-  --hero-2:#12386a;
-  --hero-3:#2160ab;
-  background:linear-gradient(155deg, var(--hero-1) 0%, var(--hero-2) 52%, var(--hero-3) 100%);
+  /* THE PHOTOGRAPH. back_new.png, in the repo root beside this file -- a real night
+     sky, which is a better version of what the CSS motes were imitating: the stars
+     are actual stars, the faint band across the lower right is actual airglow, and
+     none of it repeats or drifts because none of it has to.
+
+     THE STARFIELD THEY REPLACE is gone with them: fourteen tiled dots and a
+     four-minute drift, which was a good answer while there was no picture and is
+     the wrong one now that there is. Bringing it back means restoring .hero::after,
+     the motes keyframes and the phone override together.
+
+     `cover` and centred, so the crop stays sensible from 360px to a wide desktop.
+     The flat navy underneath is the floor: it is what shows while the file is
+     fetching and if it ever 404s, and it is close enough to the photograph's own
+     darkest corner that a failure reads as a plain hero rather than as a broken
+     one. */
+  --hero-photo:url("back_new.png");
+  --hero-floor:#0a1533;
+
+  /* THE SCRIM. The picture is dark, but not evenly: the lower right carries a pale
+     band of airglow that runs to roughly #3a3f5a, and white body text at .75 alpha
+     over that is thin. So the wash is ANGLED rather than flat -- heaviest at the
+     left where the name and both paragraphs sit, lightest at the right where there
+     is nothing but photograph. That way the type gets the contrast it needs and the
+     sky keeps most of its detail.
+
+     With the scrim on, white lands at about 13:1 behind the headline and 8:1 at the
+     lightest point any type reaches.
+     KNOBS: the three alphas. Take them all to 0 to see the picture untouched; raise
+     the first if you ever put type further right. */
+  background:
+    linear-gradient(100deg,
+      rgba(6,12,30,.72) 0%,
+      rgba(7,14,34,.55) 42%,
+      rgba(9,18,42,.30) 100%),
+    var(--hero-photo) center / cover no-repeat,
+    var(--hero-floor);
+
   display:grid; grid-template-columns:1fr 1fr; align-items:center;
   padding:3rem 4rem 3rem; position:relative; overflow:hidden;
 }
 
-/* ===== THE HAZE ============================================================
-   Three soft washes over the gradient, and they are the subject of the page
-   rather than decoration: this is what aerosols DO. Light entering a hazy
-   atmosphere does not travel in a straight line -- it scatters, and the sky
-   picks up broad, soft blooms of colour with no edge anywhere. A warm one high
-   and to the right where the sun would be, a cool one low and left where the
-   sky scatters blue, and a faint lavender in the middle where the two meet.
-
-   Every one of them is under .17 alpha. The test for this layer is that you
-   should not be able to point at where one stops -- if an edge is visible it is
-   too strong, and the paragraph in front of it is what the eye should be doing.
-
-   inset:-10% so the blooms are cut off by the hero's own edges rather than
-   fading out just inside them, which is what makes them read as a sky that
-   continues past the frame.
-   KNOBS: the three alphas. Everything else about them is position. */
+/* One soft bloom, low and left, where the sky scatters blue -- the only thing kept
+   from the painted version. It is under .12 alpha and has no edge anywhere; if you
+   can point at where it stops, it is too strong. */
 .hero::before{
   content:""; position:absolute; inset:-10%; z-index:0; pointer-events:none;
-  background:
-    radial-gradient(38% 46% at 78% 16%, rgba(255,214,160,.16), transparent 62%),
-    radial-gradient(46% 54% at 10% 88%, rgba(120,190,255,.15), transparent 66%),
-    radial-gradient(32% 36% at 50% 54%, rgba(168,159,216,.10), transparent 70%);
+  background:radial-gradient(46% 54% at 12% 88%, rgba(120,190,255,.11), transparent 66%);
 }
-
-/* ===== THE PARTICLES =======================================================
-   The aerosols themselves: a sparse field of motes, suspended and drifting.
-   Fourteen dots in a tile, at four sizes and four brightnesses, so it reads as
-   depth rather than as a pattern -- the small dim ones are far away.
-
-   TILED, AND THE DRIFT IS EXACTLY ONE TILE. The layer moves 760px left and
-   560px up over four minutes and starts again; because that is precisely the
-   tile it repeats on, the loop lands on an identical frame and there is no seam
-   to catch. Four minutes is the point of this: it is slower than the eye tracks,
-   so the hero looks still and only feels alive. Anything under a minute and it
-   is a screensaver sitting behind a paragraph you are trying to read.
-
-   A transform, not a background-position, so it is composited rather than
-   repainted every frame -- and the layer is a tile wider and taller than the
-   hero, so sliding it never uncovers a corner.
-
-   MOTION IS OPTIONAL AND THE FIELD IS NOT. Under prefers-reduced-motion the
-   dots stay and the drift stops, which is the right half to drop: the texture
-   is the idea, the movement is the flourish.
-   KNOBS: the 240s, and the .55 opacity. Zero the opacity to see the hero
-   without any of this. */
-.hero::after{
-  content:""; position:absolute; left:0; top:0; z-index:1; pointer-events:none;
-  width:calc(100% + 800px); height:calc(100% + 600px);
-  opacity:.55;
-  background-repeat:repeat;
-  background-size:760px 560px;
-  background-image:
-    radial-gradient(circle at 6% 12%,  rgba(255,255,255,.55) 0 1.4px, transparent 2px),
-    radial-gradient(circle at 23% 61%, rgba(255,255,255,.32) 0 1px,   transparent 1.6px),
-    radial-gradient(circle at 34% 22%, rgba(200,225,255,.42) 0 1.1px, transparent 1.7px),
-    radial-gradient(circle at 47% 78%, rgba(255,255,255,.5)  0 1.6px, transparent 2.2px),
-    radial-gradient(circle at 58% 35%, rgba(255,255,255,.26) 0 .9px,  transparent 1.4px),
-    radial-gradient(circle at 66% 88%, rgba(210,230,255,.38) 0 1.2px, transparent 1.8px),
-    radial-gradient(circle at 79% 47%, rgba(255,255,255,.48) 0 1.5px, transparent 2.1px),
-    radial-gradient(circle at 88% 9%,  rgba(255,255,255,.3)  0 1px,   transparent 1.5px),
-    radial-gradient(circle at 94% 71%, rgba(255,236,205,.4)  0 1.3px, transparent 1.9px),
-    radial-gradient(circle at 15% 40%, rgba(255,255,255,.24) 0 .8px,  transparent 1.3px),
-    radial-gradient(circle at 41% 5%,  rgba(255,255,255,.34) 0 1.1px, transparent 1.7px),
-    radial-gradient(circle at 71% 18%, rgba(255,255,255,.22) 0 .9px,  transparent 1.4px),
-    radial-gradient(circle at 29% 93%, rgba(255,255,255,.3)  0 1.1px, transparent 1.6px),
-    radial-gradient(circle at 84% 30%, rgba(190,220,255,.26) 0 .9px,  transparent 1.4px);
-  animation:motes 240s linear infinite;
-  will-change:transform;
-}
-@keyframes motes{
-  from{ transform:translate3d(0,0,0) }
-  to  { transform:translate3d(-760px,-560px,0) }
-}
-@media(prefers-reduced-motion:reduce){ .hero::after{ animation:none } }
 .hero-left{position:relative;z-index:2}
 h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,5.5vw,5rem);font-weight:700;color:var(--white);line-height:1.05;letter-spacing:-.02em;margin-bottom:1.75rem}
 h1 em{color:#a89fd8;font-style:italic}
@@ -287,9 +246,10 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 @media(max-width:900px){
   .nav-cta-desktop{display:none}
   .hero{grid-template-columns:1fr;padding:2rem;gap:1.5rem}
-  /* The tile is most of a 390px screen, so the same field starts reading as a
-     repeat rather than as haze. Dimmer, and no drift to draw the eye to it. */
-  .hero::after{opacity:.34;animation:none}
+  /* A phone crops a 2.2:1 photograph to something near square, and centred that
+     lands on the emptiest part of the sky. Pulled right, onto the airglow band,
+     which is the interesting half of the picture. */
+  .hero{background-position:left, 68% center, 0 0}
   .hero-right{display:flex;justify-content:center;order:1}
   .hero-left{order:2}
   .photo-frame{width:160px;height:190px;border-radius:1.5rem 1.5rem 4rem 1.5rem}
@@ -577,6 +537,25 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
   .game-tiles{grid-template-columns:1fr}
 }
 @media(max-width:600px){ .post-about p{text-align:left} }
+
+/* ===== THE PHOTOGRAPH RUNS TO THE TOP OF THE WINDOW ========================
+   The bar is 58px of sticky glass and the hero used to start underneath it, so
+   the picture began at 58px and the strip above it was whatever the bar was
+   painted. The hero is pulled up BEHIND the bar instead: a negative top margin
+   the height of the bar, and the same 58px given back as top padding so nothing
+   inside the hero moves. The sky now starts at pixel zero and the bar floats on
+   it.
+
+   Nothing about the bar's stacking had to change. It is z-index 100 and the hero
+   is z-index auto, so the bar was always going to paint over whatever slid under
+   it -- and because the bar is 72% navy rather than opaque, the stars show
+   through it, darkened. That is the whole effect: the menu is a smoked strip
+   ACROSS the photograph rather than a lid on top of it.
+
+   KNOB: the 58px, in both places. It is the bar's height; if that ever changes,
+   these two change with it or the hero's contents shift by the difference. */
+.hero{ margin-top:-58px; padding-top:calc(3rem + 58px) }
+@media(max-width:900px){ .hero{ padding-top:calc(2.5rem + 58px) } }
 </style>
 </head>
 <body>
@@ -1372,8 +1351,18 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
    the page has at that scroll position, which on a phone means the bar goes two-tone with a
    hard edge across it. Compositing over --nav-under makes it opaque instead of restoring the
    blur, which is switched off deliberately -- a full-width blur is expensive on a phone. */
+/* NOT ON THIS PAGE. Everywhere else the narrow bar is composited over --nav-under
+   to make it opaque, because a 72% navy with the blur switched off shows whatever
+   the page has behind it and goes two-tone with a hard edge across it. Here what is
+   behind it at the top of the page is the photograph, and hiding that is the one
+   thing this bar must not do. It stays translucent at every width.
+
+   The edge that rule was avoiding does not appear: 72% navy over the white sections
+   further down still composites to a mid-dark grey, and the white type on it clears
+   5:1. --nav-under is left declared above for the day this page has a bar that needs
+   it again. */
 @media(max-width:700px){
-  nav{ background:linear-gradient(var(--nav-bar), var(--nav-bar)), var(--nav-under) }
+  nav{ background:var(--nav-bar) }
 }
 
 .nav-name{ color:var(--nav-ink) }
