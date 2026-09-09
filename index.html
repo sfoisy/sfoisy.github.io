@@ -32,7 +32,7 @@ body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-
 :root{
   --navy:#0d0b2e;--deep:#1a1760;--mid:#2e2a8a;--purple:#2e7dd4;
   --lavender:#a89fd8;--pale:#e8e5f8;--fog:#f4f2ff;
-  --white:#fff;--text:#1a1830;--muted:#6b6882
+  --white:#fff;--text:#1a1830;--muted:#5b5878
 }
 
 /* NAV */
@@ -135,34 +135,14 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .section-sub{font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;max-width:640px}
 
 /* ABOUT */
-.about{background:var(--white);display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start;padding:2.5rem 4rem}
+.about{display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start;padding:2.5rem 4rem}
 .about-left{display:flex;flex-direction:column;gap:1rem;justify-content:center}
 .about-left img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .about-right{display:flex;flex-direction:column;gap:1rem}
 .about-right p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:.25rem}
 .about-right p strong{color:var(--text);font-weight:500}
 
-/* ===== THE TONAL RAMP =====================================================
-   Four sections run together through the middle of the page -- the cloud chamber,
-   News, Blog, Publications -- and they used to be flat blocks of three different
-   colours with hard edges between them: fog, white, fog, pale blue.
-
-   They are one gradient now, cut into four. Each section carries a gradient from
-   the colour the one above it ENDED on to its own end colour, so the seams land
-   on matching values and there is no visible edge anywhere -- the page just cools
-   from an almost-white lavender into the pale sky blue Publications already wore,
-   which is the hero's own blue several shades up. The About section above is white
-   and the sky divider below is a photograph, so the ramp starts and ends where it
-   has to.
-
-   KNOB: the five stops below. Change one and change it in BOTH places it appears,
-   or a seam opens where the two sections meet.
-     #faf9ff  About's white, warmed        -> chamber
-     #f4f4fc                               -> News
-     #ecf1fa                               -> Blog
-     #e1ecf8                               -> Publications
-     #d4e9f7  the pale blue it already had */
-.chamber{background:linear-gradient(#faf9ff, #f4f4fc)}
+/* The section colours are set in one block at the foot of this stylesheet. */
 .chamber-inner{display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:center}
 .chamber-text p{font-size:1rem;color:var(--muted);line-height:1.85;font-weight:300}
 .chamber-text p strong{color:var(--text);font-weight:500}
@@ -185,11 +165,11 @@ section{padding:2.5rem 4rem;scroll-margin-top:58px}
 .scicomm-text p{font-size:1rem;color:rgba(255,255,255,.6);line-height:1.85;font-weight:300;margin-bottom:1rem}
 .scicomm-text p strong{color:rgba(255,255,255,.9)}
 .scicomm-photos{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2)}
+.scicomm-photo{border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14)}
 .scicomm-photo img{width:100%;height:190px;object-fit:cover;display:block}
 .scicomm-caption{font-size:.67rem;color:rgba(255,255,255,.3);padding:.5rem .75rem;text-align:center}
 .scicomm-links{display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem}
-.scicomm-link{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;background:rgba(255,255,255,.05);border:1px solid rgba(168,159,216,.2);border-radius:.85rem;text-decoration:none;transition:.2s}
+.scicomm-link{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;background:rgba(255,255,255,.05);border:1px solid rgba(0,0,0,.14);border-radius:.85rem;text-decoration:none;transition:.2s}
 .scicomm-link:hover{background:rgba(107,95,212,.15);border-color:rgba(168,159,216,.4)}
 .scicomm-link-icon{font-size:1.2rem;width:36px;text-align:center}
 .scicomm-link-label{font-size:.68rem;color:#a89fd8;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.15rem}
@@ -389,7 +369,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    running into the sentences beside them. The list is centred under the
    heading rather than flush left, because the heading above it is.
    KNOB: --date-col is that column's width. Widen it for longer date labels. */
-.newsfeed{background:linear-gradient(#f4f4fc, #ecf1fa)}
+.newsfeed{}
 .newsfeed .news-list{--date-col:9.5rem;list-style:none;max-width:760px;margin:0 auto}
 .newsfeed .news-list li{
   display:grid;grid-template-columns:var(--date-col) 1fr;gap:1.25rem;
@@ -432,7 +412,7 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    --lift, --ease and --dur are blog.html's names for its one hover motion, kept
    so the two files can be compared line by line. */
 :root{ --lift:-2px; --ease:cubic-bezier(.32,.72,0,1); --dur:.24s }
-.blogsec{background:linear-gradient(#ecf1fa, #e1ecf8)}
+.blogsec{}
 .card-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
   column-gap:1.125rem;row-gap:1.125rem;max-width:850px;margin:0 auto
@@ -551,6 +531,74 @@ nav, .nav-mobile-menu{
    fixed-size photograph under a scrolling strip. Painting it once and moving the
    finished bitmap is what stops the sky being re-decoded as the bar passes it. */
 .hero{ transform:translateZ(0) }
+
+/* ===== THE SECTIONS, IN RAINBOW ORDER ======================================
+   Every section below the photograph is a flat block of colour with a hard edge
+   top and bottom, and the blocks run through the spectrum from the hero down to
+   the footer: rose, amber, yellow, lime, green, teal, sky, indigo, violet,
+   magenta. Ten sections, one turn of the wheel, in order -- which is why the
+   order of the sections in the HTML is now load-bearing. Move one and it lands
+   out of sequence with its neighbours; move its colour with it.
+
+   NOT A GRADIENT. A ramp ran through the middle of the page for a round and four
+   sections read as one long pale nothing. The visible edge is the point: it is
+   what says a new section has started before you have read a word of it.
+
+   BLACK TYPE ON ALL OF THEM, which is the constraint the palette is built
+   around. Every tint here clears 7:1 against #000 -- the darkest, teal, is about
+   11:1 -- so the type is the same black on all ten and never has to be checked
+   again per section. The vars are reset per block rather than per element, so
+   anything that reads --text, --muted, --deep or --mid inside a section picks up
+   the black without knowing it is in a coloured block.
+
+   TWO SECTIONS CHANGED SIDES. Science Communication and Let's chat were navy
+   with white type; they are teal and magenta with black now, which is why their
+   inline white colours were edited out of the markup above. Only the footer is
+   still dark.
+
+   KNOBS: the ten values. Keep them all lighter than about #b9e0d8 or the black
+   starts to work for its contrast. */
+.about, .chamber, .newsfeed, .blogsec, .publications,
+.scicomm, .videos, .tiktok-section, .beyond, .contact{
+  --text:#000; --muted:#111; --deep:#000; --mid:#000;
+  color:#000;
+}
+.about          { background:#fbdcdc }   /* rose    -- I research the sky       */
+.chamber        { background:#fde3c8 }   /* amber   -- I love trying new things */
+.newsfeed       { background:#fdf3c4 }   /* yellow  -- News                     */
+.blogsec        { background:#e6f4c4 }   /* lime    -- Blog                     */
+.publications   { background:#cdf0d3 }   /* green   -- Publications             */
+.scicomm        { background:#c6efe9 }   /* teal    -- Science Communication    */
+.videos         { background:#cfe6fb }   /* sky     -- Music making             */
+.tiktok-section { background:#d7dcfb }   /* indigo  -- TikTok                   */
+.beyond         { background:#e2d7fa }   /* violet  -- Photo Gallery            */
+.contact        { background:#f6d7f2 }   /* magenta -- Let's chat               */
+
+/* The two that used to be dark, brought the rest of the way over. Their labels,
+   headings, body copy and captions were all set in white or in a low-alpha white
+   by class; the black comes from the block above, these undo the alphas. */
+.scicomm .section-label,
+.contact .section-label{ color:#000; opacity:.7 }
+.scicomm .section-title,
+.contact .section-title{ color:#000 }
+.scicomm-text p{ color:#111 }
+.scicomm-text p strong{ color:#000 }
+.scicomm-caption{ color:#333 }
+.contact-sub{ color:#111 }
+/* The two contact buttons: the outline one takes a black rule on the block it
+   sits on, the filled one keeps the site's blue and its white type, which is the
+   one piece of white left below the fold and is meant to be. */
+.clink{ border:1px solid rgba(0,0,0,.35); color:#000; background:rgba(255,255,255,.45) }
+.clink:hover{ border-color:#000; background:rgba(255,255,255,.75); color:#000 }
+.clink-primary{ background:var(--purple); color:#fff; border-color:var(--purple) }
+.clink-primary:hover{ background:#1a6abf; color:#fff }
+/* The picture frames in Science Communication were hairlines of translucent
+   lavender, drawn for a navy ground. Black at low alpha on a light one. */
+.scicomm-photo{ border-color:rgba(0,0,0,.14) }
+
+/* Cards, panels and photo frames inside all of this stay white: that contrast
+   against the block behind them is what makes them read as objects sitting on
+   the page rather than as areas of it. */
 </style>
 </head>
 <body>
@@ -574,9 +622,8 @@ nav, .nav-mobile-menu{
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="#about">About</a>
-    <a href="#videos">Music</a>
-    <a href="#blog">Blog</a>
     <a href="#news">News</a>
+    <a href="#blog">Blog</a>
     <a href="#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -586,9 +633,8 @@ nav, .nav-mobile-menu{
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="#about" onclick="toggleMenu()">About</a>
-  <a href="#videos" onclick="toggleMenu()">Music</a>
-  <a href="#blog" onclick="toggleMenu()">Blog</a>
   <a href="#news" onclick="toggleMenu()">News</a>
+  <a href="#blog" onclick="toggleMenu()">Blog</a>
   <a href="#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
@@ -746,7 +792,7 @@ function toggleMenu(){
 </section>
 
 <!-- PUBLICATIONS -->
-<section class="publications" id="publications" style="background:linear-gradient(#e1ecf8, #d4e9f7)">
+<section class="publications" id="publications">
   <h2 class="sec-hd">Publications &amp; Presentations</h2>
   <div class="pub-layout">
     <div class="pub-right">
@@ -781,19 +827,19 @@ function toggleMenu(){
 <!-- SCICOMM -->
 <section class="scicomm" id="outreach">
   <div class="scicomm-text">
-    <h2 class="section-title" style="color:var(--white);font-size:clamp(2.5rem,5vw,4rem)">Science<br>Communication</h2>
-    <p>I believe science only matters <a href="https://talkstem.org/williams-college-x-talkstem-environmental-field-methods-summer-science-program-2024/" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">as much as it is understood.</a></p>
-    <p>In 2025, I served as opening host for the <strong><a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">100-Hour Weather &amp; Climate Livestream</a></strong>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
-    <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">walked</a></strong> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html" style="color:rgba(255,255,255,.85);text-decoration:underline;text-decoration-color:rgba(168,159,216,.5)">here</a>!</p>
+    <h2 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">Science<br>Communication</h2>
+    <p>I believe science only matters <a href="https://talkstem.org/williams-college-x-talkstem-environmental-field-methods-summer-science-program-2024/" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">as much as it is understood.</a></p>
+    <p>In 2025, I served as opening host for the <strong><a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">100-Hour Weather &amp; Climate Livestream</a></strong>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
+    <p>This past spring, I <strong><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">walked</a></strong> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.35)">here</a>!</p>
   </div>
   <div>
-    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2)">
+    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14)">
       <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank">
         <img src="hour_0.png" alt="Hosting Hour 0 of the 100-Hour Weather and Climate Livestream" style="width:100%;display:block">
       </a>
-      <p class="scicomm-caption" style="padding:.6rem 1rem">Hosting Hour 0 of the <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank" style="color:rgba(255,255,255,.6);text-decoration:underline;text-decoration-color:rgba(168,159,216,.4)">100-Hour Weather & Climate Livestream</a>, 2025</p>
+      <p class="scicomm-caption" style="padding:.6rem 1rem">Hosting Hour 0 of the <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3)">100-Hour Weather & Climate Livestream</a>, 2025</p>
     </div>
-    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(168,159,216,.2);margin-top:1rem">
+    <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14);margin-top:1rem">
       <img src="speech.png" alt="Syl speaking at the Capitol podium" style="width:100%;display:block;object-fit:cover;max-height:240px;object-position:center top">
       <p class="scicomm-caption" style="padding:.6rem 1rem">Speaking at the U.S. Capitol press conference</p>
     </div>

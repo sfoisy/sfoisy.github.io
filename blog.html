@@ -1031,6 +1031,29 @@ video:fullscreen::cue{
   .post-stage .post-step-next{ left:auto;  right:.5rem; margin:0 }
   .post-stage .post-step{ background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.55) }
 }
+
+/* ===== BACK ================================================================
+   The same control the two games carry, in the same corner: top left, under the
+   bar, one press, one step. It is fixed rather than in the flow because it has
+   to be reachable from anywhere down a long page -- the whole point of it is
+   that you do not have to scroll back up to leave.
+
+   Quiet until you look for it. A third-alpha pill with no fill and no border
+   sitting over the page, which brightens and rings on hover. On a narrow screen
+   the word folds away and the arrow does the work.
+   KNOBS: the 70px clearance (the bar is 58), and the .34 resting alpha. */
+.backw{
+  position:fixed; left:12px; top:70px; z-index:90;
+  display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
+  border-radius:999px; text-decoration:none; cursor:pointer;
+  color:rgba(255,255,255,.34); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:none; border:1px solid transparent;
+  transition:color .18s ease, border-color .18s ease, background .18s ease;
+}
+.backw svg{ width:13px; height:13px; flex:0 0 13px }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.12) }
+.backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
+@media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
 </style>
 </head>
 <body>
@@ -1051,9 +1074,8 @@ video:fullscreen::cue{
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
-    <a href="index.html#videos">Music</a>
-    <a href="index.html#blog">Blog</a>
     <a href="news.html">News</a>
+    <a href="blog.html" class="current">Blog</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -1063,12 +1085,19 @@ video:fullscreen::cue{
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="index.html#videos" onclick="toggleMenu()">Music</a>
-  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
   <a href="news.html" onclick="toggleMenu()">News</a>
+  <a href="blog.html" onclick="toggleMenu()">Blog</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
+
+<!-- The way back, top left under the bar: one step in this tab. -->
+<a class="backw" href="index.html" onclick="return blogBack(event)">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  <span>Back</span>
+</a>
+
 <script>
 function toggleMenu(){
   var m=document.getElementById('mobileMenu');
@@ -2835,5 +2864,25 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
 }
 
 </style>
+<script>
+/* The pill in the corner, wired to the same goBack() the post and wall controls
+   use -- which walks the page's own history first (a conversation back to the
+   wall, the wall back to the front page) and only leaves the page once there is
+   nothing of ours behind us. That is the difference from the games' version:
+   there, back always means back a page; here it means back a SCREEN, and the
+   screens happen to be history entries.
+
+   With no history at all -- this page opened in a new tab -- goBack() draws the
+   front page, which is the right landing, so the href is only ever followed if
+   the script has not run. */
+function blogBack(e){
+  if(typeof goBack === 'function'){
+    e.preventDefault();
+    goBack();
+    return false;
+  }
+  return true;
+}
+</script>
 </body>
 </html>
