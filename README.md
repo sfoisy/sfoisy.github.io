@@ -21,43 +21,41 @@ the dead `<button>`s they were written as, and the bar picked up the 701–1100 
 rest of the site uses. The home page's `#blog` section is the shop window; this is the shelf,
 and the "See all blog posts" button under the three cards is the way to it.
 
-## The blog, folded into the home page
+## The blog
 
-`index.html#blog` shows **the same three screens `blog.html` shows**, in the home page's
-light furniture instead of the blog's dark, and inside the section rather than on pages of
-their own. Only one is ever visible, and none of it is a page load — the section keeps its
-place and the page scrolls to the top of it, so the bar, the news above and the publications
-below never move.
+`index.html#blog` is three cards and a button, and **every one of them leaves the page**.
+The cards are the same cards `blog.html` sets on its own front page — to the number: three
+across in an 850px lane, 1.125rem gaps, a .6rem corner on the thumbnail, a drop shadow rather
+than a border, a 2px lift on hover with an even dark wash and one uppercase word centred on
+it, and the date centred underneath at .78rem / .12em. The only difference is the date's
+colour: white over there because the blog sits on a dark photograph, the page's own grey here.
+That is the point of copying it rather than drawing it again — press "See all blog posts" and
+you should arrive somewhere that looks like where you pressed it.
 
-- **The cards** — the front page. Card 1 is a plain `<a>` to `walk.html` and works with no
-  script at all.
-- **The wall** — card 2 opens the fourteen portraits, `#hub`, with the standing bio under
-  them. Same anchor `blog.html` uses.
-- **A post** — a portrait on the wall, or card 3, opens one post: heading, date, the clip with
-  its captions, then the standing block. `#post-hikaru`, `#post-games` — again the same
-  anchors `blog.html` uses, so a link shared from either page lands on the same thing.
+- **Card 1** → `walk.html`
+- **Card 2** → `blog.html#hub`, the wall of fourteen
+- **Card 3** → `blog.html#post-games`, the challenges post
+- **The button** → `blog.html`, the front page
 
-The way back is a button at the **foot** of the post, where `blog.html` puts it: you have
-finished reading, and a control at the top would sit in front of the thing you came for. It
-returns you to whichever screen you came from — the wall, or the cards.
+`blog.html` reads those anchors on load and opens straight onto the right view, so a card is
+one press with nothing in between. There is no script behind any of this on the home page:
+three anchors that work with JavaScript off, and middle-click, cmd-click and the status bar
+all behave.
 
-`interviews.html` and `challenges.html` are gone; those two views live here now.
+## Back works on the blog
 
-**To add a fifteenth interview:** add a row to `INTERVIEWS` in the script at the foot of
-`index.html` — name, mile, date, cover, poster, video, srt — and nothing else. The wall, the
-deep links and the player all follow.
+`blog.html`'s three screens used to swap with `history.replaceState`, which rewrites the entry
+you are standing on instead of adding one — so the browser's Back went straight out of the
+page from wherever you had got to, and three clicks into the wall was the same single entry as
+the front page.
 
-**Captions** are the same `CC_CUES` block the blog carried, moved across word for word, so
-the clips caption exactly as they did and exactly as they do on `walk.html`. A clip with no
-entry in `CC_CUES` falls back to fetching its `.srt` from the CDN, which works only if the
-CDN sends `Access-Control-Allow-Origin` for `.srt` files.
-
-**Old post links still land.** `interviews.html#post-hikaru` and the rest are the same
-anchors `blog.html` used, so a link to one conversation still opens that conversation.
-
-What did not come across: the blog's custom video curtain, its share sheet, and its
-poster-hover animation. The player is the browser's own, which is what makes the CC button
-appear in the control bar and survive full screen.
+They **push** now. Front page → wall → a conversation is three entries: Back walks out the way
+you walked in and Forward walks back down, and the address bar is honest at every step. The
+on-page Back controls hand the press to `history.back()`, so they and the browser's own Back
+do exactly the same thing. `depth` counts how many entries behind us are ours; at zero — you
+followed a link straight to `#hub` — a Back control draws the front page itself rather than
+leaving the site. `popstate` is the only place a view is drawn in response to history, and
+every call from it passes `push=false` so a press of Back cannot push a new entry.
 
 ## News in two places
 
@@ -106,8 +104,8 @@ inside its own box with a tighter 1.6rem gap, and below 701 the hamburger takes 
   half second the sheet fades.
 - The livestream logo in the bottom right of both games is at 60% — every number in the rule,
   phone sizes included.
-- `quiz.html`: the Interviews chip points at `index.html#hub`.
-- `walk.html`: the "Blogs" pill points at `index.html#hub`. `walk-WRITE.html` got the
+- `quiz.html`: the Interviews chip points at `blog.html#hub`.
+- `walk.html`: the "Blogs" pill points at `blog.html#hub`. `walk-WRITE.html` got the
   same link edits, so the two stay in step for the merge tool.
 - **The middle of the page is one gradient cut into four.** The cloud chamber, News, Blog and
   Publications used to be flat blocks with hard edges between them; each now carries a
@@ -123,7 +121,23 @@ inside its own box with a tighter 1.6rem gap, and below 701 the hamburger takes 
   bar pointing at four parts of it, so a menu click is travel between two parts of the same
   thing and the glide says so. `scroll-padding-top:58px` is the other half — without it every
   glide parks the heading under the sticky bar. Reduced motion gets the jump.
-- The hero is a gradient rather than a flat navy — deep navy at the top left, where the name
+- **The hero is the photograph** `back_new.png`, with an angled scrim over it — heaviest at
+  the left where the name and both paragraphs sit (.72), lightest at the right where there is
+  nothing but sky (.30). White lands around 13:1 behind the headline. A flat navy sits under
+  the image as the floor, so a slow fetch or a 404 reads as a plain dark hero rather than a
+  broken one, and there is a `<link rel="preload" as="image">` in the head. The hero is pulled
+  up 58px behind the sticky bar and gives the same 58px back as top padding, so the sky starts
+  at pixel zero and the bar floats on it as a smoked strip.
+- **Nothing under the bar flickers.** A sticky, semi-transparent strip with a backdrop blur
+  re-samples that blur as the page scrolls under it, and a browser that has not given it a
+  layer of its own re-rasterises the strip on frames it cannot keep up with — seen as the bar
+  flashing or the sections tearing across it. An identity 3D transform on the bar, the mobile
+  menu and the hero puts each on its own layer. Not `will-change`: that is the right hint for
+  something about to animate and the wrong one for something that sits still for a whole visit.
+- Three links became buttons, matching "See all blog posts": "See all news", "View full list
+  on Google Scholar" and "More on the Koehler•Foisy Films page". The arrows came off, since
+  the button they are matching has none.
+- The hero was a gradient for a round rather than a flat navy — deep navy at the top left, where the name
   and both paragraphs sit, opening to the blue the buttons use by the far corner. Three
   knobs: `--hero-1`, `--hero-2`, `--hero-3` on `.hero`.
 - The middle of the home page had grown eyebrow-plus-headline pairs that said the same thing

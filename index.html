@@ -36,7 +36,7 @@ body{font-family:'DM Sans',sans-serif;background:#f4f2ff;color:#1a1830;overflow-
 }
 
 /* NAV */
-nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem 0 5.25rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);padding:0 3rem 0 5.25rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
 /* 2.5rem, the same on every page. It was 1.5 on the home page and the news page and 2.5
    on the walk and the blog, which reads as the bar subtly resizing itself as you move
@@ -414,129 +414,89 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 .more-btn:focus-visible{outline:2px solid var(--deep);outline-offset:3px}
 
 /* ===== BLOG, ON THE HOME PAGE ==============================================
-   Three doors, in the order someone should meet them: the walk itself, the
-   people met along it, the games made from it. Each one LEAVES for a page of
-   its own, so they are plain anchors -- middle-click, cmd-click and the status
-   bar all behave, and nothing here needs a script to work.
+   THE SAME CARDS blog.html sets on its own front page, to the number: three
+   across in an 850px lane, 1.125rem gaps, a .6rem corner on the thumbnail, a
+   soft drop shadow rather than a border, a 2px lift on hover with the shadow
+   opening under it, an even dark wash with one uppercase word centred on it,
+   and the date centred underneath in .78rem at .12em.
 
-   The poster art carries its own title, so nothing is printed over it -- only
-   the date underneath, which the artwork cannot say. */
+   That is the point of copying it rather than designing it again: a reader who
+   presses "See all blog posts" should arrive somewhere that looks like where
+   they pressed it, not somewhere that has redrawn the same three pictures in a
+   different hand.
+
+   ONE THING IS DIFFERENT, and it has to be. Over there the date is white,
+   because the blog sits on a dark photograph; here it sits on a pale section,
+   so it takes the page's own grey. Everything else is the same rule.
+
+   --lift, --ease and --dur are blog.html's names for its one hover motion, kept
+   so the two files can be compared line by line. */
+:root{ --lift:-2px; --ease:cubic-bezier(.32,.72,0,1); --dur:.24s }
 .blogsec{background:linear-gradient(#ecf1fa, #e1ecf8)}
-.blog-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto}
-.bpost{
-  display:block;border:1px solid var(--pale);border-radius:1.25rem;
-  overflow:hidden;background:var(--white);color:inherit;
-  text-decoration:none;transition:.2s
+.card-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  column-gap:1.125rem;row-gap:1.125rem;max-width:850px;margin:0 auto
 }
-.bpost:hover{border-color:var(--lavender);transform:translateY(-3px)}
-.bpost:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
-.bpost-cover{position:relative;aspect-ratio:3/2;background:var(--pale);overflow:hidden}
-.bpost-cover img{width:100%;height:100%;object-fit:cover;display:block}
-/* The wash names where the click goes. */
-.bpost-read{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:rgba(13,11,46,.5);color:#fff;font-size:.72rem;font-weight:500;
-  letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .2s
+.card-slot{display:flex;flex-direction:column;min-width:0}
+.card{
+  background:none;border:none;padding:0;margin:0;cursor:pointer;text-align:left;
+  font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;
+  color:inherit;text-decoration:none
 }
-.bpost:hover .bpost-read,.bpost:focus-visible .bpost-read{opacity:1}
-.bpost-date{padding:.8rem 1.1rem;font-size:.74rem;color:var(--muted);font-weight:300}
+.card:focus-visible{outline:3px solid var(--purple);outline-offset:4px}
+.card-cover{
+  position:relative;overflow:hidden;border-radius:.6rem;
+  box-shadow:0 1px 5px rgba(0,0,0,.18);
+  transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease)
+}
+/* NO ZOOM ON HOVER. The thumbnails are title cards with type set into them, and
+   scaling them resamples the lettering for the length of the hover -- soft, then
+   sharp again. A photograph survives that; type does not. The wash is the hover
+   state, and it does not touch the picture's geometry. */
+.card-cover img{width:100%;height:auto;display:block}
+@media(hover:hover){
+  .card:hover .card-cover,
+  .card:focus-visible .card-cover{
+    transform:translateY(var(--lift));
+    box-shadow:0 14px 28px -12px rgba(0,0,0,.55)
+  }
+}
+/* The label sits in the MIDDLE of the card, both ways, on an even wash -- a
+   gradient exists to darken one edge, and a label in the middle needs the middle
+   darkened. It fades; it does not travel. The card's lift is the movement, and
+   one gesture wants one motion.
+   @media(hover:hover) gates it: on a touch screen there is no hover to leave, so
+   the wash would either never appear or stick after a tap. */
+.cover-read{
+  position:absolute;inset:0;z-index:2;
+  display:flex;align-items:center;justify-content:center;padding:0 .8rem;
+  background:rgba(6,18,34,.58);
+  opacity:0;transition:opacity var(--dur) var(--ease);pointer-events:none
+}
+.cover-read-in{
+  font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#fff;text-align:center;line-height:1.35
+}
+@media(hover:hover){
+  .card:hover .cover-read,
+  .card:focus-visible .cover-read{opacity:1}
+}
+.card-date{
+  font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);background:none;border:0;padding:0;cursor:default
+}
+.card-date-below{margin:.6rem 0 0;text-align:center}
 
 @media(max-width:900px){
-  .blog-cards{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:repeat(2,1fr);max-width:560px}
+  .card-date{font-size:.72rem;letter-spacing:.1em}
+  .cover-read-in{font-size:.68rem;letter-spacing:.13em}
 }
 @media(max-width:600px){
+  .card-grid{grid-template-columns:1fr;max-width:420px}
   .newsfeed .news-list li{grid-template-columns:1fr;gap:.2rem}
   .newsfeed time{padding-top:0}
 }
-
-/* ===== THE BLOG'S THREE VIEWS ==============================================
-   blog.html shows three screens and only ever one of them: the three cards, the
-   wall of fourteen behind the middle card, and one post open on its own. That is
-   the shape reproduced here, inside the #blog section, in the home page's light
-   furniture rather than the blog's dark.
-
-   ONE AT A TIME, and the swap is the `hidden` attribute -- hidden to a screen
-   reader as well as to the eye, and hidden with no script running at all, which
-   is why the cards are the view that starts visible.
-
-   Nothing here is a page load. The section keeps its place in the document and
-   the page scrolls to the top of it, so the bar, the news above and the
-   publications below never move. */
-#blogHub[hidden],#blogReader[hidden],#blogIndex[hidden]{display:none}
-#blog{scroll-margin-top:58px}
-
-.view-hd{
-  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,2.2vw,1.9rem);
-  font-weight:700;color:var(--deep);text-align:center;margin:0 0 1.75rem
-}
-
-/* THE WALL. Four across, as blog.html has it. The name and the mile marker are
-   already burned into every thumbnail, so the only thing printed under one is
-   the date. */
-.wall-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;max-width:1100px;margin:0 auto}
-.ivw{
-  display:block;width:100%;padding:0;border:1px solid var(--pale);border-radius:1rem;
-  overflow:hidden;background:var(--white);color:inherit;font:inherit;text-align:left;
-  cursor:pointer;transition:.2s
-}
-.ivw:hover{border-color:var(--lavender);transform:translateY(-3px)}
-.ivw:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
-.ivw-cover{position:relative;aspect-ratio:16/9;background:var(--pale);overflow:hidden}
-.ivw-cover img{width:100%;height:100%;object-fit:cover;display:block}
-.ivw-cover .bpost-read{border-radius:0}
-.ivw:hover .bpost-read,.ivw:focus-visible .bpost-read{opacity:1}
-.ivw-date{padding:.6rem .8rem;font-size:.7rem;color:var(--muted);font-weight:300}
-
-/* THE POST. One measure down the middle -- prose, video and tiles all the same
-   width, so every left and right edge in the column lines up. */
-.postview{max-width:760px;margin:0 auto}
-.postview .post-hd{
-  font-family:'Playfair Display',serif;font-size:clamp(1.35rem,2vw,1.75rem);
-  font-weight:700;color:var(--deep);text-align:center;line-height:1.2
-}
-.postview .post-when{text-align:center;font-size:.78rem;color:var(--muted);margin-top:.4rem}
-.postview figure{margin-top:1.5rem}
-.postview video{width:100%;border-radius:1rem;display:block;background:#000}
-.postview .game-note{font-size:.95rem;color:var(--muted);line-height:1.85;font-weight:300;margin-top:1.25rem}
-.postview .game-note a{color:var(--mid);text-decoration:underline;text-decoration-color:var(--lavender)}
-.game-tiles{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
-.game-tiles a{display:block;border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white);transition:.2s}
-.game-tiles a:hover{border-color:var(--lavender);transform:translateY(-3px)}
-.game-tiles img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
-
-/* THE STANDING BLOCK: who I am and what the walk was. Written once and cloned in
-   under whichever post is open, exactly as blog.html does it -- editing it here
-   changes it under all fifteen at the same time.
-   JUSTIFIED, and left-aligned below 600px where there is no measure to justify
-   against. */
-.post-rule{border:0;border-top:1px solid var(--pale);margin:2.5rem 0 1.5rem}
-.post-about p{font-size:.95rem;color:var(--muted);line-height:1.85;font-weight:300;text-align:justify;hyphens:auto}
-.post-about p a{color:var(--mid);text-decoration:underline;text-decoration-color:var(--lavender)}
-.post-about .lead{text-align:left;margin-top:1rem}
-.post-about-fine{font-size:.78rem;margin-top:1rem;text-align:left}
-.post-about-links{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
-.post-about-links a{
-  display:inline-flex;align-items:center;padding:.55rem 1.2rem;border-radius:100px;
-  border:1px solid var(--lavender);color:var(--mid);background:var(--white);
-  font-size:.8rem;font-weight:500;text-decoration:none;transition:.2s;cursor:pointer
-}
-.post-about-links a:hover{background:var(--pale)}
-
-/* The way back, at the foot, where blog.html puts it: you have finished reading,
-   and a control at the top would have been in front of the thing you came for. */
-.back-line{text-align:center;margin-top:2.5rem}
-.back-btn{
-  background:none;border:1px solid var(--lavender);border-radius:100px;cursor:pointer;
-  padding:.6rem 1.5rem;font:inherit;font-size:.82rem;font-weight:500;color:var(--mid);
-  transition:.2s
-}
-.back-btn:hover{background:var(--pale)}
-
-@media(max-width:900px){
-  .wall-grid{grid-template-columns:repeat(2,1fr)}
-  .game-tiles{grid-template-columns:1fr}
-}
-@media(max-width:600px){ .post-about p{text-align:left} }
 
 /* ===== THE PHOTOGRAPH RUNS TO THE TOP OF THE WINDOW ========================
    The bar is 58px of sticky glass and the hero used to start underneath it, so
@@ -556,6 +516,41 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    these two change with it or the hero's contents shift by the difference. */
 .hero{ margin-top:-58px; padding-top:calc(3rem + 58px) }
 @media(max-width:900px){ .hero{ padding-top:calc(2.5rem + 58px) } }
+
+/* ===== NO FLICKER UNDER THE BAR ============================================
+   The bar is a sticky, semi-transparent strip with a 12px backdrop blur on it,
+   and every one of those words costs the compositor something. Scrolling the
+   page underneath forces the blur to be re-sampled, and a browser that has not
+   given the bar a layer of its own re-rasterises the strip on frames where it
+   cannot keep up -- which is seen as the bar flashing, blinking pale, or the
+   sections behind it tearing across it.
+
+   The fix is to say plainly that this element is going to be composited and its
+   contents are not going to change: an identity 3D transform puts it on its own
+   layer, backface-visibility and the isolation stop it being folded back in with
+   what is painting behind it. Nothing about how it looks changes.
+
+   The mobile menu gets the same treatment because it drops out of the bar and
+   inherits the same problem.
+
+   The Safari prefix on backdrop-filter is up in the base rule with the standard
+   property; without it Safari does not blur at all, which is not a flicker but
+   is the same bar looking like a different bar. */
+nav, .nav-mobile-menu{
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  isolation:isolate;
+}
+/* Not will-change. It is the right hint for something about to animate and the
+   wrong one for something that sits still for the length of a visit: the layer is
+   held whatever else the page needs, which on a long page costs more than it
+   saves. The transform above already gets the layer. */
+
+/* And the same for the hero, which is the other half of the same flicker: a
+   fixed-size photograph under a scrolling strip. Painting it once and moving the
+   finished bitmap is what stops the sky being re-decoded as the bar passes it. */
+.hero{ transform:translateZ(0) }
 </style>
 </head>
 <body>
@@ -690,71 +685,64 @@ function toggleMenu(){
     </li>
 
   </ul>
-  <p class="more-line"><a class="more-link" href="news.html">See all news &rarr;</a></p>
+  <p class="more-line"><a class="more-btn" href="news.html">See all news</a></p>
 </section>
 
 <!-- ===== BLOG ===============================================================
-     The blog's three screens, in the page rather than on four of them. The cards
-     are the front page; the middle card opens the wall of fourteen; a portrait on
-     the wall, or the third card, opens one post. Only one is ever on screen, and
-     none of it is a page load -- see the script at the foot of the file.
+     Three doors, and all three of them LEAVE. The middle one used to open a wall
+     of fourteen inside this section and the third a post; both now go to the same
+     views on blog.html, which is where the blog lives and where someone who
+     pressed one of these expects to end up. So there is no script behind them --
+     they are three anchors, they work with JavaScript off, and middle-click,
+     cmd-click and the status bar all behave.
 
-     blog.html is still there and still whole, and the button under the cards is
-     the way to it. This section is the shop window; that page is the shelf.
+     THE ANCHORS ARE blog.html's OWN: #hub is the wall of fourteen, #post-games is
+     the challenges post. That file reads them on load and opens straight onto the
+     right view.
      ====================================================================== -->
 <section class="blogsec" id="blog">
   <h2 class="sec-hd">Blog</h2>
 
-  <!-- ---- VIEW 1: the three cards -------------------------------------- -->
-  <div id="blogIndex">
-    <div class="blog-cards">
+  <div class="card-grid index-grid">
 
-      <!-- STRAIGHT THROUGH TO THE WALK, not to a post about it: it is the walk,
-           so it is a real link and behaves like one. The other two open a view
-           in here, so they are buttons -- built by the script, because a control
-           that needs JavaScript to do anything should not be in the markup for a
-           reader who does not have it. -->
-      <a class="bpost" href="walk.html">
-        <div class="bpost-cover">
+    <div class="card-slot">
+      <a class="card" href="walk.html">
+        <div class="card-cover">
           <img src="https://wesitefoisy1.b-cdn.net/full_scroll.png"
                alt="NYC to DC &mdash; the full scrolling adventure" decoding="async">
-          <span class="bpost-read">Read the walk</span>
+          <span class="cover-read"><span class="cover-read-in">Read</span></span>
         </div>
-        <p class="bpost-date">September 6, 2026</p>
+        <p class="card-date card-date-below">September 6, 2026</p>
       </a>
-
-      <div id="blogCardSlots"></div>
-
     </div>
 
-    <!-- THE WHOLE BLOG. The three cards are the doors people take; this is the
-         shelf they came off -- blog.html, its own front page, the wall behind it
-         and every post in one place. -->
-    <p class="more-line"><a class="more-btn" href="blog.html">See all blog posts</a></p>
-  </div>
-
-  <!-- ---- VIEW 2: the wall of fourteen --------------------------------- -->
-  <div id="blogHub" hidden>
-    <h3 class="view-hd">Scientist Interviews</h3>
-    <div class="wall-grid" id="wallGrid"></div>
-    <div class="postview" style="margin-top:2.5rem">
-      <div class="post-about">
-        <p>Hi, I’m Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!</p>
-        <p class="lead">For more walk content:</p>
-        <p class="post-about-links">
-          <a href="walk.html">Full adventure</a>
-          <a href="#post-games" data-go="post-games">Challenges</a>
-        </p>
-        <p class="post-about-fine">All views on this website are my own.</p>
-      </div>
-      <p class="back-line"><button type="button" class="back-btn" data-back>&larr; Back to the blog</button></p>
+    <div class="card-slot">
+      <a class="card" href="blog.html#hub">
+        <div class="card-cover">
+          <img src="https://wesitefoisy1.b-cdn.net/all_interviews.png"
+               alt="NYC to DC &mdash; scientist interviews" decoding="async">
+          <span class="cover-read"><span class="cover-read-in">Read</span></span>
+        </div>
+        <p class="card-date card-date-below">September 6, 2026</p>
+      </a>
     </div>
+
+    <div class="card-slot">
+      <a class="card" href="blog.html#post-games">
+        <div class="card-cover">
+          <img src="https://wesitefoisy1.b-cdn.net/games_re.png"
+               alt="NYC to DC &mdash; walk challenges" decoding="async">
+          <span class="cover-read"><span class="cover-read-in">Read</span></span>
+        </div>
+        <p class="card-date card-date-below">September 6, 2026</p>
+      </a>
+    </div>
+
   </div>
 
-  <!-- ---- VIEW 3: one post --------------------------------------------- -->
-  <div id="blogReader" hidden>
-    <div class="postview" id="readerBody"></div>
-  </div>
+  <!-- The shelf the three cards came off: blog.html whole, its own front page,
+       the wall behind it and every post in one place. -->
+  <p class="more-line"><a class="more-btn" href="blog.html">See all blog posts</a></p>
 </section>
 
 <!-- PUBLICATIONS -->
@@ -781,7 +769,7 @@ function toggleMenu(){
       <p class="pub-journal">B.A. Thesis · Williams College, Department of Geosciences</p>
     </div>
   </div>
-      <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none">View full list on Google Scholar →</a>
+      <p class="more-line" style="text-align:left"><a class="more-btn" href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">View full list on Google Scholar</a></p>
     </div>
   </div>
 </section>
@@ -823,7 +811,7 @@ function toggleMenu(){
       <div class="video-label"><strong>Good to Be Alive · Andy Grammer</strong>Featuring the murals of Potsdam, NY</div>
     </div>
   </div>
-  <p style="margin-top:1.5rem;font-size:.82rem;color:var(--muted)">More on the <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" style="color:var(--purple);font-weight:500;text-decoration:none">Koehler•Foisy Films page →</a></p>
+  <p class="more-line"><a class="more-btn" href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" rel="noopener">More on the Koehler•Foisy Films page</a></p>
 </section>
 
 <!-- TIKTOK -->
@@ -963,309 +951,6 @@ if (photo) {
     tooltip.style.top = (e.clientY - 10) + 'px';
   });
 }
-</script>
-
-<!-- ===== The blog's three views =============================================
-     Everything blog.html does with its index, its wall and its reader, done here
-     against the same three <div>s. The list below is the only thing to edit: a
-     fifteenth conversation is a fifteenth row, and the wall, the deep links and
-     the player all follow.
-     ====================================================================== -->
-<script>
-(function(){
-
-var INTERVIEWS = [
-  {n:"1", name:"Hikaru Wakeel Hayakawa", mile:"8", date:"May 23, 2026", when:"2:00 PM \u00b7 May 23, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/replace_hikaru.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/hikaru.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/hikaruu.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/hikaru.srt", id:"post-hikaru"},
-  {n:"2", name:"Dr. Allegra LeGrande", mile:"9", date:"May 23, 2026", when:"3:00 PM \u00b7 May 23, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Allegra%202.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/allegra.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/allegraa.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/allegra.srt", id:"post-allegra"},
-  {n:"3", name:"Dr. Alan Robock", mile:"42", date:"May 25, 2026", when:"10:00 AM \u00b7 May 25, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Alan_new.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/alan.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/alan.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/alan.srt", id:"post-alan"},
-  {n:"4", name:"Dr. Mitch Bushuk", mile:"56", date:"May 26, 2026", when:"10:00 AM \u00b7 May 26, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Mitch.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/mitch.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/mitch.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/mitch.srt", id:"post-mitch"},
-  {n:"5", name:"Dr. Tim Merlis", mile:"56", date:"May 26, 2026", when:"11:00 AM \u00b7 May 26, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Tim%202.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/tim.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/timm.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/tim.srt", id:"post-tim"},
-  {n:"6", name:"Bernadette Woods Placky", mile:"56", date:"May 26, 2026", when:"12:00 PM \u00b7 May 26, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Bernadette.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/bernadette.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/bernadette.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/bernadette.srt", id:"post-bernadette"},
-  {n:"7", name:"Dr. Nadir Jeevanjee", mile:"61", date:"May 26, 2026", when:"1:00 PM \u00b7 May 26, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Canva%20help.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/nadir.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/nadir.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/nadir.srt", id:"post-nadir"},
-  {n:"8", name:"Dr. Becki Beadling", mile:"106", date:"May 27, 2026", when:"4:00 PM \u00b7 May 27, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Becki.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/becki.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/becki.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/becki.srt", id:"post-becki"},
-  {n:"9", name:"Dr. Andra Garner", mile:"131", date:"May 29, 2026", when:"10:00 AM \u00b7 May 29, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Andra%202.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/andra.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/andra.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/andra.srt", id:"post-andra"},
-  {n:"10", name:"Dr. Lauren Kipp", mile:"131", date:"May 29, 2026", when:"11:00 AM \u00b7 May 29, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/Lauren%202.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/lauren.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/lauren.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/lauren.srt", id:"post-lauren"},
-  {n:"11", name:"Dr. Charles Schutte", mile:"152", date:"May 29, 2026", when:"8:00 PM \u00b7 May 29, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/char_fix.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/charles.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/charles.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/charles.srt", id:"post-charles"},
-  {n:"12", name:"Dr. Kelsey Malloy", mile:"152", date:"May 30, 2026", when:"10:00 AM \u00b7 May 30, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/kelsey_new.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/kelsey.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/kelseyy.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/kelsey.srt", id:"post-kelsey"},
-  {n:"13", name:"Dr. Ross Salawitch", mile:"255", date:"June 2, 2026", when:"2:00 PM \u00b7 June 2, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/BLANK%20(3).png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/ross.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/ross.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/ross.srt", id:"post-ross"},
-  {n:"14", name:"Dr. Rob Levy", mile:"256", date:"June 2, 2026", when:"3:00 PM \u00b7 June 2, 2026",
-   cover:"https://wesitefoisy1.b-cdn.net/blog_cards/thumbnails_2!/rob_fix.png", poster:"https://wesitefoisy1.b-cdn.net/new_int_titles/rob.png", video:"https://wesitefoisy1.b-cdn.net/int_fast/rob.mp4", srt:"https://wesitefoisy1.b-cdn.net/int_fast/rob.srt", id:"post-rob"}
-];
-
-var BIO = "Hi, I\u2019m Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href=\"https://zentouro.ldeo.columbia.edu/\" target=\"_blank\" rel=\"noopener\">Miriam Nielsen</a> and <a href=\"https://www.virginiaschutte.com/\" target=\"_blank\" rel=\"noopener\">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!";
-var GAME_NOTE = "Growing up, I always loved coding games with <a href=\"https://scratch.mit.edu/users/crazyweasle123/\" target=\"_blank\" rel=\"noopener\">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)";
-
-var CC_CUES = {
-  "hikaru": [[0,4.212,"Hi, I'm Syl and I'm walking 250 miles from New York City down to D.C."],[4.337,6.506,"in support of weather and climate science."],[6.506,10.343,"At mile eight, I spoke with Hikaru Wakeel Hayakawa."],[10.343,15.056,"My name is Hikaru Wakeel Hayakawa, and I am the executive director of Climate Cardinals."],[15.056,16.933,"We are a global, youth-led organisation"],[16.933,19.144,"breaking the language barrier in climate science."],[19.144,21.938,"Is there a language gap in climate science?"],[21.938,25.567,"98% of climate science is only in English."],[25.567,28.194,"But 6.5 billion people don't speak English at all,"],[28.194,32.407,"and there are only 400 million native English speakers in the world."],[32.407,34.409,"When scientists are doing their work,"],[34.409,38.455,"it's important to reach out to people from non-English-speaking institutions,"],[38.455,42.25,"to make sure that you're capturing nuances."],[42.542,46.629,"For example, in Arabic, the word for tornado and hurricane is the same,"],[46.629,48.025,"so there's been an issue with emergency alerts:"],[48.025,50.341,"when governments translate one or the other, people don't know how to respond."],[50.425,53.136,"Is this a broader issue in the United States?"],[53.136,56.556,"There are 50 million Americans who speak a language other than English at home,"],[56.556,58.183,"and there have been cases all around the country"],[58.183,60.351,"where people have not evacuated because they didn't understand"],[60.351,61.519,"what people were telling them."],[61.519,63.772,"Non-English-speaking communities are at the front lines"],[63.772,65.648,"of all these environmental issues,"],[65.648,69.069,"and a lot of them aren't able to speak to policymakers,"],[69.069,72.28,"go to conferences, or even share what is going on"],[72.28,72.798,"on the ground."],[72.798,74.24,"Public funds have been at the forefront"],[74.24,77.452,"of climate science for decades, and we need to keep delivering,"],[77.452,80.413,"so that we can ensure communities are protected."]],
-  "allegra": [[0.166,3.837,"Hey, I'm Syl and I'm walking 250 miles from New York City to D.C."],[3.878,6.006,"in support of weather and climate science."],[6.006,9.009,"At mile nine, I spoke with Dr. Allegra LeGrande."],[9.009,14.222,"Hi, my name is Dr. Allegra LeGrande, and I'm a climate scientist, a mom"],[14.222,15.591,"and a Manhattanite."],[15.591,18.977,"How did you get involved with climate research?"],[19.06,23.231,"I got into climate research because I got a degree in geophysics"],[23.273,24.607,"and a degree in anthropology."],[24.607,29.112,"And the area where those two things intersect is in past climates,"],[29.112,31.906,"and how past climates might have changed"],[31.906,33.575,"the way societies themselves could develop."],[33.575,36.244,"How do we know what the climate was like in the past?"],[36.244,37.759,"One of the best tools we have"],[37.759,40.79,"comes from these wonderful archives called water isotopes."],[40.79,43.418,"It turns out that if you have a couple of extra neutrons,"],[43.418,46.463,"either stuck onto the hydrogen bits or stuck onto the oxygen bit,"],[46.504,49.466,"that whole molecule moves around the climate system"],[49.466,51.819,"in a very different way, and in a way"],[51.819,54.554,"that is consistently influenced by climate."],[54.554,56.878,"You can look in ocean sediment cores,"],[56.878,60.018,"at the tiny calcareous shells of marine organisms."],[60.018,63.521,"And based on the amount of the heavy isotope"],[63.563,66.399,"incorporated into their bodies, you can tell what the temperature was"],[66.399,67.901,"when those bodies were forming."],[67.901,71.404,"How do we know that our toolkit for looking at the climate of the future"],[71.404,72.197,"is any good?"],[72.197,74.491,"We vet that toolkit by testing it out"],[74.491,75.158,"in the past."]],
-  "alan": [[0.083,1.042,"Hey, I'm Syl"],[1.042,4.963,"and I'm walking 250 miles in support of weather and climate research,"],[4.963,6.297,"from New York City to DC."],[6.297,9.259,"At mile 42, I spoke with Alan Robock."],[9.259,10.301,"My name is Alan Robock."],[10.301,12.22,"I'm a professor at Rutgers University."],[12.22,15.932,"How do you view the responsibility of scientists to speak out"],[15.932,18.685,"if they find something that society could benefit from knowing?"],[18.685,21.229,"I've taken millions of dollars in tax money"],[21.229,24.607,"over my career to do research, and if I find a danger to society,"],[24.607,26.991,"I think it's my duty to warn people about it."],[26.991,28.528,"The most important example is"],[28.528,30.363,"what would happen if there was a nuclear war."],[30.363,33.408,"There would be smoke from fires that would go up in the atmosphere"],[33.7,36.661,"and block the sun and make it cold and dark at the Earth's surface."],[36.661,39.998,"You could have a nuclear winter, and that would sentence most of the people"],[39.998,43.793,"in the world to death by famine, because you couldn't grow any crops."],[43.793,47.005,"I had a student from Cuba, and he sent me an email once and said,"],[47.005,48.59,"can you come to Cuba and talk about this?"],[48.59,50.759,"And it turned out Fidel Castro was interested."],[50.759,54.721,"So I gave a talk with Fidel Castro sitting there in the audience."],[54.721,58.099,"On the front page of the national newspaper there, Granma, there was a whole story about it."],[58.099,62.353,"And the next week, on his blog, Fidel Castro wrote, we have to get rid of nuclear weapons,"],[62.353,63.592,"repeating what I said."],[63.592,66.691,"We still have enough weapons to produce nuclear winter,"],[66.691,67.567,"so I'm still concerned about it."],[67.567,70.653,"How might you speak about climate change to someone who had never heard of it before?"],[70.653,73.656,"I have a ten-word elevator speech about global warming."],[73.656,76.409,"It's real. It's us. It's bad."],[76.409,77.812,"We're sure. There's hope."],[77.812,81.122,"Humans are burning fossil fuels, coal, oil and natural gas,"],[81.122,83.208,"and putting carbon dioxide into the atmosphere,"],[83.208,85.502,"and that traps the heat and makes the Earth warmer."],[85.502,86.211,"We're sure of that,"],[86.211,89.255,"because you can't explain the temperature change of the last 100 years"],[89.38,91.299,"if you just looked at volcanic eruptions,"],[91.299,94.177,"which temporarily cool the climate, and very small solar"],[94.177,97.263,"variations. We have climate models that calculate this,"],[97.263,99.224,"and so that's why we're sure."],[99.224,103.144,"Could you talk more about the role that volcanoes play in climate?"],[103.561,106.94,"A big explosive volcanic eruption can pump this gas called sulfur"],[106.94,110.068,"dioxide up into the stratosphere, which is a layer above where we live."],[110.11,114.489,"There's no rain to wash it out, and it forms a layer of sulfuric acid droplets,"],[114.531,118.326,"a thin cloud, and that reflects sunlight and makes it cold at the Earth's surface."],[118.326,122.122,"We know that because the last big eruption, in 1991, of Mount Pinatubo"],[122.122,125.834,"in the Philippines, caused global cooling of about a degree Fahrenheit the next year."],[126.209,129.295,"Because of this, some people have suggested, let's do it on purpose."],[129.295,132.924,"Let's create a cloud up in the stratosphere to reduce global warming."],[132.924,135.343,"It's called geoengineering, or climate intervention."],[135.343,138.346,"After the Pinatubo eruption, there was a drought in India and China."],[138.388,142.35,"So even if we kept the planet from warming, there are effects that could happen"],[142.35,144.31,"in different places that people would not be happy with."]],
-  "mitch": [[0.041,3.878,"Hey, I'm Syl and I'm walking 250 miles in support of weather"],[3.878,4.838,"and climate research."],[4.838,7.799,"At mile 56, I spoke with Mitch Bushuk."],[7.799,10.176,"My name is Mitch Bushuk, and I'm a research oceanographer"],[10.176,14.18,"at the NOAA Geophysical Fluid Dynamics Laboratory here in Princeton, New Jersey."],[14.18,15.974,"What is a climate model?"],[15.974,18.184,"A climate model simulates the four components"],[18.184,21.938,"of the climate system, which are the ocean, atmosphere, sea ice"],[21.938,22.405,"and land."],[22.405,26.401,"Each of those components has equations from physics that are used to describe"],[26.401,29.946,"the laws of motion: for example, how wind flows in the atmosphere,"],[29.946,32.907,"or how ocean currents move around in the ocean."],[32.907,34.2,"Then the key part of the climate model"],[34.2,36.244,"is that we couple all of those components together."],[36.244,40.29,"The ocean will feel the winds blowing above it; the sea ice will feel warmth"],[40.29,42.5,"coming from the ocean, which might melt it or freeze it."],[42.5,44.377,"So all of these components are interacting."],[44.377,48.298,"Have tools developed for climate modelling at GFDL been applied elsewhere?"],[48.465,51.384,"The US weather forecast model, the one your phone's forecast"],[51.384,55.346,"comes from every day: the underpinning physical model of that comes from GFDL."],[55.472,56.639,"A model is never done."],[56.639,59.142,"It's a continuous evolution that is always getting better."],[59.142,62.062,"In your opinion, what's one of the most important things"],[62.062,62.666,"GFDL does?"],[62.666,66.775,"One key thing we do at GFDL is make seasonal to decadal predictions."],[66.775,69.486,"And those involve developing a really high quality"],[69.486,72.489,"set of initial conditions, or starting conditions, for the forecast."],[72.489,74.115,"We have recently been forecasting"],[74.115,76.618,"a very large El Nino event for this upcoming winter."],[76.618,80.58,"Have all these forecasts been impacted by recent federal funding cuts?"],[80.789,82.874,"We've recently lost some of our most critical staff,"],[82.874,86.044,"the ones who developed those starting conditions for these seasonal forecasts."],[86.044,89.172,"As we develop new models going forward that have higher fidelity,"],[89.214,91.049,"we will no longer be able to produce the appropriate"],[91.049,92.425,"starting conditions for these forecasts."],[92.425,96.596,"Historically, we had 200 employees at GFDL developing these models, and recently"],[96.596,100.058,"we've lost about 20% of our staff, so we're down to about 160 employees"],[100.058,100.85,"within our building."],[100.85,103.978,"We've lost really important expertise in a number of different areas,"],[103.978,105.73,"which means that we're spread thin and we can't do"],[105.73,107.524,"the same quality of science that we used to be able to do."]],
-  "tim": [[0.041,3.962,"Yo, I'm Syl and I'm walking 250 miles from New York City to D.C."],[4.004,6.339,"in support of weather and climate science."],[6.339,9.342,"At mile 56, I spoke with Tim Merlis."],[9.634,13.638,"Hi, my name is Tim Merlis, and I'm a scientist at Princeton"],[13.638,16.933,"University's Program in Atmospheric and Oceanic Sciences."],[16.933,20.145,"How do you personally use climate models in your work?"],[20.145,24.816,"At the university we often take advantage of these incredible tools"],[24.816,27.819,"that have been built by the government laboratory, to use"],[27.861,32.449,"in a more scientific sense: to use them to try and understand why"],[32.574,37.829,"rainfall might increase in some regions, why hurricanes might get more intense."],[38.038,42.125,"What if, for example, I don't have Earth's continents?"],[42.125,46.463,"Are there still going to be hurricanes that form in the warm tropical oceans?"],[46.463,50.884,"I've done research in that mould myself, and the answer to that question is,"],[50.884,54.554,"if you don't have the continents, you'll have hurricanes forming at basically"],[54.554,55.593,"every longitude."],[55.593,57.932,"How have humans changed the climate?"],[57.932,60.101,"And how have models helped us know?"],[60.101,62.228,"One thing that we're doing with Earth's climate"],[62.228,65.69,"is a sort of inadvertent experiment: carbon dioxide"],[65.69,67.817,"emissions, methane emissions,"],[67.817,71.571,"other particles being emitted into the atmosphere by human activities."],[71.863,74.282,"That can cause changes to, say, the temperature."],[74.282,77.577,"But this is a sort of one-off, inadvertent experiment."],[77.577,81.414,"With climate models, we can do more focused experiments, and ask"],[81.414,82.999,"what-if style questions."],[82.999,86.669,"What if, for example, humans did not emit carbon dioxide?"],[86.669,90.965,"We can generate this counterfactual Earth climate history."],[91.049,94.761,"It helps shape policy about what different emissions"],[94.761,99.307,"levels will do to the climate system, but it can also be a really fruitful tool"],[99.307,101.017,"for scientific understanding."],[101.017,102.56,"Have climate models of Earth"],[102.56,105.772,"been adapted to study other planets in the universe?"],[105.98,110.11,"Astronomers have been discovering exoplanets, planets around other stars,"],[110.11,113.696,"and many of them are thought to be in synchronous orbit,"],[113.696,117.951,"where the sun is always facing the same side of the planet,"],[117.992,120.995,"much like we're always seeing the same face of the moon."],[120.995,125.5,"About 15 years ago, we took an Earth climate model, and we moved it"],[125.5,129.754,"into this exoplanet situation. You might expect the perpetual day"],[129.796,133.883,"side to be boiling hot and the night side to be freezing cold."],[134.134,137.804,"Really, those planets may in fact be not too different in terms"],[137.804,138.972,"of the average temperature"],[138.972,140.54,"compared to our own planet."],[140.54,142.225,"Are we alone in the universe?"],[142.225,144.102,"This, of course, is just one ingredient."],[144.102,148.898,"That's been a very exciting area of planetary climate science research"],[148.898,153.653,"that in fact leverages tools that were developed for Earth climate research."]],
-  "bernadette": [[0.041,0.917,"Hey, I'm Syl"],[0.917,4.212,"and I'm walking 250 miles from New York City to D.C."],[4.254,6.339,"in support of weather and climate research."],[6.339,9.064,"At mile 56, I spoke with Bernadette Woods Placky."],[9.064,11.011,"My name is Bernadette Woods Placky."],[11.469,14.945,"I have been a meteorologist for more than 25 years."],[14.945,17.058,"How are weather forecasts made?"],[17.058,21.104,"There are a lot of ingredients that go into making a forecast."],[21.104,24.482,"First, we need observations of what's going on in the world."],[24.524,25.9,"What is the temperature?"],[25.9,26.86,"What is the wind?"],[26.86,28.778,"How much moisture do we have in the atmosphere?"],[28.778,30.655,"When you take all of that data,"],[30.655,33.7,"you put it together and you put it into computer models."],[33.7,36.108,"You take all of that information, place it together,"],[36.108,38.655,"and you can come out with a forecast on the other side."],[38.655,40.415,"Is there a best weather app out there?"],[40.415,44.419,"One that we almost all have on our phone and use the most is RadarScope."],[44.711,47.255,"You've got the layers of what's producing lightning or not,"],[47.255,50.925,"and you can get the rain versus snow element of it too."],[50.967,54.929,"So RadarScope is my favourite weather app, and one you're going to hear a lot about"],[54.929,56.347,"from the weather community."],[56.347,59.893,"How can we read weather forecasting data like a pro?"],[60.143,62.979,"My favourite weather variable is dew point."],[62.979,66.608,"It is the most important variable for forecasting,"],[66.608,67.442,"and I'll tell you why."],[67.442,70.695,"Dew point means the amount of moisture in the atmosphere."],[70.695,74.282,"When people are talking about it being really hot and muggy outside,"],[74.282,77.035,"they're usually referencing a high dew point."],[77.035,79.788,"So if that dew point starts to hit the 60s,"],[79.788,81.873,"the air feels a little bit thicker out there."],[81.873,86.795,"If it's above 65, that's an element you can look at for severe weather potential,"],[86.795,88.213,"if there are thunderstorms coming your way."],[88.213,93.927,"Now, dew point is also important on the other side, when you're looking at winter forecasting."],[94.052,97.555,"You need that dew point below 32 for that precipitation"],[97.555,100.725,"to fall as something frozen. So dew point on the cold side is"],[100.725,104.395,"really critical for winter forecasting, and on the warm side really"],[104.395,108.233,"critical for severe weather forecasting, and for how you feel outside."],[108.233,111.236,"And so when people say it's humid, actually 100%"],[111.236,114.239,"humidity happens when it's snowing at 32 degrees."],[114.28,117.826,"What you really mean is that the dew point is likely up in the 60s to 70."],[117.826,119.119,"And that's something you want to pay attention to."]],
-  "nadir": [[0,0.75,"Hey, I'm Syl"],[0.75,3.753,"and I'm walking 250 miles from New York City to D.C."],[3.795,5.964,"in support of weather and climate science."],[5.964,9.092,"At mile 61, I spoke with Nadir Jeevanjee."],[9.092,10.51,"So we're standing here"],[10.51,13.096,"at the Institute for Advanced Study in Princeton, New Jersey,"],[13.096,16.683,"which is actually the birthplace of weather and climate forecasting."],[16.683,18.977,"How did forecasting come to be?"],[18.977,21.98,"So behind me is the main building of the institute, Fuld Hall."],[22.897,26.192,"In the basement there, in the late 1940s and early 1950s,"],[26.234,28.528,"John von Neumann and his collaborators worked."],[28.528,31.823,"Von Neumann was a Hungarian mathematician and polymath who came over from Europe."],[31.823,34.826,"He and a team of colleagues constructed an early digital computer,"],[34.951,38.621,"and took a simplified form of the equations that govern atmospheric motion"],[38.621,40.707,"and put them on the computer to solve."],[40.707,44.627,"In doing that, they generated the first valid weather forecast."],[44.627,46.212,"The calculation itself, on this early computer,"],[46.212,48.757,"took about 24 hours to make a 24-hour forecast."],[48.757,51.468,"So not that valuable initially, but with practice"],[51.468,54.846,"they sped it up, and they handed the technology off to the National Weather Service."],[54.846,58.892,"Those computerized forecasts became the digital forecasts that get"],[58.933,61.227,"beamed into our pockets, and that we look at every day."],[61.227,65.023,"Are these early weather models connected in any way to the climate models"],[65.023,65.623,"we have today?"],[65.623,68.151,"In addition to being the birthplace of weather forecasting,"],[68.151,70.403,"von Neumann realized that these weather models,"],[70.403,74.199,"that simulate the flow of the atmosphere, could be run ad infinitum."],[74.24,77.077,"They could keep running them and make a so-called infinite forecast,"],[77.077,80.455,"and generate the statistics of weather, which is what we call climate."],[80.455,81.915,"So von Neumann wrote a proposal"],[81.915,83.404,"to perform this infinite forecast."],[83.404,84.542,"This proposal was approved"],[84.542,88.713,"by the federal government and became the Geophysical Fluid Dynamics Laboratory,"],[88.755,91.883,"a NOAA laboratory also located here in Princeton, where I work."],[92.008,96.429,"How did GFDL evolve into the climate modelling powerhouse it is today?"],[96.429,99.808,"The first director of GFDL as we know it was Joe Smagorinsky,"],[100.308,101.684,"who was actually a young scientist"],[101.684,105.355,"who worked on the computer project here at the Institute with von Neumann."],[105.355,108.504,"In the mid-1950s, Smagorinsky began to develop a team."],[108.504,111.069,"They needed to model the sunlight coming in,"],[111.319,114.28,"the infrared energy going out, the turbulence of the atmosphere,"],[114.28,116.491,"and also the ocean, because the sunlight warms"],[116.491,118.201,"the ocean, and the ocean warms the atmosphere."],[118.201,120.703,"So they brought in experts across these disciplines."],[120.703,123.123,"And there were two who were the leading figures:"],[123.123,126.751,"the atmospheric scientist Suki Manabe, and the oceanographer Kirk Bryan."],[126.751,129.712,"Manabe led the atmospheric model development, and"],[129.712,131.214,"Bryan the ocean model development."],[131.214,134.342,"And that was actually the first ocean model of its kind anywhere."],[134.551,135.218,"And the two of them"],[135.218,139.472,"collaborated, developing their models separately and also coupling them together"],[139.472,140.89,"and getting them to talk to each other,"],[140.89,143.226,"and simulate the Earth system comprehensively."],[143.226,145.979,"The first version of their model was pretty artificial."],[145.979,147.939,"It only simulated a sector of the globe,"],[147.939,150.15,"and the distribution of land was not very realistic,"],[150.15,152.735,"but they just needed to give it a try and see how it worked."],[152.735,154.195,"So they built these various prototype models,"],[154.195,157.532,"and then gradually, over the decades, made them more realistic."],[157.615,160.869,"What were some famous climate predictions from the 60s and 70s?"],[160.869,162.495,"And were they accurate?"],[162.495,165.54,"The first, made in the late 60s, was that the globe would warm"],[165.54,169.252,"under CO2 by about three degrees per doubling, in equilibrium."],[169.335,170.461,"And also, surprisingly,"],[170.461,173.673,"that the stratosphere would cool when we increased carbon dioxide."],[173.673,176.885,"And so these two forecasts, of global warming and stratospheric cooling,"],[176.926,181.806,"were made in a 1967 paper published just as GFDL moved to Princeton, New Jersey,"],[182.056,185.48,"and that's something we've seen in the satellite record since then."],[185.48,186.144,"In the 1970s,"],[186.144,189.898,"a more comprehensive version of the model showed that when you double CO2,"],[189.939,190.773,"the high latitudes"],[190.773,193.776,"warm faster than the rest of the globe, by about a factor of three."],[193.776,196.487,"This was a forecast made in a paper in 1975,"],[196.487,198.907,"and again, over the ensuing decades, that has been true."],[198.907,202.702,"And papers in the 2000s have shown definitively that the Arctic is warming"],[202.744,203.703,"faster than the rest of the globe"],[203.703,206.873,"by about a factor of three, which is about what Manabe predicted."],[206.873,211.211,"What were some famous climate predictions from the 80s, and were they also accurate?"],[211.211,213.88,"Throughout the 80s, Manabe and Bryan were working"],[213.88,217.383,"feverishly on their coupled model, which had realistic bathymetry of the ocean,"],[217.8,221.638,"and then they made additional discoveries: the land would warm more than the ocean,"],[221.638,225.642,"by about a factor of a half; and, opposite to the way that the Arctic warms faster"],[225.642,228.269,"than the rest of the globe, Antarctic warming would be delayed."],[228.269,232.023,"There is this ocean that encircles Antarctica, and has winds whipping around it"],[232.023,233.608,"that drive strong ocean currents."],[233.608,235.235,"The effect of these ocean currents is that"],[235.235,239.03,"you're drawing up water from the abyss, and it's very hard to warm that water,"],[239.113,241.355,"because you're always replacing it with new water."],[241.355,242.7,"That was from a paper in 1989,"],[242.7,245.161,"and that's in fact just what we see in the observations."],[245.161,247.872,"How did federal funding make all this possible?"],[247.872,252.377,"What we're talking about here is decades of stable, government-funded research"],[252.377,254.771,"that allowed for these climate forecasts."],[254.771,256.172,"And these things matter."],[256.172,259.008,"The fact that the Arctic is warming faster than the rest of the globe"],[259.008,262.095,"means the sea ice is melting, means the northwest passages are opening up,"],[262.095,266.14,"and that makes the Arctic a more important place geopolitically, and in part explains"],[266.391,268.559,"why this administration has been interested in Greenland."],[268.559,271.271,"This is going to be a place where, militarily"],[271.271,273.606,"and in the search for resources, there is going to be more access,"],[273.606,276.651,"and that's a direct result of the Arctic amplification of global warming."]],
-  "becki": [[0.125,0.667,"Hello."],[0.667,4.379,"I'm Syl and I'm walking 250 miles from New York City to D.C."],[4.421,6.631,"in support of weather and climate research."],[6.631,10.26,"At mile 106, I spoke with Becki Beadling."],[10.301,11.761,"My name is Becki Beadling"],[11.761,15.64,"and I'm an assistant professor at Temple University here in Philadelphia."],[15.64,19.269,"What is AMOC, and how does ocean circulation happen?"],[19.394,23.44,"AMOC is the Atlantic Meridional Overturning Circulation, and it's part"],[23.44,26.693,"of the global overturning circulation, specifically within the Atlantic."],[26.735,30.697,"This overturning circulation is responsible for transporting heat"],[30.697,31.99,"and salt from the tropics"],[31.99,35.827,"to the high northern latitudes, where those waters lose"],[35.827,39.831,"that heat to the overlying atmosphere, and they actually sink and overturn."],[39.831,42.656,"What should we know about the Antarctic ice sheet?"],[42.656,44.294,"The Antarctic ice sheet holds"],[44.335,45.879,"a ton of fresh water,"],[45.879,49.674,"the equivalent of about 58 metres of global sea level rise."],[49.758,52.719,"We are looking at a future right now where we are going to see"],[52.719,55.889,"a significant fraction of that meltwater"],[55.889,59.768,"from the ice sheet entering our oceans and contributing to global sea level rise."],[59.768,63.563,"But when you add fresh water on top of a salty ocean,"],[63.605,68.318,"you cause large changes in ocean circulation, and you can also affect"],[68.359,69.569,"atmospheric circulation"],[69.569,73.406,"and disrupt global precipitation patterns, for instance."],[73.656,77.16,"How does the ocean influence the warming we feel in the atmosphere?"],[77.16,80.955,"I always like to say that global warming really is ocean warming,"],[80.955,84.584,"because if we look at where the excess heat is going on"],[84.584,87.587,"our planet, over 90% of it is going into the ocean."],[87.712,90.048,"Water has a really high heat capacity,"],[90.048,93.802,"so it can take up a lot of heat for a small change in temperature,"],[93.843,96.805,"unlike the atmosphere, which has a low heat capacity."],[96.805,99.39,"So you can change the temperature of the atmosphere really rapidly."],[99.39,103.311,"But the ocean has the ability to just take up heat, and on top of that,"],[103.353,106.564,"it has circulation that can sequester"],[106.564,109.067,"that heat at depth, away from the surface."],[109.067,111.528,"So you can have heat stored within the ocean."],[111.528,114.614,"One reason we care about it, particularly in the Southern Ocean,"],[114.614,118.201,"is because that ocean is right next to a giant ice sheet."],[118.243,121.329,"How has federal funding made all the work you do possible?"],[121.704,126.251,"We rely on these federal organisations, particularly NCAR,"],[126.376,129.546,"GFDL and GISS, to do a lot of the model development,"],[129.546,133.049,"which then produces the climate models that we can use for science."],[133.049,137.679,"But a lot of the science comes from research institutions, and making sure"],[137.679,142.142,"those simulations keep being developed is critical to pushing the science forward."],[142.142,146.521,"A lot of that work is done at universities, but it relies on access to"],[146.563,148.064,"those federal resources."]],
-  "andra": [[0,0.9,"Hey, I'm Syl"],[0.9,3.97,"and I'm walking 250 miles from New York City to D.C."],[4.004,6.072,"in support of weather and climate research."],[6.072,9.209,"At mile 131, I spoke with Andra Garner."],[9.209,10.31,"I'm Andra Garner."],[10.31,11.811,"I'm an associate professor"],[11.811,15.048,"at Rowan University, in the Department of Environmental Science."],[15.281,19.586,"Are there any places in the northeast with notable recent coastal changes?"],[19.819,24.29,"Where I'm at in New Jersey, for example, we actually have our coastline"],[24.29,27.66,"sinking slightly as the land readjusts from the last ice age."],[27.761,32.065,"So our sea levels are rising even faster than in other places."],[32.065,33.867,"How about coastal storms?"],[33.867,36.77,"Is recent climate change making them worse?"],[36.77,40.673,"One way that storms are changing is that they can tend to strengthen"],[40.673,44.177,"more quickly than they used to on a cooler planet. One reason for that"],[44.177,48.581,"is that these storms, like hurricanes, feed off warm ocean waters,"],[48.581,52.018,"and the vast majority of the warming that humans have caused"],[52.085,53.586,"has gone into our oceans."],[53.586,56.589,"So we're really kind of supercharging that environment."],[56.623,59.392,"How has federal funding played a role in your research,"],[59.392,61.861,"and in your field's work more generally?"],[61.861,65.198,"A lot of my work is only possible because of the federal funding"],[65.198,66.332,"that I have."],[66.332,70.17,"When we lose that funding, everyone is more at risk."],[70.17,73.64,"We know that right now there are places that are becoming uninsurable,"],[73.64,76.776,"whether because of wildfires or because of flooding."],[76.976,80.38,"We need to have the science to understand how those hazards are changing."],[80.647,85.118,"And the last thing I'll say is that when we cut scientific funding,"],[85.218,87.12,"we're cutting off those pipelines"],[87.12,91.391,"that help to train our future scientists, the ones going to improve our forecasts."]],
-  "lauren": [[0,5.105,"Hey, I'm Syl and I'm walking 250 miles in support of weather and climate research."],[5.138,8.259,"At mile 131, I spoke with Dr. Lauren Kipp."],[8.259,10.043,"Hi, I'm Dr. Lauren Kipp."],[10.043,11.244,"I'm an assistant professor"],[11.244,14.447,"in the Department of Environmental Science at Rowan University."],[14.447,17.017,"What are some of the smallest life forms in the ocean?"],[17.017,18.651,"In every ocean, in every body of water,"],[18.651,20.387,"there's microscopic life."],[20.387,23.289,"So there are phytoplankton, which are tiny, tiny,"],[23.289,26.426,"plant-like creatures, and zooplankton, which are tiny, tiny animal-"],[26.426,27.227,"like creatures."],[27.227,29.529,"And the zooplankton eat the phytoplankton,"],[29.529,32.828,"and then bigger things eat the zooplankton, and bigger fish eat those fish."],[32.828,33.4,"Understanding"],[33.4,34.734,"the chemical changes that are happening"],[34.734,38.238,"has the potential to inform our understanding of how those changes propagate up."],[38.538,40.882,"Where in the Arctic specifically do you study?"],[40.882,42.308,"The region that I'm studying"],[42.308,46.98,"is the shelves north of Russia, the East Siberian Sea and the Laptev Sea."],[47.08,49.616,"That's an important region because it's experiencing"],[49.616,52.318,"some of the most drastic climate-driven changes."],[52.318,56.222,"But it's also the source of an important current called the Transpolar Drift,"],[56.222,58.037,"that carries water across the Arctic."],[58.037,58.625,"So one thing"],[58.625,62.429,"that we're trying to understand is how chemical changes get propagated,"],[62.429,65.598,"not only across the Arctic Ocean, but perhaps to the North Atlantic as well."],[65.965,70.303,"How do you view the peer review process in light of the recent OMB proposal?"],[70.37,73.94,"I think that introducing political oversight into scientific studies would"],[74.574,77.644,"severely undermine the objectivity and the reliability"],[77.644,81.281,"and the trustworthiness of the results of scientific studies."]],
-  "charles": [[0.083,1.543,"Hey, I'm Syl and I'm walking"],[1.543,5.171,"250 miles in support of weather and climate research."],[5.255,8.258,"At mile 152, I spoke with Charles Schutte."],[8.341,9.342,"Hi, I'm Charles Schutte."],[9.342,10.969,"I'm an associate professor in the Department"],[10.969,12.846,"of Environmental Science at Rowan University."],[12.846,14.389,"What research do you do?"],[14.389,17.809,"And does it have implications for addressing climate change?"],[17.809,19.477,"Most of my research right now is in wetlands."],[19.477,21.688,"When the soil is wet, there's no oxygen in the soil,"],[21.688,23.732,"and that means it's a place where carbon can get buried,"],[23.732,25.984,"so they can have a cooling effect on the climate."],[25.984,29.779,"So if we can manage our wetlands, or add wetlands back to the landscape,"],[29.863,32.574,"then that can have a cooling effect on the climate."],[32.574,34.975,"How do scientists get federal funding?"],[34.975,36.745,"As a scientist, I both write"],[36.786,40.331,"grant applications, but I'm also on the other side of the table."],[40.331,41.833,"I review grant applications."],[41.833,46.296,"And so it's scientists evaluating scientists, so that we are"],[46.546,51.843,"spending tax dollars wisely, to fund only the very best science that's likely"],[51.843,53.919,"to have the very largest impact."],[53.919,56.514,"What's your take on the recent OMB news?"],[56.639,59.642,"We're hearing there will be political appointees"],[59.851,63.646,"who are going to make these decisions about how science funding gets spent, and"],[63.855,67.525,"not scientists. That's very concerning to me, because someone who is a political"],[67.525,71.196,"appointee doesn't have the expertise to be making that call."],[71.279,75.241,"Scientists are people who happen to be curious about"],[75.241,79.37,"how the world works, and who have the training to go and find out."]],
-  "kelsey": [[0,4.462,"Hey, I'm Syl and I'm walking 250 miles from New York City to DC"],[4.462,6.172,"in support of weather and climate science."],[6.172,8.768,"At mile 152 I met with Kelsey Malloy."],[8.768,10.593,"Hi, I'm Dr. Kelsey Malloy."],[10.593,13.638,"I'm an assistant professor at the University of Delaware,"],[13.638,16.725,"within the Department of Geography and Spatial Sciences."],[16.725,19.102,"What's the difference between weather and climate?"],[19.102,24.816,"We can think of weather as a particular workout you're doing, and climate as your fitness."],[24.941,28.278,"The amount of workouts and the types of workouts make up your fitness,"],[28.278,30.447,"so weather can make up climate."],[30.447,35.618,"But the other way around, your fitness determines the types of workouts you do."],[35.618,38.747,"So let's bring this to the context of how"],[38.747,41.916,"climate influences extreme weather events."],[41.916,45.211,"In a warmer atmosphere, we just have more moisture,"],[45.211,48.631,"and so if there is a precipitation event, then we can expect"],[48.631,49.783,"more precipitation."],[49.783,52.51,"How has federal funding impacted your career?"],[52.51,57.307,"One of my first experiences as an undergrad researcher was at a NOAA"],[57.348,60.06,"lab in Boulder called the Earth Systems Research Lab,"],[60.06,62.437,"and I was part of the Physical Sciences Division,"],[62.437,64.522,"funded by the NOAA Hollings Scholarship."],[64.522,68.651,"And this was a really important project in understanding how climate influences"],[68.651,69.903,"atmospheric rivers."],[69.903,74.783,"And even throughout my entire PhD career, I used a lot of climate models"],[74.783,77.952,"from NCAR as well, the National Center for Atmospheric Research."],[77.952,80.997,"Are NCAR resources available to anyone?"],[81.122,85.168,"The NCAR supercomputer is available not just to NCAR"],[85.168,89.339,"scientists or the government, but it's a resource that's open to"],[89.38,94.219,"all institutions across the US, and is used to better understand"],[94.219,98.515,"weather and climate for all Americans, and actually all across the globe."],[98.598,102.31,"At the University of Delaware, many of the faculty and students"],[102.31,106.773,"use NCAR resources for both research and educational purposes."],[106.856,111.236,"And this is just one example, at one institution. Imagine how"],[111.236,115.74,"all the different educational institutions and beyond are using these NCAR resources."]],
-  "ross": [[0.041,1.084,"Hey, I'm Syl and"],[1.084,5.52,"I'm walking 270 miles in support of weather and climate research."],[5.52,6.339,"At mile 255,"],[6.381,8.03,"I spoke with Ross Salawitch."],[8.03,9.384,"Hi, I'm Ross Salawitch."],[9.592,12.178,"I am a professor of atmospheric chemistry"],[12.178,15.306,"and climate at the University of Maryland, College Park."],[15.306,18.935,"How does weather and climate research benefit society economically?"],[18.935,21.104,"For example, here at the University of Maryland,"],[21.104,23.106,"our air has gotten so much cleaner."],[23.106,25.859,"Look at this beautiful day,"],[25.859,27.986,"from the efforts that have been put in place."],[27.986,31.99,"We study how ozone precursors lead to the bad air we breathe,"],[31.99,34.659,"how precursors of aerosols lead to particulate matter."],[34.659,38.371,"And that has huge economic benefit for the health, welfare"],[38.371,42.208,"and well-being of the citizens of Maryland and throughout the world."],[42.417,48.006,"How might atmospheric aerosols impact future climate, and what work has your group done on that?"],[48.339,50.948,"We know that aerosol loading is going down."],[50.948,52.343,"That will either unmask"],[52.343,56.347,"a lot of hidden global warming, or perhaps aerosols have been benign."],[56.431,61.144,"What my group does is come up with probabilistic forecasts of future"],[61.144,64.522,"warming, because it helps the people who actually make the rules know"],[64.522,70.111,"how steeply they have to reduce greenhouse gas emissions to achieve policy targets."],[70.195,74.24,"Why was 2023 to 2024 so remarkably warm?"],[74.24,77.994,"We have a backdrop of rising human emissions."],[77.994,79.496,"We had a big ENSO."],[79.496,83.416,"When ENSO happens, warm water in the west comes east, cuts off"],[83.416,85.502,"the upwelling, leads to more warmth."],[85.502,90.757,"We had another very unusual occurrence: the International Maritime Organization"],[90.757,94.26,"reduced the amount of sulfur in the fuel of the world's ships"],[94.26,95.501,"in January of 2020."],[95.501,99.224,"We also saw that the Atlantic Ocean was anomalously warm."],[99.224,102.519,"And whether or not the Atlantic Ocean warmth"],[102.519,107.44,"in 23 and 24 was due to this reduction in sulfate emissions is a subject of"],[107.44,111.319,"active research. The last thing is the Indian Ocean Dipole."],[111.319,117.2,"What we saw in 23 was very, very warm conditions in the west part of the Indian Ocean."],[117.617,121.287,"What's your response to the proposed dismantling of NCAR?"],[121.287,126.042,"There's no rational reason that I can possibly fathom."],[126.042,129.17,"It would be a giant step backwards"],[129.17,132.382,"were NCAR to no longer be functional."],[132.465,136.136,"How have recent federal funding cuts impacted your science?"],[136.136,137.679,"Right now we're on our last"],[137.679,143.309,"gasp of funding, with no knowledge of when future opportunities will emerge."]],
-  "rob": [[0.291,1.167,"Hey, I'm Syl."],[1.167,4.379,"And I'm walking 270 miles from New York City to D.C."],[4.421,6.756,"in support of weather and climate research."],[6.756,10.135,"At mile 256, I spoke with Rob Levy."],[10.301,11.469,"Hi, I'm Rob Levy."],[11.469,14.431,"I'm a research scientist. I do aerosol remote sensing."],[14.431,17.6,"What is the history of the MODIS instrument?"],[17.6,20.061,"The Moderate Resolution Imaging Spectroradiometer"],[20.061,23.106,"was launched on a satellite called Terra in 1999."],[23.106,26.901,"And so my understanding is that it was supposed to be a"],[26.901,28.319,"five to seven year mission."],[28.319,30.655,"In the end, the engineering of this particular instrument"],[30.655,34.034,"and the satellites was so good that they have really lasted for -"],[34.034,34.909,"I mean, what is it now?"],[34.909,38.913,"Really, it's been 27 years. There's a second one that was launched a couple of years later."],[38.913,43.71,"And so between them, it's one of the longest continuous single-instrument"],[43.71,47.13,"data records. With consistent theory, consistent maths"],[47.13,48.882,"and consistent retrieval algorithms,"],[48.882,50.925,"we get something that really shows"],[50.925,52.427,"how things are changing over time."],[52.427,55.722,"How do aerosols impact the climate system?"],[55.847,57.932,"Aerosols have a lot of impacts on a lot of things."],[57.932,59.768,"One of the major ones is, of course, air quality:"],[59.768,62.103,"breathing particles like smoke and dust. They also have"],[62.103,65.857,"a climate impact. Haze reflects light, and that reflection of light,"],[65.857,69.652,"and maybe absorption of light, changes the radiation in the atmosphere."],[69.652,72.322,"Has policy changed aerosol emissions over time?"],[72.322,74.783,"And can you see that in the MODIS data record?"],[74.783,79.162,"The eastern US is a good place to understand that. The Clean Air Acts really, really worked."],[79.162,83.249,"You know, I grew up in the DC area, and it was hazy, hot and humid."],[83.249,88.379,"From these aerosol data records, you can really see that it's cleaner than it was in 2000."]]
-};
-
-/* ===== Captions ==========================================================
-   A REAL <track>, not an overlay. In full screen the browser paints the video
-   element and nothing beside it, so an overlay vanishes at the moment the
-   picture is biggest; and a text track is the only thing the player will put a
-   CC button in its own control bar for.
-
-   The cues are in the page rather than fetched. A .srt is not a format any
-   browser will load into a track, so it would have to be fetched and converted
-   -- and that is a cross-origin request the CDN has to allow. These are the same
-   cues walk.html carries, for the same clips, so the two caption identically. A
-   clip with no entry falls back to fetching its .srt, which still works where
-   the CDN allows it. */
-function ts(x){
-  var h=Math.floor(x/3600), m=Math.floor(x%3600/60), s=x%60;
-  return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s.toFixed(3);
-}
-function toVTT(cues){
-  var out=['WEBVTT',''];
-  cues.forEach(function(c,i){ out.push(String(i+1), ts(c[0])+' --> '+ts(c[1]), c[2], ''); });
-  return out.join('\n');
-}
-function srtParse(txt){
-  var out=[];
-  txt.replace(/\r/g,'').replace(
-    /(\d+)\n(\d{1,2}):(\d{2}):(\d{2})[,.](\d{3})\s*-->\s*(\d{1,2}):(\d{2}):(\d{2})[,.](\d{3})([\s\S]*?)(?=\n\n|\n*$)/g,
-    function(_,n,h1,m1,s1,ms1,h2,m2,s2,ms2,body){
-      var a=(+h1)*3600+(+m1)*60+(+s1)+(+ms1)/1000;
-      var b=(+h2)*3600+(+m2)*60+(+s2)+(+ms2)/1000;
-      var t=body.replace(/^\n+/,'').replace(/<[^>]*>/g,'').replace(/\{[^}]*\}/g,'').trim();
-      if(t) out.push([a,b,t]);
-      return '';
-    });
-  return out;
-}
-function attachCues(v, cues){
-  if(!cues || !cues.length) return;
-  var tr=document.createElement('track');
-  tr.kind='captions'; tr.label='English'; tr.srclang='en';
-  tr.src=URL.createObjectURL(new Blob([toVTT(cues)],{type:'text/vtt'}));
-  v.appendChild(tr);
-  /* default="" is only read while the markup is parsed, so a track added after
-     the fact starts disabled -- and not in this tick either: the TextTrack does
-     not exist until the browser has taken the element in. */
-  requestAnimationFrame(function(){
-    var tt=v.textTracks;
-    if(tt && tt.length) tt[tt.length-1].mode='showing';
-  });
-}
-function ccKey(url){ return (url||'').split('/').pop().replace(/\.srt$/i,''); }
-function caption(v, srt){
-  var built = CC_CUES[ccKey(srt)];
-  if(built && built.length){ attachCues(v, built); return; }
-  if(!srt) return;
-  fetch(srt).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
-    .then(function(t){ attachCues(v, srtParse(t)); })
-    .catch(function(e){
-      console.warn('[captions] '+srt+' \u2014 '+(e && e.message ? e.message : e) +
-                   '. If this says "Failed to fetch", the CDN is not sending ' +
-                   'Access-Control-Allow-Origin for .srt files.');
-    });
-}
-
-function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML }
-
-var idxView = document.getElementById('blogIndex');
-var hubView = document.getElementById('blogHub');
-var reader  = document.getElementById('blogReader');
-var readerBody = document.getElementById('readerBody');
-var section = document.getElementById('blog');
-/* Which screen the back button hands you to. Set every time a post is opened, so
-   a conversation reached from the wall returns to the wall and the games post
-   returns to the cards. */
-var returnView = 'index';
-
-/* ===== The two cards that open a view ====================================
-   Built rather than written, because they need a script to do anything: a
-   <button> in the markup that JavaScript never reaches is a control that exists
-   and does nothing. The walk's card is a plain <a> in the HTML for the same
-   reason in reverse -- it works with no script at all. */
-(function(){
-  var slots = document.getElementById('blogCardSlots');
-  if(!slots) return;
-  var CARDS = [
-    { cover:'https://wesitefoisy1.b-cdn.net/all_interviews.png',
-      alt:'NYC to DC \u2014 scientist interviews',
-      date:'September 6, 2026', label:'See the interviews',
-      go:function(){ openHub(true); } },
-    { cover:'https://wesitefoisy1.b-cdn.net/games_re.png',
-      alt:'NYC to DC \u2014 walk challenges',
-      date:'September 6, 2026', label:'Play the games',
-      go:function(){ openPost('post-games', true, 'index'); } }
-  ];
-  var frag = document.createDocumentFragment();
-  CARDS.forEach(function(d){
-    var b=document.createElement('button');
-    b.className='bpost'; b.type='button';
-    b.innerHTML='<div class="bpost-cover"><img src="'+esc(d.cover)+'" alt="'+esc(d.alt)+'" decoding="async">'+
-                '<span class="bpost-read">'+esc(d.label)+'</span></div>'+
-                '<p class="bpost-date">'+esc(d.date)+'</p>';
-    b.addEventListener('click', d.go);
-    frag.appendChild(b);
-  });
-  slots.parentNode.replaceChild(frag, slots);   /* the placeholder div goes with it */
-})();
-
-/* ===== The wall ========================================================== */
-(function(){
-  var grid=document.getElementById('wallGrid');
-  INTERVIEWS.forEach(function(p,i){
-    var b=document.createElement('button');
-    b.className='ivw'; b.type='button';
-    b.innerHTML='<div class="ivw-cover"><img src="'+esc(p.cover)+'" alt="'+esc(p.name)+'" loading="lazy" decoding="async">'+
-                '<span class="bpost-read">Watch interview</span></div>'+
-                '<p class="ivw-date">'+esc(p.date)+'</p>';
-    b.addEventListener('click', function(){ openPost(p.id, true, 'hub'); });
-    grid.appendChild(b);
-  });
-})();
-
-/* ===== The standing block ================================================
-   The bio, the three ways on, the disclaimer. One copy, appended under whichever
-   post is open -- so it is edited in one place and changes under all fifteen.
-   "Other interviews" opens a view rather than going anywhere, which is why it is
-   wired here rather than left as an href. */
-function aboutHTML(nobio){
-  return '<hr class="post-rule">' +
-    '<div class="post-about">' +
-      (nobio ? '' : '<p>'+BIO+'</p>') +
-      '<p class="lead">For more walk content:</p>' +
-      '<p class="post-about-links">' +
-        '<a href="walk.html">Full adventure</a>' +
-        (nobio ? '' : '<a href="#hub" data-go="hub">Other interviews</a>') +
-        (nobio ? '' : '<a href="#post-games" data-go="post-games">Challenges</a>') +
-      '</p>' +
-      '<p class="post-about-fine">All views on this website are my own.</p>' +
-    '</div>' +
-    '<p class="back-line"><button type="button" class="back-btn" data-back>&larr; Back</button></p>';
-}
-
-/* ===== The three screens =================================================
-   index  -> the three cards
-   hub    -> the fourteen
-   reader -> one post
-   Only one is ever on screen, and the page goes to the top of the section rather
-   than the top of the document: the bar, the news above and the publications
-   below all stay where they were. */
-function show(which){
-  idxView.hidden = which !== 'index';
-  hubView.hidden = which !== 'hub';
-  reader.hidden  = which !== 'reader';
-}
-function toSection(){
-  /* No glide here. html{scroll-behavior:smooth} is set for the menu, and animating
-     a jump that happens at the same moment the view swaps underneath reads as the
-     page sliding out from under the click. */
-  var y = section.getBoundingClientRect().top + window.pageYOffset - 58;
-  window.scrollTo({top:y, behavior:'auto'});
-}
-
-function openHub(push){
-  show('hub');
-  if(push) history.replaceState(null,'','#hub');
-  toSection();
-}
-function closeToIndex(){
-  show('index');
-  history.replaceState(null,'','#blog');
-  toSection();
-}
-
-function openPost(id, push, from){
-  var p = null;
-  for(var i=0;i<INTERVIEWS.length;i++){ if(INTERVIEWS[i].id===id){ p=INTERVIEWS[i]; break; } }
-  returnView = from || returnView;
-
-  if(id === 'post-games'){
-    readerBody.innerHTML =
-      '<h2 class="post-hd">Walk Challenges</h2>' +
-      '<p class="game-note">'+GAME_NOTE+'</p>' +
-      '<div class="game-tiles">' +
-        '<a href="quiz.html" aria-label="Quiz Time: Climate Walk Trivia">' +
-          '<img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png" ' +
-               'alt="Quiz Time: Climate Walk Trivia" loading="lazy" decoding="async"></a>' +
-        '<a href="letters.html" aria-label="The Letter Collection Game">' +
-          '<img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/letter_game.png" ' +
-               'alt="The Letter Collection Game" loading="lazy" decoding="async"></a>' +
-      '</div>' +
-      /* nobio: the opening paragraph introduces the walk and the interviews, which
-         is the right lead-in to a conversation and the wrong one here -- this post
-         has already said where the games came from, directly above. */
-      aboutHTML(true);
-  } else if(p){
-    readerBody.innerHTML =
-      '<h2 class="post-hd">Interview #'+esc(p.n)+': '+esc(p.name)+'</h2>' +
-      '<p class="post-when">'+esc(p.when)+'  &middot;  Mile '+esc(p.mile)+'</p>' +
-      '<figure></figure>' +
-      aboutHTML(false);
-    var v=document.createElement('video');
-    v.controls=true; v.preload='none'; v.poster=p.poster;
-    v.setAttribute('playsinline','');
-    var src=document.createElement('source');
-    src.src=p.video; src.type='video/mp4';
-    v.appendChild(src);
-    readerBody.querySelector('figure').appendChild(v);
-    caption(v, p.srt);
-  } else { return; }
-
-  show('reader');
-  if(push) history.replaceState(null,'','#'+id);
-  toSection();
-}
-
-/* One handler for every control the three views print: the back buttons, and the
-   two links in the standing block that open a view instead of going somewhere. */
-section.addEventListener('click', function(e){
-  var back = e.target.closest('[data-back]');
-  if(back){
-    if(!reader.hidden && returnView === 'hub') openHub(true);
-    else closeToIndex();
-    return;
-  }
-  var go = e.target.closest('[data-go]');
-  if(go){
-    e.preventDefault();
-    var t = go.getAttribute('data-go');
-    if(t === 'hub') openHub(true); else openPost(t, true, 'hub');
-  }
-});
-
-/* Deep links, and the same anchors blog.html answers to: #hub opens the wall,
-   #post-<key> opens that post. So a link shared from either page lands on the
-   same thing here. #games is the older spelling and is kept. */
-(function(){
-  var h=(location.hash||'').slice(1);
-  if(!h) return;
-  if(h==='games') h='post-games';
-  if(h==='hub'){ openHub(false); return; }
-  if(h.indexOf('post-')===0) openPost(h, false, h==='post-games' ? 'index' : 'hub');
-})();
-
-})();
 </script>
 
 <!-- ===== visit counter =======================================================

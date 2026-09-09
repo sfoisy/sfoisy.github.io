@@ -6009,32 +6009,34 @@ html.pre-off  #preload{ display:none }
    before anything else on the page is -- six links and a name, no measuring, no images -- so
    it is not part of the assembly the sheet exists to hide.
 
-   THREE THINGS MAKE IT LOOK DELIBERATE rather than like a bar that failed to get covered:
+   IT IS SIMPLY THERE, from the first frame. There was a .55s rise on it for a round -- the
+   bar sliding down out of the top edge as the sheet appeared -- and it was wrong twice over:
+   for half a second there was no menu at all, which is exactly the half second this whole
+   rule exists to fill, and a bar that moves is furniture being carried in, which is what the
+   sheet is covering up. Nothing here animates. The bar is drawn where it belongs before the
+   first paint and does not move again.
+
+   Two things still make it look deliberate rather than like a bar that failed to get covered:
 
    1. It is lighter over the sheet than it is over the article. The sheet is a pale sky and a
       72%-opaque navy bar lands on it as a hard black stripe; .62 lets the sky through and the
       white type still clears 9:1 against it.
    2. The hairline under it goes to a soft white, which reads as an edge on a pale ground
       where the dark rule it normally wears reads as a crack.
-   3. It arrives on its own, once, with a short rise -- so the first thing the page does is
-      hand you the menu, rather than have the menu simply be there as if the sheet had not
-      loaded properly.
 
    Both selectors are html-qualified, which is what lets them beat the palette block at the
    foot of the file without !important: specificity settles it, not source order.
-   KNOBS: the .62 alpha, and the .55s rise. */
+   KNOB: the .62 alpha. */
 html:not(.pre-off) nav,
 html:not(.pre-off) .nav-mobile-menu{ z-index:2147483001 }
 html:not(.pre-gone) nav{
   background:linear-gradient(rgba(10,20,38,.62), rgba(10,20,38,.62));
   border-bottom:1px solid rgba(255,255,255,.24);
-  animation:navRise .55s cubic-bezier(.2,.9,.3,1) both;
 }
-/* Back to the ordinary bar as the sheet fades, on the same half second, so the two changes
-   read as one movement rather than as the bar changing colour after the fact. */
+/* Back to the ordinary bar as the sheet fades, over the same half second, so the colour
+   change reads as part of the sheet lifting rather than as something happening afterwards.
+   A cross-fade of two backgrounds -- nothing on the bar changes position. */
 html.pre-gone nav{ transition:background .5s ease, border-color .5s ease }
-@keyframes navRise{ from{ opacity:0; transform:translateY(-8px) } }
-@media(prefers-reduced-motion:reduce){ html:not(.pre-gone) nav{ animation:none } }
 
 /* NO SCROLLING WHILE THE SHEET IS UP. The article underneath is still measuring itself -- the
    map is sizing, the accordion is building its sections -- and scrolling through that lands
@@ -7682,8 +7684,8 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
        so it is the same object -- if this row changes, that one changes too. Anchors, not
        buttons: all three go somewhere real, two of them off this page entirely. The blog
        lives on the home page now (it was blog.html until the two were merged), so the
-       target is index.html#hub -- the wall of fourteen, a view of the home page's blog
-       section. The href has to carry the file name or it
+       target is blog.html#hub -- the wall of fourteen, which is a view of the blog page
+       rather than a page of its own. The href has to carry the file name or it
        resolves against walk.html and lands nowhere.
 
        The classes are named for the pills themselves (wl-videos / wl-livestream /
@@ -7693,7 +7695,7 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   <p class="walk-links">
     <a class="wl-videos" href="https://www.youtube.com/playlist?list=PLIJTIrd-tLNg" target="_blank" rel="noopener">Videos</a>
     <a class="wl-livestream" href="https://www.youtube.com/live/v64jhYUkL8g?si=9qajLfgiLQ0o8-ta&amp;t=714" target="_blank" rel="noopener">Livestream</a>
-    <a class="wl-blogs" href="index.html#hub">Blogs</a>
+    <a class="wl-blogs" href="blog.html#hub">Blogs</a>
   </p>
 
   <div class="games-grid">

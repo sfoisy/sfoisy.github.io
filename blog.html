@@ -1780,25 +1780,74 @@ function buildHubCards(){
    <title> at the top, and nothing here touches it. */
 function openHub(push){
   reader.classList.remove('open');
+  stopClips();
   document.getElementById('readerBody').innerHTML = '';
   indexView.style.display = 'none';
   hubView.style.display = '';
-  if(push) history.replaceState(null, '', '#hub');
+  if(push) pushView('#hub');
   window.scrollTo(0, 0);
 }
 
-/* NOTHING CALLS THIS ANY MORE. The wall's Back button was the only caller and
-   it is gone -- it read as a stray control floating above a page of pictures.
-   The way back to the index is now BLOG in the nav, which is a fresh load of
-   blog.html and lands on the index of its own accord.
-   Kept rather than deleted because it is exactly what a Back control would need
-   if one is ever wanted again: one button, one onclick, no other change. */
-function closeHub(){
+/* ===== THE BACK BUTTON WORKS =============================================
+   The three screens used to swap with history.replaceState, which rewrites the
+   entry you are standing on rather than adding one -- so the browser's own Back
+   went straight out of the page from wherever you had got to, and three clicks
+   into the wall was the same single entry as the front page. Anyone who treats
+   Back as undo, which is everyone, lost their place.
+
+   They PUSH now. Front page -> wall -> a conversation is three entries, so Back
+   walks out the way you walked in, and Forward walks back down. The address bar
+   is honest at every step: #hub, #post-becki, and the bare path at the front,
+   which are the same anchors the home page's three cards link to.
+
+   pushView keeps the count. depth is how many of the entries behind us are ours
+   rather than the page we arrived from, so a control on the page knows whether
+   it can hand the press to history.back() -- which is what makes an on-page Back
+   and the browser's Back do exactly the same thing -- or whether there is
+   nothing of ours behind us and it has to render the front page itself.
+
+   popstate is the one place a view is drawn in response to history: every call
+   from it passes push=false, or a press of Back would push a new entry and the
+   two would fight. */
+var depth = 0;
+function pushView(hash){
+  try{ history.pushState(null, '', hash); depth++; }
+  catch(e){ location.hash = hash; }
+}
+function stopClips(){
+  Array.prototype.forEach.call(reader.querySelectorAll('video'), function(v){
+    try{ v.pause(); }catch(e){}
+  });
+}
+/* The front page, drawn and nothing else -- no history written. Everything that
+   wants to GO there goes through goBack() so the entry stack stays true. */
+function showIndex(){
+  reader.classList.remove('open');
+  stopClips();
+  document.getElementById('readerBody').innerHTML = '';
   hubView.style.display = 'none';
   indexView.style.display = '';
-  history.replaceState(null, '', location.pathname);
   window.scrollTo(0, 0);
 }
+/* Every Back control on the page. One step, which lands you wherever you
+   actually came from -- the wall if you reached a conversation from the wall,
+   the front page if you reached it from a card -- so none of them has to know
+   the route. With nothing of ours behind us (a link straight to #hub, say) it
+   draws the front page instead, because history.back() there would leave the
+   site altogether. */
+function goBack(){
+  if(depth > 0){ history.back(); return; }
+  showIndex();
+  try{ history.replaceState(null, '', location.pathname); }catch(e){}
+}
+function closeHub(){ goBack(); }
+window.addEventListener('popstate', function(){
+  if(depth > 0) depth--;
+  var h = (location.hash || '').slice(1);
+  if(h === 'hub'){ openHub(false); return; }
+  if(h && document.getElementById(h)){ openPost(h, false, h === 'post-games' ? 'index' : 'hub'); return; }
+  showIndex();
+});
 
 function openPost(id, push, from){
   var p = document.getElementById(id);
@@ -1948,19 +1997,17 @@ function openPost(id, push, from){
   hubView.style.display = 'none';
   reader.classList.add('open');
   window.scrollTo(0, 0);
-  if(push) history.replaceState(null, '', '#' + id);
+  if(push) pushView('#' + id);
 }
 
 function closePost(){
-  reader.classList.remove('open');
   /* Stop any clip that is still playing before the post leaves the screen. */
-  Array.prototype.forEach.call(reader.querySelectorAll('video'), function(v){ try{ v.pause(); }catch(e){} });
-  document.getElementById('readerBody').innerHTML = '';
-  if(returnView === 'hub'){ openHub(true); return; }
-  indexView.style.display = '';
-  hubView.style.display = 'none';
-  history.replaceState(null, '', location.pathname);
-  window.scrollTo(0, 0);
+  stopClips();
+  /* One step back, and the entry behind this one is by definition the screen the
+     post was opened from -- so the returnView bookkeeping this used to do is the
+     browser's job now. It is still set by openPost, because popstate reads it
+     when someone lands on a post from the address bar. */
+  goBack();
 }
 
 /* Bare #post-… and #hub hrefs, caught anywhere on the page.
