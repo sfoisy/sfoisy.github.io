@@ -6495,6 +6495,37 @@ nav{ border-bottom:1px solid var(--nav-rule) }
 @media(max-width:900px){
   video::-webkit-media-text-track-container{ transform:translateY(-2.4em) }
 }
+
+/* ===== THE PHONE MENU IS AN OVERLAY, NOT A ROW ==============================
+   It was `position:sticky` -- which means it is IN the flow, and opening it inserted a
+   200px-tall block between the bar and the article. Everything below moved down by that
+   much, and on this page "everything below" includes a fixed map that measures its own
+   top against the page, a hero sized to the first screen, and a panel positioned from a
+   scripted offset -- all of which re-measured against a page that had just grown a
+   drawer. That is the mess: not the menu, the reflow behind it.
+
+   Fixed, it is over the page instead of in it. Nothing under it moves, nothing
+   re-measures, and closing it puts nothing back because nothing went anywhere. left/right
+   at 0 rather than the desktop rule's negative margin trick, since a fixed element is
+   already measured against the window and has no body padding to cancel.
+
+   AND THE BACK PILL GOES BEHIND IT. Both were sitting on 9991 and the pill is written
+   after the menu in the markup, so it won the tie and floated over the open drawer. One
+   above the other settles it: the menu is the thing you just asked for, so it is on top.
+
+   Phone only. On a desktop the row never opens and the sticky rule is what keeps it
+   under the bar when it does at narrow widths. */
+@media(max-width:700px){
+  .nav-mobile-menu{
+    position:fixed; top:58px; left:0; right:0;
+    margin-left:0; width:auto;
+    padding:.5rem 0 .5rem 1.25rem;
+    z-index:9992;
+    max-height:calc(100dvh - 58px);
+    overflow-y:auto;
+  }
+  .backw{ z-index:9991 }
+}
 </style>
 </head>
 <body class="mode-quick">
