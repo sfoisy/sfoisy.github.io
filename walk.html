@@ -24296,80 +24296,137 @@ body.pg-thin .step-tab .pg-steps{ display:none }
     var d = (r.top - vr.top) + a.f * r.height - a.y;
     if(Math.abs(d) >= 0.5) a.sc.scrollTop += d;
   }
+  /* EVERYTHING snap() AND paintSheet() WRITE, as one snapshot: the sheet's place and width, the
+     pitch, where the ruling starts (--pg-baseoff), the heading and foot bands' fitted sizes, the
+     deck's closing padding, and every block's margins. */
+  function capture(sect, deck, kids){
+    var st = sect.style, ds = deck.style;
+    return {
+      x: parseFloat(st.getPropertyValue('--panel-x')) || 0,
+      w: parseFloat(st.getPropertyValue('--panel-w')) || 0,
+      rule: st.getPropertyValue('--pg-rule'), head: st.getPropertyValue('--pg-headfit'),
+      foot: st.getPropertyValue('--pg-footfit'), base: ds.getPropertyValue('--pg-baseoff'),
+      pb: ds.paddingBottom,
+      mt: kids.map(function(k){ return k.style.marginTop; }),
+      mb: kids.map(function(k){ return k.style.marginBottom; }),
+      pt: kids.map(function(k){ return k.style.paddingTop; }),
+      hk: sect._pgHeadKey, fk: sect._pgFootKey
+    };
+  }
+  function setOrClear(style, prop, v){ if(v) style.setProperty(prop, v); else style.removeProperty(prop); }
+  function apply(sect, deck, kids, S){
+    writeGeom(sect, S.x, S.w);
+    var st = sect.style, ds = deck.style;
+    setOrClear(st, '--pg-rule', S.rule); setOrClear(st, '--pg-headfit', S.head);
+    setOrClear(st, '--pg-footfit', S.foot); setOrClear(ds, '--pg-baseoff', S.base);
+    ds.paddingBottom = S.pb;
+    kids.forEach(function(k, i){ k.style.marginTop = S.mt[i]; k.style.marginBottom = S.mb[i]; k.style.paddingTop = S.pt[i]; });
+    sect._pgHeadKey = S.hk; sect._pgFootKey = S.fk;
+  }
+  function num(v, dflt){ var n = parseFloat(v); return isNaN(n) ? dflt : n; }
+  function mix(a, b, e, dflt){ var A = num(a, dflt), B = num(b, dflt); return A + (B - A) * e; }
+
+  /* ===== THE SHEET GLIDES WITH THE MAP -- AND ARRIVES EXACTLY =================
+     The destination is not guessed at, it is BUILT: before anything moves, the sheet is laid out
+     at its final width and snap() and paintSheet() are run on it exactly as they will be on
+     arrival, everything they write is read back, and the sheet is put straight back as it was --
+     all in one task, so nothing of it is ever painted. Every frame of the glide is then a blend
+     of those two complete, real states: place, width, pitch, where the blue rules start, the
+     bands' type, and each block's spacing. So the blue lines travel with the writing instead of
+     standing still under it, and the last frame IS the finished sheet -- nothing is recomputed
+     on arrival, which is where the little jump at the end came from.
+
+     And because the two ends are exact, going out and coming back are mirror images: the line
+     the reader was on is held at the same height the whole way (holdLine), and a round trip --
+     plot radar, then turn it off -- lands back on the same words. */
+  /* The reader moving the sheet is what retires the held line. A tap is not a move (the radar
+     button is pressed with one), so only the things that scroll count. */
+  function markStale(e){
+    var s = openSect, d = s ? deckOf(s) : null;
+    if(!d) return;
+    if(e.type === 'keydown'){ if(/^(Arrow|Page|Home|End| $)/.test(e.key) || e.key === ' ') s._pgAncStale = true; return; }
+    if(e.type === 'mousedown'){ if(e.target === d) s._pgAncStale = true; return; }   // the scrollbar
+    if(e.target && d.contains(e.target)) s._pgAncStale = true;
+  }
+  ['wheel','touchmove','keydown','mousedown'].forEach(function(n){
+    document.addEventListener(n, markStale, {capture:true, passive:true});
+  });
   window.__pgGlideStart = function(mapLeft){
     var sect = openSect;
     GL = null;
     if(!sect || !document.body.classList.contains('stop-modal') || window.innerWidth < MIN_W) return;
-    var st = sect.style;
-    var fx = parseFloat(st.getPropertyValue('--panel-x')), fw = parseFloat(st.getPropertyValue('--panel-w'));
+    var deck = deckOf(sect);
+    if(!deck) return;
+    var fx = parseFloat(sect.style.getPropertyValue('--panel-x')), fw = parseFloat(sect.style.getPropertyValue('--panel-w'));
     if(!(fw > 0) || isNaN(fx)) return;
     var to = sheetGeom(sect, laneFor(mapLeft));
     if(Math.abs(to.x - fx) < 0.5 && Math.abs(to.w - fw) < 0.5) return;
     clearTimeout(lt);                           // no debounced relayout landing mid-glide
-    GL = { sect:sect, fx:fx, fw:fw, tx:to.x, tw:to.w, p0:null, anc:null };
-    /* THE READER'S LINE STAYS PUT. Everything in the sheet scales together, so a point a given
-       fraction of the way down a block is the same word at every size. The block under a line
-       40% down the sheet's window is taken, with how far down it that line falls, and every
-       frame the sheet is scrolled so that same fraction of that block is back on that line. */
-    var dk = deckOf(sect);
-    if(dk){
-      var vr0 = dk.getBoundingClientRect(), line = vr0.top + vr0.height * 0.4;
-      var ks = dk.children, best = null;
-      for(var q0 = 0; q0 < ks.length; q0++){
-        var kr = ks[q0].getBoundingClientRect();
+
+    var kids = [].slice.call(deck.children).filter(function(k){ return k.nodeType === 1; });
+    var scroll0 = deck.scrollTop;
+
+    /* The line the reader is on: the block under a line 40% down the sheet's window, and how
+       far down that block the line falls. Taken before the dry run below disturbs anything.
+
+       AND KEPT UNTIL THE READER SCROLLS. Near the foot of a stop, the narrower sheet can be too
+       short to put that line where it was -- the scroll simply runs out -- and a glide that
+       re-picked its line from THAT position would carry the shortfall home with it: plot the
+       radar, turn it off, and land a couple of hundred pixels from where you were. So the line
+       is taken once and held by every glide that follows, out and back, until the reader moves
+       the sheet themselves (wheel, touch, keys, the scrollbar -- see markStale). Coming home,
+       the full-width sheet has the room again, and it lands exactly. */
+    var anc = (sect._pgAnc && !sect._pgAncStale && sect._pgAnc.el.isConnected) ? sect._pgAnc : null;
+    if(!anc){
+      var vr0 = deck.getBoundingClientRect(), line = vr0.top + vr0.height * 0.4;
+      for(var q0 = 0; q0 < kids.length; q0++){
+        var kr = kids[q0].getBoundingClientRect();
         if(!kr.height) continue;
-        if(kr.top <= line && kr.bottom >= line){ best = ks[q0]; break; }
-        if(kr.top > line && !best){ best = ks[q0]; break; }
-      }
-      if(best){
-        var br = best.getBoundingClientRect();
-        GL.anc = { sc:dk, el:best, f: br.height ? (line - br.top) / br.height : 0, y: line - vr0.top };
+        if((kr.top <= line && kr.bottom >= line) || kr.top > line){
+          anc = { sc:deck, el:kids[q0], f:(kr.top <= line && kr.height) ? (line - kr.top) / kr.height : 0, y: line - vr0.top };
+          break;
+        }
       }
     }
-    /* THE PITCH TRAVELS TOO. snap() pins it to a whole pixel (see there -- it keeps the ruling
-       from drifting down a long page), and pinned, the type could not follow the width: the lines
-       re-wrapped at the old size all the way across and the size jumped at the end. Unpinning it
-       outright would not do either -- the unrounded value is a fraction of a pixel off the pinned
-       one, and that alone re-wraps a line or two on the first frame. So it is carried from the
-       value it is pinned at now to the whole pixel snap() will pin on arrival, and the type, the
-       leading and the ruling scale with the sheet the whole way, starting and ending exactly
-       where snap() has them. */
-    var r0 = parseFloat(st.getPropertyValue('--pg-rule'));
-    GL.r0 = (r0 > 4) ? r0 : fw * 0.0417;
-    GL.r1 = Math.round(to.w * 0.0417);
-    /* ...AND SO DOES THE SPACING BETWEEN BLOCKS. snap() writes each block's bottom margin in
-       pixels, so that the next block starts on a whole rule. Left alone, those gaps kept their
-       old size while the writing and the pictures shrank or grew around them, and snap() closed
-       or opened them all at once on arrival -- the one movement left at the end. They are
-       scaled with the pitch instead, so every block stays on the ruling the whole way down and
-       arrival has only a fraction of a pixel left to settle. */
-    var deck = deckOf(sect);
-    GL.deck = deck;
-    GL.kids = deck ? [].slice.call(deck.children).filter(function(k){ return k.nodeType === 1; }) : [];
-    GL.mb = GL.kids.map(function(k){ return parseFloat(k.style.marginBottom) || 0; });
-    GL.pb = deck ? (parseFloat(deck.style.paddingBottom) || 0) : 0;
+    sect._pgAnc = anc; sect._pgAncStale = false;
+
+    var S0 = capture(sect, deck, kids);
+    writeGeom(sect, to.x, to.w);
+    sect.style.removeProperty('--pg-rule');     // snap() derives the pitch afresh from the width
+    snap(sect); paintSheet(sect);
+    var S1 = capture(sect, deck, kids);
+    apply(sect, deck, kids, S0);
+    deck.scrollTop = scroll0;                   // the dry run may have clamped it
+
+    GL = { sect:sect, deck:deck, kids:kids, S0:S0, S1:S1, anc:anc, p0:null };
     document.body.classList.add('panel-snap');  // the CSS glide on `left` must not fight this one
   };
   window.__pgGlideFrame = function(p){
     if(!GL) return;
     if(GL.p0 === null) GL.p0 = Math.min(p, 0.999);
     var e = Math.max(0, Math.min(1, (p - GL.p0) / (1 - GL.p0)));
-    writeGeom(GL.sect, GL.fx + (GL.tx - GL.fx) * e, GL.fw + (GL.tw - GL.fw) * e);
-    var r = GL.r0 + (GL.r1 - GL.r0) * e, k = r / GL.r0;
-    GL.sect.style.setProperty('--pg-rule', r.toFixed(3) + 'px');
+    var A = GL.S0, B = GL.S1, st = GL.sect.style, ds = GL.deck.style;
+    writeGeom(GL.sect, A.x + (B.x - A.x) * e, A.w + (B.w - A.w) * e);
+    st.setProperty('--pg-rule', mix(A.rule, B.rule, e, A.w * 0.0417).toFixed(3) + 'px');
+    st.setProperty('--pg-headfit', mix(A.head, B.head, e, 1).toFixed(4));
+    st.setProperty('--pg-footfit', mix(A.foot, B.foot, e, 1).toFixed(4));
+    ds.setProperty('--pg-baseoff', mix(A.base, B.base, e, 0).toFixed(2) + 'px');
+    ds.paddingBottom = mix(A.pb, B.pb, e, 0).toFixed(3) + 'px';
     for(var i = 0; i < GL.kids.length; i++){
-      if(GL.mb[i]) GL.kids[i].style.marginBottom = (GL.mb[i] * k).toFixed(3) + 'px';
+      var k = GL.kids[i].style;
+      if(A.mb[i] || B.mb[i]) k.marginBottom = mix(A.mb[i], B.mb[i], e, 0).toFixed(3) + 'px';
+      if(A.mt[i] || B.mt[i]) k.marginTop = mix(A.mt[i], B.mt[i], e, 0).toFixed(3) + 'px';
     }
-    if(GL.deck && GL.pb) GL.deck.style.paddingBottom = (GL.pb * k).toFixed(3) + 'px';
     holdLine(GL.anc);
     if(window.__placeRails) window.__placeRails();
   };
   window.__pgGlideEnd = function(){
     if(!GL) return;
     var g = GL; GL = null;
-    writeGeom(g.sect, g.tx, g.tw);
-    snap(g.sect); paintSheet(g.sect); paintRails(g.sect);     // the pitch pinned again, the rules on it
+    apply(g.sect, g.deck, g.kids, g.S1);        // the finished sheet, exactly as snap() built it
+    paintRails(g.sect);
     holdLine(g.anc);
+    if(window.__placeRails) window.__placeRails();
     document.body.classList.remove('panel-snap');
   };
 
