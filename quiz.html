@@ -934,6 +934,32 @@ body{ padding-top:74px }
 @media (orientation:landscape) and (max-height:560px){
   body.fs .stamp{ top:auto; bottom:10px }
 }
+
+/* ===== FULL SCREEN, SIDEWAYS: WHERE THE FURNITURE GOES =====================
+   THE CHIP ROW MOVES TO THE TOP LEFT. It lives in the bottom left corner, and the
+   screens put their own buttons -- Leaderboard, Next -- along the bottom of the frame;
+   with the frame only 390px tall those two rows land on each other and the chips, which
+   are drawn later, take the taps meant for Next. Nothing is smaller than it was and
+   nothing is hidden: the row simply goes to the one corner nothing else wants.
+
+   AND THE SCREENS GET THEIR BOTTOM PADDING BACK. It was reserved for the chip row, and
+   the chip row is not down there any more, so it is dead space at the exact height where
+   it is scarcest.
+
+   THE EXIT PILL GETS ROOM. It sits at the top right of the window and the progress bar
+   and question counter run along the top of the frame, so they were within a few pixels
+   of each other. The frame's own top padding opens a lane for it. 52px is the pill's
+   height plus its inset plus a little air.
+   KNOBS: the 52px lane, and the 12px the row is inset from the corner. */
+@media (orientation:landscape) and (max-height:560px){
+  body.fs .ways{
+    top:12px; bottom:auto; left:12px;
+  }
+  body.fs #sPick, body.fs #sPlay, body.fs #sEnd, body.fs #sBoard, body.fs #sRecap{
+    padding-bottom:1rem;
+    padding-top:52px;
+  }
+}
 </style>
 </head>
 <body>

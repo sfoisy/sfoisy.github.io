@@ -1734,6 +1734,37 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
     overflow-y:auto; overscroll-behavior:contain;
   }
 }
+
+/* ===== FULL SCREEN, SIDEWAYS: THE BRIEFING AND THE PILL ====================
+   THE PILL LINES UP WITH THE CORNER BUTTONS. It is fixed to the WINDOW and they are
+   inside the FRAME, and sideways the frame is letterboxed -- 16:9 inside a taller-than-
+   16:9 window -- so "12px from the right edge" put the pill a couple of centimetres
+   outside the row it should sit level with. The calc finds the frame's own right edge:
+   the frame's width is the same min() the .box rule uses, so half the leftover is the
+   letterbox bar, and 10px more is the inset the corner buttons already use.
+   If .box's width formula ever changes, this changes with it -- they are the same three
+   terms and they have to stay that way.
+
+   THE SPEECH BUBBLE STAYS OVER THE PHOTOGRAPH. It is positioned as a fraction of the
+   frame, which on a 16:9 landscape frame lands it in the middle -- on top of the mission
+   card, over the words. On a desktop it sits against the picture, which is what it is
+   pointing at. Pulled back to the left half here, it does the same thing.
+
+   THE CARD KEEPS ITS OWN SIDE. Same proportion as the desktop layout: the photograph on
+   the left, the briefing on the right, and neither over the other.
+   KNOBS: the 46% the bubble is pulled to, and the card's 52%. */
+@media (orientation:landscape) and (max-height:560px){
+  body.fs .fsExit{
+    top:10px;
+    right:calc((100vw - min(1020px, 100vw, calc(100dvh * 16 / 9))) / 2 + 10px);
+  }
+  body.fs #sBrief .card{ width:min(52%, 21rem) }
+  /* .hello is the speech bubble, pinned at left:38% -- which on a tall frame is over the
+     photograph and on a 16:9 one is over the middle, i.e. over the mission card. Back to
+     the picture it is pointing at. (.briefart is the background image and is left alone:
+     it is inset:0 by design and constraining it would crop the photograph itself.) */
+  body.fs .hello{ left:6%; bottom:9%; max-width:38% }
+}
 </style>
 </head>
 <body>

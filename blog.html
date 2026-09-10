@@ -1321,12 +1321,23 @@ html{ scrollbar-gutter:stable }
    KNOBS: --vcap-lift (how far above the bottom edge), and the font size. */
 @media(max-width:900px){
   .vcap-wrap{ position:relative; display:block }
+  /* THE BOX MEASURES THE VIDEO, NOT THE PAGE. A fixed rem size is right for one width
+     and wrong for every other: on a clip sitting in a column of text it was as tall as the
+     picture's own subtitles would be on a cinema screen, while the same value looked
+     correct once the video filled the window. Container units fix the proportion instead
+     of the size -- 4.2cqw is 4.2% of the WRAPPER's width, so the caption is the same
+     fraction of the picture at any size, which is what "the right proportion" means.
+     The clamp keeps it readable on a very small embed and stops it running away on a very
+     large one.
+     The lift is in cqw for the same reason: a caption 3rem off the bottom of a 200px-tall
+     clip is a third of the way up it. */
+  .vcap-wrap{ container-type:inline-size }
   .vcap{
     position:absolute; left:0; right:0;
-    bottom:var(--vcap-lift, 3.1rem);
+    bottom:var(--vcap-lift, clamp(1.4rem, 7cqw, 3.4rem));
     z-index:2; pointer-events:none;
     padding:0 .7rem; text-align:center;
-    font:500 .82rem/1.35 'DM Sans',sans-serif;
+    font:500 clamp(.62rem, 4.2cqw, 1.02rem)/1.35 'DM Sans',sans-serif;
     /* The text carries its own backing rather than the box: a full-width band would sit
        over the picture even on a one-word cue, and the reason captions are set this way
        everywhere is that the backing should be the shape of the words. */
@@ -3393,15 +3404,27 @@ function blogBack(e){
   /* Take the painting off the browser, and keep taking it: our own loader sets 'showing'
      a frame after it attaches a track. 'disabled' is left alone -- that is the CC button
      saying no. */
+  /* IN FULL SCREEN THE BROWSER TAKES IT BACK. Presenting a <video> full screen shows the
+     video element and nothing around it -- our overlay is a sibling, so it simply is not
+     there -- and the browser's own cue rendering is correct at that size anyway, which is
+     the one place it never needed help. So the track goes back to 'showing' whenever this
+     video is the full-screen element, and returns to 'hidden' on the way out. */
+  function isFsVideo(v){
+    var fe = document.fullscreenElement || document.webkitFullscreenElement || null;
+    if(fe && (fe === v || (fe.contains && fe.contains(v)))) return true;
+    return !!v.webkitDisplayingFullscreen;          /* iOS reports it here and nowhere else */
+  }
+
   function claim(v){
     var tt = v.textTracks;
+    var handBack = !onPhone() || isFsVideo(v);
     for(var i = 0; tt && i < tt.length; i++){
       var t = tt[i];
       if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
-      if(onPhone()){
+      if(!handBack){
         if(t.mode === 'showing') t.mode = 'hidden';
       }else if(t.mode === 'hidden' && t._vcapTook){
-        t.mode = 'showing';                          /* handed back on a wide window */
+        t.mode = 'showing';                          /* the browser draws them again */
       }
       if(!t._vcapTook){
         t._vcapTook = true;
@@ -3421,6 +3444,11 @@ function blogBack(e){
     }
     v.addEventListener('loadedmetadata', function(){ claim(v); });
     v.addEventListener('play',           function(){ claim(v); });
+    /* The four names full screen answers to, across the platforms that answer at all. */
+    v.addEventListener('webkitbeginfullscreen', function(){ claim(v); });
+    v.addEventListener('webkitendfullscreen',   function(){ claim(v); });
+    document.addEventListener('fullscreenchange',       function(){ claim(v); });
+    document.addEventListener('webkitfullscreenchange', function(){ claim(v); });
     claim(v);
   }
 
@@ -3448,6 +3476,81 @@ function blogBack(e){
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ sweep(document); });
   else sweep(document);
+})();
+</script>
+<script>
+/* ===== WHAT THE PHONE SHOWS WHILE A CLIP PLAYS =============================
+   Android and iOS both put a media card on the lock screen and in the notification
+   shade while a video is playing, and they fill it in themselves if the page says
+   nothing: the tab's title, the domain, and whatever image they can scrape -- which on
+   this site was some blurred fragment of a page graphic, stretched and unrecognisable
+   behind the controls.
+
+   The Media Session API is the page's chance to say what belongs there instead. Three
+   fields and a picture:
+
+   THE PICTURE IS DRAWN HERE, not fetched. A remote file means a request, a CORS header
+   to get right and a 404 to handle, for an image the reader sees behind a blur at the
+   size of a thumbnail. A canvas gradient in the site's own blues costs none of that,
+   cannot fail, and is exactly what was asked for: a colour rather than a scrap of
+   picture. 512 square because that is the size both platforms ask for, and it is drawn
+   once and remembered.
+
+   THE TITLE is the heading of whichever post is open if there is one, and the page's own
+   title otherwise -- so the card says "Interview #6: Bernadette Woods Placky" rather than
+   "Blog - Syl Foisy".
+
+   Delegated in the capture phase, because `play` does not bubble and the videos here are
+   built as the reader goes.
+   KNOBS: the three gradient stops, and the artist/album lines. */
+(function(){
+  if(!('mediaSession' in navigator) || typeof MediaMetadata !== 'function') return;
+
+  var art = null, tried = false;
+  function artwork(){
+    if(tried) return art;
+    tried = true;
+    try{
+      var c = document.createElement('canvas');
+      c.width = c.height = 512;
+      var g = c.getContext('2d');
+      var lg = g.createLinearGradient(0, 0, 512, 512);
+      lg.addColorStop(0,   '#0a1a33');
+      lg.addColorStop(0.55,'#12386a');
+      lg.addColorStop(1,   '#2160ab');
+      g.fillStyle = lg;
+      g.fillRect(0, 0, 512, 512);
+      art = c.toDataURL('image/png');
+    }catch(e){ art = null; }
+    return art;
+  }
+
+  function titleFor(v){
+    /* The open post's heading, if this video is inside one. */
+    var scope = v.closest ? v.closest('.post, .postview, figure') : null;
+    var h = null;
+    if(scope) h = scope.querySelector('.post-hd, h2, h3');
+    if(!h) h = document.querySelector('#readerBody .post-hd, .post.is-open .post-hd');
+    var t = h && h.textContent ? h.textContent.trim() : '';
+    /* The share button lives inside the heading and contributes no text, but a stray
+       newline from the markup would. */
+    t = t.replace(/\s+/g, ' ');
+    return t || (document.title || 'Syl Foisy');
+  }
+
+  document.addEventListener('play', function(e){
+    var v = e.target;
+    if(!v || v.tagName !== 'VIDEO') return;
+    try{
+      var a = artwork();
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title:  titleFor(v),
+        artist: 'Syl Foisy',
+        album:  'NYC to DC',
+        artwork: a ? [{ src:a, sizes:'512x512', type:'image/png' }] : []
+      });
+    }catch(err){}
+  }, true);
 })();
 </script>
 </body>
