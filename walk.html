@@ -26474,4 +26474,52 @@ function goBack(e){
   }).observe(document.body, {attributes:true, attributeFilter:['class']});
 })();
 </script>
+<script>
+/* ===== THE PHONE MENU CLOSES WHEN THE PAGE MOVES ============================
+   It is fixed to the top of the window (see the .nav-mobile-menu rule for why -- it used
+   to be in the flow and opening it shoved the whole article down). Fixed, it stays put
+   while the page scrolls under it, which is right for the bar and wrong for a menu: you
+   scrolled, so you have moved on, and the drawer is sitting over the thing you moved on
+   to.
+
+   A menu is a decision, and scrolling is the decision not to make it. So the page moving
+   closes it -- the same rule a native app follows.
+
+   THE 10px THRESHOLD is not politeness, it is necessary: tapping the hamburger on some
+   phones settles the address bar by a pixel or two, which fires a scroll event in the
+   same breath as the open. Closing on that would make the menu look broken. Anything
+   that small is the browser, not the reader.
+
+   Passive, and it does nothing at all unless the menu is open -- so on every other scroll
+   of a very long page this is one class check.
+
+   toggleMenu() rather than reaching into the classes: it owns both halves, the drawer and
+   the hamburger's cross, and they have to move together. */
+(function(){
+  var PHONE = window.matchMedia ? window.matchMedia('(max-width:700px)') : null;
+  function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 700); }
+
+  var SLOP = 10;                     /* KNOB: px of scroll to ignore, ms of settle */
+  var openedAt = 0;
+
+  function isOpen(){
+    var m = document.getElementById('mobileMenu');
+    return !!(m && m.classList.contains('open'));
+  }
+
+  /* Remember where the page was when it opened. Capture phase so this runs before the
+     inline onclick that does the opening -- the reading is then the scroll position from
+     BEFORE the drawer existed, which is the one to measure against. */
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('.nav-hamburger') : null;
+    if(b) openedAt = window.pageYOffset || 0;
+  }, true);
+
+  window.addEventListener('scroll', function(){
+    if(!isOpen() || !onPhone()) return;
+    if(Math.abs((window.pageYOffset || 0) - openedAt) < SLOP) return;
+    if(typeof toggleMenu === 'function') toggleMenu();
+  }, {passive:true});
+})();
+</script>
 </body></html>

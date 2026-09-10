@@ -557,7 +557,22 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
    the site's serif still belongs. */
 /* Type comes from the shared rule above; all that is left here is where it
    sits. */
-.post-hd{ text-align:center; margin:0 0 .4rem }
+/* ONE HEIGHT FOR EVERY TITLE, so everything under it starts at the same y. The arrows
+   are centred on the video and the video sits under the title -- so a name that wraps to
+   two lines (Bernadette Woods Placky is the long one) pushed the whole stage down and the
+   arrows moved with it. Stepping between interviews then looked like the controls jumping
+   about, which is the one thing a next/previous pair must not do.
+
+   Two lines of room, always: 2 x 1.02 line-height plus a hair. A one-line name sits at the
+   TOP of that box rather than floating in the middle of it -- so the gap it leaves falls
+   between the title and the date, which reads as ordinary spacing, and not above the
+   title, which would read as the heading having slipped.
+
+   fitHeading() shrinks a name that would run to three lines, so two is the ceiling and
+   this is the whole range.
+   KNOB: the 2.14em. If the clamp on .post-hd's font-size changes, this does not need to
+   -- it is in em, so it tracks whatever size the heading ends up at. */
+.post-hd{ text-align:center; margin:0 0 .4rem; min-height:2.14em }
 /* When it was filmed. Under the name and much quieter than it -- a dateline,
    not a second heading. This is the one fact the title card does not carry,
    which is why it survived the caption being cut. */
@@ -1120,9 +1135,16 @@ video:fullscreen::cue{
    KNOB: --step-row, the height of that row. The stage's padding and the buttons'
    offset both come off it, so one value moves both and they cannot drift apart. */
 @media(max-width:900px){
-  .post-stage{ --step-row:2.9rem; padding-top:var(--step-row) }
+  /* BELOW THE PICTURE, not above it. They were above for a round, on the reasoning that
+     the row should not come between the clip and the writing under it -- but above the
+     video is where the title and the date already are, and three things stacked over a
+     picture pushed the picture itself off the first screen. Below, the row lands where a
+     thumb is anyway once you have watched, and the reading order is right: title, date,
+     clip, and then the way to the next one.
+     The stage pads its foot instead of its head; the buttons hang from bottom:0. */
+  .post-stage{ --step-row:2.9rem; padding-top:0; padding-bottom:var(--step-row) }
   .post-stage .post-step{
-    top:0; transform:none;
+    top:auto; bottom:0; transform:none;
     width:2.15rem; height:2.15rem;
     background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.55);
   }
