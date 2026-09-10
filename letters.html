@@ -1830,6 +1830,42 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
     max-width:calc(240 * var(--u));
   }
 }
+
+/* ===== A PHONE HELD UPRIGHT: THE CONTROLS SIT ABOVE THE FRAME ================
+   Upright, the frame is a 16:9 strip about 200px tall with a quarter of the screen empty above
+   it -- and the corner buttons (music, sound, share, the route menu) were sitting INSIDE that
+   strip, over the picture. They move out, into a row on top of the frame, and the empty space
+   above that row gets the way into full screen: the same "Play in full screen" pill the phone
+   shows when it is turned sideways. The little full-screen square in the corner row goes --
+   the pill is the one way in, and one is enough.
+   The row is the same #corner element, moved by the script at the foot of the page, so every
+   button keeps its handler and every screen that shows or hides the group still does. The
+   row holds its height when the group is hidden, so the frame does not jump between screens.
+   The pill only appears where full screen actually exists (html.can-fs), as the old button did.
+   Upright phones only; sideways, full screen and desktop are untouched.
+   KNOBS: the 12px gap and the 30px row height. */
+.phoneTop{ display:none }
+@media (max-width:700px) and (orientation:portrait){
+  .phoneTop{
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    width:min(100%, 560px); flex:0 0 auto;
+    /* Positioned, like .box: body::before is the page's fixed black backdrop at z-index 0, and
+       anything left in the ordinary flow paints underneath it. */
+    position:relative; z-index:1;
+  }
+  .phoneTopRow{ display:flex; justify-content:center; min-height:30px; width:100% }
+  .phoneTopRow .corner{ position:static; top:auto; right:auto; gap:8px }
+  .fsPlay{ display:none }
+  html.can-fs body:not(.fs) .fsPlay{
+    display:inline-flex; align-items:center; gap:.6rem;
+    padding:.85rem 1.6rem; border-radius:999px; cursor:pointer;
+    border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08);
+    color:#fff; font:800 .92rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  }
+  html.can-fs body:not(.fs) .fsPlay:hover{ background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.55) }
+  .fsPlay svg{ width:16px; height:16px }
+  .fsBtn, html.can-fs .fsBtn{ display:none !important }
+}
 </style>
 </head>
 <body>
@@ -1876,6 +1912,17 @@ function toggleMenu(){
   b.classList.toggle('active');
 }
 </script>
+
+<!-- Upright phones only: the way into full screen, and the row the corner buttons move into.
+     See ".phoneTop" in the stylesheet and the script at the foot of the page. -->
+<div class="phoneTop" id="phoneTop">
+  <button class="fsPlay" type="button" onclick="fsEnter()">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+    Play in full screen
+  </button>
+  <div class="phoneTopRow" id="phoneTopRow"></div>
+</div>
 
 <div class="box" id="box">
   <canvas id="cv" width="960" height="540"></canvas>
@@ -11463,6 +11510,34 @@ function goBack(e){
   window.fsEnter = enter;
   window.fsLeave = leave;
   sync();
+})();
+</script>
+
+
+<script>
+/* ===== THE CORNER BUTTONS, ABOVE THE FRAME ON AN UPRIGHT PHONE =============
+   The same #corner element, moved rather than copied: every button keeps its listener, and
+   screen() goes on showing and hiding the group by its class wherever it is. Moved into
+   #phoneTopRow while the phone is upright, and put back exactly where it came from -- inside
+   the frame, before the title screen -- the moment it is not (turned sideways, or a desktop
+   window widened past 700px). See ".phoneTop" in the stylesheet. */
+(function(){
+  var corner = document.getElementById('corner');
+  var row = document.getElementById('phoneTopRow');
+  if(!corner || !row || !window.matchMedia) return;
+  var home = corner.parentNode, next = corner.nextSibling;
+  var mq = window.matchMedia('(max-width:700px) and (orientation:portrait)');
+  function place(){
+    if(mq.matches){
+      if(corner.parentNode !== row) row.appendChild(corner);
+    }else if(corner.parentNode !== home){
+      if(next && next.parentNode === home) home.insertBefore(corner, next);
+      else home.appendChild(corner);
+    }
+  }
+  if(mq.addEventListener) mq.addEventListener('change', place);
+  else if(mq.addListener) mq.addListener(place);
+  place();
 })();
 </script>
 
