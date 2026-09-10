@@ -17147,6 +17147,20 @@ video.cue-native::cue{
    "FULL SCREEN AND BACK, TO THE PIXEL". */
 html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:none !important }
 
+/* ===== A PHONE'S OPEN STOP IS JUSTIFIED, LIKE THE DESKTOP'S =================
+   The desktop panel sets its paragraphs justified with hyphenation (see "JUSTIFIED, NOT
+   CENTRED" with the ruled-paper rules); a phone's open stop was ragged on the right. The same
+   two declarations here, for the same paragraphs -- the prose in an open stop's body. The
+   same exceptions as the desktop keep theirs: the weather buttons (.wx-poke-wrap) and the day
+   break are not prose, and lists are left as they are.
+   Hyphenation is what keeps justify from opening rivers of white on a column this narrow. */
+@media(max-width:700px){
+  .j-sect.is-open .j-body > p:not(.wx-poke-wrap):not(.day-break){
+    text-align:justify !important;
+    -webkit-hyphens:auto; hyphens:auto;
+  }
+}
+
 .vshare-btn{position:absolute;top:8px;right:8px;z-index:5;width:25px;height:25px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .2s,transform .2s}
 .vshare-btn svg{width:12px;height:12px;display:block}
 .vshare-btn:hover{background:rgba(0,0,0,.82);transform:scale(1.12)}

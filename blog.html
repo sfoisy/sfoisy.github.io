@@ -1203,8 +1203,8 @@ html{ scrollbar-gutter:stable }
 
 /* ===== PHONE-ONLY REPAIRS ==================================================
 
-   THE CAPTIONS ARE DRAWN BY THIS PAGE on a phone -- see the .vcap rules at the end of
-   this stylesheet, which replaced the attempt that used to live here.
+   THE CAPTIONS on a phone are the same strip as everywhere else -- see .vcap and
+   "Captions that keep up with the control bar".
 
    THE FOOTER CENTRES. Its two lines are pushed to opposite ends of the bar, which
    works while the bar is wide; on a phone the name is jammed against the left edge
@@ -1296,60 +1296,42 @@ html{ scrollbar-gutter:stable }
   .nav-mobile-menu{ background:var(--nav-solid) !important }
 }
 
-/* ===== CAPTIONS ON A PHONE ARE DRAWN BY THIS PAGE ===========================
-   Every previous attempt tried to move the browser's own cue box with a transform on
-   video::-webkit-media-text-track-container, and every one of them failed for the same
-   reason: that box is in the video's shadow DOM and the browser repositions it whenever
-   it feels like it -- when the controls appear, when they hide, when a new cue starts.
-   A transform from outside is a suggestion the browser overwrites, which is exactly what
-   the flicker was: our lift, then the browser putting it back, several times a second.
+/* (The phone had a caption layer of its own here -- a second .vcap, in a .vcap-wrap the
+   script wedged around every video, sized in cqw (about 16px on a phone) and parked at one
+   height. It is gone. Phones use the same strip as every other width -- see .vcap above and
+   "Captions that keep up with the control bar" -- with a phone size and a phone's control
+   bar of its own. Same fix as walk.html.) */
 
-   So on a phone the page stops asking. The text track is switched to `hidden`, which
-   keeps the cues firing and stops the browser painting them, and the cue text is drawn
-   into an ordinary <div> laid over the video. From there its position is a CSS rule like
-   any other and nothing can move it.
+/* The browser's own cues, for a video full screen by a route that does not match :fullscreen
+   -- Safari's player among them. The class is set by "THE TRACK, ON A PHONE" at the foot of the
+   page, only while the bare video (not the caption wrapper) has the screen. */
+video:-webkit-full-screen::cue{
+  opacity:1; background:rgba(0,0,0,.74); color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif; font-weight:500;
+  font-size:63%; line-height:1.34;
+}
+video.cue-native::cue{
+  opacity:1; background:rgba(0,0,0,.74); color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif; font-weight:500;
+  font-size:63%; line-height:1.34;
+}
 
-   WHERE IT SITS: clear of the control bar, always. Not "up while the bar is showing" --
-   that was the old design and it needed to know something the page cannot know. One
-   position that clears the bar in both states is stable, and because this box is ours it
-   can sit much closer to the bottom edge than the browser's own ever did, so it does not
-   look stranded when the controls are hidden.
-
-   Desktop is untouched. Everything here is inside the phone query and the script leaves
-   the track alone above that width, so the browser goes on doing what it already does
-   correctly there.
-   KNOBS: --vcap-lift (how far above the bottom edge), and the font size. */
-@media(max-width:900px){
-  .vcap-wrap{ position:relative; display:block }
-  /* THE BOX MEASURES THE VIDEO, NOT THE PAGE. A fixed rem size is right for one width
-     and wrong for every other: on a clip sitting in a column of text it was as tall as the
-     picture's own subtitles would be on a cinema screen, while the same value looked
-     correct once the video filled the window. Container units fix the proportion instead
-     of the size -- 4.2cqw is 4.2% of the WRAPPER's width, so the caption is the same
-     fraction of the picture at any size, which is what "the right proportion" means.
-     The clamp keeps it readable on a very small embed and stops it running away on a very
-     large one.
-     The lift is in cqw for the same reason: a caption 3rem off the bottom of a 200px-tall
-     clip is a third of the way up it. */
-  .vcap-wrap{ container-type:inline-size }
-  .vcap{
-    position:absolute; left:0; right:0;
-    bottom:var(--vcap-lift, clamp(1.4rem, 7cqw, 3.4rem));
-    z-index:2; pointer-events:none;
-    padding:0 .7rem; text-align:center;
-    font:500 clamp(.62rem, 4.2cqw, 1.02rem)/1.35 'DM Sans',sans-serif;
-    /* The text carries its own backing rather than the box: a full-width band would sit
-       over the picture even on a one-word cue, and the reason captions are set this way
-       everywhere is that the backing should be the shape of the words. */
-    color:transparent;
+/* ===== ON A PHONE THE THREE FRONT-PAGE CARDS STAY IN ONE ROW ==================
+   Stacked, they were three screenfuls of thumbnail for three doors. On a phone -- upright, or
+   sideways, which no width rule reaches -- they stay three across and shrink to fit, the row a
+   desktop shows. Gaps and date come down with them so the date still fits under a card a third
+   of the screen wide. index.html's #blog does the same at the same widths, so pressing "See
+   all blog posts" still arrives somewhere that looks like where you pressed it.
+   The wall of fourteen is untouched. KNOBS: the .6rem gap and the date's .56rem. */
+@media(max-width:700px), (orientation:landscape) and (max-height:560px){
+  .card-grid.index-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:.6rem; row-gap:.6rem;
+    max-width:none; width:100%;
   }
-  .vcap b{
-    display:inline; font-weight:500;
-    background:rgba(0,0,0,.72); color:#fff;
-    padding:.12em .34em; border-radius:3px;
-    box-decoration-break:clone; -webkit-box-decoration-break:clone;
-  }
-  .vcap:empty{ display:none }
+  .card-grid.index-grid .card-cover{ border-radius:.4rem }
+  .card-grid.index-grid .card-date{ font-size:.56rem; letter-spacing:.05em; line-height:1.3 }
+  .card-grid.index-grid .card-date-below{ margin-top:.4rem }
 }
 </style>
 </head>
@@ -2538,6 +2520,23 @@ function fitHeading(h){
   var LEAVE_MS = 200;   // KNOB: and once the pointer is off the video, which is how
                         // a clip is actually watched. This reads as "immediately".
 
+  /* ---- PHONES (the same numbers as walk.html) ----------------------------------------------
+     The type on a phone is sized off the picture's WIDTH, not its height: a 16:9 clip in a
+     390px column is about 220px tall, and every height-based number that reads well on a
+     desktop comes out either unreadable or, once clamped, the old 16px. KNOBs: fraction, clamps. */
+  var PH_FS_FRAC = 0.03, PH_FS_MIN = 9, PH_FS_MAX = 11.5;
+  var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+  /* KNOB: how long a phone's player keeps its controls up after a tap (about 3s on both). */
+  var TOUCH_MS = 3000;
+  /* KNOB: how far up an inline clip a phone's control row reaches, in px -- the time, the
+     speaker, the full-screen corner. 54 clears them. */
+  var PH_BAR_H = 54;
+  /* A finger-first device starts in the touch model: the play curtain is pressed, not the
+     video, so the video may not have been touched yet when the bar first comes up. */
+  var COARSE = window.matchMedia ? window.matchMedia('(hover:none) and (pointer:coarse)') : null;
+  /* Safari, desktop and iOS, and every iOS browser (all WebKit there). See fs(). */
+  var APPLE = /Apple/i.test(navigator.vendor || '');
+
   function strip(t){
     // VTT allows markup in a cue -- <v Speaker>, <i>, timestamps. None is wanted.
     return String(t || '').replace(/<[^>]*>/g, '');
@@ -2575,7 +2574,16 @@ function fitHeading(h){
       var gap  = Math.max(8, Math.min(16, h * 0.037));
       box.style.setProperty('--vcap-rest', Math.round(rest) + 'px');
       box.style.setProperty('--vcap-bar',  Math.round(bar + gap) + 'px');
-      box.style.setProperty('--vcap-fs',   Math.round(Math.max(9, Math.min(52, h * 0.0357))) + 'px');
+      var fsz = Math.max(9, Math.min(52, h * 0.0357));
+      /* A phone, and the clip inline -- not the wrapper full screen, where the picture is the
+         whole screen and the numbers above are already right. */
+      var fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
+      if(PHONE && PHONE.matches && fsEl !== wrap){
+        var w = v.getBoundingClientRect().width || 0;
+        if(w) fsz = Math.max(PH_FS_MIN, Math.min(PH_FS_MAX, w * PH_FS_FRAC));
+        box.style.setProperty('--vcap-bar', Math.round(PH_BAR_H + Math.max(6, Math.min(12, h * 0.037))) + 'px');
+      }
+      box.style.setProperty('--vcap-fs', (Math.round(fsz * 2) / 2) + 'px');
     }
     measure();
     window.addEventListener('resize', measure, {passive:true});
@@ -2603,16 +2611,29 @@ function fitHeading(h){
        pointer OFF the bar goes almost at once, and that is how a clip is
        actually watched. So the pointer is tracked and the two are timed apart. */
     var lastAct = 0, timer = null, over = false;
+    /* A FINGER IS NOT A POINTER. A touch "leaves" the instant it lifts -- pointerleave fires
+       straight after every tap -- so under the mouse model the caption dropped a fifth of a
+       second after the controls came up and sat on them for the next three seconds. A phone's
+       player works like this instead: a tap brings the bar up for about three seconds, a thumb
+       on the bar keeps it up, and paused it is always up. */
+    var touchMode = !!(COARSE && COARSE.matches), touchUntil = 0, tDown = null;
+    function showFor(){ touchUntil = performance.now() + TOUCH_MS; }
+    function barReach(){ return parseFloat(box.style.getPropertyValue('--vcap-bar')) || (BAR_H + 8); }
     function barOn(){
       if(v._vcapFS) return false;          // the browser is drawing; its layer handles this
       if(v.paused || v.ended) return true; // paused always shows the bar
+      if(touchMode) return performance.now() < touchUntil;
       return (performance.now() - lastAct) < (over ? HIDE_MS : LEAVE_MS);
     }
     function paint(){
       /* 'showing' IS the reader saying yes; anything else is the reader saying no. */
       var cues = null;
       for(var i = 0; i < tt.length; i++){
-        if(tt[i].mode === 'showing' && tt[i].activeCues && tt[i].activeCues.length){ cues = tt[i].activeCues; break; }
+        /* 'hidden' counts as yes when WE hid it -- the phone, where the track is set to hidden
+           so the browser paints nothing inline (see "THE TRACK, ON A PHONE"). _vcapTook is
+           that script's mark. Turned off by the reader, a track is 'disabled' either way. */
+        var md = tt[i].mode;
+        if((md === 'showing' || (md === 'hidden' && tt[i]._vcapTook)) && tt[i].activeCues && tt[i].activeCues.length){ cues = tt[i].activeCues; break; }
       }
       /* ONE LINE PER CUE, not one per line of the cue. An .srt carries its own
          breaks -- wherever the transcriber's box happened to end -- written for a
@@ -2643,14 +2664,62 @@ function fitHeading(h){
       if(timer) clearTimeout(timer);
       // Repaint exactly as the bar goes, rather than waiting for whatever
       // happens next -- against whichever timeout is currently in force.
-      timer = setTimeout(paint, (over ? HIDE_MS : LEAVE_MS) + 30);
+      var wait = touchMode ? Math.max(0, touchUntil - performance.now()) : (over ? HIDE_MS : LEAVE_MS);
+      timer = setTimeout(paint, wait + 30);
     }
-    ['pointermove','pointerdown','pointerenter','touchstart'].forEach(function(e){
-      v.addEventListener(e, function(){ over = true; act(); }, {passive:true});
+    // The mouse (and a pen). Touch pointers are left to the touch handlers below.
+    function mouseish(e){ return !e.pointerType || e.pointerType === 'mouse' || e.pointerType === 'pen'; }
+    ['pointermove','pointerdown','pointerenter'].forEach(function(n){
+      v.addEventListener(n, function(e){ if(!mouseish(e)) return; touchMode = false; over = true; act(); }, {passive:true});
     });
-    v.addEventListener('pointerleave', function(){ over = false; act(); }, {passive:true});
-    ['play','pause','seeking','seeked','ended','volumechange'].forEach(function(e){
-      v.addEventListener(e, function(){ act(); });
+    v.addEventListener('pointerleave', function(e){ if(!mouseish(e)) return; over = false; act(); }, {passive:true});
+    // The finger.
+    v.addEventListener('touchstart', function(e){
+      touchMode = true;
+      var t = e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      var r = v.getBoundingClientRect();
+      tDown = { x:t.clientX, y:t.clientY, t:performance.now(), inBar:(r.bottom - t.clientY) <= barReach() };
+      if(tDown.inBar && barOn()){ showFor(); act(); }        // a thumb on the controls keeps them up
+    }, {passive:true});
+    v.addEventListener('touchmove', function(){
+      if(tDown && tDown.inBar){ showFor(); act(); }          // dragging the scrubber
+    }, {passive:true});
+    v.addEventListener('touchend', function(e){
+      var d = tDown; tDown = null;
+      var t = d && e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      // A drag (scrolling past the clip) or a long press is not a tap.
+      if(Math.abs(t.clientX - d.x) > 12 || Math.abs(t.clientY - d.y) > 12 || performance.now() - d.t > 700) return;
+      showFor();                         // a tap the page sees is a tap on a clip with its bar down
+      act();
+    }, {passive:true});
+    v.addEventListener('touchcancel', function(){ tDown = null; }, {passive:true});
+    /* THE TAP THE PLAYER KEEPS. With its controls up, Chrome's player takes a tap for itself:
+       the page sees pointerenter and pointerleave and nothing between. What it then does with
+       the bar cannot be seen from here, so it is read as the safe thing -- a hand on the
+       controls, bar up for another stretch. A button that plays, pauses or seeks fires its own
+       media event first, and that has already said what the bar is doing. */
+    var tEnter = null, mediaTick = 0;
+    v.addEventListener('pointerenter', function(e){
+      if(e.pointerType === 'touch') tEnter = { t:performance.now(), down:false };
+    }, {passive:true});
+    v.addEventListener('pointerdown', function(e){
+      if(e.pointerType === 'touch' && tEnter) tEnter.down = true;
+    }, {passive:true});
+    v.addEventListener('pointerleave', function(e){
+      if(e.pointerType !== 'touch') return;
+      var d = tEnter; tEnter = null;
+      if(!d || d.down || performance.now() - d.t > 700) return;
+      touchMode = true;
+      var tick = mediaTick;
+      setTimeout(function(){ if(tick !== mediaTick) return; showFor(); act(); }, 80);
+    }, {passive:true});
+    ['play','seeking','seeked'].forEach(function(n){
+      v.addEventListener(n, function(){ mediaTick++; if(touchMode) showFor(); act(); });
+    });
+    ['pause','ended','volumechange'].forEach(function(n){
+      v.addEventListener(n, function(){ mediaTick++; act(); });
     });
     for(var j = 0; j < tt.length; j++) tt[j].addEventListener('cuechange', paint);
     v.addEventListener('timeupdate', paint);   // cuechange can be missed on a seek
@@ -2668,7 +2737,11 @@ function fitHeading(h){
        while already in full screen needs no second gesture. */
     function fs(){
       var fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
-      if(fsEl === v && wrap.requestFullscreen && !v._vcapSwap){
+      /* NOT ON SAFARI. WebKit does not move full screen from one element to another in place:
+         it animates all the way out and back in, so the swap was two full-screen transitions
+         for one press. A bare full-screen <video> there gets the browser's own captions (see
+         video.cue-native), which is what iOS has always had. */
+      if(fsEl === v && wrap.requestFullscreen && !v._vcapSwap && !APPLE){
         v._vcapSwap = true;
         try{
           Promise.resolve(wrap.requestFullscreen())
@@ -3327,126 +3400,61 @@ function blogBack(e){
 }
 </script>
 <script>
-/* ===== CAPTIONS, DRAWN BY THE PAGE, ON PHONES ONLY =========================
-   See the .vcap rules in the stylesheet for why: the browser's cue box cannot be moved
-   from outside the shadow DOM and undoes anything the page does to it. This takes the
-   painting over instead.
+/* ===== THE TRACK, ON A PHONE ================================================
+   This used to be a second caption layer: it wrapped every video in a .vcap-wrap, drew the
+   cues into a box of its own at one fixed height, and set the type in cqw -- about 16px on a
+   phone. It also quietly starved the real strip, which only paints a track it is allowed to,
+   and got there first: the wrapper it added meant the strip's own setup never found the
+   .vp-wrap it looks for. So every change to the caption size and the control-bar glide went
+   into a strip nobody could see. Same fix as walk.html: the painting is gone.
 
-   HOW IT HANGS TOGETHER
-   - `hidden` on the track, not `disabled`. Hidden keeps cuechange firing and activeCues
-     populated while stopping the browser drawing anything. Disabled would stop both.
-   - The overlay is a sibling of the <video> inside a wrapper this adds, because a <div>
-     cannot go inside a <video>. The wrapper takes the video's place in the DOM and the
-     video moves into it, so nothing else that was pointing at the video is disturbed.
-   - Delegated and observed, because the videos on this site do not exist at load: the
-     blog builds one when a post opens and the walk builds them as you scroll.
-   - `change` on the track list is the important listener. Our own caption loader sets
-     mode to 'showing' a frame after it attaches a track, and the CC button in the native
-     controls sets it too -- so this cannot set 'hidden' once and walk away. It re-asserts
-     on every change, and it respects the one state that means the reader has spoken:
-     `disabled`, which is what the CC button produces when it turns captions off.
+   What is left is what a phone genuinely needs: the browser must paint NOTHING of its own over
+   an inline clip, and must paint its captions in its own full-screen player. On a phone the
+   track is switched to `hidden` -- cues keep firing, nothing is drawn -- and marked _vcapTook,
+   which tells the strip it may paint it. In full screen it goes back to `showing`, and comes
+   back to `hidden` on the way out. `disabled` (the reader turning captions off) is left alone.
 
-   Above 900px none of this runs and the track is left showing, which is what desktop
-   already does correctly. */
+   And while a bare video has the screen, it wears .cue-native, so the stylesheet shows the
+   browser's own cues there even on a player that does not match :fullscreen. */
 (function(){
   var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
   function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 900); }
 
-  function esc(t){
-    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  /* The box, and the wrapper it needs. Both are made once per video and remembered on
-     the element, so this is safe to call as often as it likes. */
-  function boxFor(v){
-    if(v._vcapBox && v._vcapBox.isConnected) return v._vcapBox;
-    var parent = v.parentNode;
-    if(!parent) return null;
-    var wrap = parent.classList && parent.classList.contains('vcap-wrap') ? parent : null;
-    if(!wrap){
-      wrap = document.createElement('div');
-      wrap.className = 'vcap-wrap';
-      parent.insertBefore(wrap, v);
-      wrap.appendChild(v);
-    }
-    var box = wrap.querySelector(':scope > .vcap');
-    if(!box){
-      box = document.createElement('div');
-      box.className = 'vcap';
-      box.setAttribute('aria-hidden', 'true');   /* the track itself is what a reader hears */
-      wrap.appendChild(box);
-    }
-    v._vcapBox = box;
-    return box;
-  }
-
-  function paint(v){
-    var box = v._vcapBox;
-    if(!box) return;
-    if(!onPhone()){ box.innerHTML = ''; return; }
-    var tt = v.textTracks, out = [];
-    for(var i = 0; tt && i < tt.length; i++){
-      var t = tt[i];
-      if(t.mode === 'disabled') continue;           /* reader turned captions off */
-      var cues = t.activeCues;
-      for(var j = 0; cues && j < cues.length; j++){
-        var txt = cues[j].text;
-        /* String.fromCharCode(10) rather than a backslash-n literal: this file is
-           generated and re-generated, and an escape is one round of quoting away from
-           becoming a real line break inside a string, which is a syntax error that
-           takes the whole script with it. A character code cannot be mangled. */
-        if(txt) out.push(esc(txt).split(String.fromCharCode(10)).join('<br>'));
-      }
-    }
-    box.innerHTML = out.length ? '<b>' + out.join('</b><br><b>') + '</b>' : '';
-  }
-
-  /* Take the painting off the browser, and keep taking it: our own loader sets 'showing'
-     a frame after it attaches a track. 'disabled' is left alone -- that is the CC button
-     saying no. */
-  /* IN FULL SCREEN THE BROWSER TAKES IT BACK. Presenting a <video> full screen shows the
-     video element and nothing around it -- our overlay is a sibling, so it simply is not
-     there -- and the browser's own cue rendering is correct at that size anyway, which is
-     the one place it never needed help. So the track goes back to 'showing' whenever this
-     video is the full-screen element, and returns to 'hidden' on the way out. */
+  function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
   function isFsVideo(v){
-    var fe = document.fullscreenElement || document.webkitFullscreenElement || null;
+    var fe = fsEl();
     if(fe && (fe === v || (fe.contains && fe.contains(v)))) return true;
     return !!v.webkitDisplayingFullscreen;          /* iOS reports it here and nowhere else */
   }
 
   function claim(v){
+    var fe = fsEl();
+    v.classList.toggle('cue-native', fe === v || (!fe && !!v.webkitDisplayingFullscreen));
     var tt = v.textTracks;
     var handBack = !onPhone() || isFsVideo(v);
     for(var i = 0; tt && i < tt.length; i++){
       var t = tt[i];
       if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
       if(!handBack){
-        if(t.mode === 'showing') t.mode = 'hidden';
+        if(t.mode === 'showing'){ t._vcapTook = true; t.mode = 'hidden'; }
       }else if(t.mode === 'hidden' && t._vcapTook){
         t.mode = 'showing';                          /* the browser draws them again */
       }
-      if(!t._vcapTook){
-        t._vcapTook = true;
-        t.addEventListener('cuechange', function(){ paint(v); });
-      }
     }
-    paint(v);
   }
 
   function bind(v){
     if(v._vcapBound) return;
     v._vcapBound = true;
-    boxFor(v);
     if(v.textTracks && v.textTracks.addEventListener){
       v.textTracks.addEventListener('addtrack', function(){ claim(v); });
       v.textTracks.addEventListener('change',   function(){ claim(v); });
     }
     v.addEventListener('loadedmetadata', function(){ claim(v); });
     v.addEventListener('play',           function(){ claim(v); });
-    /* The four names full screen answers to, across the platforms that answer at all. */
     v.addEventListener('webkitbeginfullscreen', function(){ claim(v); });
     v.addEventListener('webkitendfullscreen',   function(){ claim(v); });
+    v.addEventListener('webkitpresentationmodechanged', function(){ claim(v); });
     document.addEventListener('fullscreenchange',       function(){ claim(v); });
     document.addEventListener('webkitfullscreenchange', function(){ claim(v); });
     claim(v);
@@ -3457,8 +3465,8 @@ function blogBack(e){
     for(var i = 0; i < list.length; i++) bind(list[i]);
   }
 
-  /* The videos are built as the reader goes, so watching for them is the only way to
-     catch them all. Subtree-wide, attributes off: this is looking for one tag name. */
+  /* The videos on this page do not exist at load: a post is cloned into the reader when it
+     opens. So watch for them. Subtree-wide, attributes off: this is looking for one tag. */
   new MutationObserver(function(muts){
     for(var i = 0; i < muts.length; i++){
       var added = muts[i].addedNodes;
@@ -3466,13 +3474,16 @@ function blogBack(e){
         var n = added[j];
         if(n.nodeType !== 1) continue;
         if(n.tagName === 'VIDEO') bind(n);
-        else sweep(n);
+        else if(n.querySelector && n.querySelector('video')) sweep(n);
       }
     }
   }).observe(document.documentElement, {childList:true, subtree:true});
 
-  /* And on a rotate or a resize across the boundary, hand the job back or take it on. */
-  if(PHONE && PHONE.addEventListener) PHONE.addEventListener('change', function(){ sweep(document); });
+  /* A rotate across the line: take the job on or hand it back. */
+  if(PHONE && PHONE.addEventListener) PHONE.addEventListener('change', function(){
+    var list = document.querySelectorAll('video');
+    for(var i = 0; i < list.length; i++) claim(list[i]);
+  });
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ sweep(document); });
   else sweep(document);

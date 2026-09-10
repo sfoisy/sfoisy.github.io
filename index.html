@@ -144,7 +144,10 @@ h1 em{color:#a89fd8;font-style:italic}
 .sky-divider-tall img{height:auto;object-fit:unset}
 
 /* SECTIONS */
-section{padding:2.5rem 4rem;scroll-margin-top:58px}
+/* No scroll-margin here. The 58px for the bar is already on <html> as scroll-padding-top, and
+   the two ADD: with both, every jump parked the section 116px down -- the bar, then another
+   bar's height of the section above showing under it. One of them is the bar's height. */
+section{padding:2.5rem 4rem}
 .section-label{font-size:.7rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:.5rem;display:block}
 .section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;color:var(--deep);line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem}
 .section-sub{font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;max-width:640px}
@@ -532,6 +535,25 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
   .card-grid{grid-template-columns:1fr;max-width:420px}
   /* Nothing to stack any more -- see the note on .news-list li. The line simply
      wraps, and the leader stays where it is, inside it. */
+}
+
+/* ===== ON A PHONE THE THREE CARDS STAY IN ONE ROW ===========================
+   Stacked one above another they were three screenfuls of thumbnail for three links, and the
+   section read as a gallery rather than a doorway. On a phone -- held upright, or sideways,
+   which no width rule reaches -- they stay three across and shrink to fit instead, the same
+   row the desktop shows. The gaps and the date come down with them so a date still fits
+   under a card a third of the screen wide; the hover wash and its label are touch-irrelevant.
+   blog.html's front page does the same at the same widths, so the two still match.
+   KNOBS: the .6rem gap and the date's .56rem. */
+@media(max-width:700px), (orientation:landscape) and (max-height:560px){
+  .card-grid.index-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:.6rem; row-gap:.6rem;
+    max-width:none; width:100%;
+  }
+  .card-grid.index-grid .card-cover{ border-radius:.4rem }
+  .card-grid.index-grid .card-date{ font-size:.56rem; letter-spacing:.05em; line-height:1.3 }
+  .card-grid.index-grid .card-date-below{ margin-top:.4rem }
 }
 
 /* ===== THE PHOTOGRAPH RUNS TO THE TOP OF THE WINDOW ========================
@@ -1010,6 +1032,110 @@ function toggleMenu(){
   m.classList.toggle('open');
   b.classList.toggle('active');
 }
+</script>
+
+<script>
+/* ===== A MENU CLICK LANDS THE SECTION ON THE BAR, EXACTLY ====================
+   Press About, News, Blog or Contact -- in the bar or in the phone's menu -- and the top of
+   that section is the first thing under the bar. Not roughly: to the pixel.
+
+   Two things stood between the page and that.
+     - The offset was counted twice (see the note on `section` in the stylesheet).
+     - The pictures above the sections have no size in the markup, so each one that finishes
+       loading pushes everything below it down. A glide aimed at where News WAS when you
+       pressed lands wherever News has been pushed to since. Chrome papers over some of that
+       with scroll anchoring; Safari has none, so on an iPhone the landing drifted by however
+       much had loaded during the trip.
+
+   So the glide is driven here and re-aims every frame at where the section IS now, and on
+   arrival it holds the section on the bar for a moment longer while late pictures land. Any
+   touch, wheel or key hands the page straight back to the reader.
+
+   The same hold runs when the page is OPENED at a section (index.html#blog from another page's
+   bar), until the page has finished loading.
+
+   The address still changes (#news, #blog), and Back still goes back.
+   Reduced motion gets the jump, and the same hold.
+   KNOBS: the glide's duration range, and HOLD_MS. */
+(function(){
+  var de = document.documentElement;
+  var HOLD_MS = 1500;
+  var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var raf = 0, sbSaved = null, token = 0;
+
+  function barH(){
+    var n = document.querySelector('nav');
+    return n ? n.getBoundingClientRect().height : 58;
+  }
+  function maxY(){ return Math.max(0, de.scrollHeight - window.innerHeight); }
+  function want(t){
+    var y = (window.pageYOffset || de.scrollTop || 0) + t.getBoundingClientRect().top - barH();
+    return Math.max(0, Math.min(maxY(), Math.ceil(y)));   // up, never down: a sliver under the bar, never a sliver of the section above
+  }
+  function jump(y){ window.scrollTo(0, y); }
+
+  function stop(){
+    token++;
+    if(raf) cancelAnimationFrame(raf);
+    raf = 0;
+    if(sbSaved !== null){ de.style.scrollBehavior = sbSaved; sbSaved = null; }
+  }
+  /* The reader taking over, by any route. */
+  ['wheel','touchstart','keydown','mousedown'].forEach(function(n){
+    window.addEventListener(n, function(){ if(raf) stop(); }, {capture:true, passive:true});
+  });
+
+  function run(t, glide, holdUntil){
+    stop();
+    var my = token;
+    sbSaved = de.style.scrollBehavior;
+    de.style.scrollBehavior = 'auto';          // every write below is the whole move
+    var y0 = window.pageYOffset || de.scrollTop || 0;
+    var dist = Math.abs(want(t) - y0);
+    var dur = glide ? Math.max(420, Math.min(1000, 380 + dist * 0.12)) : 0;
+    var t0 = performance.now();
+    function ease(p){ return p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2; }
+    function frame(){
+      if(my !== token) return;
+      var now = performance.now();
+      var p = dur ? Math.min(1, (now - t0) / dur) : 1;
+      var target = want(t);                     // where it is NOW, not where it was
+      if(p < 1){
+        jump(Math.round(y0 + (target - y0) * ease(p)));
+      }else{
+        if(Math.abs((window.pageYOffset || 0) - target) >= 1) jump(target);
+        if(now > Math.max(t0 + dur + HOLD_MS, holdUntil ? holdUntil() : 0)){ stop(); return; }
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function onClick(e){
+    if(e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var href = this.getAttribute('href') || '';
+    var t = href.length > 1 ? document.getElementById(href.slice(1)) : null;
+    if(!t) return;
+    e.preventDefault();
+    /* The phone's menu has already folded itself away (its own onclick runs first), so the
+       page below has its real height again before anything is measured. */
+    if(location.hash !== href){ try{ history.pushState(null, '', href); }catch(_){ location.hash = href; } }
+    run(t, !(RM && RM.matches));
+  }
+  [].forEach.call(document.querySelectorAll('nav a[href^="#"], #mobileMenu a[href^="#"]'), function(a){
+    a.addEventListener('click', onClick);
+  });
+
+  /* Opened at a section. Hold it on the bar until the page has loaded, then HOLD_MS more. */
+  var h = location.hash;
+  var t = h && h.length > 1 ? document.getElementById(decodeURIComponent(h.slice(1))) : null;
+  if(t && t.tagName === 'SECTION'){
+    var loaded = document.readyState === 'complete' ? performance.now() : 0;
+    if(!loaded) window.addEventListener('load', function(){ loaded = performance.now(); });
+    var cap = performance.now() + 8000;          // a picture that never arrives does not hold forever
+    run(t, false, function(){ return loaded ? loaded + HOLD_MS : cap; });
+  }
+})();
 </script>
 
 <!-- HERO -->

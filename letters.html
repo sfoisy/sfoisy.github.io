@@ -1765,6 +1765,71 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
      it is inset:0 by design and constraining it would crop the photograph itself.) */
   body.fs .hello{ left:6%; bottom:9%; max-width:38% }
 }
+
+/* ===== FULL SCREEN ON A PHONE: THE BRIEFING IS THE DESKTOP'S, SCALED ========
+   Sideways and full screen, the frame is the same 16:9 shape as the desktop's -- just smaller.
+   But the briefing was laid out by the rules for a SHORT frame: a card capped at 21rem and
+   pinned to the far right with a gulf of sky between it and the photograph, a heading the size
+   of the body text, and the speech bubble dropped onto the person it introduces.
+
+   So here it is simply the desktop layout at the frame's size. Every length below is the
+   desktop's own number in px, multiplied by --u, which is one desktop pixel of a 1020px-wide
+   frame expressed in the frame's own width (100cqw / 1020). The card starts where the
+   desktop's does, the heading, briefing and GO button are the same size relative to the
+   picture, and the bubble sits under GO at the same 38% / 7% it holds on a desktop.
+
+   The one departure: the heading keeps clear of the corner buttons on its right, which in
+   full screen sit lower (under the Exit pill) than they do on a desktop.
+   Phone full screen only -- body.fs inside the same "phone on its side" query every other
+   full-screen rule in this file uses. Nothing outside full screen, and no desktop rule, moves.
+   KNOB: the 84px heading reserve. */
+@media (orientation:landscape) and (max-height:560px){
+  body.fs #sBrief{
+    --u: calc(100cqw / 1020);
+    align-items:flex-end; justify-content:flex-start; overflow:hidden;
+    padding:calc(30 * var(--u)) calc(50 * var(--u));
+  }
+  body.fs #sBrief .card{
+    width:calc(534 * var(--u)); max-height:100%; overflow:visible; margin-top:0;
+  }
+  body.fs #sBrief .brhead{
+    padding-bottom:calc(8 * var(--u)); margin-bottom:calc(11.2 * var(--u)); padding-right:84px;
+  }
+  body.fs #sBrief .card .sub{
+    font-size:calc(11.52 * var(--u)); letter-spacing:.2em; margin-bottom:calc(6.4 * var(--u));
+  }
+  body.fs #sBrief .card .h2{ font-size:calc(34.4 * var(--u)); line-height:1.08 }
+  body.fs #sBrief .card .meta{
+    font-size:calc(14.72 * var(--u)); margin-top:calc(5.44 * var(--u)); line-height:1.35;
+  }
+  body.fs #sBrief .card .fact{
+    margin-top:calc(16.8 * var(--u));
+    padding:calc(15.2 * var(--u)) calc(18.4 * var(--u)) calc(16 * var(--u)) calc(16.8 * var(--u));
+    max-width:calc(576 * var(--u));
+    border-left-width:calc(5 * var(--u));
+    border-radius:calc(4 * var(--u)) calc(14 * var(--u)) calc(14 * var(--u)) calc(4 * var(--u));
+    -webkit-mask-image:none; mask-image:none;
+  }
+  body.fs #sBrief .card .fact em,
+  body.fs #sBrief #brTxt{ font-size:calc(16 * var(--u)); line-height:1.58 }
+  body.fs #sBrief #brTxt .bp + .bp{ margin-top:.6em }
+  body.fs #sBrief .card .row{ margin-top:calc(13.6 * var(--u)) }
+  body.fs #sBrief .card .row .btn{
+    padding:calc(12.8 * var(--u)) calc(35.2 * var(--u));
+    font-size:calc(16 * var(--u)); border-radius:calc(12 * var(--u));
+  }
+  /* The bubble: shown, as on a desktop -- the short-frame rule that hides it is about a frame
+     too short to show the person, and at the desktop's proportions the person is there. */
+  body.fs #sBrief .hello{ left:38%; bottom:7%; max-width:none }
+  body.fs #sBrief .hello.on{ display:block }
+  body.fs #sBrief .hello.on.hold{ display:none }
+  body.fs #sBrief .hello span{
+    padding:calc(11.2 * var(--u)) calc(16.8 * var(--u));
+    border-radius:calc(16 * var(--u));
+    font-size:calc(16 * var(--u));
+    max-width:calc(240 * var(--u));
+  }
+}
 </style>
 </head>
 <body>
