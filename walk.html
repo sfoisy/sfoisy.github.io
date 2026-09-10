@@ -10112,7 +10112,61 @@ DATA.stops.forEach(function(s){
 
            Measured BEFORE the class goes on -- once it is on, asking for a rect returns the new
            layout and there is nothing left to compare against. */
+        /* ===== ON A PHONE, THE WORD YOU ARE READING ==========================
+           The two anchors below both hold a STOP: the map's travel line, or a card near the
+           middle. On a phone that is the wrong object whenever a stop is open -- which is
+           whenever anybody is reading. Folding the map there does not just move the column:
+           every paragraph and picture in the open stop switches to full bleed, grows by up
+           to 40% (the ramp writes it as `zoom`, a layout property), and the text re-wraps.
+           Holding the travel line through that left the words you were reading about a
+           thousand pixels away (measured: 368px down the screen before, 1388px after).
+
+           So on a phone the anchor is the WORD on the reading line -- the character under a
+           point just inside the column's left edge, half way down the screen below the bar --
+           held as a one-character Range. A Range is live: however the paragraph re-wraps or
+           rescales, asking it for its rect again gives where that word is NOW, and the page is
+           scrolled until it is back on the same line of the screen. If the line is over a
+           picture or a video rather than text, the same point inside that block is held
+           instead. Nothing under the line at all (the gaps between cards), and it falls back
+           to the anchors below, as before. */
+        function caretAt(x, y){
+          if(document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+          if(document.caretPositionFromPoint){
+            var p = document.caretPositionFromPoint(x, y);
+            if(p && p.offsetNode){ var r = document.createRange(); r.setStart(p.offsetNode, p.offset); r.collapse(true); return r; }
+          }
+          return null;
+        }
+        function readingAnchor(){
+          if(!(window.matchMedia && window.matchMedia('(max-width:700px)').matches)) return null;
+          var col = document.querySelector('.j-narrative') || document.querySelector('.journey-inner');
+          if(!col) return null;
+          var cr = col.getBoundingClientRect();
+          var nv = document.querySelector('nav'), top = nv ? Math.max(0, nv.getBoundingClientRect().bottom) : 0;
+          var H = window.innerHeight, x = Math.max(8, cr.left + 24);
+          var FR = [0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82];
+          for(var i = 0; i < FR.length; i++){
+            var y = top + (H - top) * FR[i];
+            var el = document.elementFromPoint(x, y);
+            if(!el || !col.contains(el)) continue;
+            var rg = caretAt(x, y);
+            var n = rg && rg.startContainer;
+            if(n && n.nodeType === 3 && n.length && col.contains(n)){
+              var o = Math.min(rg.startOffset, n.length - 1);
+              var one = document.createRange();
+              one.setStart(n, o); one.setEnd(n, o + 1);
+              var q = one.getBoundingClientRect();
+              if(q.height) return { range:one, el:n.parentNode, rel:0, y:q.top };
+            }
+            var blk = (el.closest && el.closest('.j-body > *, figure, .video-share-wrap, .j-card, .j-sect')) || el;
+            var br = blk.getBoundingClientRect();
+            if(br.height) return { el:blk, rel:(y - br.top) / br.height, y:y };
+          }
+          return null;
+        }
         function anchorCard(){
+          var ra = readingAnchor();
+          if(ra) return ra;
           /* THE MAP'S OWN ANCHOR, not a card near the middle of the window.
 
              This is the whole of why it kept landing a stop out. Which stop you are on is
@@ -10180,10 +10234,17 @@ DATA.stops.forEach(function(s){
           if(_holdRelease === release) _holdRelease = null;
         }
 
-        function holdAnchor(a){
-          if(!a || !a.el.isConnected) return true;
+        function anchorY(a){
+          if(a.range){
+            var rs = a.range.getClientRects();
+            return (rs.length ? rs[0] : a.range.getBoundingClientRect()).top;
+          }
           var r = a.el.getBoundingClientRect();
-          var d = (r.top + a.rel * r.height) - a.y;      // the same point, back at the same height
+          return r.top + a.rel * r.height;
+        }
+        function holdAnchor(a){
+          if(!a || !a.el || !a.el.isConnected) return true;
+          var d = anchorY(a) - a.y;                      // the same point, back at the same height
           if(Math.abs(d) <= 1){ a._lastD = 0; return true; }
 
           /* ===== THE LIMIT CYCLE ==============================================
@@ -17161,6 +17222,81 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
   }
 }
 
+/* ===== A PHONE'S VIDEO CONTROLS, AT 62.5% ===================================
+   Chrome draws a phone's inline player with desktop-sized controls -- play, the time, sound,
+   full screen, the three-dot menu -- on a clip a third the width of a desktop one, so the row
+   covered a good share of the picture. The control bar is one of the browser's own parts, but
+   it is a styleable one (::-webkit-media-controls-panel), and `zoom` scales everything in it
+   together, hit areas included: the buttons are 62.5% of the size and still land where they
+   are drawn. The caption strip's lift is lowered to match (PH_BAR_H in the caption script).
+   Inline only: full screen keeps the browser's full-size controls. Separate rules for the
+   full-screen reset, so a browser that does not know one selector does not drop the other.
+   Safari's own controls do not answer to this and are left as they are.
+   KNOB: the .625. */
+@media(max-width:700px){
+  video::-webkit-media-controls-panel{ zoom:.625 }
+}
+@media(max-width:700px){ video:fullscreen::-webkit-media-controls-panel{ zoom:1 } }
+@media(max-width:700px){ video:-webkit-full-screen::-webkit-media-controls-panel{ zoom:1 } }
+@media(max-width:700px){ .video-share-wrap:fullscreen video::-webkit-media-controls-panel{ zoom:1 } }
+
+/* ===== A PHONE HELD SIDEWAYS: FULL SCREEN, AND THE DESKTOP WALK =============
+   Same as the letter game. Turned sideways, a phone's browser keeps a third of the height for
+   its own bars, so the walk offers one thing first -- "Enter full screen" -- on an opaque sheet
+   over the page (the page is untouched behind it). Pressed, the page goes full screen, holds
+   itself in landscape, and what you get is the desktop walk: the map down the right, the stops
+   opening as sheets, the bar across the top. "Exit full screen" sits in the bar, beside the
+   name, and turning the phone upright again needs no press at all.
+
+   Touch screens only, and only where full screen exists (html.can-fs -- not an iPhone, whose
+   Safari will not put a page full screen; there sideways stays the ordinary page). A short
+   desktop window is not a phone on its side, which is what the pointer test is for.
+
+   Two things the desktop layout got wrong at a phone's height, fixed here for sideways phones:
+     - the headline block is lifted 100px for middle-width windows, which at 390px tall put
+       the title under the bar -- the lift comes off;
+     - a stop's sheet is set as ruled paper whose type is a fraction of the SHEET's width, and
+       the sheet's width was worked out from the window's height -- about 6.9px type. The sheet
+       is already widened to the lane here; the ruling and the type now follow that width, so
+       the writing comes out at a readable size (about 14px) instead of a sixth of an inch.
+   KNOBS: the 112px that parks the pill beside the name, and the sheet width it follows. */
+.rotgate, .walkFsExit{ display:none }
+@media (orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse){
+  html.can-fs:not(.walk-fs) .rotgate{
+    display:flex; align-items:center; justify-content:center;
+    position:fixed; inset:0; z-index:10050;
+    background:#0b0f22; padding:1rem;
+  }
+  html.walk-fs .walkFsExit{ display:inline-flex }
+}
+.rotgate button{
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:.85rem 1.6rem; border-radius:999px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08);
+  color:#fff; font:800 .92rem 'DM Sans',sans-serif; letter-spacing:.02em;
+}
+.rotgate button:hover{ background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.55) }
+.rotgate svg{ width:16px; height:16px }
+.walkFsExit{
+  position:fixed; top:15px; left:112px; z-index:10060;
+  align-items:center; gap:.4rem; padding:.42rem .8rem;
+  border-radius:999px; cursor:pointer;
+  color:rgba(255,255,255,.8); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.3);
+}
+.walkFsExit:hover{ color:#fff; border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.16) }
+.walkFsExit svg{ width:13px; height:13px; flex:0 0 13px }
+@media (orientation:landscape) and (max-height:560px){
+  html .article-hero .hero-row{ transform:none }
+  body.stop-modal.mode-quick .j-sect.is-open{ --pg-w:calc(72vw - 24px) !important }
+  /* The sheet is pinned to 12px / 72vw here (see "A STOP, ON A PHONE HELD SIDEWAYS"), but the
+     close X and the step tabs are placed from --panel-x / --panel-w, which the script still
+     writes for the centred lane -- so the X sat in the middle of the heading. The variables
+     say what the sheet already does, and everything built from them lines up with it. */
+  html{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
+  body.stop-modal.mode-quick .j-sect.is-open{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
+}
+
 .vshare-btn{position:absolute;top:8px;right:8px;z-index:5;width:25px;height:25px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .2s,transform .2s}
 .vshare-btn svg{width:12px;height:12px;display:block}
 .vshare-btn:hover{background:rgba(0,0,0,.82);transform:scale(1.12)}
@@ -22184,6 +22320,11 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
   var COARSE = window.matchMedia ? window.matchMedia('(hover:none) and (pointer:coarse)') : null;
   /* Safari, desktop and iOS, and every iOS browser (they are all WebKit there). See fs(). */
   var APPLE = /Apple/i.test(navigator.vendor || '');
+  /* ...and lower again where the controls themselves are drawn smaller. On a phone the
+     stylesheet shrinks Chrome's control bar to 62.5% (see "A PHONE'S VIDEO CONTROLS"), so its
+     row of buttons reaches about 32px up instead of 50, and 54 would leave the caption floating
+     over nothing. Safari keeps 54: its controls are its own and are not resized. */
+  if(!APPLE) PH_BAR_H = 38;
 
   function setup(v){
     if(!VCAP_ON) return;
@@ -26746,7 +26887,9 @@ function goBack(e){
      (the caption wrapper), or is an embed; or a video in the iOS player. */
   function fsVideo(){
     var fe = D.fullscreenElement || D.webkitFullscreenElement || null;
-    if(fe){
+    /* The PAGE full screen (the "Enter full screen" button on a phone held sideways) is not a
+       video full screen, even though every video on the page is inside it. */
+    if(fe && fe !== de && fe !== D.body){
       if(fe.tagName === 'VIDEO' || fe.tagName === 'IFRAME') return fe;
       var inner = fe.querySelector ? fe.querySelector('video') : null;
       if(inner) return inner;
@@ -26950,6 +27093,73 @@ function goBack(e){
    'webkitpresentationmodechanged'].forEach(function(n){
     D.addEventListener(n, function(){ G.check(); if(G.frozen) poll(); }, true);
   });
+})();
+</script>
+
+<!-- Shown only on a phone held sideways, while the page is not full screen -- see .rotgate. -->
+<div class="rotgate" id="rotGate">
+  <button type="button" onclick="walkFsEnter()">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+    Enter full screen
+  </button>
+</div>
+<!-- Only ever visible while the page is full screen -- see .walkFsExit. -->
+<button class="walkFsExit" type="button" onclick="event.stopPropagation(); walkFsLeave()"
+        aria-label="Exit full screen" title="Exit full screen">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>
+  <span>Exit full screen</span>
+</button>
+<script>
+/* ===== THE PAGE FULL SCREEN, ON A PHONE HELD SIDEWAYS ======================
+   The letter game's two presses, for the walk: full screen and the landscape lock are
+   separate permissions and either can be refused without the other failing, so the lock is
+   not awaited. html.can-fs is set only where the API exists; the sheet and the pill never
+   show without it.
+
+   html.walk-fs describes the PAGE being full screen. A clip put full screen from inside it
+   (the player's own button) takes the screen from the page for a while and hands it back
+   when it is done, so while that is happening the page's state is kept rather than dropped:
+   the sheet must not flash up behind the video, and the pill must be there when it closes.
+   Only leaving full screen altogether clears it. */
+(function(){
+  var root = document.documentElement;
+  var canFs = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+  if(canFs) root.classList.add('can-fs');
+  var pageFs = false;
+  function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function sync(){
+    var fe = fsEl();
+    if(fe === root) pageFs = true;
+    else if(!fe) pageFs = false;
+    root.classList.toggle('walk-fs', pageFs);
+  }
+  function lock(){
+    try{
+      if(screen.orientation && screen.orientation.lock){
+        var l = screen.orientation.lock('landscape');
+        if(l && l.catch) l.catch(function(){});
+      }
+    }catch(e){}
+  }
+  window.walkFsEnter = function(){
+    try{
+      var p = root.requestFullscreen ? root.requestFullscreen({ navigationUI:'hide' })
+            : root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null;
+      Promise.resolve(p).then(lock, function(){});
+    }catch(e){}
+  };
+  window.walkFsLeave = function(){
+    try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+    try{
+      if(document.exitFullscreen) document.exitFullscreen();
+      else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }catch(e){}
+  };
+  document.addEventListener('fullscreenchange', sync);
+  document.addEventListener('webkitfullscreenchange', sync);
+  sync();
 })();
 </script>
 </body></html>
