@@ -6053,11 +6053,41 @@ html:not(.pre-off) .nav-mobile-menu{ z-index:2147483001 }
    which is seen as the text blinking out and coming back. An identity 3D transform
    puts it on its own layer; backface-visibility and isolation stop it being folded
    back in with what is painting behind it. Nothing about how it looks changes. */
-nav, .nav-mobile-menu{
-  transform:translateZ(0);
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
-  isolation:isolate;
+/* ===== THE BAR IS OPAQUE ON THIS PAGE, AND THAT IS THE FIX ==================
+   Everywhere else on the site the bar is 72% navy with a 12px backdrop blur, which
+   is fine over a page that simply scrolls. This page is not that: a full-screen
+   loading sheet fades out behind the bar, a 1.9 MB article assembles under it, and
+   a map redraws as you scroll. A backdrop blur has to RE-SAMPLE everything behind
+   it every time any of that paints, and on the frames the compositor cannot keep
+   up, the strip is drawn without its backdrop -- which is seen as the bar and its
+   six links flashing a different colour and back.
+
+   Three things were tried before this. Removing the load-time colour change helped
+   and did not finish it. Promoting the bar to its own layer with a 3D transform
+   made it worse: a blur and a forced layer are contradictory instructions -- the
+   blur wants to sample what is behind it, the layer exists to stop it having to.
+   Then the layer promotion came out again, and the flash came back with the blur.
+
+   So the blur goes. A solid navy needs no backdrop, cannot be re-sampled, and
+   cannot fail to composite; over the night-sky sheet and over the article it reads
+   the same as the translucent version did, because what was behind it was dark
+   both times. The other pages keep their glass -- none of them has a sheet lifting
+   behind the bar.
+
+   html-qualified so it beats the palette block at the foot of the file on
+   specificity rather than on source order.
+   KNOB: --nav-solid. It wants to be the colour the glass used to average out to. */
+html nav, html .nav-mobile-menu{ --nav-solid:#0f1b2f }
+html nav{
+  background:var(--nav-solid);
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+html .nav-mobile-menu{ background:var(--nav-solid) }
+@media(max-width:700px){
+  /* The narrow bar composited over --nav-under for the same blur-off reason; with
+     no blur anywhere there is nothing left for that rule to solve. */
+  html nav{ background:var(--nav-solid) }
 }
 
 /* NO SCROLLING WHILE THE SHEET IS UP. The article underneath is still measuring itself -- the
@@ -6156,9 +6186,17 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   background-image:
     linear-gradient(rgba(6,12,28,.22), rgba(6,12,28,.22)),
     url("https://wesitefoisy1.b-cdn.net/back2.jpg");
-  background-size:cover, cover;
-  background-position:center, center;
-  background-repeat:no-repeat, no-repeat;
+  /* FRAMED THE WAY blog.html FRAMES IT, which is the point of using the same file:
+     the picture is scaled to the WIDTH of the window and pinned to the top, so the
+     part you see here is the part you see there. `cover` was scaling it to fill both
+     axes and centring the overflow, which on a short window crops in on the middle of
+     the sky -- the same photograph showing a different piece of itself, which is
+     exactly what a shared backdrop must not do.
+     repeat-y for the same reason it is there on the blog: a window taller than the
+     picture's own aspect gets more picture rather than a band of flat navy. */
+  background-size:auto, 100% auto;
+  background-position:center, top center;
+  background-repeat:no-repeat, repeat-y;
 }
 
 .pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
