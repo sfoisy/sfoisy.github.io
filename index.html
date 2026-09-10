@@ -422,8 +422,12 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    check that if you ever write a longer label. */
 
 .newsfeed .entry{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75}
-.newsfeed .entry a{color:var(--mid);font-weight:400;text-decoration:underline;text-decoration-color:var(--lavender)}
-.newsfeed .entry a:hover{text-decoration-color:var(--purple)}
+/* The underline is the section's colour, not the site's lavender. It is the only
+   coloured mark in a line of black type, and a lavender rule on a rose block is
+   the one thing in the row that belongs to a different page. --btn is the same
+   value the section's button uses. */
+.newsfeed .entry a{color:inherit;font-weight:400;text-decoration:underline;text-decoration-color:var(--btn);text-underline-offset:.15em}
+.newsfeed .entry a:hover{text-decoration-color:var(--btn);text-decoration-thickness:2px}
 .more-line{text-align:center;margin-top:1.75rem}
 .more-link{display:inline-block;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none}
 .more-link:hover{color:var(--mid)}
@@ -682,7 +686,11 @@ nav, .nav-mobile-menu{
 
    KNOBS: the .78fr, and --sc-shot (how tall either picture may go). Raise both
    together or the pictures get wider without getting taller and the crop tightens. */
-.scicomm{ grid-template-columns:1fr .78fr; gap:3rem; align-items:start }
+/* CENTRED, not top-aligned. There is one photograph now rather than two, and it
+   is shorter than the three paragraphs beside it -- aligned to the top it hung
+   off the first line with a hole under it. Centred, the two columns balance on
+   the same middle. */
+.scicomm{ grid-template-columns:1fr .78fr; gap:3rem; align-items:center }
 .scicomm .section-title{ text-align:center }
 .scicomm{ --sc-shot:190px }
 .scicomm img{ max-height:var(--sc-shot); width:100%; object-fit:cover; object-position:center top }

@@ -217,13 +217,23 @@ footer .fcredit{color:#fff}
   position:fixed; left:12px; top:70px; z-index:90;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
   border-radius:999px; text-decoration:none; cursor:pointer;
-  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  /* NO PILL AT REST. It was a smoked chip with a hairline and a blur behind it at
+     all times, which is a lot of furniture for a control most readers never use --
+     and on a page whose subject is a photograph, a permanent box in the corner is
+     a box over the photograph. At rest it is a word and an arrow and nothing else;
+     the chip is the HOVER state, and it arrives with the cursor.
+
+     The border is transparent rather than absent so the pill does not change size
+     when it appears -- a border that comes into being on hover moves the text a
+     pixel, and a control that shifts under the cursor feels loose.
+     KNOBS: the .72 resting type, and the .55 fill that arrives on hover. */
+  color:rgba(255,255,255,.72); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:none; border:1px solid transparent;
   -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   transition:color .18s ease, border-color .18s ease, background .18s ease;
 }
 .backw svg{ width:13px; height:13px; flex:0 0 13px }
-.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
 </style>
@@ -285,7 +295,7 @@ footer .fcredit{color:#fff}
 
     <li>
       <time datetime="2026-06-03">June 3, 2026</time>
-      <p class="entry">I finished my walk from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
+      <p class="entry">I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
     </li>
 
   </ul>

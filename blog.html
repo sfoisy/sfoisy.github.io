@@ -570,7 +570,13 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
 /* The button is not part of the dateline's whisper -- it is a control. */
 .post-when .post-share{ opacity:1 }
 
-footer{background:transparent;border-top:1px solid var(--pale);padding:2rem 3rem 2rem 0;display:flex;align-items:center;justify-content:space-between}
+/* THE RULE RUNS THE FULL WIDTH. <body> carries a 5.25rem left padding -- the
+   site's left margin -- and the footer sat inside it, so its top border started an
+   inch and a half in from the edge and read as a line that had not been finished.
+   The footer pulls back out of that padding and puts the same value back as its
+   own, so the border spans the window while the text stays where it was. Same
+   trick nav uses at the top of the page. */
+footer{background:transparent;border-top:1px solid var(--pale);margin-left:-5.25rem;padding:2rem 3rem 2rem 5.25rem;display:flex;align-items:center;justify-content:space-between}
 footer .fname{font-family:'Playfair Display',serif;color:#fff;font-size:.9rem}
 footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 
@@ -1122,13 +1128,23 @@ video:fullscreen::cue{
   position:fixed; left:12px; top:70px; z-index:90;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
   border-radius:999px; text-decoration:none; cursor:pointer;
-  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  /* NO PILL AT REST. It was a smoked chip with a hairline and a blur behind it at
+     all times, which is a lot of furniture for a control most readers never use --
+     and on a page whose subject is a photograph, a permanent box in the corner is
+     a box over the photograph. At rest it is a word and an arrow and nothing else;
+     the chip is the HOVER state, and it arrives with the cursor.
+
+     The border is transparent rather than absent so the pill does not change size
+     when it appears -- a border that comes into being on hover moves the text a
+     pixel, and a control that shifts under the cursor feels loose.
+     KNOBS: the .72 resting type, and the .55 fill that arrives on hover. */
+  color:rgba(255,255,255,.72); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:none; border:1px solid transparent;
   -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   transition:color .18s ease, border-color .18s ease, background .18s ease;
 }
 .backw svg{ width:13px; height:13px; flex:0 0 13px }
-.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
 </style>
@@ -1367,6 +1383,19 @@ function toggleMenu(){
 
     <h2 class="post-hd">Walk Challenges</h2>
 
+    <!-- TITLE, WORDS, RULE, PICTURES, RULE, THE STANDING BLOCK -- the same order the
+         interviews screen reads in, which is why the prose moved above the tiles: on
+         that screen the paragraph says what you are looking at before you look at it,
+         and two game covers with no lead-in were a punchline with the joke after it.
+
+         The rule under the paragraph is the same <hr class="post-rule"> every post
+         carries between its bio and its buttons; the one under the tiles is written
+         here, because the standing block below is appended by the script and arrives
+         without one. -->
+    <p class="game-note">Hi, I’m Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
+
+    <hr class="post-rule">
+
     <div class="game-grid">
       <a class="game-tile" href="quiz.html" aria-label="Quiz Time: Climate Walk Trivia">
         <img src="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png"
@@ -1378,7 +1407,9 @@ function toggleMenu(){
       </a>
     </div>
 
-    <p class="game-note">Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
+
+    <hr class="post-rule">
+
   </article>
 
   <!-- ===== THE FOURTEEN INTERVIEWS ====================================
@@ -2107,9 +2138,10 @@ function openPost(id, push, from){
     if(p.dataset.nobio){
       var bio = frag.querySelector('.about-bio');
       if(bio) bio.parentNode.removeChild(bio);
-      /* And the rule under it, which now divides the bio from the buttons. With
-         no bio there is nothing above the line, so it would open the block with
-         a stray hairline. */
+      /* And the rule under it, which divides the bio from the buttons. With no bio
+         there is nothing above the line -- and on the Challenges post the article
+         itself already ends on one, under the two tiles -- so it would either open
+         the block with a stray hairline or draw a second line under the first. */
       var rule = frag.querySelector('.post-rule');
       if(rule) rule.parentNode.removeChild(rule);
     }

@@ -5989,9 +5989,21 @@ body.map-fs #mapFsExit{ display:flex }
   /* A sky, not a white wall. Still zero bytes over the wire -- it is two gradients and a
      drifting cloud layer drawn in CSS -- which is the whole rule for this sheet: a loading
      screen that has to load is not one. */
-  background:
-    radial-gradient(120% 80% at 50% 110%, #fdf6e8 0%, rgba(253,246,232,0) 58%),
-    linear-gradient(#bcd6f2 0%, #d6e6f7 46%, #eef4fe 100%);
+  /* THE SAME NIGHT SKY THE BLOG SITS ON. back2.jpg, covering the window. It was a
+     CSS dawn -- two gradients and a drifting cloud layer, zero bytes over the wire,
+     which is the right call for a loading screen in isolation and the wrong one
+     across a site: you left a dark blue page, waited on a pale blue one, and arrived
+     somewhere dark again. The sheet is the same picture as the blog now, so the wait
+     looks like part of where you are going.
+
+     The navy under it is the floor: it is what shows for the moment before the JPEG
+     arrives, and if the CDN is unreachable it is the whole sheet -- dark, which is
+     what the white progress type on this screen needs. */
+  background-color:#16243d;
+  background-image:url("https://wesitefoisy1.b-cdn.net/back2.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
   overflow:hidden;
   opacity:1;
   transition:opacity .5s ease;
@@ -6033,10 +6045,25 @@ html:not(.pre-gone) nav{
   background:linear-gradient(rgba(10,20,38,.62), rgba(10,20,38,.62));
   border-bottom:1px solid rgba(255,255,255,.24);
 }
-/* Back to the ordinary bar as the sheet fades, over the same half second, so the colour
-   change reads as part of the sheet lifting rather than as something happening afterwards.
-   A cross-fade of two backgrounds -- nothing on the bar changes position. */
-html.pre-gone nav{ transition:background .5s ease, border-color .5s ease }
+/* NOTHING ABOUT THE BAR ANIMATES, and that is the whole of this rule now. There was
+   a half-second cross-fade here as the sheet lifted, on the argument that the colour
+   change should read as part of one movement -- but a bar that is doing anything at
+   all while a 1.9 MB page assembles itself behind it reads as the bar being part of
+   the assembly. It is the one finished thing on screen; it should look finished.
+
+   THE LAYER IS THE OTHER HALF. A sticky, semi-transparent strip with a backdrop
+   blur has to re-sample that blur every time anything behind it paints -- and behind
+   it, during load, is a fading full-screen sheet. A browser that has not given the
+   bar a layer of its own re-rasterises the strip on frames it cannot keep up with,
+   which is seen as the text blinking out and coming back. An identity 3D transform
+   puts it on its own layer; backface-visibility and isolation stop it being folded
+   back in with what is painting behind it. Nothing about how it looks changes. */
+nav, .nav-mobile-menu{
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  isolation:isolate;
+}
 
 /* NO SCROLLING WHILE THE SHEET IS UP. The article underneath is still measuring itself -- the
    map is sizing, the accordion is building its sections -- and scrolling through that lands
@@ -6206,8 +6233,18 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   position:fixed; left:12px; top:70px; z-index:2147483001;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
   border-radius:999px; text-decoration:none; cursor:pointer;
-  color:rgba(255,255,255,.62); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  background:rgba(10,20,38,.5); border:1px solid rgba(255,255,255,.2);
+  /* NO PILL AT REST. It was a smoked chip with a hairline and a blur behind it at
+     all times, which is a lot of furniture for a control most readers never use --
+     and on a page whose subject is a photograph, a permanent box in the corner is
+     a box over the photograph. At rest it is a word and an arrow and nothing else;
+     the chip is the HOVER state, and it arrives with the cursor.
+
+     The border is transparent rather than absent so the pill does not change size
+     when it appears -- a border that comes into being on hover moves the text a
+     pixel, and a control that shifts under the cursor feels loose.
+     KNOBS: the .72 resting type, and the .55 fill that arrives on hover. */
+  color:rgba(255,255,255,.72); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:none; border:1px solid transparent;
   -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   transition:color .18s ease, border-color .18s ease, background .18s ease,
              opacity .25s ease, transform .25s ease, visibility .25s;
@@ -6234,7 +6271,7 @@ html.back-gone .backw{
   transform:translateY(-6px);
 }
 @media(prefers-reduced-motion:reduce){ .backw{ transition:none } }
-.backw:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
+.backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } }
 .read-float{ top:calc(var(--map-pin-top,76px) + 42px) }
