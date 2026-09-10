@@ -276,6 +276,40 @@ footer .fcredit{color:#fff}
    walk), and everything measured from the right edge -- the link row, the CV item --
    shifts by that much as you move between them. It reads as the bar twitching. */
 html{ scrollbar-gutter:stable }
+
+/* ===== THE FOOTER, ON A PHONE HELD SIDEWAYS =================================
+   The two credit lines are pushed to opposite ends of the bar, and the rule that
+   stacks and centres them is keyed on max-width:900px -- which a phone in portrait
+   clears easily and a phone in LANDSCAPE does not: turned sideways these screens
+   measure 844 to 932px, so the larger ones fell through to the desktop layout, with
+   the name jammed left and the date jammed right across a bar four inches tall.
+
+   Width was the wrong question. What decides this is whether the bar is wide enough
+   for two things at its ends to still read as one credit -- and a landscape phone is
+   wide but the rest of the page around it is phone-sized. Matching on the HEIGHT is
+   what identifies that case: nothing on a desktop is 560px tall. */
+@media (orientation:landscape) and (max-height:560px){
+  footer{
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:.35rem; text-align:center;
+  }
+}
+
+/* ===== NO BACK PILL ON A PHONE =============================================
+   It is a desktop control. A phone has a system Back -- a gesture from the edge on
+   both platforms, and a hardware or on-screen button on Android -- and it does exactly
+   what this pill does, from wherever your thumb already is. Duplicating it costs a
+   corner of a small screen, and on the games and the walk that corner is the picture.
+
+   Both queries are needed and they catch different devices: portrait phones are under
+   700px wide, and phones held SIDEWAYS are 844 to 932px wide, which no width rule
+   would reach -- but nothing on a desktop is 560px tall.
+
+   Nothing else changes. The pill and its goBack() are untouched for desktop, where
+   there is no gesture and the browser's own Back is a small target in a corner of the
+   window rather than an edge of the device. */
+@media(max-width:700px){ .backw{ display:none } }
+@media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
 </style>
 </head>
 <body>

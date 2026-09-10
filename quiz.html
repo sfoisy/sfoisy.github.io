@@ -684,9 +684,11 @@ body{ padding-top:74px }
    of the frame, and the two chips in the corner of the box are the way out at
    that size. */
 @media (orientation:landscape) and (max-height:500px){
-  .site-nav, .nav-mobile-menu{ display:none }
-  body{ padding-top:16px }
-  .backw{ top:10px }        /* no bar to clear */
+  /* body.fs only: the bar stands down inside full screen. Turned sideways without it,
+     this is an ordinary page and keeps its menu. */
+  body.fs .site-nav, body.fs .nav-mobile-menu{ display:none }
+  body.fs{ padding-top:16px }
+  body.fs .backw{ top:10px }        /* no bar to clear */
 }
 
 /* ===== Share ==============================================================
@@ -789,6 +791,8 @@ body{ padding-top:74px }
    The two corner controls come back to the window's own corners at this size -- with
    the frame filling the screen, inside the frame and inside the window are the same
    place, and the extra inset would only push them further into the game. */
+/* body.fs THROUGHOUT: this whole block is the full-screen layout, not the rotated one.
+   Turning the phone changes nothing on its own -- see the FULL SCREEN note below. */
 @media (orientation:landscape) and (max-height:520px){
   /* THE BAR AT THE TOP OF THE BROWSER only retracts when the page's own scroller
      moves, and this page never scrolled: body was exactly the height of the window,
@@ -798,9 +802,9 @@ body{ padding-top:74px }
      bar leaves. It is a nudge, not a scroll: nothing on the page moves far enough to
      matter. (No browser lets a page hide that bar outright; this is the whole of what
      is available.) */
-  html, body{ min-height:calc(100dvh + 1px) }
-  body{ padding:6px; align-items:flex-start }
-  .box{
+  body.fs, html:has(body.fs){ min-height:calc(100dvh + 1px) }
+  body.fs{ padding:6px; align-items:flex-start }
+  body.fs .box{
     min-height:0;
     height:calc(100dvh - 12px);
     max-height:calc(100dvh - 12px);
@@ -819,15 +823,75 @@ body{ padding-top:74px }
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
   }
-  .stamp{ right:10px; bottom:10px; width:40px }
-  .backw{ left:10px; top:10px }
+  body.fs .stamp{ right:10px; bottom:10px; width:40px }
+  body.fs .backw{ left:10px; top:10px }
   /* Everything inside is sized in rem off the frame, so one step down brings the whole
      screen -- question, options, chips -- in together and keeps their proportions. 76%
      rather than 86%: with the list scrolling, this is about how much fits at once
      rather than about making it fit at all.
      KNOB: the 76%. */
-  .box{ font-size:76% }
+  body.fs .box{ font-size:76% }
 }
+
+/* ===== NO BACK PILL ON A PHONE =============================================
+   It is a desktop control. A phone has a system Back -- a gesture from the edge on
+   both platforms, and a hardware or on-screen button on Android -- and it does exactly
+   what this pill does, from wherever your thumb already is. Duplicating it costs a
+   corner of a small screen, and on the games and the walk that corner is the picture.
+
+   Both queries are needed and they catch different devices: portrait phones are under
+   700px wide, and phones held SIDEWAYS are 844 to 932px wide, which no width rule
+   would reach -- but nothing on a desktop is 560px tall.
+
+   Nothing else changes. The pill and its goBack() are untouched for desktop, where
+   there is no gesture and the browser's own Back is a small target in a corner of the
+   window rather than an edge of the device. */
+@media(max-width:700px){ .backw{ display:none } }
+@media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
+
+/* ===== FULL SCREEN, ON A PHONE ==============================================
+   Rotating the phone used to rearrange the game. It was the only way to get a
+   landscape frame, and it was a bad one: the browser's own bars stay on screen and
+   eat a third of the height, the reflow happens whether you meant it or not (a phone
+   turns when you lie down), and half of what you gained went back to chrome.
+
+   A button instead. It asks for real full screen and then asks the device to hold
+   itself in landscape -- so the browser bars go, the frame gets the whole panel, and
+   the picture does not swing around underneath you when you shift in your chair.
+
+   AND THE ROTATION LAYOUT IS GONE WITH IT. Every landscape rule in this file is now
+   scoped to body.fs, which is only set while full screen is actually on. Turn the
+   phone without pressing the button and nothing rearranges: you get the portrait
+   frame, letterboxed, which is a game you can still play rather than a layout in the
+   middle of changing its mind.
+
+   TWO BUTTONS, NOT A TOGGLE. Enter sits with the other corner controls where you look
+   before you start; Exit is a pill at the top right, where a full-screen exit lives on
+   every other app on the phone. A single button that changes meaning is a button you
+   have to read before pressing.
+
+   iOS: Safari does not allow requestFullscreen on anything but a <video>, and does not
+   implement the orientation lock at all. The press falls through harmlessly there --
+   see the script, which checks for the API before it offers the button at all -- so the
+   button simply is not shown rather than being shown and doing nothing.
+   KNOB: the 700px / 560px pair, the same "this is a phone" test the rest of the file
+   uses. */
+.fsBtn, .fsExit{ display:none }
+@media(max-width:700px), (orientation:landscape) and (max-height:560px){
+  html.can-fs .fsBtn{ display:inline-flex }
+  html.can-fs body.fs .fsBtn{ display:none }
+  html.can-fs body.fs .fsExit{ display:inline-flex }
+}
+.fsExit{
+  position:fixed; right:12px; top:12px; z-index:9992;
+  align-items:center; gap:.4rem; padding:.42rem .8rem;
+  border-radius:999px; cursor:pointer;
+  color:rgba(255,255,255,.72); font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  background:rgba(10,20,38,.55); border:1px solid rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.fsExit:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
+.fsExit svg{ width:13px; height:13px; flex:0 0 13px }
 </style>
 </head>
 <body>
@@ -1010,6 +1074,14 @@ function toggleMenu(){
         A button rather than an anchor -- it opens a panel rather than going
         anywhere -- and it stops the click propagating so the document handler
         that closes the panel does not close it on the way up. -->
+   <!-- Full screen. Hidden unless the API exists and the screen is a phone's -- see
+        .fsBtn in the stylesheet. -->
+   <button class="way fsBtn" type="button" title="Full screen" aria-label="Full screen"
+           onclick="event.stopPropagation(); fsEnter()">
+     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+     <span>Full screen</span>
+   </button>
+
    <button class="way" id="shareBtn" type="button" title="Share this game" aria-label="Share this game"
            onclick="event.stopPropagation(); openShare(this)">
      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z" fill="currentColor"/></svg>
@@ -2073,6 +2145,70 @@ function goBack(e){
     if(vp) vp.classList.remove('open');
   });
   window.addEventListener('resize', hidePanel, {passive:true});
+})();
+</script>
+
+<!-- Only ever visible while full screen is on -- see .fsExit in the stylesheet. -->
+<button class="fsExit" type="button" onclick="event.stopPropagation(); fsLeave()"
+        aria-label="Exit full screen" title="Exit full screen">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/>
+  </svg>
+  <span>Exit full screen</span>
+</button>
+<script>
+/* ===== FULL SCREEN =========================================================
+   Two presses, two effects, and both are best-effort: full screen and the orientation
+   lock are separate permissions and either can be refused without the other failing.
+   The lock is deliberately not awaited -- on a browser that has the method but will not
+   honour it, the promise rejects, and full screen should not be undone because the
+   phone would not turn.
+
+   html.can-fs is set only where the API actually exists, and the buttons are hidden
+   until it is: a full-screen button that cannot go full screen (iOS Safari, for one) is
+   worse than no button.
+
+   fullscreenchange is the only thing that writes body.fs, rather than the click handler
+   doing it optimistically -- because the browser can leave full screen without asking
+   this page: the system Back gesture, a swipe from the top edge, another app taking the
+   screen. Reading the event means the class always describes what is true. */
+(function(){
+  var root = document.documentElement;
+  var canFs = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+  if(canFs) root.classList.add('can-fs');
+
+  function isFs(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+
+  function enter(){
+    try{
+      var p = root.requestFullscreen ? root.requestFullscreen()
+            : root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null;
+      Promise.resolve(p).then(lock, lock);
+    }catch(e){}
+  }
+  function lock(){
+    try{
+      if(screen.orientation && screen.orientation.lock){
+        var l = screen.orientation.lock('landscape');
+        if(l && l.catch) l.catch(function(){});
+      }
+    }catch(e){}
+  }
+  function leave(){
+    try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+    try{
+      if(document.exitFullscreen) document.exitFullscreen();
+      else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }catch(e){}
+  }
+  function sync(){ document.body.classList.toggle('fs', isFs()); }
+
+  document.addEventListener('fullscreenchange', sync);
+  document.addEventListener('webkitfullscreenchange', sync);
+  window.fsEnter = enter;
+  window.fsLeave = leave;
+  sync();
 })();
 </script>
 </body>

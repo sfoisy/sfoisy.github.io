@@ -872,15 +872,52 @@ nav, .nav-mobile-menu{
 html{ scrollbar-gutter:stable }
 
 /* ===== CAPTIONS AND THE MOBILE CONTROL BAR =================================
-   A browser draws a video's text track in its own shadow DOM and lifts it clear of
-   the controls by an amount derived from the control bar's height. On mobile that
-   bar is roughly twice as tall as the desktop one while the lift stays about the
-   same, so the last line of a caption ends up behind the scrubber. Moving the track
-   container up by the difference is the fix, and it is scoped to the width where the
-   problem exists -- desktop was already right.
-   KNOB: the 2.4em, measured in em of the cue text so it tracks the caption size. */
+   On a desktop the browser lifts the cue box clear of the controls when they are
+   showing and drops it back when they hide. On a phone it does not: the cue box sits
+   at one fixed height near the foot of the picture, and the control bar -- which on a
+   phone is roughly twice as tall -- comes up over the top of it.
+
+   A constant lift was the first attempt and it was worse than the bug. Pushed up by
+   the bar's height at all times, the captions floated in the middle of the picture
+   whenever the controls were hidden, which is most of the time you are watching.
+
+   So the lift is a state, and .cc-up is the state. The script at the foot of this file
+   adds the class while the controls are up and takes it off when they go, so the
+   captions rise with the bar and settle back the moment it does. The .18s makes that a
+   move rather than a jump -- the bar itself fades over about that long, and the two
+   should look like one thing happening.
+
+   The transform is on the -webkit- pseudo-element because that is the only handle a
+   page gets on the cue box: it lives in the video's shadow DOM and ::cue can style the
+   text but cannot move the box it sits in. Firefox has no equivalent and ignores all of
+   this, which leaves it exactly where it is today.
+   KNOBS: the 2.6em -- em of the cue text, so it tracks the caption size rather than a
+   device -- and the 3.2s in the script. */
 @media(max-width:900px){
-  video::-webkit-media-text-track-container{ transform:translateY(-2.4em) }
+  video::-webkit-media-text-track-container{
+    transition:transform .18s ease;
+  }
+  video.cc-up::-webkit-media-text-track-container{
+    transform:translateY(-2.6em);
+  }
+}
+
+/* ===== THE FOOTER, ON A PHONE HELD SIDEWAYS =================================
+   The two credit lines are pushed to opposite ends of the bar, and the rule that
+   stacks and centres them is keyed on max-width:900px -- which a phone in portrait
+   clears easily and a phone in LANDSCAPE does not: turned sideways these screens
+   measure 844 to 932px, so the larger ones fell through to the desktop layout, with
+   the name jammed left and the date jammed right across a bar four inches tall.
+
+   Width was the wrong question. What decides this is whether the bar is wide enough
+   for two things at its ends to still read as one credit -- and a landscape phone is
+   wide but the rest of the page around it is phone-sized. Matching on the HEIGHT is
+   what identifies that case: nothing on a desktop is 560px tall. */
+@media (orientation:landscape) and (max-height:560px){
+  footer{
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:.35rem; text-align:center;
+  }
 }
 </style>
 </head>
@@ -1413,5 +1450,50 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
 .nav-mobile-menu{ background:var(--nav-sheet); border-bottom:1px solid var(--nav-rule) }
 .nav-mobile-menu a{ color:var(--nav-ink); border-bottom:1px solid var(--nav-rule) }
 </style>
+<script>
+/* ===== CAPTIONS FOLLOW THE CONTROL BAR =====================================
+   The page cannot ask a video whether its controls are showing -- they are in the
+   shadow DOM and there is no event and no property for it. What it can do is know the
+   same things the browser knows, because the rules are simple and the same everywhere:
+   the bar is up while the video is paused, it comes up on a touch, and it goes down a
+   few seconds after playback resumes. That is what this tracks.
+
+   DELEGATED, IN THE CAPTURE PHASE, and both halves matter. Delegated because the
+   videos on this site are built at the moment a post opens, so there is nothing to
+   bind to at load. Capture because `play` and `pause` do not bubble -- a listener on
+   document only ever sees them on the way DOWN to the target.
+
+   The timer is parked on the element itself rather than in a map, so a video that is
+   removed from the page takes its timer's only reference with it.
+
+   Everything here is a class on the element; the media query decides whether that class
+   means anything. On a desktop the rule does not exist and this runs harmlessly. */
+(function(){
+  var HOLD = 3200;   /* KNOB: how long the bar stays up after a touch, ms */
+
+  function up(v){
+    if(!v || v.tagName !== 'VIDEO') return;
+    v.classList.add('cc-up');
+    clearTimeout(v._ccT);
+    /* Paused, the bar does not go anywhere, so neither do the captions. */
+    if(v.paused) return;
+    v._ccT = setTimeout(function(){
+      if(!v.paused) v.classList.remove('cc-up');
+    }, HOLD);
+  }
+
+  document.addEventListener('pointerdown', function(e){
+    var v = e.target && e.target.closest ? e.target.closest('video') : null;
+    if(v) up(v);
+  }, true);
+  document.addEventListener('play',  function(e){ up(e.target); }, true);
+  document.addEventListener('pause', function(e){ up(e.target); }, true);
+  document.addEventListener('ended', function(e){ up(e.target); }, true);
+  /* A video that has never been played is showing its poster and its controls. */
+  document.addEventListener('loadedmetadata', function(e){
+    if(e.target && e.target.tagName === 'VIDEO' && e.target.paused) up(e.target);
+  }, true);
+})();
+</script>
 </body>
 </html>
