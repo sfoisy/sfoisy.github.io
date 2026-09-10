@@ -40,8 +40,21 @@
      connection is already open and warm by the time anything asks for one. -->
 <link rel="preconnect" href="https://wesitefoisy1.b-cdn.net" crossorigin>
 <link rel="dns-prefetch" href="https://wesitefoisy1.b-cdn.net">
+<!-- THE FONTS DO NOT BLOCK THE FIRST PAINT. A stylesheet <link> is render-blocking:
+     nothing at all is drawn until it has been fetched and parsed, which on this page
+     meant the loading sheet -- the thing whose entire job is to appear instantly --
+     waited on a round trip to Google. Loaded as `print` it is not render-blocking; the
+     onload switches it to `all` the moment it arrives, and the <noscript> covers the
+     case where that never runs. display=swap is already on the URL, so the fallback
+     shows first and the real face takes over when it lands.
+     The gstatic preconnect matters more than it looks: the CSS and the font FILES come
+     from different hosts, so without it the font is a second cold connection. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=DM+Sans:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=DM+Sans:wght@300;400;500;700&amp;display=swap">
+<noscript><link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=DM+Sans:wght@300;400;500;700&amp;display=swap"></noscript>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 /* The canvas colour, and the reason the rubber-band gap is dealt with the way it is.
@@ -5984,7 +5997,16 @@ body.map-fs #mapFsExit{ display:flex }
    way out of it. The script hides the sheet; if the script never runs, the animation at the
    bottom of this rule lifts it anyway. */
 #preload{
-  position:fixed; inset:0; z-index:2147483000;
+  position:fixed; inset:0;
+  /* 9990: ABOVE every piece of the page (the highest thing in the article is 400)
+     and BELOW every overlay that has to beat it (the lightbox, the share sheet, the
+     tour, the quiz win screen -- all 9998 and up). It was 2147483000, a number that
+     means "above absolutely everything", which forced the bar to be raised above it
+     by a rule keyed on the loading state -- and that rule changed the bar's z-index
+     mid-load, which is a compositing change on a sticky translucent strip at the
+     worst possible moment. Sitting the sheet in the gap instead lets the bar hold ONE
+     z-index for the whole visit. See nav's rule below. */
+  z-index:9990;
   display:flex; align-items:center; justify-content:center;
   /* A sky, not a white wall. Still zero bytes over the wire -- it is two gradients and a
      drifting cloud layer drawn in CSS -- which is the whole rule for this sheet: a loading
@@ -6028,8 +6050,14 @@ html.pre-off  #preload{ display:none }
    Both selectors are html-qualified, which is what lets them beat the palette block at the
    foot of the file without !important: specificity settles it, not source order.
    KNOB: the .62 alpha. */
-html:not(.pre-off) nav,
-html:not(.pre-off) .nav-mobile-menu{ z-index:2147483001 }
+/* ONE Z-INDEX, ALWAYS. 9991 is one above the loading sheet and below every overlay
+   that must cover the bar, so the bar is above the sheet from the first frame to the
+   last without anything ever being switched. Nothing about the bar is keyed on the
+   loading state any more -- not its colour, not its border, not its stacking -- which
+   is the only way to be sure it cannot flash: there is no moment at which it changes.
+
+   The back pill rides with it for the same reason. */
+nav, .nav-mobile-menu, .backw{ z-index:9991 }
 /* NOTHING HERE CHANGES THE BAR. There was a rule that lightened it to .62 alpha
    with a soft white hairline while the sheet was up, and returned it to the ordinary
    .72 navy when the sheet went. That is a background swap on a blurred, sticky,
@@ -6176,16 +6204,16 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
      not need to move, and a slowly panning background under a progress bar is the
      kind of motion that makes a wait feel longer than it is.
 
-     The scrim is the one addition: an even 22% black over the picture, because the
-     title and the progress bar are white and back2.jpg has bright patches. Enough
-     to hold the type, not enough to lose the stars.
+     NO SCRIM. There was an even 22% black over the picture for the white title and
+     progress bar, and it made this the same photograph a shade darker than the blog
+     -- which is the one thing a shared backdrop must not be. The type holds on the
+     picture as it stands; it already holds on the blog, which sets white on the same
+     file with nothing over it.
 
-     KNOBS: the .22 scrim, and the navy floor -- what shows for the moment before
+     KNOB: the navy floor -- what shows for the moment before
      the JPEG lands, and the whole sheet if the CDN is unreachable. */
   background-color:#16243d;
-  background-image:
-    linear-gradient(rgba(6,12,28,.22), rgba(6,12,28,.22)),
-    url("https://wesitefoisy1.b-cdn.net/back2.jpg");
+  background-image:url("https://wesitefoisy1.b-cdn.net/back2.jpg");
   /* FRAMED THE WAY blog.html FRAMES IT, which is the point of using the same file:
      the picture is scaled to the WIDTH of the window and pinned to the top, so the
      part you see here is the part you see there. `cover` was scaling it to fill both
@@ -6194,9 +6222,9 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
      exactly what a shared backdrop must not do.
      repeat-y for the same reason it is there on the blog: a window taller than the
      picture's own aspect gets more picture rather than a band of flat navy. */
-  background-size:auto, 100% auto;
-  background-position:center, top center;
-  background-repeat:no-repeat, repeat-y;
+  background-size:100% auto;
+  background-position:top center;
+  background-repeat:repeat-y;
 }
 
 .pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
@@ -6249,7 +6277,7 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
    the offset is added HERE rather than by changing the variable -- the pins have
    to stay where they are. */
 .backw{
-  position:fixed; left:12px; top:70px; z-index:2147483001;
+  position:fixed; left:12px; top:70px;
   display:flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
   border-radius:999px; text-decoration:none; cursor:pointer;
   /* NO PILL AT REST. It was a smoked chip with a hairline and a blur behind it at
@@ -6294,6 +6322,12 @@ html.back-gone .backw{
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } }
 .read-float{ top:calc(var(--map-pin-top,76px) + 42px) }
+/* The bar lands in the same place on every page because the scrollbar's width is
+   always reserved, whether the page is long enough to need one or not. Without
+   this, a short page (the blog, the news list) is 15px wider than a long one (the
+   walk), and everything measured from the right edge -- the link row, the CV item --
+   shifts by that much as you move between them. It reads as the bar twitching. */
+html{ scrollbar-gutter:stable }
 </style>
 </head>
 <body class="mode-quick">
@@ -6388,8 +6422,8 @@ html.back-gone .backw{
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
-    <a href="news.html">News</a>
-    <a href="blog.html">Blog</a>
+    <a href="index.html#news">News</a>
+    <a href="index.html#blog">Blog</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -6399,8 +6433,8 @@ html.back-gone .backw{
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="news.html" onclick="toggleMenu()">News</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="index.html#news" onclick="toggleMenu()">News</a>
+  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>

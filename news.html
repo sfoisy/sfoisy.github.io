@@ -236,6 +236,46 @@ footer .fcredit{color:#fff}
 .backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
+
+/* ===== THE LIST, THE WAY THE HOME PAGE SETS IT ============================
+   The same entry appears in both places and it should look like the same entry:
+   one centred line of type, the date in bold, a run of full stops carrying the
+   eye across to the sentence. The only difference is the ink -- white here,
+   black there -- because this page is a night photograph and that one is not.
+
+   NO COLOUR ANYWHERE IN THE ROW. The date was the site's blue, then lavender;
+   the link's underline was lavender too. On a line of white type each of those
+   was the one coloured mark in the row, which is more attention than one dated
+   sentence is asking for. currentColor for the underline, so it is the same white
+   as the words either side of it and cannot drift.
+
+   The grid is gone with all of it: nothing here is a block, so nothing has an
+   edge, and the line wraps the way a sentence does when the window is narrow --
+   which is also why the phone rule that stacked the date above the entry is not
+   needed. There is nothing to stack. */
+.news li{
+  display:block; text-align:center;
+  padding:1.1rem 0; border-bottom:1px solid rgba(255,255,255,.22);
+}
+.news li:last-child{ border-bottom:0 }
+.news .entry{ font-size:1rem; font-weight:300; color:#fff }
+.news .entry time{ font-weight:700; color:#fff }
+/* The negative margin cancels the tracking after the LAST stop -- letter-spacing
+   adds its gap after every character, including the final one -- so the run ends
+   flush against the first letter of the sentence. */
+.news .entry .lead{ font-weight:inherit; letter-spacing:.28em; margin-right:-.28em }
+.news .entry a{
+  color:#fff; font-weight:400;
+  text-decoration:underline; text-decoration-color:currentColor;
+  text-underline-offset:.15em;
+}
+.news .entry a:hover{ text-decoration-thickness:2px }
+/* The bar lands in the same place on every page because the scrollbar's width is
+   always reserved, whether the page is long enough to need one or not. Without
+   this, a short page (the blog, the news list) is 15px wider than a long one (the
+   walk), and everything measured from the right edge -- the link row, the CV item --
+   shifts by that much as you move between them. It reads as the bar twitching. */
+html{ scrollbar-gutter:stable }
 </style>
 </head>
 <body>
@@ -244,8 +284,8 @@ footer .fcredit{color:#fff}
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
-    <a href="news.html" class="current">News</a>
-    <a href="blog.html">Blog</a>
+    <a href="index.html#news">News</a>
+    <a href="index.html#blog">Blog</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -255,8 +295,8 @@ footer .fcredit{color:#fff}
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="news.html" onclick="toggleMenu()">News</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="index.html#news" onclick="toggleMenu()">News</a>
+  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>
@@ -277,14 +317,20 @@ footer .fcredit{color:#fff}
   <ul>
 
     <!-- ================= ADD NEW ENTRIES AT THE TOP OF THIS LIST =================
-         Copy one <li> and change the two lines inside it. <time datetime="..."> is the
-         machine-readable date -- YYYY-MM for a month, YYYY-MM-DD for a day. It is what a
-         browser or a feed reader would use; the words a person sees are the ones between
-         the tags.
+         ONE PARAGRAPH PER ENTRY, with the date INSIDE it. It used to be a <time> and a
+         <p> side by side in a two-column grid, joined by CSS -- and two elements joined
+         by CSS are two elements: they can fall onto two lines and they align only as
+         well as the rule says. Written into the sentence they are one run of text that
+         cannot come apart. The home page's digest is built the same way, so the two
+         match by construction rather than by two stylesheets agreeing.
+
+         Copy a whole <li> and keep the three parts in this order: <time>, the leader
+         <span>, then the words. <time datetime="..."> is the machine-readable date --
+         YYYY-MM for a month, YYYY-MM-DD for a day -- and is what a browser or a feed
+         reader would use; the words a person sees are the ones between the tags.
 
     <li>
-      <time datetime="2026-05">May 2026</time>
-      <p class="entry">I walked from NYC to DC! <a href="walk.html">Read the whole thing here</a>.</p>
+      <p class="entry"><time datetime="2026-05">May 2026</time><span class="lead">.......</span>I walked from NYC to DC! <a href="walk.html">Read the whole thing here</a>.</p>
     </li>
 
          And a year heading, if the list ever wants one. It goes BETWEEN two </li> and <li>
@@ -294,8 +340,7 @@ footer .fcredit{color:#fff}
     ========================================================================== -->
 
     <li>
-      <time datetime="2026-06-03">June 3, 2026</time>
-      <p class="entry">I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
+      <p class="entry"><time datetime="2026-06-03">June 3, 2026</time><span class="lead">.......</span>I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</p>
     </li>
 
   </ul>

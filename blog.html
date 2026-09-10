@@ -1147,6 +1147,12 @@ video:fullscreen::cue{
 .backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } .backw{ opacity:.8 } }
+/* The bar lands in the same place on every page because the scrollbar's width is
+   always reserved, whether the page is long enough to need one or not. Without
+   this, a short page (the blog, the news list) is 15px wider than a long one (the
+   walk), and everything measured from the right edge -- the link row, the CV item --
+   shifts by that much as you move between them. It reads as the bar twitching. */
+html{ scrollbar-gutter:stable }
 </style>
 </head>
 <body>
@@ -1167,8 +1173,8 @@ video:fullscreen::cue{
   <a href="index.html" class="nav-name">Syl Foisy</a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
-    <a href="news.html">News</a>
-    <a href="blog.html" class="current">Blog</a>
+    <a href="index.html#news">News</a>
+    <a href="index.html#blog">Blog</a>
     <a href="index.html#contact">Contact</a>
     <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
   </div>
@@ -1178,8 +1184,8 @@ video:fullscreen::cue{
 </nav>
 <div class="nav-mobile-menu" id="mobileMenu">
   <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="news.html" onclick="toggleMenu()">News</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="index.html#news" onclick="toggleMenu()">News</a>
+  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
   <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
   <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
 </div>

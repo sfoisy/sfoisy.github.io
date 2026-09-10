@@ -857,6 +857,12 @@ nav, .nav-mobile-menu{
 /* One photograph rather than two, so it can be taller without pushing the column
    past the paragraphs beside it. */
 .scicomm{ --sc-shot:300px }
+/* The bar lands in the same place on every page because the scrollbar's width is
+   always reserved, whether the page is long enough to need one or not. Without
+   this, a short page (the blog, the news list) is 15px wider than a long one (the
+   walk), and everything measured from the right edge -- the link row, the CV item --
+   shifts by that much as you move between them. It reads as the bar twitching. */
+html{ scrollbar-gutter:stable }
 </style>
 </head>
 <body>
