@@ -26410,4 +26410,68 @@ function goBack(e){
   sync();
 })();
 </script>
+<script>
+/* ===== A VIDEO PLAYING SHOULD NOT SURVIVE THE MAP MOVING ====================
+   Collapsing or restoring the map changes the width of the article column, and every
+   block in it re-measures itself against the new lane on the next resize. A <video> that
+   is PLAYING does not: on a phone the browser has taken the element over -- it is
+   compositing frames into a box whose size it decided when playback started -- and it
+   holds that box until something makes it look again. Nothing did, so the clip stayed
+   the width of the old column while the column around it moved, which is the stretched
+   or clipped picture.
+
+   The fix is to make it look again. Nothing here re-implements any layout: the page
+   already re-measures on resize, so this only says "the width changed" at the moment the
+   map class flips, and again a beat later for the glide, which is .55s. The video is
+   nudged directly as well -- a width written and cleared in the same frame is enough to
+   make the browser re-read the element's box without touching what it shows or where it
+   is in the clip.
+
+   ONLY WHILE SOMETHING IS PLAYING, and only on a phone. With every video paused the
+   ordinary resize path already handles this correctly, which is why collapsing the map
+   between clips always looked right.
+
+   The observer watches one attribute on one element, which is about as cheap as they
+   come; map-off is written from several places in this file, so watching the class is
+   more reliable than hooking whichever button was pressed. */
+(function(){
+  var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+  function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 900); }
+
+  function playing(){
+    var v = document.querySelectorAll('video');
+    for(var i = 0; i < v.length; i++) if(!v[i].paused && !v[i].ended) return v;
+    return null;
+  }
+
+  function nudge(){
+    var live = playing();
+    if(!live) return;
+    for(var i = 0; i < live.length; i++){
+      var el = live[i];
+      /* Written and cleared in the same frame: the browser recomputes the box, and the
+         element is left with exactly the styles it had. */
+      var had = el.style.width;
+      el.style.width = (el.getBoundingClientRect().width + 0.5) + 'px';
+      /* eslint-disable-next-line no-unused-expressions */
+      el.offsetWidth;
+      el.style.width = had;
+    }
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  var was = document.body.classList.contains('map-off');
+  new MutationObserver(function(){
+    if(!onPhone()) return;
+    var now = document.body.classList.contains('map-off');
+    if(now === was) return;
+    was = now;
+    if(!playing()) return;
+    /* Now, after the frame the class lands on, and after the column's .55s glide. */
+    requestAnimationFrame(nudge);
+    setTimeout(nudge, 120);
+    setTimeout(nudge, 620);
+  }).observe(document.body, {attributes:true, attributeFilter:['class']});
+})();
+</script>
 </body></html>
