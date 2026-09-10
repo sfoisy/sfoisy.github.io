@@ -1153,6 +1153,11 @@ video:fullscreen::cue{
    walk), and everything measured from the right edge -- the link row, the CV item --
    shifts by that much as you move between them. It reads as the bar twitching. */
 html{ scrollbar-gutter:stable }
+
+/* The wall's share chip sits on the <h1> the way a post's sits on its .post-hd:
+   nudged onto the type's middle rather than its baseline, which is where a small
+   round control looks attached to a large word rather than hung off it. */
+.blog-head h1 .post-share{ vertical-align:middle; margin-left:.7rem; position:relative; top:-.14em }
 </style>
 </head>
 <body>
@@ -1231,7 +1236,17 @@ function toggleMenu(){
 <div id="hubView" style="display:none">
 
   <section class="blog-head">
-    <h1>Scientist Interviews</h1>
+    <!-- SHARE, BESIDE THE TITLE, in the same chip and the same place a post carries
+         one -- see openPost(), which appends this same .post-share button to a post's
+         date line. The wall is a screen someone links to as readily as they link to
+         one conversation (#hub is a real address), so it gets the same control.
+
+         Written into the markup rather than appended by script, because unlike a
+         post's button this one is not built per item and does not have to wait for
+         anything. The link it shares is this page's own #hub. -->
+    <h1>Scientist Interviews<button type="button" class="post-share" title="Share the interviews"
+        aria-label="Share the interviews"
+        onclick="event.stopPropagation(); openShare(this, location.origin + location.pathname + '#hub')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z"/></svg></button></h1>
   </section>
 
   <div class="grid-wrap">

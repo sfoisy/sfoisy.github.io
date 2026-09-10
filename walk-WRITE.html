@@ -6164,9 +6164,27 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
    It was near-black on a white wash. Both ends of that flipped when the title went white:
    the backdrop behind the type is dark now, so the track is white at low
    alpha and the sliver is solid white. */
+/* ===== THE BAR REPORTS, IT DOES NOT PERFORM ================================
+   It was a 36%-wide sliver sweeping left to right on a 1.5s loop -- an indeterminate
+   bar, which is the honest choice when you have nothing to measure and a lie when you
+   do. This page has plenty to measure (see the script at the foot of the sheet), so
+   the fill is now a real fraction: it starts at zero, only ever moves forward, and
+   reaches the end when the page is genuinely ready.
+
+   transform:scaleX rather than width, so each step is a composited transform rather
+   than a layout pass -- the point of a progress bar is to be the cheapest thing on a
+   busy page. transform-origin:left because a scaled box grows from its centre by
+   default, which would have it opening outward from the middle.
+
+   The .35s easing smooths the steps: real progress arrives in jumps (a batch of
+   images completes at once) and a bar that teleports reads as broken. Long enough to
+   glide, short enough that the bar is never far behind the truth. */
 .pl-bar{ width:168px; height:2px; border-radius:2px; background:rgba(255,255,255,.3); overflow:hidden; margin-top:.9rem }
-.pl-bar i{ display:block; width:36%; height:100%; background:#fff; animation:plBar 1.5s cubic-bezier(.65,0,.35,1) infinite }
-@keyframes plBar{ from{ transform:translateX(-115%) } to{ transform:translateX(390%) } }
+.pl-bar i{
+  display:block; width:100%; height:100%; background:#fff;
+  transform:scaleX(0); transform-origin:left center;
+  transition:transform .35s cubic-bezier(.25,.8,.3,1);
+}
 
 /* ===== The sheet's backdrop =================================================
    NO PHOTOGRAPH. There was one -- startt.png, preloaded at high priority, pushing in slowly
@@ -6237,8 +6255,9 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
 /* Nothing here is load-bearing, so under reduced motion all of it simply stops. The sheet
    still appears and still lifts -- that is a fade, not motion. */
 @media(prefers-reduced-motion:reduce){
-  .pl-sky, .pl-bar i{ animation:none }
-  .pl-bar i{ width:100% }
+  .pl-sky{ animation:none }
+  /* The fill still reports; it simply arrives instead of gliding. */
+  .pl-bar i{ transition:none }
 }
 
 
@@ -6328,6 +6347,63 @@ html.back-gone .backw{
    walk), and everything measured from the right edge -- the link row, the CV item --
    shifts by that much as you move between them. It reads as the bar twitching. */
 html{ scrollbar-gutter:stable }
+
+/* ===== THE BAR'S PALETTE, IN THE HEAD ======================================
+   These four values and the rules under them used to live in a <style> at the
+   FOOT of the document, sixteen thousand lines below the base nav rules, on the
+   reasoning that source order would settle the tie without any specificity games.
+
+   That is true of the finished page and false of the page arriving. This file is
+   1.9 MB and the browser paints as it parses: for as long as it takes the rest of
+   the document to stream, the bar is drawn from the BASE rules -- a white bar,
+   dark type, a grey hairline -- and then, the moment the parser reaches the block
+   at the bottom, it restyles to dark glass with white type and a white rule. That
+   is the flash. Not compositing, not the loading sheet, not the blur: the bar was
+   simply being drawn twice, from two different rules, seconds apart.
+
+   Here in the head it is settled before the first paint. The block at the foot is
+   left where it was and now changes nothing -- identical declarations arriving
+   later -- because deleting it means editing a region three other comments point
+   at; the note down there says the same.
+
+   EVERY VALUE IS NAV-SCOPED. The :root variables the bar used to read (--deep,
+   --muted, --pale) are used by dozens of other things on this page and are not
+   touched.
+   KNOBS: --nav-ink is the type, --nav-bar the glass, --nav-rule the hairline,
+   --nav-sheet the phone menu, --nav-under what the bar composites onto where the
+   blur is switched off. */
+nav, .nav-mobile-menu{
+  --nav-ink:#fff;
+  --nav-bar:rgba(10,20,38,.72);
+  --nav-rule:rgba(255,255,255,.30);
+  --nav-sheet:rgba(10,20,38,.95);
+  --nav-under:#c8dcf5;
+}
+nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
+.nav-name{ color:var(--nav-ink) }
+.nav-links a{ color:var(--nav-ink) }
+.nav-links a:hover{ color:var(--nav-ink); opacity:.55 }
+.nav-links a.current{ color:var(--nav-ink); opacity:.55 }
+.nav-hamburger span{ background:var(--nav-ink) }
+.nav-mobile-menu{ background:var(--nav-sheet); border-bottom:1px solid var(--nav-rule) }
+.nav-mobile-menu a{ color:var(--nav-ink); border-bottom:1px solid var(--nav-rule) }
+@media(max-width:700px){
+  nav{ background:linear-gradient(var(--nav-bar), var(--nav-bar)), var(--nav-under) }
+}
+/* And the solid, on this page only -- see the long note beside it further up. It has
+   to come after the palette above, which is why it is repeated here rather than left
+   where it was. */
+html nav, html .nav-mobile-menu{ --nav-solid:#0f1b2f }
+html nav{ background:var(--nav-solid); -webkit-backdrop-filter:none; backdrop-filter:none }
+html .nav-mobile-menu{ background:var(--nav-solid) }
+@media(max-width:700px){ html nav{ background:var(--nav-solid) } }
+
+/* The hairline is written on the base rule AND on the palette above, both at 1px --
+   but the base rule is `border-bottom:1px solid var(--pale)` and --pale on this page
+   is #e9e9e9, a light grey. While the document was still streaming that grey line was
+   what showed, and it sat under a white bar where it read as thicker than the white
+   one that replaced it. Nailed to one value here so there is only ever one line. */
+nav{ border-bottom:1px solid var(--nav-rule) }
 </style>
 </head>
 <body class="mode-quick">
@@ -6341,7 +6417,11 @@ html{ scrollbar-gutter:stable }
 <div id="preload" role="status" aria-live="polite" aria-label="Loading the walk">
   <div class="pl-sky" aria-hidden="true"></div>
   <div class="pl-box">
-    <div class="pl-cap"><span class="pl-title">New York City to Washington, D.C.</span></div>
+    <!-- The route line that used to sit here -- "New York City to Washington, D.C." -- is
+         gone. The page it is loading says that in type four times the size, ten seconds
+         later; on the sheet it was a caption for a picture that is not there yet. What is
+         left is the bar, which is the only thing on a loading screen a reader actually
+         wants: how much longer. -->
     <div class="pl-bar"><i></i></div>
   </div>
 </div>
@@ -6384,7 +6464,58 @@ html{ scrollbar-gutter:stable }
     // merely transparent it would still be a full-screen element sitting over the page.
     setTimeout(function(){ root.classList.add('pre-off'); }, 640);
   }
-  function liftWhenDue(){ setTimeout(lift, Math.max(0, MIN - (now() - t0))); }
+  /* ===== WHAT THE BAR IS MEASURING =========================================
+     Three signals, weighted by how much of the wait each one actually accounts for,
+     and blended so the bar keeps moving even while one of them is stalled:
+
+       PARSE (45%)  -- how much of the document has streamed. The element count is the
+                       only honest proxy available from inside the page: the parser adds
+                       nodes as bytes arrive, so counting them is counting progress.
+                       NODES_TOTAL is this file's own finished count; it is a KNOB and it
+                       drifts as the article grows -- being wrong makes the bar arrive a
+                       little early or a little late, never wrong-looking, because of the
+                       clamp below.
+       IMAGES (40%) -- how many of the images on the page have finished. This is the part
+                       that actually takes the time on a cold load.
+       FLOOR (15%)  -- the clock, so a stalled fetch never leaves the bar frozen. It is
+                       the smallest weight on purpose: it is the one signal that is not
+                       measuring anything.
+
+     MONOTONIC, ALWAYS. Every reading is clamped against the last one, because two of
+     the three can go DOWN -- the image ratio drops when the parser adds a new <img> that
+     has not loaded yet -- and a progress bar that goes backwards is worse than one that
+     tells you nothing. 96% is the ceiling until `load` actually fires; the last four
+     points belong to the truth, not to an estimate. */
+  var NODES_TOTAL = 1900;   // KNOB: this document's finished element count
+  var fill = document.querySelector('.pl-bar > i');
+  var shown = 0;
+  function paint(p){
+    p = Math.max(shown, Math.min(1, p));
+    shown = p;
+    if(fill) fill.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+  }
+  function measure(){
+    if(gone) return;
+    var nodes = document.getElementsByTagName('*').length;
+    var parse = Math.min(1, nodes / NODES_TOTAL);
+
+    var imgs = document.images, n = imgs.length, done = 0;
+    for(var i = 0; i < n; i++) if(imgs[i].complete) done++;
+    var pics = n ? done / n : (document.readyState === 'loading' ? 0 : 1);
+
+    var floor = Math.min(1, (now() - t0) / CAP);
+
+    paint(Math.min(0.96, parse * 0.45 + pics * 0.40 + floor * 0.15));
+    if(!gone) requestAnimationFrame(measure);
+  }
+  requestAnimationFrame(measure);
+
+  function liftWhenDue(){
+    /* Full, and a beat to see it full. A bar that vanishes at 93% leaves the reader
+       with the impression something was skipped. */
+    paint(1);
+    setTimeout(lift, Math.max(180, MIN - (now() - t0)));
+  }
 
   if(document.readyState === 'complete') liftWhenDue();
   else window.addEventListener('load', liftWhenDue);
@@ -6576,7 +6707,7 @@ html{ scrollbar-gutter:stable }
   <h1 class="article-title" data-i18n="hero.title"><strong>Walking 250 miles from NYC to DC</strong></h1>
   <p class="article-dek" data-i18n="hero.dek">A walk in support of weather and climate science.</p>
   <p class="article-meta">
-  <span style="font-family:Arial,Helvetica,sans-serif;">By Syl Foisy · June 12, 2026</span>
+  <span style="font-family:Arial,Helvetica,sans-serif;">By Syl Foisy · 9/8/2026</span>
   <!-- Headshot removed from the byline. The markup is left here, commented, because the
        .meta-headshot rule is still in the stylesheet if you ever want it back.
   <img src="https://wesitefoisy1.b-cdn.net/head_shot.png" alt="Syl Foisy" class="meta-headshot">
@@ -6621,7 +6752,18 @@ html{ scrollbar-gutter:stable }
      figure that actually changes a decision is the long one. The .rt-dot rule is
      left in the stylesheet in case a second number ever comes back. -->
 <p class="read-time">
-  <span>Full experience: 25 minutes</span>
+  <!-- A CLOCK AND A NUMBER, not a sentence. "Full experience: 25 minutes" spent six
+       words explaining a convention every reader already knows from every article they
+       have opened this year. The icon says "how long" and the number answers it.
+       currentColor and 1em, so the face sizes and colours itself with the line it sits
+       in and needs no rule of its own. -->
+  <span class="rt-clock">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"
+         style="vertical-align:-.12em;margin-right:.4em">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>25 min</span>
   <!-- The language control, moved down out of the nav bar to sit at the end of this
        line. It is the same DOM node, ids and all -- toggleLangMenu() and setLang()
        find it exactly as before -- so nothing about the switching changed, only where
@@ -22271,8 +22413,13 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
      by dozens of other things and are left exactly as they are; every value here is written
      into a nav-scoped rule instead.
 
-     Last in the document so it needs no specificity games: these are the same selectors the
-     originals use, and source order settles the tie. The one exception is the phone rule for
+     THIS BLOCK NO LONGER DOES ANYTHING. Every rule in it is now also in the head sheet,
+     above, and the head is where it has to be: on a 1.9 MB document the browser paints as
+     it parses, so a bar styled only from here was drawn white-with-dark-type for as long
+     as the rest of the file took to arrive, then restyled when the parser got this far.
+     That was the flash. It is left in place because three other comments point at it and
+     because identical declarations arriving twice cost nothing. The one exception is the
+     phone rule for
      .nav-links, which lives in a media query and is about display, not colour -- untouched. -->
 <style>
 /* KNOB: the whole palette is these four values. --nav-ink is the type, --nav-bar the glass,
@@ -24428,9 +24575,15 @@ body.pg-thin .step-tab .pg-steps{ display:none }
   opacity:0; transition:opacity .9s ease;
 }
 #scrollCue.lit{ transition:opacity .12s linear }   /* once it is tracking the scroll */
+/* THE SAME TYPE THE BACK PILL IS SET IN: 700 at .7rem, .02em of tracking, no
+   uppercasing. It was 600 at .55rem tracked out to .32em and set in capitals, which is
+   a different voice from anything else on the page -- and at .55rem with a third of an
+   em between the letters it was five grey marks rather than a word. These two are the
+   only floating labels on the article; they should sound the same.
+   The padding-left went with the tracking: it existed to pay back the space the last
+   letter's tracking added, and at .02em there is nothing to pay back. */
 #scrollCue span{
-  font:600 .55rem 'DM Sans',sans-serif; letter-spacing:.32em;
-  text-transform:uppercase; padding-left:.32em;    /* pays back the last letter's tracking */
+  font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
 }
 /* Still. The chevron was nudging down three pixels on a loop, and a repeating movement
    at the foot of a still page is the one thing in the eye's periphery it cannot stop
