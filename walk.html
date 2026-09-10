@@ -9,6 +9,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="270.4 miles on foot from New York City to Washington, D.C., for weather and climate science. By Syl Foisy.">
 <title>Walking from NYC to DC · Syl Foisy</title>
+<script>
+/* ===== A VIDEO IN FULL SCREEN HAS THE WINDOW. THE PAGE WAITS. ================
+   Putting a clip full screen changes the window's size -- on a phone twice, and four times if
+   the phone is turned sideways to watch it -- and this page answers every resize and every
+   scroll by re-measuring itself: the map, the open stop, the full-bleed ramp, the column.
+   Behind a full-screen video all of that ran against a window the article never has (a phone
+   held sideways is past 700px, so it was laying the stop out as the DESKTOP panel), and on the
+   way back out it ran again, animating from that nonsense back to the real layout. That is the
+   map spazzing, the stray section, and the reading position coming back somewhere else.
+
+   So while a video (or anything holding one) has the screen, resize, orientationchange and
+   scroll are stopped HERE, before any other listener on the page can see them. This has to be
+   the first script in the document: a capture listener on window runs ahead of every other
+   listener only if it was registered first. The detection, the saved position and the way
+   back are at the foot of the page -- see "FULL SCREEN AND BACK, TO THE PIXEL". */
+(function(){
+  var G = window.__vfs = { frozen:false, lastResize:0, deferred:[], check:null };
+  function now(){ return (window.performance && performance.now) ? performance.now() : Date.now(); }
+  function seen(){
+    G.lastResize = now();
+    if(G.check){ try{ G.check(); }catch(_){} }
+  }
+  window.addEventListener('resize', function(e){ seen(); if(G.frozen) e.stopImmediatePropagation(); }, true);
+  window.addEventListener('orientationchange', function(e){ seen(); if(G.frozen) e.stopImmediatePropagation(); }, true);
+  window.addEventListener('scroll', function(e){ if(G.frozen) e.stopImmediatePropagation(); }, true);
+})();
+</script>
 <script src="https://wesitefoisy1.b-cdn.net/z_shausdb.js"></script>
 
 <!-- ===== Social share card (Open Graph + Twitter) ===== -->
@@ -6484,61 +6511,11 @@ nav{ border-bottom:1px solid var(--nav-rule) }
   }
 }
 
-/* ===== CAPTIONS ON A PHONE ARE DRAWN BY THIS PAGE ===========================
-   Every previous attempt tried to move the browser's own cue box with a transform on
-   video::-webkit-media-text-track-container, and every one of them failed for the same
-   reason: that box is in the video's shadow DOM and the browser repositions it whenever
-   it feels like it -- when the controls appear, when they hide, when a new cue starts.
-   A transform from outside is a suggestion the browser overwrites, which is exactly what
-   the flicker was: our lift, then the browser putting it back, several times a second.
-
-   So on a phone the page stops asking. The text track is switched to `hidden`, which
-   keeps the cues firing and stops the browser painting them, and the cue text is drawn
-   into an ordinary <div> laid over the video. From there its position is a CSS rule like
-   any other and nothing can move it.
-
-   WHERE IT SITS: clear of the control bar, always. Not "up while the bar is showing" --
-   that was the old design and it needed to know something the page cannot know. One
-   position that clears the bar in both states is stable, and because this box is ours it
-   can sit much closer to the bottom edge than the browser's own ever did, so it does not
-   look stranded when the controls are hidden.
-
-   Desktop is untouched. Everything here is inside the phone query and the script leaves
-   the track alone above that width, so the browser goes on doing what it already does
-   correctly there.
-   KNOBS: --vcap-lift (how far above the bottom edge), and the font size. */
-@media(max-width:900px){
-  .vcap-wrap{ position:relative; display:block }
-  /* THE BOX MEASURES THE VIDEO, NOT THE PAGE. A fixed rem size is right for one width
-     and wrong for every other: on a clip sitting in a column of text it was as tall as the
-     picture's own subtitles would be on a cinema screen, while the same value looked
-     correct once the video filled the window. Container units fix the proportion instead
-     of the size -- 4.2cqw is 4.2% of the WRAPPER's width, so the caption is the same
-     fraction of the picture at any size, which is what "the right proportion" means.
-     The clamp keeps it readable on a very small embed and stops it running away on a very
-     large one.
-     The lift is in cqw for the same reason: a caption 3rem off the bottom of a 200px-tall
-     clip is a third of the way up it. */
-  .vcap-wrap{ container-type:inline-size }
-  .vcap{
-    position:absolute; left:0; right:0;
-    bottom:var(--vcap-lift, clamp(1.4rem, 7cqw, 3.4rem));
-    z-index:2; pointer-events:none;
-    padding:0 .7rem; text-align:center;
-    font:500 clamp(.62rem, 4.2cqw, 1.02rem)/1.35 'DM Sans',sans-serif;
-    /* The text carries its own backing rather than the box: a full-width band would sit
-       over the picture even on a one-word cue, and the reason captions are set this way
-       everywhere is that the backing should be the shape of the words. */
-    color:transparent;
-  }
-  .vcap b{
-    display:inline; font-weight:500;
-    background:rgba(0,0,0,.72); color:#fff;
-    padding:.12em .34em; border-radius:3px;
-    box-decoration-break:clone; -webkit-box-decoration-break:clone;
-  }
-  .vcap:empty{ display:none }
-}
+/* (The phone had a caption layer of its own here -- a second .vcap, in a .vcap-wrap the
+   script wedged between the video and its .video-share-wrap, sized in cqw and parked at one
+   height. It is gone: its type was about 16px on a phone and never got the size knob, and it
+   could not see the control bar. Phones now use the same strip desktop does -- see .vcap and
+   "Captions that keep up with the control bar" -- with a phone size of its own.) */
 
 /* ===== THE PHONE MENU IS AN OVERLAY, NOT A ROW ==============================
    It was `position:sticky` -- which means it is IN the flow, and opening it inserted a
@@ -6640,11 +6617,9 @@ nav{ border-bottom:1px solid var(--nav-rule) }
    only: over the small map in the article, a vertical swipe should still scroll the
    page, which is what a reader expects of a picture sitting in a column of text.
 
-   The page behind is locked at the same time -- position:fixed rather than
-   overflow:hidden, because iOS ignores overflow on the body and scrolls it anyway. The
-   top offset keeps the reading position: without it, fixing the body snaps the article
-   back to the beginning, and closing the map would drop you at the top of a very long
-   page. The script writes --lock-y; the fallback of 0 is harmless if it has not. */
+   The page behind is held still by a touchmove guard at the foot of the file ("THE PAGE
+   HOLDS STILL WHILE THE MAP IS FULL SCREEN"), not by pinning the body -- see the note
+   left where that rule was, below. */
 @media(max-width:900px){
   body.mapfull #map,
   body.mapfull .map-shell,
@@ -6652,12 +6627,12 @@ nav{ border-bottom:1px solid var(--nav-rule) }
   body.mapfull .map-stage{
     touch-action:none;
   }
-  body.mapfull{
-    position:fixed;
-    top:calc(var(--lock-y, 0px) * -1);
-    left:0; right:0; width:100%;
-    overflow:hidden;
-  }
+  /* (The body used to be pinned with position:fixed here while .mapfull was on. That is what
+     broke the phone's full-screen map: pinning the body takes the document's scroll to 0, the
+     render loop reads that as the reader scrolling up, and its peek release -- "scrolled up
+     out of the hotdog, fold the map" -- closed full screen on the next frame. The map never
+     got to show. The page behind is held still by a touchmove guard at the foot of the file
+     instead, which leaves the scroll position alone.) */
 }
 
 /* ===== THE TAP HINT, ABOVE THE FOOTNOTE =====================================
@@ -12006,6 +11981,10 @@ DATA.stops.forEach(function(s){
   }
 
   function render(){
+    /* Nothing to draw while a video has the screen: the window is the video's shape, not the
+       article's, and every size below is read off it. The loop keeps ticking and picks up
+       exactly where it left off. See the note at the top of <head>. */
+    if(window.__vfs && window.__vfs.frozen){ requestAnimationFrame(render); return; }
     cur += (target-cur)*0.18; if(Math.abs(target-cur)<0.05) cur=target;
     introCur += (targetIntro-introCur)*0.16; if(Math.abs(targetIntro-introCur)<0.002) introCur=targetIntro;
     active=targetActive;
@@ -17154,6 +17133,19 @@ video:-webkit-full-screen::cue{
   font-family:'DM Sans', system-ui, sans-serif; font-weight:500;
   font-size:63%; line-height:1.34;
 }
+/* The same, for a video full screen by any other route -- Safari's own player among them,
+   which does not match :fullscreen. The class is set by the full-screen guard at the foot of
+   the page, only while the bare video (not the caption wrapper) has the screen. */
+video.cue-native::cue{
+  opacity:1;
+  background:rgba(0,0,0,.74); color:#fff;
+  font-family:'DM Sans', system-ui, sans-serif; font-weight:500;
+  font-size:63%; line-height:1.34;
+}
+/* Nothing animates while a video has the screen or in the moment after it gives it back: the
+   page is being put back to the shape it had, not transitioning to a new one. See
+   "FULL SCREEN AND BACK, TO THE PIXEL". */
+html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:none !important }
 
 .vshare-btn{position:absolute;top:8px;right:8px;z-index:5;width:25px;height:25px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .2s,transform .2s}
 .vshare-btn svg{width:12px;height:12px;display:block}
@@ -22156,6 +22148,29 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
      menu either way now, just with the native layer's lag. */
   var VCAP_ON = true;
 
+  /* ---- PHONES -------------------------------------------------------------------------------
+     The type on a phone is sized off the picture's WIDTH, not its height. A 16:9 clip in a
+     390px column is about 220px tall, and every height-based number that reads well on a desktop
+     card comes out either unreadable or -- once clamped -- the same 16px the phone had before,
+     which is a caption as tall as the ones in a cinema. KNOBs: the fraction and both clamps.
+     11.5px on a clip the full width of a 390px phone, 9px on one sharing the column with the
+     map -- where the old layer set 16px and 10px. */
+  var PH_FS_FRAC = 0.03, PH_FS_MIN = 9, PH_FS_MAX = 11.5;
+  var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+  /* KNOB: how long a phone's player keeps its controls up after a tap. There is no event for
+     it on either platform; both iOS and Android sit at about three seconds. */
+  var TOUCH_MS = 3000;
+  /* KNOB: how far up an inline clip a phone's control cluster reaches, in px. The desktop
+     figure (BAR_H, 52) is Chrome's full-size bar. 40 was tried first and sat on the phone's row
+     of controls (the time, the speaker, the full-screen corner); 54 clears them. */
+  var PH_BAR_H = 54;
+  /* A finger-first device starts in the touch model rather than waiting for its first touch --
+     the play curtain is pressed, not the video, so the video itself may not have been touched
+     yet when the bar first comes up. */
+  var COARSE = window.matchMedia ? window.matchMedia('(hover:none) and (pointer:coarse)') : null;
+  /* Safari, desktop and iOS, and every iOS browser (they are all WebKit there). See fs(). */
+  var APPLE = /Apple/i.test(navigator.vendor || '');
+
   function setup(v){
     if(!VCAP_ON) return;
     if(v._vcap) return;
@@ -22209,7 +22224,19 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
          one keeps the 16px default while its neighbours get the computed value: the same page
          showing three different caption sizes. The ResizeObserver below fixes the second half
          of that; widening the clamp fixes the first. 0.0357 is the old fraction 10% down. */
-      box.style.setProperty('--vcap-fs',   Math.round(Math.max(9, Math.min(52, h * 0.0357))) + 'px');
+      var fsz = Math.max(9, Math.min(52, h * 0.0357));
+      if(PHONE && PHONE.matches && (document.fullscreenElement || document.webkitFullscreenElement || null) !== wrap){
+        /* The phone's slimmer bar, and a slimmer gap above it. */
+        box.style.setProperty('--vcap-bar', Math.round(PH_BAR_H + Math.max(6, Math.min(12, h * 0.037))) + 'px');
+      }
+      /* A phone, and the clip inline in the page -- not the wrapper full screen, where the
+         picture is the whole screen and the fraction above is already right. */
+      var fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
+      if(PHONE && PHONE.matches && fsEl !== wrap){
+        var w = v.getBoundingClientRect().width || 0;
+        if(w) fsz = Math.max(PH_FS_MIN, Math.min(PH_FS_MAX, w * PH_FS_FRAC));
+      }
+      box.style.setProperty('--vcap-fs', (Math.round(fsz * 2) / 2) + 'px');
     }
     measure();
     window.addEventListener('resize', measure, {passive:true});
@@ -22243,9 +22270,22 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
        whereabouts is tracked and the two are timed separately: HIDE_MS while it is over the
        picture, LEAVE_MS once it is not. The caption is then quick exactly where the bar is
        quick, and still where the bar is still. */
+    /* A FINGER IS NOT A POINTER, and the phone's bar has to be read differently.
+       The mouse model above is "up while the pointer moves over the picture, gone a moment
+       after it leaves". A touch leaves the instant the finger lifts -- pointerleave fires
+       straight after every tap -- so on a phone the caption dropped a fifth of a second after
+       the controls came up and sat on top of them for the next three seconds. That is why the
+       phone's captions never seemed to move for the bar at all.
+       A phone's player works like this instead: a tap brings the bar up for about three
+       seconds, and a thumb on the bar (the scrubber, the buttons) keeps it up. Paused, it is
+       always up. */
+    var touchMode = !!(COARSE && COARSE.matches), touchUntil = 0, tDown = null;
+    function showFor(){ touchUntil = performance.now() + TOUCH_MS; }
+    function barReach(){ return parseFloat(box.style.getPropertyValue('--vcap-bar')) || (BAR_H + 8); }
     function barOn(){
       if(v._vcapFS) return false;          // the browser is drawing; its own layer handles this
       if(v.paused || v.ended) return true; // paused always shows the bar
+      if(touchMode) return performance.now() < touchUntil;
       return (performance.now() - lastAct) < (over ? HIDE_MS : LEAVE_MS);
     }
     function paint(){
@@ -22254,7 +22294,12 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
          saying yes and anything else is the reader saying no. */
       var cues = null;
       for(var i = 0; i < tt.length; i++){
-        if(tt[i].mode === 'showing' && tt[i].activeCues && tt[i].activeCues.length){ cues = tt[i].activeCues; break; }
+        /* 'hidden' counts as yes when WE hid it -- that is the phone, where the track is set to
+           hidden so the browser paints nothing inline (see "THE TRACK, ON A PHONE" at the foot
+           of the page). _vcapTook is that script's mark. A track the reader turned off is
+           'disabled', and paints nothing here either way. */
+        var md = tt[i].mode;
+        if((md === 'showing' || (md === 'hidden' && tt[i]._vcapTook)) && tt[i].activeCues && tt[i].activeCues.length){ cues = tt[i].activeCues; break; }
       }
       /* ONE LINE PER CUE, not one per line of the cue. A .srt carries its own line breaks --
          wherever the transcriber's box happened to end -- and honouring them split captions
@@ -22285,15 +22330,70 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
       paint();
       if(timer) clearTimeout(timer);
       // Repaint exactly as the bar goes, rather than waiting for whatever happens next --
-      // against whichever of the two timeouts is currently in force.
-      timer = setTimeout(paint, (over ? HIDE_MS : LEAVE_MS) + 30);
+      // against whichever of the timeouts is currently in force.
+      var wait = touchMode ? Math.max(0, touchUntil - performance.now()) : (over ? HIDE_MS : LEAVE_MS);
+      timer = setTimeout(paint, wait + 30);
     }
-    ['pointermove','pointerdown','pointerenter','touchstart'].forEach(function(e){
-      v.addEventListener(e, function(){ over = true; act(); }, {passive:true});
+    // The mouse (and a pen). Touch pointers are left to the touch handlers below.
+    function mouseish(e){ return !e.pointerType || e.pointerType === 'mouse' || e.pointerType === 'pen'; }
+    ['pointermove','pointerdown','pointerenter'].forEach(function(n){
+      v.addEventListener(n, function(e){ if(!mouseish(e)) return; touchMode = false; over = true; act(); }, {passive:true});
     });
-    v.addEventListener('pointerleave', function(){ over = false; act(); }, {passive:true});
-    ['play','pause','seeking','seeked','ended','volumechange'].forEach(function(e){
-      v.addEventListener(e, function(){ act(); });
+    v.addEventListener('pointerleave', function(e){ if(!mouseish(e)) return; over = false; act(); }, {passive:true});
+    // The finger.
+    v.addEventListener('touchstart', function(e){
+      touchMode = true;
+      var t = e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      var r = v.getBoundingClientRect();
+      tDown = { x:t.clientX, y:t.clientY, t:performance.now(), inBar:(r.bottom - t.clientY) <= barReach() };
+      if(tDown.inBar && barOn()){ showFor(); act(); }        // a thumb on the controls keeps them up
+    }, {passive:true});
+    v.addEventListener('touchmove', function(){
+      if(tDown && tDown.inBar){ showFor(); act(); }          // dragging the scrubber
+    }, {passive:true});
+    v.addEventListener('touchend', function(e){
+      var d = tDown; tDown = null;
+      var t = d && e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      // A drag (scrolling the page past the clip) or a long press is not a tap.
+      if(Math.abs(t.clientX - d.x) > 12 || Math.abs(t.clientY - d.y) > 12 || performance.now() - d.t > 700) return;
+      showFor();                         // a tap the page sees is a tap on a clip with its bar down: up it comes
+      act();
+    }, {passive:true});
+    v.addEventListener('touchcancel', function(){ tDown = null; }, {passive:true});
+    /* THE TAP THE PLAYER KEEPS. While its controls are up, Chrome's player takes a tap for
+       itself: the page sees pointerenter and pointerleave and nothing in between -- no
+       pointerdown, no touchstart. What the player then does with it cannot be seen from here
+       (tested: sometimes the bar stays, sometimes it fades), so it is read as the one safe
+       thing -- a hand on the controls, bar up for another stretch. Wrong that way, the caption
+       sits a moment too high over an empty strip; wrong the other way, it sits ON the bar,
+       which is the fault this whole layer exists to fix. A button that plays, pauses or seeks
+       fires its own media event first, and that has already said what the bar is doing. */
+    var tEnter = null, mediaTick = 0;
+    v.addEventListener('pointerenter', function(e){
+      if(e.pointerType === 'touch') tEnter = { y:e.clientY, t:performance.now(), down:false };
+    }, {passive:true});
+    v.addEventListener('pointerdown', function(e){
+      if(e.pointerType === 'touch' && tEnter) tEnter.down = true;
+    }, {passive:true});
+    v.addEventListener('pointerleave', function(e){
+      if(e.pointerType !== 'touch') return;
+      var d = tEnter; tEnter = null;
+      if(!d || d.down || performance.now() - d.t > 700) return;
+      touchMode = true;
+      var tick = mediaTick;
+      setTimeout(function(){
+        if(tick !== mediaTick) return;
+        showFor();
+        act();
+      }, 80);
+    }, {passive:true});
+    ['play','seeking','seeked'].forEach(function(n){
+      v.addEventListener(n, function(){ mediaTick++; if(touchMode) showFor(); act(); });
+    });
+    ['pause','ended','volumechange'].forEach(function(n){
+      v.addEventListener(n, function(){ mediaTick++; act(); });
     });
     for(var j = 0; j < tt.length; j++) tt[j].addEventListener('cuechange', paint);
     v.addEventListener('timeupdate', paint);   // belt and braces: cuechange can be missed on seek
@@ -22322,7 +22422,12 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
        stylesheet still gives ::cue its opacity back under :fullscreen. */
     function fs(){
       var fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
-      if(fsEl === v && wrap.requestFullscreen && !v._vcapSwap){
+      /* NOT ON SAFARI. WebKit does not move full screen from one element to another in place:
+         it animates all the way out and all the way back in, so the swap was two full-screen
+         transitions for one press -- with the page resizing under each -- and on the way out
+         the same again. A bare full-screen <video> there gets the browser's own captions,
+         which is what iOS has always had (see video.cue-native in the stylesheet). */
+      if(fsEl === v && wrap.requestFullscreen && !v._vcapSwap && !APPLE){
         v._vcapSwap = true;
         try{
           Promise.resolve(wrap.requestFullscreen())
@@ -24623,7 +24728,11 @@ body.pg-thin .step-tab .pg-steps{ display:none }
     paintSheet(openSect);
     paintRails(openSect);
   }
-  function relayoutSoon(){ clearTimeout(lt); lt = setTimeout(relayout, 70); }
+  function relayoutSoon(){
+    // A full-screen video resizes its own box twice; the stop around it has not changed.
+    if(window.__vfs && window.__vfs.frozen) return;
+    clearTimeout(lt); lt = setTimeout(relayout, 70);
+  }
 
   /* Re-shaping an already-open sheet, for when the LANE has changed under it -- the map
      folding to a hotdog or peeking back out. Two halves, and they are separate because
@@ -26019,8 +26128,22 @@ body.map-full #scrollCue{ opacity:0 !important }
 
   /* addEventListener where it exists, addListener for older Safari. Only fires
      when the query's answer actually flips, which is exactly the crossing. */
-  if(mq.addEventListener) mq.addEventListener('change', tidy);
-  else if(mq.addListener) mq.addListener(tidy);
+  /* NOT WHILE A VIDEO HAS THE SCREEN. A phone turned sideways to watch a clip full screen is
+     past 700px, so this line was crossed behind the video -- the open stop was torn down and
+     rebuilt as the desktop panel, then torn down again on the way back. The crossing is held
+     until the video hands the screen back, and then run only if it is still crossed. */
+  var lastPhone = mq.matches;
+  function crossed(ev){
+    var G = window.__vfs;
+    if(G && G.frozen){
+      G.deferred.push(function(){ if(mq.matches !== lastPhone){ lastPhone = mq.matches; tidy(); } });
+      return;
+    }
+    lastPhone = mq.matches;
+    tidy(ev);
+  }
+  if(mq.addEventListener) mq.addEventListener('change', crossed);
+  else if(mq.addListener) mq.addListener(crossed);
 })();
 </script>
 
@@ -26259,88 +26382,28 @@ function goBack(e){
 })();
 </script>
 <script>
-/* ===== CAPTIONS, DRAWN BY THE PAGE, ON PHONES ONLY =========================
-   See the .vcap rules in the stylesheet for why: the browser's cue box cannot be moved
-   from outside the shadow DOM and undoes anything the page does to it. This takes the
-   painting over instead.
+/* ===== THE TRACK, ON A PHONE ================================================
+   This used to be a second caption layer: it wrapped every video in a .vcap-wrap, drew the
+   cues into a box of its own at one fixed height, and set the type in cqw -- about 16px on a
+   phone. It sat on top of the strip the rest of the page uses (which it had quietly starved:
+   that strip only paints a track it is allowed to, and this one had hidden them all), so every
+   change to the caption size and to the control-bar glide went into the strip nobody could
+   see. The painting is gone. Phones use "Captions that keep up with the control bar", like
+   every other width.
 
-   HOW IT HANGS TOGETHER
-   - `hidden` on the track, not `disabled`. Hidden keeps cuechange firing and activeCues
-     populated while stopping the browser drawing anything. Disabled would stop both.
-   - The overlay is a sibling of the <video> inside a wrapper this adds, because a <div>
-     cannot go inside a <video>. The wrapper takes the video's place in the DOM and the
-     video moves into it, so nothing else that was pointing at the video is disturbed.
-   - Delegated and observed, because the videos on this site do not exist at load: the
-     blog builds one when a post opens and the walk builds them as you scroll.
-   - `change` on the track list is the important listener. Our own caption loader sets
-     mode to 'showing' a frame after it attaches a track, and the CC button in the native
-     controls sets it too -- so this cannot set 'hidden' once and walk away. It re-asserts
-     on every change, and it respects the one state that means the reader has spoken:
-     `disabled`, which is what the CC button produces when it turns captions off.
-
-   Above 900px none of this runs and the track is left showing, which is what desktop
-   already does correctly. */
+   What is left is the one thing a phone genuinely needs: the browser must paint NOTHING of its
+   own over an inline clip, and must paint its captions in its own full-screen player. The
+   stylesheet's video::cue{opacity:0} does the first on most engines, but WebKit on iOS does
+   not honour it everywhere, so on a phone the track is switched to `hidden` -- cues keep
+   firing, nothing is drawn -- and marked _vcapTook, which is what tells the strip it may paint
+   a hidden track. In full screen it goes back to `showing` so the native player has captions,
+   and comes back to `hidden` on the way out.
+   `disabled` is left alone: that is the reader turning captions off from the player, and the
+   strip goes blank with it. Above 900px nothing is touched. */
 (function(){
   var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
   function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 900); }
 
-  function esc(t){
-    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  /* The box, and the wrapper it needs. Both are made once per video and remembered on
-     the element, so this is safe to call as often as it likes. */
-  function boxFor(v){
-    if(v._vcapBox && v._vcapBox.isConnected) return v._vcapBox;
-    var parent = v.parentNode;
-    if(!parent) return null;
-    var wrap = parent.classList && parent.classList.contains('vcap-wrap') ? parent : null;
-    if(!wrap){
-      wrap = document.createElement('div');
-      wrap.className = 'vcap-wrap';
-      parent.insertBefore(wrap, v);
-      wrap.appendChild(v);
-    }
-    var box = wrap.querySelector(':scope > .vcap');
-    if(!box){
-      box = document.createElement('div');
-      box.className = 'vcap';
-      box.setAttribute('aria-hidden', 'true');   /* the track itself is what a reader hears */
-      wrap.appendChild(box);
-    }
-    v._vcapBox = box;
-    return box;
-  }
-
-  function paint(v){
-    var box = v._vcapBox;
-    if(!box) return;
-    if(!onPhone()){ box.innerHTML = ''; return; }
-    var tt = v.textTracks, out = [];
-    for(var i = 0; tt && i < tt.length; i++){
-      var t = tt[i];
-      if(t.mode === 'disabled') continue;           /* reader turned captions off */
-      var cues = t.activeCues;
-      for(var j = 0; cues && j < cues.length; j++){
-        var txt = cues[j].text;
-        /* String.fromCharCode(10) rather than a backslash-n literal: this file is
-           generated and re-generated, and an escape is one round of quoting away from
-           becoming a real line break inside a string, which is a syntax error that
-           takes the whole script with it. A character code cannot be mangled. */
-        if(txt) out.push(esc(txt).split(String.fromCharCode(10)).join('<br>'));
-      }
-    }
-    box.innerHTML = out.length ? '<b>' + out.join('</b><br><b>') + '</b>' : '';
-  }
-
-  /* Take the painting off the browser, and keep taking it: our own loader sets 'showing'
-     a frame after it attaches a track. 'disabled' is left alone -- that is the CC button
-     saying no. */
-  /* IN FULL SCREEN THE BROWSER TAKES IT BACK. Presenting a <video> full screen shows the
-     video element and nothing around it -- our overlay is a sibling, so it simply is not
-     there -- and the browser's own cue rendering is correct at that size anyway, which is
-     the one place it never needed help. So the track goes back to 'showing' whenever this
-     video is the full-screen element, and returns to 'hidden' on the way out. */
   function isFsVideo(v){
     var fe = document.fullscreenElement || document.webkitFullscreenElement || null;
     if(fe && (fe === v || (fe.contains && fe.contains(v)))) return true;
@@ -26354,22 +26417,16 @@ function goBack(e){
       var t = tt[i];
       if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
       if(!handBack){
-        if(t.mode === 'showing') t.mode = 'hidden';
+        if(t.mode === 'showing'){ t._vcapTook = true; t.mode = 'hidden'; }
       }else if(t.mode === 'hidden' && t._vcapTook){
         t.mode = 'showing';                          /* the browser draws them again */
       }
-      if(!t._vcapTook){
-        t._vcapTook = true;
-        t.addEventListener('cuechange', function(){ paint(v); });
-      }
     }
-    paint(v);
   }
 
   function bind(v){
     if(v._vcapBound) return;
     v._vcapBound = true;
-    boxFor(v);
     if(v.textTracks && v.textTracks.addEventListener){
       v.textTracks.addEventListener('addtrack', function(){ claim(v); });
       v.textTracks.addEventListener('change',   function(){ claim(v); });
@@ -26389,8 +26446,8 @@ function goBack(e){
     for(var i = 0; i < list.length; i++) bind(list[i]);
   }
 
-  /* The videos are built as the reader goes, so watching for them is the only way to
-     catch them all. Subtree-wide, attributes off: this is looking for one tag name. */
+  /* Videos built later still get caught. Subtree-wide, attributes off: this is looking for
+     one tag name. */
   new MutationObserver(function(muts){
     for(var i = 0; i < muts.length; i++){
       var added = muts[i].addedNodes;
@@ -26398,44 +26455,43 @@ function goBack(e){
         var n = added[j];
         if(n.nodeType !== 1) continue;
         if(n.tagName === 'VIDEO') bind(n);
-        else sweep(n);
+        else if(n.querySelector && n.querySelector('video')) sweep(n);
       }
     }
   }).observe(document.documentElement, {childList:true, subtree:true});
 
-  /* And on a rotate or a resize across the boundary, hand the job back or take it on. */
-  if(PHONE && PHONE.addEventListener) PHONE.addEventListener('change', function(){ sweep(document); });
+  /* A rotate across the line: take the job on or hand it back. */
+  if(PHONE && PHONE.addEventListener) PHONE.addEventListener('change', function(){
+    var list = document.querySelectorAll('video');
+    for(var i = 0; i < list.length; i++) claim(list[i]);
+  });
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ sweep(document); });
   else sweep(document);
+  window.addEventListener('load', function(){ sweep(document); });
 })();
 </script>
 <script>
 /* ===== THE PAGE HOLDS STILL WHILE THE MAP IS FULL SCREEN ====================
-   body.mapfull is set by the map's own code; this only records where the article was
-   when it went on, and puts it back when it comes off. The CSS does the fixing (see
-   .mapfull above) -- position:fixed is the only lock iOS honours, and the cost of it is
-   that the page forgets its scroll, so the offset is carried in a variable.
+   On a phone the article must not scroll behind the full-screen map. body.maplock already puts
+   overflow:hidden on the body, and iOS ignores that for a finger -- so a drag on the dark
+   backdrop still moved the page. The fix used to be pinning the body with position:fixed, and
+   that is what stopped the full-screen map appearing at all on a phone (see the note where the
+   rule was, beside .mapfull in the stylesheet).
 
-   A MutationObserver rather than a hook inside the map, because the class is written
-   from more than one place in that file and this needs to catch all of them. Watching
-   one attribute on one element is about as cheap as an observer gets. */
+   This does the same job without touching the scroll position: while body.map-fs is on, a
+   touchmove that would scroll the page is cancelled. The two panels that scroll on their own
+   are let through. The map's own drag and pinch are unaffected: in full screen it is
+   touch-action:none, so they run on pointer events, which a cancelled touchmove does not stop.
+   Non-passive, which is the only way preventDefault on a touchmove is honoured. */
 (function(){
-  var y = 0, on = false;
-  function sync(){
-    var now = document.body.classList.contains('mapfull');
-    if(now === on) return;
-    on = now;
-    if(on){
-      y = window.pageYOffset || 0;
-      document.documentElement.style.setProperty('--lock-y', y + 'px');
-    }else{
-      document.documentElement.style.removeProperty('--lock-y');
-      window.scrollTo(0, y);
-    }
-  }
-  new MutationObserver(sync).observe(document.body, {attributes:true, attributeFilter:['class']});
-  sync();
+  document.addEventListener('touchmove', function(e){
+    var b = document.body;
+    if(!b || !b.classList.contains('map-fs')) return;
+    var t = e.target;
+    if(t && t.closest && t.closest('.map-modes-pop, .map-info-pop')) return;
+    if(e.cancelable) e.preventDefault();
+  }, {passive:false});
 })();
 </script>
 <script>
@@ -26626,61 +26682,260 @@ function goBack(e){
 })();
 </script>
 <script>
-/* ===== LEAVING A VIDEO'S FULL SCREEN MUST NOT MOVE THE PAGE ================
-   Going full screen on a phone rotates the window, changes its size twice, and fires a
-   resize on the way in and another on the way out. This page answers a resize by
-   re-measuring nearly everything -- the hero band, the map's anchor, the open stop's
-   panel, the column's width -- and several of those write scroll positions as part of
-   placing themselves. Run while the window is a shape the article never has, they place
-   against nonsense, and coming back out you land somewhere you have never been, with the
-   layout half-built.
+/* ===== FULL SCREEN AND BACK, TO THE PIXEL ===================================
+   The other half of the note at the top of <head>. That half stops the page hearing the window
+   change while a video has the screen; this half decides when that is, remembers exactly where
+   the reader was, and puts them back there.
 
-   So the scroll position is taken before the window changes and put back after it has
-   settled. Three restores rather than one: the frame the class lands on, a beat later for
-   the browser's own scroll restoration, and 400ms out for the layout passes that run on a
-   timer. Each is cheap and the last one wins.
+   WHERE THE READER WAS is the clip itself, not a scroll number. A number is only right if
+   nothing above the clip changed height while it was full screen, and on a phone turned
+   sideways everything did -- so a restored scrollY put the page back and the clip somewhere
+   else, which is "not quite the same place in the stop". Holding the clip's own top edge at
+   the pixel it was on is exact whatever moved. A stop open as the desktop panel scrolls inside
+   itself, so every scrolling box between the clip and the window is remembered too, innermost
+   first.
 
-   `instant` rather than the default -- html has scroll-behavior in play on some paths and
-   a smooth restore here reads as the page wandering back, which is the thing being fixed.
+   TAKEN AT THE PRESS. By the time any full-screen event arrives the window has already changed
+   shape and the browser may already have nudged the scroll, so the position is read on the
+   touch or click that lands on the clip -- the fullscreen button is inside it -- and kept for
+   the full screen that follows. A keyboard or anything else with no press falls back to a
+   reading taken the moment full screen is noticed.
 
-   The listeners cover both the modern event and the two iOS emits, since iOS fires
-   neither of the standard ones for a <video>.
-   KNOB: the three delays. */
+   WHEN IT IS OVER is not the exit event: the phone may still be rotating back and the browser
+   still resizing. The page stays held until the window has been quiet for QUIET_MS (and at
+   least MIN_MS) AND is back to the width it left at -- a phone is usually turned back upright
+   a moment after the player closes, and laying the page out for the sideways window in between
+   is the very relayout this is here to prevent. After BACK_MS still sideways, the reader is
+   staying that way: the page lays out for it, and if the phone is turned back within ARM_MS
+   (with no touch in between) the clip is put back on its pixel again. Then, in this order:
+   one resize if the window came back a different shape, any phone/desktop crossing that was
+   held, the scroll boxes, the clip to its pixel -- and the clip is held there for HOLD_MS, to
+   outlast the page's own debounced re-layouts, unless the reader touches the page first.
+
+   Transitions are off for the whole of it (html.vfs-hold), so nothing visibly animates from
+   the shape it was forced into behind the video back to the shape it really is.
+
+   Covers element full screen (Chrome, Android, desktop Safari) and the native player (iOS),
+   which answers only to webkitbeginfullscreen / webkitendfullscreen.
+   KNOBS: MIN_MS, QUIET_MS, BACK_MS, MAX_MS, HOLD_MS, ARM_MS. */
 (function(){
-  var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
-  function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 900); }
+  var G = window.__vfs;
+  if(!G) return;
+  var W = window, D = document, de = D.documentElement;
+  var MIN_MS = 350, QUIET_MS = 300, BACK_MS = 1600, MAX_MS = 4000, HOLD_MS = 1600, PRESS_MS = 15000, ARM_MS = 10000;
+  var press = null, snap = null, exitAt = 0, pollT = null, holdRAF = 0, sbSaved = null, touched = false;
+  var armed = null, armT = null;
 
-  var y = null;
+  function now(){ return performance.now(); }
 
-  function remember(){
-    if(!onPhone()) return;
-    y = window.pageYOffset || document.documentElement.scrollTop || 0;
-  }
-  function restore(){
-    if(!onPhone() || y === null) return;
-    var to = y;
-    function put(){
-      try{ window.scrollTo({ top:to, behavior:'instant' }); }
-      catch(e){ window.scrollTo(0, to); }
+  /* The video that has the screen, or null. A full-screen element that is a video, holds one
+     (the caption wrapper), or is an embed; or a video in the iOS player. */
+  function fsVideo(){
+    var fe = D.fullscreenElement || D.webkitFullscreenElement || null;
+    if(fe){
+      if(fe.tagName === 'VIDEO' || fe.tagName === 'IFRAME') return fe;
+      var inner = fe.querySelector ? fe.querySelector('video') : null;
+      if(inner) return inner;
     }
-    requestAnimationFrame(put);
-    setTimeout(put, 120);
-    setTimeout(function(){ put(); y = null; }, 400);
+    var vs = D.getElementsByTagName('video');
+    for(var i = 0; i < vs.length; i++){
+      if(vs[i].webkitDisplayingFullscreen || vs[i].webkitPresentationMode === 'fullscreen') return vs[i];
+    }
+    return null;
   }
 
-  function fsNow(){
-    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function anchorOf(v){ return (v.closest && v.closest('.video-share-wrap')) || v; }
+
+  function scrollers(el){
+    var out = [];
+    for(var p = el.parentElement; p && p !== D.body && p !== de; p = p.parentElement){
+      var oy = getComputedStyle(p).overflowY;
+      if((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && p.scrollHeight > p.clientHeight + 1){
+        out.push({ el:p, top:p.scrollTop });
+      }
+    }
+    return out;
   }
 
-  function change(){
-    if(fsNow()) remember(); else restore();
+  function take(v){
+    var a = anchorOf(v);
+    return { v:v, el:a, top:a.getBoundingClientRect().top, y:W.pageYOffset || de.scrollTop || 0,
+             sc:scrollers(a), w:W.innerWidth, h:W.innerHeight, t:now() };
   }
-  document.addEventListener('fullscreenchange', change);
-  document.addEventListener('webkitfullscreenchange', change);
 
-  /* iOS: a <video> full screen fires neither of the above. These two are its only word. */
-  document.addEventListener('webkitbeginfullscreen', remember, true);
-  document.addEventListener('webkitendfullscreen',   restore,  true);
+  /* The press. Capture phase, so nothing on the clip can swallow it first. */
+  function onPress(e){
+    if(G.frozen) return;
+    if(holdRAF) touched = true;              // the reader has taken over from the hold below
+    if(armed) disarm();                      // ...or from the wait for the phone to turn back
+    var t = e.target, v = null;
+    if(t && t.closest){
+      if(t.tagName === 'VIDEO') v = t;
+      else { var w = t.closest('.video-share-wrap'); if(w) v = w.querySelector('video'); }
+    }
+    if(v) press = take(v);
+  }
+  ['touchstart','pointerdown','mousedown','keydown'].forEach(function(n){
+    D.addEventListener(n, onPress, {capture:true, passive:true});
+  });
+  W.addEventListener('wheel', function(){ if(holdRAF) touched = true; if(armed) disarm(); }, {capture:true, passive:true});
+
+  /* Only a video full screen on its own gets the browser's captions -- the caption wrapper
+     full screen is our strip's to draw, and both at once would be two sets. */
+  function markNative(v){
+    if(!v || v.tagName !== 'VIDEO') return;
+    var fe = D.fullscreenElement || D.webkitFullscreenElement || null;
+    v.classList.toggle('cue-native', !fe || fe === v);
+  }
+
+  function freeze(v){
+    G.frozen = true;
+    exitAt = 0;
+    stopHold();
+    disarm();
+    /* The press is used if it was on this clip, recently, and the page has not been scrolled
+       since -- a scroll with the window unchanged is the reader, not the full screen. */
+    var ok = press && (now() - press.t < PRESS_MS) && (press.v === v || (press.el.contains && press.el.contains(v)));
+    if(ok && press.w === W.innerWidth && press.h === W.innerHeight &&
+       Math.abs((W.pageYOffset || 0) - press.y) > 1) ok = false;
+    snap = ok ? press : take(v);
+    press = null;
+    de.classList.add('vfs-hold');
+    poll();
+  }
+
+  G.check = function(){
+    var v = fsVideo();
+    if(v){
+      if(!G.frozen) freeze(v);
+      exitAt = 0;                            // (back) in: whatever exit was pending is off
+      markNative(v);
+    }else if(G.frozen && !exitAt){
+      exitAt = now();
+    }else if(!G.frozen && armed){
+      /* Out of full screen with the phone still sideways, and now it has been turned back: once
+         the window is quiet again, the clip goes back on its pixel. */
+      if(now() > armed.until){ disarm(); return; }
+      if(W.innerWidth !== armed.s.w) return;
+      clearTimeout(armT);
+      armT = setTimeout(function(){
+        var s = armed && armed.s;
+        disarm();
+        if(s){ de.classList.add('vfs-hold'); hold(s); }
+      }, QUIET_MS);
+    }
+  };
+  function disarm(){ armed = null; clearTimeout(armT); armT = null; }
+
+  /* While held, look every 100ms: for the exit (some routes out fire nothing this page
+     hears), and for the window to go quiet once out. */
+  function poll(){
+    clearTimeout(pollT);
+    pollT = setTimeout(function(){
+      if(!G.frozen) return;
+      G.check();
+      if(exitAt){
+        /* Quiet, and back to the width it left at -- or, if the phone is still sideways after
+           BACK_MS, the reader is staying that way and the page lays out for it. */
+        var t = now();
+        var quiet = t - (G.lastResize || 0) >= QUIET_MS;
+        var back = !snap || W.innerWidth === snap.w;
+        if((quiet && t - exitAt >= MIN_MS && (back || t - exitAt >= BACK_MS)) || t - exitAt >= MAX_MS){ thaw(); return; }
+      }
+      poll();
+    }, 100);
+  }
+
+  function setTop(el, top){
+    var had = el.style.scrollBehavior;
+    el.style.scrollBehavior = 'auto';
+    el.scrollTop = top;
+    el.style.scrollBehavior = had;
+  }
+
+  /* Put the clip's top edge back on its pixel. Innermost scrolling box first; whatever it
+     cannot absorb goes to the window. */
+  function place(s){
+    var a = s.el;
+    if(!a || !a.isConnected){ W.scrollTo(0, s.y); return; }
+    var r = a.getBoundingClientRect();
+    if(!r.width && !r.height){ W.scrollTo(0, s.y); return; }     // not laid out: the number will do
+    var d = r.top - s.top;
+    if(Math.abs(d) < 0.5) return;
+    /* Read live, not from the snapshot: the layout it comes back to may scroll the clip in a
+       different box (a phone left sideways lays the stop out as the desktop panel). */
+    var sc = scrollers(a);
+    for(var i = 0; i < sc.length && Math.abs(d) >= 0.5; i++){
+      var el = sc[i].el;
+      var before = el.scrollTop;
+      setTop(el, before + d);
+      d -= (el.scrollTop - before);
+    }
+    if(Math.abs(d) >= 0.5) W.scrollTo(0, Math.max(0, (W.pageYOffset || 0) + d));
+  }
+
+  function thaw(){
+    clearTimeout(pollT);
+    G.frozen = false;
+    exitAt = 0;
+    var s = snap; snap = null;
+    if(s && s.v && s.v.classList) s.v.classList.remove('cue-native');
+    if(sbSaved === null) sbSaved = de.style.scrollBehavior;
+    de.style.scrollBehavior = 'auto';
+
+    /* Tell the page about the window once, and only if it is not the window it had. */
+    if(s && (W.innerWidth !== s.w || W.innerHeight !== s.h)){
+      try{ W.dispatchEvent(new Event('resize')); }catch(e){}
+    }
+    var q = G.deferred.splice(0);
+    for(var i = 0; i < q.length; i++){ try{ q[i](); }catch(e){} }
+
+    if(!s){ endHold(); return; }
+    for(var j = 0; j < s.sc.length; j++){
+      if(s.sc[j].el.isConnected) setTop(s.sc[j].el, s.sc[j].top);
+    }
+    place(s);
+    /* Everything that reads the scroll missed the whole trip; one event brings it up to date
+       whether or not the position had to move. */
+    try{ D.dispatchEvent(new Event('scroll', {bubbles:true})); }catch(e){}
+    hold(s);
+    /* Still sideways: the reader may yet turn the phone back, and that relayout would carry the
+       clip off its pixel again. Wait for it, unless they start using the page first. */
+    if(W.innerWidth !== s.w) armed = { s:s, until:now() + ARM_MS };
+  }
+
+  /* Keep the clip on its pixel for HOLD_MS, against the page's own debounced re-layouts. */
+  function hold(s){
+    stopHold();
+    if(sbSaved === null) sbSaved = de.style.scrollBehavior;
+    de.style.scrollBehavior = 'auto';
+    touched = false;
+    var until = now() + HOLD_MS;
+    function step(){
+      if(touched || now() > until){ endHold(); return; }
+      place(s);
+      holdRAF = requestAnimationFrame(step);
+    }
+    place(s);
+    holdRAF = requestAnimationFrame(step);
+  }
+
+  function stopHold(){
+    if(holdRAF) cancelAnimationFrame(holdRAF);
+    holdRAF = 0;
+  }
+  function endHold(){
+    stopHold();
+    de.classList.remove('vfs-hold');
+    if(sbSaved !== null){ de.style.scrollBehavior = sbSaved; sbSaved = null; }
+  }
+
+  /* Every name full screen goes by. Capture on the document, so the iOS pair -- fired at the
+     video and not bubbling -- are heard too. */
+  ['fullscreenchange','webkitfullscreenchange','webkitbeginfullscreen','webkitendfullscreen',
+   'webkitpresentationmodechanged'].forEach(function(n){
+    D.addEventListener(n, function(){ G.check(); if(G.frozen) poll(); }, true);
+  });
 })();
 </script>
 </body></html>
