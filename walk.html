@@ -34,6 +34,15 @@
   window.addEventListener('resize', function(e){ seen(); if(G.frozen) e.stopImmediatePropagation(); }, true);
   window.addEventListener('orientationchange', function(e){ seen(); if(G.frozen) e.stopImmediatePropagation(); }, true);
   window.addEventListener('scroll', function(e){ if(G.frozen) e.stopImmediatePropagation(); }, true);
+  /* The phone's opening is the photograph and a "scroll" cue, and the map arrives on the first
+     scroll. Set here, before anything paints, so the map is never seen and then hidden. See
+     "THE MAP WAITS FOR THE FIRST SCROLL" at the foot of the page. */
+  try{
+    if(window.matchMedia && window.matchMedia('(max-width:700px) and (orientation:portrait)').matches &&
+       !location.hash && !/[?&]v=/.test(location.search)){
+      document.documentElement.classList.add('m-intro');
+    }
+  }catch(_){}
 })();
 </script>
 <script src="https://wesitefoisy1.b-cdn.net/z_shausdb.js"></script>
@@ -6954,6 +6963,8 @@ nav{ border-bottom:1px solid var(--nav-rule) }
 </style>
 <header class="article-hero">
   <div id="walkerTop" aria-hidden="true"></div>
+  <!-- Phone only: the cue under the photograph while the map waits. See "THE MAP WAITS". -->
+  <div id="mScrollCue" aria-hidden="true"><span>scroll</span><svg viewBox="0 0 12 8"><path d="M1 1.6 L6 6.4 L11 1.6"/></svg></div>
   <div id="scrollHint" aria-hidden="true">
     <span class="sh-word">scroll!</span>
     <svg class="sh-arrow" width="24" height="36" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -10497,9 +10508,15 @@ DATA.stops.forEach(function(s){
           if(_tMode==='pinch' && e.touches.length>=2){
             var d=_tDist(e.touches); if(_tD0>0) window.__mapZoom.zoomTo(_tS0*(d/_tD0)); e.preventDefault();
           } else if(_tMode==='pan' && e.touches.length===1){
-            var a=clientToUser(_tLX,_tLY), b=clientToUser(e.touches[0].clientX,e.touches[0].clientY);
+            /* COPIED OUT BEFORE THE SECOND CALL. clientToUser hands back one shared point object
+               (svgPt2) and overwrites it on every call -- so `a` and `b` were the same object, b.x
+               minus a.x was always zero, and a finger drag panned the zoomed map by nothing. The
+               mouse path above has always copied the numbers out first, which is why dragging
+               worked on a desktop and never on a phone. */
+            var a=clientToUser(_tLX,_tLY), ax=a.x, ay=a.y;
+            var b=clientToUser(e.touches[0].clientX,e.touches[0].clientY), bx=b.x, by=b.y;
             _tLX=e.touches[0].clientX; _tLY=e.touches[0].clientY;
-            window.__mapZoom.pan(-(b.x-a.x), -(b.y-a.y)); e.preventDefault();
+            window.__mapZoom.pan(-(bx-ax), -(by-ay)); e.preventDefault();
           }
         }, {passive:false});
         function _tEnd(e){
@@ -12081,6 +12098,9 @@ DATA.stops.forEach(function(s){
     var mapSlideTop = null, ridingUp = false;       // null => LOWH-mobile only; ridingUp => regular mobile still sliding up to the pin
     if(!(mq.matches && LOWH.matches)){
       var PIN_TOP = mq.matches ? 10 : 76;           // KNOB: where the map pins (mobile pins near the very top)
+      /* The walk full screen on a phone held sideways has no site bar (see html.walk-fs in the
+         stylesheet): the map pins just under the Exit pill instead of under the bar. */
+      if(!mq.matches && document.documentElement.classList.contains('walk-fs')) PIN_TOP = 46;
       // desktop anchors to the lead's bottom; mobile rides up beside the lede (its top + a nudge)
       var _mf = document.getElementById('mapFlow');
       var _anchor = mq.matches
@@ -12226,7 +12246,19 @@ DATA.stops.forEach(function(s){
     } else if (mq.matches) {
       endHeight = endWidth * 2.9;   // hotdog: aspect locked to the route shape, so height no longer floats with viewport
     } else {
-      endHeight = window.innerHeight * 0.82;
+      /* THE HOTDOG AND ITS BUTTON END WHERE THE STOP'S SHEET DOES. It was 82% of the window,
+         which put "Call your reps" level with the foot of an open stop's sheet at one window
+         height only -- about 760px. Taller (a browser in full screen) the button finished well
+         above the sheet; shorter (a phone on its side) it went off the bottom altogether. So the
+         map is sized from the bottom up instead: the sheet ends 18px above the window's foot (see
+         shape()), the button's own height and its gap come off, and whatever is left between the
+         pin line and that is the map. The margin under the button now equals the margin under the
+         sheet at every height. KNOB: the 18, which must match shape()'s bottom. */
+      var _cta = document.getElementById('mapCta'), _ctaB = 43;
+      if(_cta && _cta.offsetHeight){
+        _ctaB = _cta.offsetHeight + (parseFloat(getComputedStyle(_cta).marginTop) || 0);
+      }
+      endHeight = Math.max(160, window.innerHeight - (typeof PIN_TOP === 'number' ? PIN_TOP : 76) - _ctaB - 18);
     }
     
     var computedWidth, computedHeight;
@@ -13769,7 +13801,8 @@ DATA.stops.forEach(function(s){
     function begin(){
       var first = !v.dataset.started;
       v.dataset.started='1';
-      v.setAttribute('controls','');
+      /* On a phone the page draws the controls (see ".mvc"); everywhere else, the browser's. */
+      if(!(window.__mvc && window.__mvc(v, wrap))) v.setAttribute('controls','');
       wrap.classList.add('is-playing');
       /* THE POSTER GOES BEFORE THE CURTAIN DOES, and that ordering is the fix for the flash.
          The cover image is painted twice over: once by this curtain, as a background sized to
@@ -15949,7 +15982,9 @@ document.addEventListener('play', function (e) {
     /* Never under the nav. At the middle widths the map pins at 10px, which is above the bar —
        following it there would slide the panel's own top edge and its close button underneath
        the header. So: match the map, but not past that line. */
-    var _panelTop = _plausible ? Math.max(_mt, NAV_H + 6) : (NAV_H + 26);
+    /* No bar in the walk's own full screen on a sideways phone -- only the Exit pill, 40px deep. */
+    var _navLine = document.documentElement.classList.contains('walk-fs') ? 40 : NAV_H;
+    var _panelTop = _plausible ? Math.max(_mt, _navLine + 6) : (_navLine + 26);
     sect.style.setProperty('--panel-t', Math.round(_panelTop) + 'px');
     body.classList.add('stop-modal');
     /* Tell the map which stop this is. It reads its own position from the scroll, and the
@@ -16819,12 +16854,62 @@ document.addEventListener('play', function (e) {
      To move the counter elsewhere, change NS/KEY. Both endpoints increment on GET,
      so this fires exactly once per page load. -->
 <script>
+/* ===== EVERY VIEW AND EVERY SHARE COUNTS -- A MINUTE LATER ===================
+   A count used to go up the instant it happened: open the page and the view chip had already
+   ticked, share it and the share total jumped in front of you. Now each one is held for a
+   minute before it is sent, and nothing is thrown away: a second visit is a second view, and a
+   second share is a second share (the once-per-visit lock on the share total is gone).
+
+   Held in localStorage rather than in a timer alone, so a count owed by a page that was closed
+   inside its minute is not lost -- the next page load sends whatever is due. Each entry is
+   taken out of storage before it is sent, so a reload cannot send it twice.
+   The count shown on arrival is READ without counting (/get), so what you see is everybody
+   else's number; your own view lands a minute later and the chip picks it up if you are still
+   here. KNOB: DELAY. */
+window.__lateHit = (function(){
+  var KEY_Q = 'sylfoisy.lateHits', DELAY = 60000;
+  var live = {};                                      // id -> callback, for this page only
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY_Q) || '[]') || []; }catch(e){ return []; } }
+  function save(q){ try{ localStorage.setItem(KEY_Q, JSON.stringify(q)); }catch(e){} }
+  function send(item){
+    var urls = item.urls.slice(), cb = live[item.id];
+    delete live[item.id];
+    (function next(){
+      var u = urls.shift();
+      if(!u || !window.fetch) return;
+      fetch(u, {cache:'no-store', keepalive:true})
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+        .then(function(d){ if(cb && d && d.value !== undefined && d.value !== null) cb(d.value); })
+        .catch(function(){ next(); });
+    })();
+  }
+  function run(){
+    var q = load(), now = Date.now(), keep = [], due = [];
+    q.forEach(function(it){ (it.due <= now ? due : keep).push(it); });
+    if(due.length){ save(keep); due.forEach(send); }
+    var soonest = keep.reduce(function(m, it){ return Math.min(m, it.due); }, Infinity);
+    if(soonest < Infinity) setTimeout(run, Math.max(250, soonest - now + 50));
+  }
+  function add(urls, cb){
+    var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    var q = load(); q.push({ id:id, urls:urls, due:Date.now() + DELAY }); save(q);
+    if(cb) live[id] = cb;
+    setTimeout(run, DELAY + 50);
+  }
+  run();                                              // anything owed by an earlier visit
+  return add;
+})();
 (function(){
   var NS='sylfoisy.com', KEY='walk';
   var ENDPOINTS=[
-    {url:'https://abacus.jasoncameron.dev/hit/'+NS+'/'+KEY,            pick:function(d){ return d && d.value; }},
-    {url:'https://countapi.mileshilliard.com/api/v1/hit/'+NS+'_'+KEY,  pick:function(d){ return d && d.value; }}
+    {url:'https://abacus.jasoncameron.dev/get/'+NS+'/'+KEY,            pick:function(d){ return d && d.value; }},
+    {url:'https://countapi.mileshilliard.com/api/v1/get/'+NS+'_'+KEY,  pick:function(d){ return d && d.value; }}
   ];
+  /* The view itself, a minute from now -- see __lateHit above. */
+  window.__lateHit([
+    'https://abacus.jasoncameron.dev/hit/'+NS+'/'+KEY,
+    'https://countapi.mileshilliard.com/api/v1/hit/'+NS+'_'+KEY
+  ], function(v){ show(v); });
   var chip=document.getElementById('viewChip'), num=document.getElementById('viewCount');
   if(!chip||!num||!window.fetch) return;
 
@@ -17156,7 +17241,12 @@ document.addEventListener('play', function (e) {
 .vp-curtain:hover i{ transform:scale(1.09); background:rgba(12,16,30,.8) }
 .vp-curtain:active i{ transform:scale(.97) }
 .vp-curtain:focus-visible{ outline:3px solid #f5820b; outline-offset:-3px }
-.vp-curtain svg{ width:30px; height:30px; display:block; margin-left:4px }   /* nudged: a triangle's optical centre is right of its box */
+.vp-curtain svg{ width:30px; height:30px; display:block; margin-left:0 }
+/* CENTRED, NOT NUDGED. The 4px push to the right was there to move the triangle's balance point
+   onto the circle's centre -- but the path already does that: it is drawn with its centroid on
+   the middle of its own 24-unit box (base at 8, point at 20.8, a third of the way along is 12.3).
+   The nudge was a second correction on top of the first, and it is what put the triangle
+   visibly right of centre in the disc. */
 @media(max-width:700px){ .vp-curtain i{ width:58px; height:58px } .vp-curtain svg{ width:24px; height:24px } }
 /* While the curtain is up the share chip is out of the way. */
 .video-share-wrap:not(.is-playing) .vshare-btn{ opacity:0; visibility:hidden; pointer-events:none }
@@ -17286,6 +17376,17 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
 }
 .walkFsExit:hover{ color:#fff; border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.16) }
 .walkFsExit svg{ width:13px; height:13px; flex:0 0 13px }
+/* IN FULL SCREEN THE SITE BAR GOES, for the room: 58px of a 412px screen is a seventh of it.
+   The pill moves up into the top-right corner, over the map's column, and the map and an open
+   stop's sheet both pin 46px down -- just under it (PIN_TOP in the render loop, the panel's own
+   top in setPanel, and --map-pin-top for anything else hung off that line). */
+html.walk-fs nav, html.walk-fs .nav-mobile-menu{ display:none !important }
+html.walk-fs{ --map-pin-top:46px }
+html.walk-fs .walkFsExit{
+  top:10px; left:auto; right:22px;
+  background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.34);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
 @media (orientation:landscape) and (max-height:560px){
   html .article-hero .hero-row{ transform:none }
   body.stop-modal.mode-quick .j-sect.is-open{ --pg-w:calc(72vw - 24px) !important }
@@ -17296,6 +17397,110 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
   html{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
   body.stop-modal.mode-quick .j-sect.is-open{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
 }
+
+/* ===== ON A PHONE, THE MAP WAITS FOR THE FIRST SCROLL =======================
+   The opening is the photograph and the title, and under the photograph a quiet "scroll"
+   with a chevron -- the map is there, laid out and ready, but invisible. The first scroll
+   fades it in (half a second) and the cue fades out with it.
+   opacity rather than display, so nothing about the map's geometry changes: it is exactly
+   where it would have been, it just has not been shown yet.
+   html.m-intro is set before first paint by the script at the top of <head>, and only on an
+   upright phone arriving at the top of the page (not on a link to a stop or a clip).
+   KNOBS: the cue's 14px drop below the photograph, and the fade's .5s (in the script). */
+#mScrollCue{ display:none }
+@media(max-width:700px) and (orientation:portrait){
+  html.m-intro .j-map, html.m-intro .map-flow{ opacity:0 !important; pointer-events:none !important }
+  #mScrollCue{
+    display:flex; align-items:center; gap:.55em;
+    position:absolute; left:50%; transform:translateX(-50%);
+    top:calc(var(--hero-band-top, 0px) + var(--hero-band-h, 150vw) * var(--hero-band-scale, 1) + 14px);
+    z-index:5; pointer-events:none; white-space:nowrap;
+    padding:.36rem .85rem; border-radius:999px;
+    background:rgba(10,20,38,.5); color:#fff;
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    font:700 .72rem 'DM Sans',sans-serif; letter-spacing:.02em;
+    opacity:0; transition:opacity .6s ease;
+  }
+  html.m-intro.m-cue-on #mScrollCue{ opacity:1 }
+  #mScrollCue.lit{ transition:opacity .12s linear }
+  #mScrollCue svg{
+    display:block; width:11px; height:8px; overflow:visible;
+    fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;
+  }
+}
+
+/* ===== A PHONE'S VIDEO CONTROLS ARE THE PAGE'S OWN ==========================
+   The browser's control bar on a phone is drawn inside the <video> element, in a part of it the
+   page cannot see into -- so nothing here could know when it was showing. The caption strip had
+   to GUESS (a tap brings it up for about three seconds...), and Chrome swallows the taps that
+   put it away, so the guess was often wrong. And because the captions sit on top of the video
+   element, they covered the browser's own centre pause button: there is no z-index that puts a
+   page element under a part of the video and over the rest of it.
+
+   So on a phone the page draws the controls itself: a centre play/pause, the time, captions on
+   and off, sound, full screen, and a scrubber along the foot. Being ours, their visibility is a
+   fact rather than a guess -- the caption strip lifts exactly when the bar appears and drops
+   exactly when it goes, by exactly the bar's height -- and they sit ABOVE the captions (z-index
+   4 against the strip's 3), so the pause button is never behind a line of text.
+   Desktop is untouched: it keeps the browser's controls and the pointer-driven strip.
+   Full screen takes the whole wrapper (video, captions and these controls together) on Android;
+   an iPhone hands the clip to its own player, as it always has.
+   KNOBS: the sizes below, and HIDE_MS in the script. */
+.mvc{ position:absolute; inset:0; z-index:4; pointer-events:none; color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif; -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none }
+.mvc button{ -webkit-appearance:none; appearance:none; border:0; margin:0; padding:0; background:none;
+  color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent }
+.mvc-hit{ position:absolute; inset:0; pointer-events:auto; background:transparent }
+.mvc-mid, .mvc-bar{ opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease }
+.mvc.on .mvc-mid, .mvc.on .mvc-bar{ opacity:1; visibility:visible }
+.mvc-mid{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:42px; height:42px; border-radius:50%; background:rgba(12,16,30,.55);
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85);
+  display:flex; align-items:center; justify-content:center; pointer-events:auto }
+.mvc-mid svg{ width:21px; height:21px; display:block }
+.mvc-bar{ position:absolute; left:0; right:0; bottom:0; padding:0 6px 2px; pointer-events:auto }
+.mvc-bar::before{ content:''; position:absolute; left:0; right:0; bottom:0; height:180%;
+  background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55)); pointer-events:none; z-index:-1 }
+.mvc-row{ display:flex; align-items:center; height:24px }
+.mvc-time{ font:600 10px/1 'DM Sans',system-ui,sans-serif; font-variant-numeric:tabular-nums;
+  padding:0 4px; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.6) }
+.mvc-sp{ flex:1 1 auto }
+.mvc-btn{ width:28px; height:24px; display:flex; align-items:center; justify-content:center }
+.mvc-btn svg{ width:15px; height:15px; display:block; overflow:visible }
+.mvc-btn .slash{ display:none }
+.mvc-btn.off .slash{ display:inline }
+.mvc-btn.off{ opacity:.7 }
+.mvc-seek{ display:block; width:100%; height:12px; margin:0; background:transparent;
+  -webkit-appearance:none; appearance:none; touch-action:none; --p:0% }
+.mvc-seek:focus{ outline:none }
+.mvc-seek::-webkit-slider-runnable-track{ height:3px; border-radius:2px;
+  background:linear-gradient(90deg, #fff var(--p), rgba(255,255,255,.35) var(--p)) }
+.mvc-seek::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:11px; height:11px;
+  margin-top:-4px; border-radius:50%; background:#fff; border:0; box-shadow:0 0 0 1px rgba(0,0,0,.2) }
+.mvc-seek::-moz-range-track{ height:3px; border-radius:2px; background:rgba(255,255,255,.35) }
+.mvc-seek::-moz-range-progress{ height:3px; border-radius:2px; background:#fff }
+.mvc-seek::-moz-range-thumb{ width:11px; height:11px; border-radius:50%; background:#fff; border:0 }
+/* Full screen: the same controls at a size for a whole screen. Two rules per selector list
+   (standard and -webkit-) so a browser that knows only one does not drop both. */
+:fullscreen > .mvc .mvc-mid{ width:64px; height:64px }
+:fullscreen > .mvc .mvc-mid svg{ width:26px; height:26px }
+:fullscreen > .mvc .mvc-bar{ padding:0 14px 8px }
+:fullscreen > .mvc .mvc-row{ height:40px }
+:fullscreen > .mvc .mvc-time{ font-size:13px }
+:fullscreen > .mvc .mvc-btn{ width:42px; height:40px }
+:fullscreen > .mvc .mvc-btn svg{ width:21px; height:21px }
+:fullscreen > .mvc .mvc-seek{ height:18px }
+:-webkit-full-screen > .mvc .mvc-mid{ width:64px; height:64px }
+:-webkit-full-screen > .mvc .mvc-mid svg{ width:26px; height:26px }
+:-webkit-full-screen > .mvc .mvc-bar{ padding:0 14px 8px }
+:-webkit-full-screen > .mvc .mvc-row{ height:40px }
+:-webkit-full-screen > .mvc .mvc-time{ font-size:13px }
+:-webkit-full-screen > .mvc .mvc-btn{ width:42px; height:40px }
+:-webkit-full-screen > .mvc .mvc-btn svg{ width:21px; height:21px }
+:-webkit-full-screen > .mvc .mvc-seek{ height:18px }
+
+
 
 .vshare-btn{position:absolute;top:8px;right:8px;z-index:5;width:25px;height:25px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .2s,transform .2s}
 .vshare-btn svg{width:12px;height:12px;display:block}
@@ -18335,18 +18540,17 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
   // noticed could run it up on their own. The PRIVATE per-platform keys have no such lock:
   // those are for you, and "they shared it to Bluesky and then to email" is a real thing to
   // know. Per page load rather than forever, so a genuine second visit still counts.
-  var counted = {};
+  /* EVERY SHARE COUNTS NOW, and each is sent a minute after it happens (see __lateHit, with the
+     view counter). The once-per-visit lock described above is gone: two shares are two. */
   function bump(key, platform){
-    if(!window.fetch) return;
     var base = 'https://abacus.jasoncameron.dev/hit/' + CNS + '/share_' + tallyKey(key);
-    if(!counted[key]){
-      counted[key] = true;
-      fetch(base, {cache:'no-store', keepalive:true}).then(function(r){
-        return r.ok ? r.json() : null;
-      }).then(function(d){
-        if(d && typeof d.value !== 'undefined') paintShareCount(key, d.value);
-      }).catch(function(){});
+    if(window.__lateHit){
+      window.__lateHit([base], function(v){ paintShareCount(key, v); });
+      window.__lateHit([base + '__' + tallyKey(platform)]);
+      return;
     }
+    if(!window.fetch) return;
+    fetch(base, {cache:'no-store', keepalive:true}).catch(function(){});
     fetch(base + '__' + tallyKey(platform), {cache:'no-store', keepalive:true}).catch(function(){});
   }
   function readTally(key, cb){
@@ -22352,8 +22556,13 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
 
     // ---- where the strip sits, and how big the type is ------------------------------------
     function measure(){
-      var h = v.getBoundingClientRect().height || 0;
+      var _vr = v.getBoundingClientRect();
+      var h = _vr.height || 0;
       if(!h) return;
+      /* THE PICTURE'S HEIGHT, NOT THE BOX'S. Inline the two are the same (the box is 16:9). In
+         full screen on an upright phone the box is the whole tall screen and the picture a band
+         across its middle, and sizing type off the box gave captions an inch high. */
+      if(v.videoWidth && v.videoHeight && _vr.width) h = Math.min(h, _vr.width * v.videoHeight / v.videoWidth);
       var rest = Math.max(10, Math.min(28, h * 0.05));
       /* The control bar is taller on a bigger player -- about 52px on a card in the column and
          half as much again across a full screen -- so the clearance cannot be the flat number
@@ -22392,9 +22601,16 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
         if(w) fsz = Math.max(PH_FS_MIN, Math.min(PH_FS_MAX, w * PH_FS_FRAC));
       }
       box.style.setProperty('--vcap-fs', (Math.round(fsz * 2) / 2) + 'px');
+      /* With the page's own controls, the lift is the bar's real height, whatever size it is
+         drawn at (it is bigger in full screen). */
+      if(v._mvc){ var lf = v._mvc.lift(); if(lf) box.style.setProperty('--vcap-bar', Math.round(lf) + 'px'); }
     }
     measure();
     window.addEventListener('resize', measure, {passive:true});
+    /* Handles for the phone's own controls (".mvc"), which know the instant the bar comes and
+       goes and how tall it is, and say so rather than being guessed at. */
+    v._vcapPaint = function(){ paint(); };
+    v._vcapMeasure = measure;
     v.addEventListener('loadedmetadata', measure);
     /* AND ON EVERY SIZE CHANGE. A window resize is not the only way a video's box moves here:
        a stop opening lays the sheet out for the first time, the mobile full-bleed sizer
@@ -22439,6 +22655,8 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
     function barReach(){ return parseFloat(box.style.getPropertyValue('--vcap-bar')) || (BAR_H + 8); }
     function barOn(){
       if(v._vcapFS) return false;          // the browser is drawing; its own layer handles this
+      /* The page's own controls on a phone (see ".mvc"): not a guess, a fact. */
+      if(v._mvc) return v._mvc.on;
       if(v.paused || v.ended) return true; // paused always shows the bar
       if(touchMode) return performance.now() < touchUntil;
       return (performance.now() - lastAct) < (over ? HIDE_MS : LEAVE_MS);
@@ -27160,6 +27378,260 @@ function goBack(e){
   document.addEventListener('fullscreenchange', sync);
   document.addEventListener('webkitfullscreenchange', sync);
   sync();
+})();
+</script>
+<script>
+/* ===== THE MAP WAITS FOR THE FIRST SCROLL (upright phones) ==================
+   See the stylesheet. The class comes off on the first real scroll and the map and its in-page
+   stand-in are faded up with the Web Animations API -- not a CSS transition, because .j-map is
+   `transition:none !important` (the render loop moves it every frame and must not be eased).
+   The cue arrives a beat after the page (a suggestion, not an instruction) and thins out over
+   the first 110px of scroll, then leaves. */
+(function(){
+  var root = document.documentElement;
+  var cue = document.getElementById('mScrollCue');
+  if(!root.classList.contains('m-intro')){ if(cue && cue.parentNode) cue.parentNode.removeChild(cue); return; }
+  var FADE = 110, done = false, tick = false;
+  function reveal(){
+    if(done) return;
+    done = true;
+    root.classList.remove('m-intro');
+    /* The cue has done its job the moment the page moves; it goes as the map arrives, rather
+       than lingering over the map's top edge while it fades. */
+    if(cue){
+      var c = cue; cue = null;
+      c.style.transition = 'opacity .3s ease'; c.style.opacity = '0';
+      setTimeout(function(){ if(c.parentNode) c.parentNode.removeChild(c); }, 400);
+    }
+    [].forEach.call(document.querySelectorAll('.j-map, .map-flow'), function(el){
+      try{ el.animate([{ opacity:0 }, { opacity:1 }], { duration:500, easing:'ease' }); }catch(e){}
+    });
+  }
+  function onScroll(){
+    if(tick) return;
+    tick = true;
+    requestAnimationFrame(function(){
+      tick = false;
+      var y = window.pageYOffset || 0;
+      if(y > 2) reveal();
+      if(cue){
+        cue.classList.add('lit');
+        cue.style.opacity = Math.max(0, 1 - y / FADE);
+        if(y > FADE + 30){ var c = cue; cue = null; setTimeout(function(){ if(c.parentNode) c.parentNode.removeChild(c); }, 300); }
+      }
+      if(done && !cue) window.removeEventListener('scroll', onScroll);
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  /* Turned sideways (or a window widened past a phone) there is no waiting map: show it. */
+  var mq = window.matchMedia ? window.matchMedia('(max-width:700px) and (orientation:portrait)') : null;
+  if(mq && mq.addEventListener) mq.addEventListener('change', function(){ if(!mq.matches) reveal(); });
+  setTimeout(function(){ if(!done) root.classList.add('m-cue-on'); }, 900);
+  /* Arriving already part-way down (a reload that restores the position) is a scroll too. */
+  if((window.pageYOffset || 0) > 2) reveal();
+})();
+</script>
+
+<script>
+/* ===== A PHONE'S VIDEO CONTROLS (see ".mvc" in the stylesheet) ============
+   window.__mvc(video, wrapper) is called by the play curtain in place of switching the
+   browser's controls on. On a phone it builds these instead and returns true; anywhere else it
+   returns false and the browser's controls are used exactly as before.
+
+   The caption strip reads v._mvc.on (is the bar up?) and v._mvc.lift() (how far up to sit), and
+   is told the moment either changes through v._vcapPaint / v._vcapMeasure.
+   The play curtain is untouched: pausing still brings the cover image back, and its disc is
+   still the way to resume. */
+(function(){
+  var MQ = window.matchMedia ? window.matchMedia(
+    '(hover:none) and (pointer:coarse) and (max-width:700px), (hover:none) and (pointer:coarse) and (max-height:560px)') : null;
+  var HIDE_MS = 2600;                 // KNOB: how long the bar stays up after the last touch
+  var SVG = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.8-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.3" y="5" width="4" height="14" rx="1.1" fill="currentColor"/><rect x="13.7" y="5" width="4" height="14" rx="1.1" fill="currentColor"/></svg>',
+    vol:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 21 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    cc:   '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.4 10.2a2.2 2.2 0 1 0 0 3.6M16.6 10.2a2.2 2.2 0 1 0 0 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="slash" d="M3 21 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    fs:   '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>',
+    fsx:  '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>'
+  };
+  function fmt(t){
+    t = Math.max(0, Math.floor(t || 0));
+    var m = Math.floor(t / 60), s = t % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+
+  window.__mvc = function(v, wrap){
+    if(!MQ || !MQ.matches || !v || !wrap) return false;
+    if(v._mvc) return true;
+
+    var ui = document.createElement('div');
+    ui.className = 'mvc';
+    ui.innerHTML =
+      '<button class="mvc-hit" type="button" tabindex="-1" aria-label="Show video controls"></button>' +
+      '<button class="mvc-mid" type="button" aria-label="Pause"></button>' +
+      '<div class="mvc-bar">' +
+        '<div class="mvc-row">' +
+          '<span class="mvc-time">0:00 / 0:00</span><span class="mvc-sp"></span>' +
+          '<button class="mvc-btn mvc-cc" type="button" aria-label="Captions">' + SVG.cc + '</button>' +
+          '<button class="mvc-btn mvc-vol" type="button" aria-label="Mute">' + SVG.vol + '</button>' +
+          '<button class="mvc-btn mvc-fs" type="button" aria-label="Full screen">' + SVG.fs + '</button>' +
+        '</div>' +
+        '<input class="mvc-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek">' +
+      '</div>';
+    wrap.appendChild(ui);
+    var hit = ui.querySelector('.mvc-hit'), mid = ui.querySelector('.mvc-mid'),
+        bar = ui.querySelector('.mvc-bar'), time = ui.querySelector('.mvc-time'),
+        cc = ui.querySelector('.mvc-cc'), vol = ui.querySelector('.mvc-vol'),
+        fsb = ui.querySelector('.mvc-fs'), seek = ui.querySelector('.mvc-seek');
+
+    var on = false, hideT = null, dragging = false;
+    /* THE CONTROLS KEEP THEIR SIZE WHEN THE CLIP IS SCALED. On a phone every block of an open
+       stop is scaled with `zoom` as it eases between the text measure and full bleed (the
+       ramp), and anything inside the wrapper is scaled with it -- which is part of why the
+       browser's own controls came out so large. These are counter-zoomed by the product of
+       every zoom above them, so a button is the same size on a clip at the measure and on one
+       at full bleed. */
+    function zoomOf(el){
+      var z = 1;
+      for(var e = el; e && e.nodeType === 1; e = e.parentElement){
+        var s = parseFloat(e.style && e.style.zoom);
+        if(s > 0) z *= s;
+      }
+      return z;
+    }
+    function fitZoom(){
+      var z = zoomOf(wrap);
+      ui.style.zoom = (Math.abs(z - 1) > 0.001) ? (1 / z).toFixed(4) : '';
+    }
+    function tell(){
+      fitZoom();
+      if(v._vcapMeasure) v._vcapMeasure();
+      if(v._vcapPaint) v._vcapPaint();
+    }
+    function arm(){
+      clearTimeout(hideT);
+      if(!v.paused && !dragging) hideT = setTimeout(hide, HIDE_MS);
+    }
+    function show(){ if(!on){ on = true; ui.classList.add('on'); tell(); } arm(); }
+    function hide(){ clearTimeout(hideT); if(on){ on = false; ui.classList.remove('on'); tell(); } }
+
+    function paintPlay(){
+      var p = v.paused || v.ended;
+      mid.innerHTML = p ? SVG.play : SVG.pause;
+      mid.setAttribute('aria-label', p ? 'Play' : 'Pause');
+    }
+    function paintTime(){
+      var d = v.duration;
+      if(!isFinite(d) || d <= 0) d = 0;
+      time.textContent = fmt(v.currentTime) + ' / ' + fmt(d);
+      if(!dragging){
+        var f = d ? v.currentTime / d : 0;
+        seek.value = Math.round(f * 1000);
+        seek.style.setProperty('--p', (f * 100).toFixed(2) + '%');
+      }
+    }
+    function paintVol(){ vol.classList.toggle('off', !!v.muted); vol.setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute'); }
+    function capsOn(){
+      var tt = v.textTracks;
+      for(var i = 0; tt && i < tt.length; i++) if(tt[i].mode !== 'disabled') return true;
+      return false;
+    }
+    function paintCC(){
+      var tt = v.textTracks, has = tt && tt.length;
+      cc.style.display = has ? '' : 'none';
+      cc.classList.toggle('off', !capsOn());
+    }
+    function inFs(){ var fe = fsEl(); return fe === wrap || fe === v; }
+    function paintFs(){ fsb.innerHTML = inFs() ? SVG.fsx : SVG.fs; fsb.setAttribute('aria-label', inFs() ? 'Exit full screen' : 'Full screen'); }
+
+    hit.addEventListener('click', function(e){ e.stopPropagation(); if(on) hide(); else show(); });
+    mid.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(v.paused || v.ended){ var q = v.play(); if(q && q.catch) q.catch(function(){}); }
+      else v.pause();
+      arm();
+    });
+    vol.addEventListener('click', function(e){ e.stopPropagation(); v.muted = !v.muted; arm(); });
+    cc.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tt = v.textTracks, want = !capsOn();
+      for(var i = 0; tt && i < tt.length; i++){
+        var t = tt[i];
+        if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
+        if(want){ t._vcapTook = true; t.mode = 'hidden'; }   // "THE TRACK, ON A PHONE" shows it again in full screen
+        else t.mode = 'disabled';
+      }
+      paintCC(); tell(); arm();
+    });
+    function lock(){
+      try{ if(screen.orientation && screen.orientation.lock){ var l = screen.orientation.lock('landscape'); if(l && l.catch) l.catch(function(){}); } }catch(e){}
+    }
+    fsb.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(inFs()){
+        try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(_){}
+        try{ if(document.exitFullscreen) document.exitFullscreen(); else if(document.webkitExitFullscreen) document.webkitExitFullscreen(); }catch(_){}
+        return;
+      }
+      /* The wrapper, so the captions and these controls come too. A phone without element full
+         screen (an iPhone) hands the clip to its own player instead. */
+      try{
+        if(wrap.requestFullscreen){ Promise.resolve(wrap.requestFullscreen()).then(lock, function(){}); return; }
+        if(wrap.webkitRequestFullscreen){ wrap.webkitRequestFullscreen(); return; }
+      }catch(_){}
+      try{ if(v.webkitEnterFullscreen) v.webkitEnterFullscreen(); }catch(_){}
+    });
+
+    seek.addEventListener('pointerdown', function(e){ e.stopPropagation(); dragging = true; clearTimeout(hideT); });
+    seek.addEventListener('touchstart', function(e){ e.stopPropagation(); dragging = true; clearTimeout(hideT); }, {passive:true});
+    seek.addEventListener('input', function(){
+      dragging = true;
+      var d = v.duration;
+      if(isFinite(d) && d > 0){
+        var f = seek.value / 1000;
+        seek.style.setProperty('--p', (f * 100).toFixed(2) + '%');
+        try{ v.currentTime = f * d; }catch(_){}
+        time.textContent = fmt(f * d) + ' / ' + fmt(d);
+      }
+    });
+    function endDrag(){ if(dragging){ dragging = false; paintTime(); arm(); } }
+    seek.addEventListener('change', endDrag);
+    ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(n){
+      seek.addEventListener(n, endDrag, {passive:true});
+    });
+    bar.addEventListener('click', function(e){ e.stopPropagation(); arm(); });
+
+    v.addEventListener('play', function(){ paintPlay(); show(); });
+    v.addEventListener('playing', paintPlay);
+    v.addEventListener('pause', function(){ paintPlay(); clearTimeout(hideT); });
+    v.addEventListener('ended', function(){ paintPlay(); clearTimeout(hideT); });
+    ['timeupdate','durationchange','loadedmetadata','seeked'].forEach(function(n){ v.addEventListener(n, paintTime); });
+    v.addEventListener('volumechange', paintVol);
+    if(v.textTracks && v.textTracks.addEventListener){
+      v.textTracks.addEventListener('change', paintCC);
+      v.textTracks.addEventListener('addtrack', paintCC);
+    }
+    document.addEventListener('fullscreenchange', function(){ paintFs(); tell(); });
+    document.addEventListener('webkitfullscreenchange', function(){ paintFs(); tell(); });
+
+    if(window.ResizeObserver){ try{ new ResizeObserver(function(){ fitZoom(); if(v._vcapMeasure) v._vcapMeasure(); }).observe(wrap); }catch(_){} }
+    v._mvc = {
+      get on(){ return on; },
+      /* How far up the caption strip must sit to clear the bar, in the WRAPPER's own units
+         (the strip lives in the wrapper, which may be zoomed; the bar has been counter-zoomed
+         to screen pixels). KNOB: the 5px of air. */
+      lift: function(){
+        var h = bar.getBoundingClientRect().height;
+        return h ? (h + 5) / zoomOf(wrap) : 0;
+      },
+      show: show, hide: hide
+    };
+    fitZoom();
+    v.removeAttribute('controls');
+    paintPlay(); paintTime(); paintVol(); paintCC(); paintFs();
+    return true;
+  };
 })();
 </script>
 </body></html>

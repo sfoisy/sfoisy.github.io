@@ -776,7 +776,10 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 .vp-curtain:hover i{ transform:scale(1.09); background:rgba(12,16,30,.8) }
 .vp-curtain:active i{ transform:scale(.97) }
 .vp-curtain:focus-visible{ outline:3px solid #f5820b; outline-offset:-3px }
-.vp-curtain svg{ width:30px; height:30px; display:block; margin-left:4px }   /* a triangle's optical centre is right of its box */
+.vp-curtain svg{ width:30px; height:30px; display:block; margin-left:0 }
+/* CENTRED, NOT NUDGED. The path already puts the triangle's balance point on the middle of its
+   own 24-unit box (base at 8, point at 20.8 -- a third of the way along is 12.3); the 4px push
+   was a second correction on top of that, and it is what put the triangle right of centre. */
 @media(max-width:700px){ .vp-curtain i{ width:58px; height:58px } .vp-curtain svg{ width:24px; height:24px } }
 
 /* --- The rule, and the standing block under it ---------------------------
@@ -1333,6 +1336,78 @@ video.cue-native::cue{
   .card-grid.index-grid .card-date{ font-size:.56rem; letter-spacing:.05em; line-height:1.3 }
   .card-grid.index-grid .card-date-below{ margin-top:.4rem }
 }
+
+/* ===== A PHONE'S VIDEO CONTROLS ARE THE PAGE'S OWN ==========================
+   The browser's control bar on a phone is drawn inside the <video> element, in a part of it the
+   page cannot see into -- so nothing here could know when it was showing. The caption strip had
+   to GUESS (a tap brings it up for about three seconds...), and Chrome swallows the taps that
+   put it away, so the guess was often wrong. And because the captions sit on top of the video
+   element, they covered the browser's own centre pause button: there is no z-index that puts a
+   page element under a part of the video and over the rest of it.
+
+   So on a phone the page draws the controls itself: a centre play/pause, the time, captions on
+   and off, sound, full screen, and a scrubber along the foot. Being ours, their visibility is a
+   fact rather than a guess -- the caption strip lifts exactly when the bar appears and drops
+   exactly when it goes, by exactly the bar's height -- and they sit ABOVE the captions (z-index
+   4 against the strip's 3), so the pause button is never behind a line of text.
+   Desktop is untouched: it keeps the browser's controls and the pointer-driven strip.
+   Full screen takes the whole wrapper (video, captions and these controls together) on Android;
+   an iPhone hands the clip to its own player, as it always has.
+   KNOBS: the sizes below, and HIDE_MS in the script. */
+.mvc{ position:absolute; inset:0; z-index:4; pointer-events:none; color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif; -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none }
+.mvc button{ -webkit-appearance:none; appearance:none; border:0; margin:0; padding:0; background:none;
+  color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent }
+.mvc-hit{ position:absolute; inset:0; pointer-events:auto; background:transparent }
+.mvc-mid, .mvc-bar{ opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease }
+.mvc.on .mvc-mid, .mvc.on .mvc-bar{ opacity:1; visibility:visible }
+.mvc-mid{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:42px; height:42px; border-radius:50%; background:rgba(12,16,30,.55);
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85);
+  display:flex; align-items:center; justify-content:center; pointer-events:auto }
+.mvc-mid svg{ width:21px; height:21px; display:block }
+.mvc-bar{ position:absolute; left:0; right:0; bottom:0; padding:0 6px 2px; pointer-events:auto }
+.mvc-bar::before{ content:''; position:absolute; left:0; right:0; bottom:0; height:180%;
+  background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55)); pointer-events:none; z-index:-1 }
+.mvc-row{ display:flex; align-items:center; height:24px }
+.mvc-time{ font:600 10px/1 'DM Sans',system-ui,sans-serif; font-variant-numeric:tabular-nums;
+  padding:0 4px; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.6) }
+.mvc-sp{ flex:1 1 auto }
+.mvc-btn{ width:28px; height:24px; display:flex; align-items:center; justify-content:center }
+.mvc-btn svg{ width:15px; height:15px; display:block; overflow:visible }
+.mvc-btn .slash{ display:none }
+.mvc-btn.off .slash{ display:inline }
+.mvc-btn.off{ opacity:.7 }
+.mvc-seek{ display:block; width:100%; height:12px; margin:0; background:transparent;
+  -webkit-appearance:none; appearance:none; touch-action:none; --p:0% }
+.mvc-seek:focus{ outline:none }
+.mvc-seek::-webkit-slider-runnable-track{ height:3px; border-radius:2px;
+  background:linear-gradient(90deg, #fff var(--p), rgba(255,255,255,.35) var(--p)) }
+.mvc-seek::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:11px; height:11px;
+  margin-top:-4px; border-radius:50%; background:#fff; border:0; box-shadow:0 0 0 1px rgba(0,0,0,.2) }
+.mvc-seek::-moz-range-track{ height:3px; border-radius:2px; background:rgba(255,255,255,.35) }
+.mvc-seek::-moz-range-progress{ height:3px; border-radius:2px; background:#fff }
+.mvc-seek::-moz-range-thumb{ width:11px; height:11px; border-radius:50%; background:#fff; border:0 }
+/* Full screen: the same controls at a size for a whole screen. Two rules per selector list
+   (standard and -webkit-) so a browser that knows only one does not drop both. */
+:fullscreen > .mvc .mvc-mid{ width:64px; height:64px }
+:fullscreen > .mvc .mvc-mid svg{ width:26px; height:26px }
+:fullscreen > .mvc .mvc-bar{ padding:0 14px 8px }
+:fullscreen > .mvc .mvc-row{ height:40px }
+:fullscreen > .mvc .mvc-time{ font-size:13px }
+:fullscreen > .mvc .mvc-btn{ width:42px; height:40px }
+:fullscreen > .mvc .mvc-btn svg{ width:21px; height:21px }
+:fullscreen > .mvc .mvc-seek{ height:18px }
+:-webkit-full-screen > .mvc .mvc-mid{ width:64px; height:64px }
+:-webkit-full-screen > .mvc .mvc-mid svg{ width:26px; height:26px }
+:-webkit-full-screen > .mvc .mvc-bar{ padding:0 14px 8px }
+:-webkit-full-screen > .mvc .mvc-row{ height:40px }
+:-webkit-full-screen > .mvc .mvc-time{ font-size:13px }
+:-webkit-full-screen > .mvc .mvc-btn{ width:42px; height:40px }
+:-webkit-full-screen > .mvc .mvc-btn svg{ width:21px; height:21px }
+:-webkit-full-screen > .mvc .mvc-seek{ height:18px }
+
 </style>
 </head>
 <body>
@@ -2564,8 +2639,13 @@ function fitHeading(h){
 
     // ---- where the strip sits, and how big the type is --------------------
     function measure(){
-      var h = v.getBoundingClientRect().height || 0;
+      var _vr = v.getBoundingClientRect();
+      var h = _vr.height || 0;
       if(!h) return;
+      /* THE PICTURE'S HEIGHT, NOT THE BOX'S. Inline the two are the same (the box is 16:9). In
+         full screen on an upright phone the box is the whole tall screen and the picture a band
+         across its middle, and sizing type off the box gave captions an inch high. */
+      if(v.videoWidth && v.videoHeight && _vr.width) h = Math.min(h, _vr.width * v.videoHeight / v.videoWidth);
       var rest = Math.max(10, Math.min(28, h * 0.05));
       /* The control bar is taller on a bigger player -- about 52px on a card and
          half as much again across a full screen -- so the clearance cannot be a
@@ -2584,9 +2664,16 @@ function fitHeading(h){
         box.style.setProperty('--vcap-bar', Math.round(PH_BAR_H + Math.max(6, Math.min(12, h * 0.037))) + 'px');
       }
       box.style.setProperty('--vcap-fs', (Math.round(fsz * 2) / 2) + 'px');
+      /* With the page's own controls, the lift is the bar's real height, whatever size it is
+         drawn at (it is bigger in full screen). */
+      if(v._mvc){ var lf = v._mvc.lift(); if(lf) box.style.setProperty('--vcap-bar', Math.round(lf) + 'px'); }
     }
     measure();
     window.addEventListener('resize', measure, {passive:true});
+    /* Handles for the phone's own controls (".mvc"), which know the instant the bar comes and
+       goes and how tall it is, and say so rather than being guessed at. */
+    v._vcapPaint = function(){ paint(); };
+    v._vcapMeasure = measure;
     v.addEventListener('loadedmetadata', measure);
     /* AND ON EVERY SIZE CHANGE. A window resize is not the only way this box
        moves: a post opening lays the column out for the first time, and full
@@ -2621,6 +2708,8 @@ function fitHeading(h){
     function barReach(){ return parseFloat(box.style.getPropertyValue('--vcap-bar')) || (BAR_H + 8); }
     function barOn(){
       if(v._vcapFS) return false;          // the browser is drawing; its layer handles this
+      /* The page's own controls on a phone (see ".mvc"): not a guess, a fact. */
+      if(v._mvc) return v._mvc.on;
       if(v.paused || v.ended) return true; // paused always shows the bar
       if(touchMode) return performance.now() < touchUntil;
       return (performance.now() - lastAct) < (over ? HIDE_MS : LEAVE_MS);
@@ -2989,7 +3078,8 @@ function dressVideos(root){
     wrap.appendChild(curtain);
 
     function begin(){
-      v.setAttribute('controls', '');
+      /* On a phone the page draws the controls (see ".mvc"); everywhere else, the browser's. */
+      if(!(window.__mvc && window.__mvc(v, wrap))) v.setAttribute('controls', '');
       wrap.classList.add('is-playing');
       /* THE POSTER GOES BEFORE THE CURTAIN DOES, and that ordering is the fix
          for the flash. The cover is painted twice over -- once by the curtain
@@ -3562,6 +3652,209 @@ function blogBack(e){
       });
     }catch(err){}
   }, true);
+})();
+</script>
+
+<script>
+/* ===== A PHONE'S VIDEO CONTROLS (see ".mvc" in the stylesheet) ============
+   window.__mvc(video, wrapper) is called by the play curtain in place of switching the
+   browser's controls on. On a phone it builds these instead and returns true; anywhere else it
+   returns false and the browser's controls are used exactly as before.
+
+   The caption strip reads v._mvc.on (is the bar up?) and v._mvc.lift() (how far up to sit), and
+   is told the moment either changes through v._vcapPaint / v._vcapMeasure.
+   The play curtain is untouched: pausing still brings the cover image back, and its disc is
+   still the way to resume. */
+(function(){
+  var MQ = window.matchMedia ? window.matchMedia(
+    '(hover:none) and (pointer:coarse) and (max-width:700px), (hover:none) and (pointer:coarse) and (max-height:560px)') : null;
+  var HIDE_MS = 2600;                 // KNOB: how long the bar stays up after the last touch
+  var SVG = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.8-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.3" y="5" width="4" height="14" rx="1.1" fill="currentColor"/><rect x="13.7" y="5" width="4" height="14" rx="1.1" fill="currentColor"/></svg>',
+    vol:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 21 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    cc:   '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.4 10.2a2.2 2.2 0 1 0 0 3.6M16.6 10.2a2.2 2.2 0 1 0 0 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="slash" d="M3 21 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    fs:   '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>',
+    fsx:  '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>'
+  };
+  function fmt(t){
+    t = Math.max(0, Math.floor(t || 0));
+    var m = Math.floor(t / 60), s = t % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+
+  window.__mvc = function(v, wrap){
+    if(!MQ || !MQ.matches || !v || !wrap) return false;
+    if(v._mvc) return true;
+
+    var ui = document.createElement('div');
+    ui.className = 'mvc';
+    ui.innerHTML =
+      '<button class="mvc-hit" type="button" tabindex="-1" aria-label="Show video controls"></button>' +
+      '<button class="mvc-mid" type="button" aria-label="Pause"></button>' +
+      '<div class="mvc-bar">' +
+        '<div class="mvc-row">' +
+          '<span class="mvc-time">0:00 / 0:00</span><span class="mvc-sp"></span>' +
+          '<button class="mvc-btn mvc-cc" type="button" aria-label="Captions">' + SVG.cc + '</button>' +
+          '<button class="mvc-btn mvc-vol" type="button" aria-label="Mute">' + SVG.vol + '</button>' +
+          '<button class="mvc-btn mvc-fs" type="button" aria-label="Full screen">' + SVG.fs + '</button>' +
+        '</div>' +
+        '<input class="mvc-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek">' +
+      '</div>';
+    wrap.appendChild(ui);
+    var hit = ui.querySelector('.mvc-hit'), mid = ui.querySelector('.mvc-mid'),
+        bar = ui.querySelector('.mvc-bar'), time = ui.querySelector('.mvc-time'),
+        cc = ui.querySelector('.mvc-cc'), vol = ui.querySelector('.mvc-vol'),
+        fsb = ui.querySelector('.mvc-fs'), seek = ui.querySelector('.mvc-seek');
+
+    var on = false, hideT = null, dragging = false;
+    /* THE CONTROLS KEEP THEIR SIZE WHEN THE CLIP IS SCALED. On a phone every block of an open
+       stop is scaled with `zoom` as it eases between the text measure and full bleed (the
+       ramp), and anything inside the wrapper is scaled with it -- which is part of why the
+       browser's own controls came out so large. These are counter-zoomed by the product of
+       every zoom above them, so a button is the same size on a clip at the measure and on one
+       at full bleed. */
+    function zoomOf(el){
+      var z = 1;
+      for(var e = el; e && e.nodeType === 1; e = e.parentElement){
+        var s = parseFloat(e.style && e.style.zoom);
+        if(s > 0) z *= s;
+      }
+      return z;
+    }
+    function fitZoom(){
+      var z = zoomOf(wrap);
+      ui.style.zoom = (Math.abs(z - 1) > 0.001) ? (1 / z).toFixed(4) : '';
+    }
+    function tell(){
+      fitZoom();
+      if(v._vcapMeasure) v._vcapMeasure();
+      if(v._vcapPaint) v._vcapPaint();
+    }
+    function arm(){
+      clearTimeout(hideT);
+      if(!v.paused && !dragging) hideT = setTimeout(hide, HIDE_MS);
+    }
+    function show(){ if(!on){ on = true; ui.classList.add('on'); tell(); } arm(); }
+    function hide(){ clearTimeout(hideT); if(on){ on = false; ui.classList.remove('on'); tell(); } }
+
+    function paintPlay(){
+      var p = v.paused || v.ended;
+      mid.innerHTML = p ? SVG.play : SVG.pause;
+      mid.setAttribute('aria-label', p ? 'Play' : 'Pause');
+    }
+    function paintTime(){
+      var d = v.duration;
+      if(!isFinite(d) || d <= 0) d = 0;
+      time.textContent = fmt(v.currentTime) + ' / ' + fmt(d);
+      if(!dragging){
+        var f = d ? v.currentTime / d : 0;
+        seek.value = Math.round(f * 1000);
+        seek.style.setProperty('--p', (f * 100).toFixed(2) + '%');
+      }
+    }
+    function paintVol(){ vol.classList.toggle('off', !!v.muted); vol.setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute'); }
+    function capsOn(){
+      var tt = v.textTracks;
+      for(var i = 0; tt && i < tt.length; i++) if(tt[i].mode !== 'disabled') return true;
+      return false;
+    }
+    function paintCC(){
+      var tt = v.textTracks, has = tt && tt.length;
+      cc.style.display = has ? '' : 'none';
+      cc.classList.toggle('off', !capsOn());
+    }
+    function inFs(){ var fe = fsEl(); return fe === wrap || fe === v; }
+    function paintFs(){ fsb.innerHTML = inFs() ? SVG.fsx : SVG.fs; fsb.setAttribute('aria-label', inFs() ? 'Exit full screen' : 'Full screen'); }
+
+    hit.addEventListener('click', function(e){ e.stopPropagation(); if(on) hide(); else show(); });
+    mid.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(v.paused || v.ended){ var q = v.play(); if(q && q.catch) q.catch(function(){}); }
+      else v.pause();
+      arm();
+    });
+    vol.addEventListener('click', function(e){ e.stopPropagation(); v.muted = !v.muted; arm(); });
+    cc.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tt = v.textTracks, want = !capsOn();
+      for(var i = 0; tt && i < tt.length; i++){
+        var t = tt[i];
+        if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
+        if(want){ t._vcapTook = true; t.mode = 'hidden'; }   // "THE TRACK, ON A PHONE" shows it again in full screen
+        else t.mode = 'disabled';
+      }
+      paintCC(); tell(); arm();
+    });
+    function lock(){
+      try{ if(screen.orientation && screen.orientation.lock){ var l = screen.orientation.lock('landscape'); if(l && l.catch) l.catch(function(){}); } }catch(e){}
+    }
+    fsb.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(inFs()){
+        try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(_){}
+        try{ if(document.exitFullscreen) document.exitFullscreen(); else if(document.webkitExitFullscreen) document.webkitExitFullscreen(); }catch(_){}
+        return;
+      }
+      /* The wrapper, so the captions and these controls come too. A phone without element full
+         screen (an iPhone) hands the clip to its own player instead. */
+      try{
+        if(wrap.requestFullscreen){ Promise.resolve(wrap.requestFullscreen()).then(lock, function(){}); return; }
+        if(wrap.webkitRequestFullscreen){ wrap.webkitRequestFullscreen(); return; }
+      }catch(_){}
+      try{ if(v.webkitEnterFullscreen) v.webkitEnterFullscreen(); }catch(_){}
+    });
+
+    seek.addEventListener('pointerdown', function(e){ e.stopPropagation(); dragging = true; clearTimeout(hideT); });
+    seek.addEventListener('touchstart', function(e){ e.stopPropagation(); dragging = true; clearTimeout(hideT); }, {passive:true});
+    seek.addEventListener('input', function(){
+      dragging = true;
+      var d = v.duration;
+      if(isFinite(d) && d > 0){
+        var f = seek.value / 1000;
+        seek.style.setProperty('--p', (f * 100).toFixed(2) + '%');
+        try{ v.currentTime = f * d; }catch(_){}
+        time.textContent = fmt(f * d) + ' / ' + fmt(d);
+      }
+    });
+    function endDrag(){ if(dragging){ dragging = false; paintTime(); arm(); } }
+    seek.addEventListener('change', endDrag);
+    ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(n){
+      seek.addEventListener(n, endDrag, {passive:true});
+    });
+    bar.addEventListener('click', function(e){ e.stopPropagation(); arm(); });
+
+    v.addEventListener('play', function(){ paintPlay(); show(); });
+    v.addEventListener('playing', paintPlay);
+    v.addEventListener('pause', function(){ paintPlay(); clearTimeout(hideT); });
+    v.addEventListener('ended', function(){ paintPlay(); clearTimeout(hideT); });
+    ['timeupdate','durationchange','loadedmetadata','seeked'].forEach(function(n){ v.addEventListener(n, paintTime); });
+    v.addEventListener('volumechange', paintVol);
+    if(v.textTracks && v.textTracks.addEventListener){
+      v.textTracks.addEventListener('change', paintCC);
+      v.textTracks.addEventListener('addtrack', paintCC);
+    }
+    document.addEventListener('fullscreenchange', function(){ paintFs(); tell(); });
+    document.addEventListener('webkitfullscreenchange', function(){ paintFs(); tell(); });
+
+    if(window.ResizeObserver){ try{ new ResizeObserver(function(){ fitZoom(); if(v._vcapMeasure) v._vcapMeasure(); }).observe(wrap); }catch(_){} }
+    v._mvc = {
+      get on(){ return on; },
+      /* How far up the caption strip must sit to clear the bar, in the WRAPPER's own units
+         (the strip lives in the wrapper, which may be zoomed; the bar has been counter-zoomed
+         to screen pixels). KNOB: the 5px of air. */
+      lift: function(){
+        var h = bar.getBoundingClientRect().height;
+        return h ? (h + 5) / zoomOf(wrap) : 0;
+      },
+      show: show, hide: hide
+    };
+    fitZoom();
+    v.removeAttribute('controls');
+    paintPlay(); paintTime(); paintVol(); paintCC(); paintFs();
+    return true;
+  };
 })();
 </script>
 </body>
