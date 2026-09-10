@@ -348,23 +348,46 @@ canvas{ position:absolute; inset:0; width:100%; height:100%; display:block }
    to carry any weight: filled, blue, with a star, and it breathes. It used to have a second
    line of explanatory text welded to its side -- a button that has to tell you what pressing
    it will do is a button whose label is wrong, and "Leaderboard" is not. */
+/* QUIET UNTIL YOU REACH FOR IT. It was a bright blue gradient with a gold star and a
+   pulse on a 3s loop -- three things all saying "press me" at once, on a screen where
+   it is the only button and therefore has nobody to compete with. Bright is what you
+   need when a control has to be found; this one cannot be missed.
+
+   So the blue is dimmed to about a third and the star takes the button's own colour
+   instead of gold, and BOTH come up on hover -- the full blue, the gold star. The
+   button is legible and obviously a button at rest, and rewards the cursor rather
+   than demanding it. The pulse goes with them: a loop that runs whether or not anyone
+   is looking is the part that could not be turned off.
+
+   --lead-blue is the one value both states are built from, so the resting and hover
+   colours cannot drift apart.
+   KNOBS: --lead-blue, and the .34 alpha of the resting fill. */
 .lead{
+  --lead-blue:#4a7ee8;
   cursor:pointer; border:0; border-radius:13px; padding:.5rem 1.3rem .55rem;
   display:inline-flex; align-items:center; gap:.55rem;
-  background:linear-gradient(135deg, #5d92f5, #3560d8);
-  color:#fff; font:900 .82rem 'DM Sans',sans-serif; letter-spacing:.02em;
-  box-shadow:0 12px 26px -12px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.26) inset;
-  animation:leadPulse 3s ease-in-out 1.2s infinite;
-  transition:transform .14s cubic-bezier(.3,.8,.3,1), filter .14s ease;
+  background:linear-gradient(135deg, rgba(93,146,245,.34), rgba(53,96,216,.34));
+  color:rgba(255,255,255,.86); font:900 .82rem 'DM Sans',sans-serif; letter-spacing:.02em;
+  box-shadow:0 10px 22px -14px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.16) inset;
+  transition:background .18s ease, color .18s ease, box-shadow .18s ease,
+             transform .14s cubic-bezier(.3,.8,.3,1);
 }
-.lead i{ font-style:normal; font-size:1rem; line-height:1; color:#ffe08a }
-.lead:hover{ transform:translateY(-2px); filter:brightness(1.1) }
+/* The star sits in the button's own blue at rest, a shade lighter than the fill so it
+   still reads as a star rather than a hole, and turns gold with everything else. */
+.lead i{ font-style:normal; font-size:1rem; line-height:1; color:#9fc0f7; transition:color .18s ease }
+.lead:hover{
+  transform:translateY(-2px);
+  background:linear-gradient(135deg, #5d92f5, #3560d8);
+  color:#fff;
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.26) inset;
+}
+.lead:hover i{ color:#ffe08a }
+.lead:focus-visible i{ color:#ffe08a }
 .lead:active{ transform:translateY(0) }
 .lead:focus-visible{ outline:2px solid #fff; outline-offset:3px }
-@keyframes leadPulse{
-  0%,100%{ box-shadow:0 12px 26px -12px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.26) inset, 0 0 0 0 rgba(93,146,245,.5) }
-  50%    { box-shadow:0 12px 26px -12px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.26) inset, 0 0 26px 3px rgba(93,146,245,.42) }
-}
+/* leadPulse, the glow that used to run on a 3s loop, is gone with the bright fill --
+   see the note on .lead. Kept out rather than left unreferenced: an unused keyframe is
+   a thing the next person has to check is unused. */
 @media(max-width:660px){ .lead{ padding:.42rem .9rem } }
 
 .ghost{ cursor:pointer; border:1px solid rgba(255,255,255,.28); border-radius:12px; padding:.78rem 1.4rem;
@@ -505,7 +528,13 @@ canvas{ position:absolute; inset:0; width:100%; height:100%; display:block }
 .ctaBtn{
   text-decoration:none; padding:.5rem 1rem; border-radius:10px;
   font:800 .74rem 'DM Sans',sans-serif; letter-spacing:.03em;
-  background:linear-gradient(135deg,#8f9dfa,#b48af0); color:#fff;
+  /* ONE COLOUR. It was a periwinkle-to-lilac gradient, and those two violets are the
+     same family the stick, the leaderboard and the chips use -- so "Call your reps",
+     which is the one control on the screen that is not part of the game, looked like
+     the loudest control that is. The navy is the bar's colour: it reads as part of the
+     page around the game rather than as another button in it.
+     KNOB: this value. White type on it clears 11:1. */
+  background:#20374b; color:#fff;
   box-shadow:0 10px 24px -12px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.16) inset;
   transition:transform .14s cubic-bezier(.3,.8,.3,1), filter .14s ease;
 }
@@ -1300,9 +1329,25 @@ body.touching .hint{ display:none }
         border-radius:0 }
   /* Over the frame, not under it. pointer-events stays off the bar itself so the only things
      that swallow a touch are the stick and the two buttons. */
-  .touch{ position:fixed; left:0; right:0; bottom:0; top:auto; z-index:6;
-          width:100%; max-width:none; padding:0 12px 10px; pointer-events:none }
+  /* UP THE MIDDLE, not along the bottom. Along the bottom edge the stick and the two
+     buttons sit where a phone held sideways has the heels of the hands, not the thumbs --
+     the thumbs are level with the middle of the screen. Centred vertically they fall
+     under them, and the foot of the frame, which is where the walking happens, stops
+     being the part your hands are over.
+     top:50% puts the bar's own top edge on the middle line, so translateY(-50%) pulls it
+     back by half its height to CENTRE the controls rather than hang them from it. */
+  .touch{ position:fixed; left:0; right:0; top:50%; bottom:auto; transform:translateY(-50%);
+          z-index:6; width:100%; max-width:none; padding:0 12px; pointer-events:none }
   .stick, .tb{ pointer-events:auto }
+  /* 40% BIGGER than the short-screen sizes further up (78 and 58), which were tuned for
+     controls tucked under the frame, where small was polite. Floating at thumb height over
+     the game they are the thing you are actually holding, and 78px is a small target for a
+     thumb that is also moving.
+     Flat values rather than clamps: at this height there is no range left to clamp across.
+     KNOBS: 109 and 81 -- 78 and 58 times 1.4. */
+  .stick{ width:109px; height:109px }
+  .tb{ width:81px; height:81px; font-size:.95rem }
+  .tb.jump{ font-size:.82rem }
   /* ...and only while a level is actually being played. Under the frame they can sit there
      through the menus harmlessly; floating over one they would cover the buttons. */
   body:not(.inlevel) .touch{ display:none }
@@ -1400,7 +1445,15 @@ body.touching .hint{ display:none }
   .site-nav{ padding:0 1.25rem; gap:1rem }
   .site-nav .nav-name{ flex:0 0 auto; white-space:nowrap }
   .nav-links{
+    /* RIGHT-ALIGNED, like the full-width bar. flex:1 1 auto makes the row take all the
+       space left over between the name and the right edge, and its items then start at
+       its own left edge -- which put the five links hard against "Syl Foisy" with the
+       whole right half of the bar empty. justify-content:flex-end packs them to the far
+       end instead, so the bar reads the same at every width: name left, links right.
+       It only shows when the row is NOT scrolling; once the links overflow, the row is
+       full and there is nothing left to justify. */
     flex:1 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden; gap:1.6rem;
+    justify-content:flex-end;
     scrollbar-width:none; -ms-overflow-style:none;
     -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
             mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
@@ -1514,6 +1567,45 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
 .vsp-copy input{flex:1;min-width:0;border:none;outline:none;font:400 .95rem 'DM Sans',sans-serif;color:#333;background:none}
 .vsp-copybtn{flex:0 0 auto;border:1px solid #cfcfcf;background:#fff;border-radius:999px;font:700 .9rem 'DM Sans',sans-serif;color:#000;padding:.55rem 1.3rem;cursor:pointer;transition:background .15s}
 .vsp-copybtn:hover{background:#f2f2f2}
+
+/* ===== ON A PHONE: THE RECAP FITS, AND THE CARD STOPS BLANKING THE GAME =====
+
+   THE RECAP, at about half. It is a kicker, a list of scored lines, a big total and a
+   button, all sized for a frame 940px wide -- and on a phone the frame is 360. The list
+   was running off both edges and the total was wrapping. Every value here is roughly
+   half its desktop one, and the list is given the width rather than a min() against a
+   rem figure that was never going to fit.
+
+   The frame already has a @container query for SHORT frames (max-height:430px), which is
+   a different case: that one is about a phone on its side, this one is about a narrow
+   one standing up. They do not overlap.
+
+   THE POP-UP CARD keeps its blur off here. .pop carries backdrop-filter:blur(16px), and
+   a blurred element sitting over a <canvas> is a known way to lose the canvas on mobile
+   Chrome: the compositor has to sample what is behind the card, the canvas layer is not
+   available to sample, and the frame comes back black -- which is why the level vanished
+   the moment a card opened and came back when it closed. With no blur there is nothing
+   to sample and the game stays visible behind the card. The card is made nearly opaque
+   in the same breath, because the blur was what was making it readable over the scene.
+   KNOBS: the .98 alphas. */
+@media(max-width:700px){
+  .recapKick{ font-size:.5rem; letter-spacing:.14em; margin-bottom:.4rem }
+  .recap{ width:min(17rem, 92%); margin-bottom:.5rem }
+  .recap li{ padding:.18rem 0; font-size:.6rem; gap:.5rem }
+  .recap li b{ font-size:.72rem }
+  .recap li b small{ font-size:.46rem }
+  .recapTotal{ font-size:1.5rem }
+  .recapTotal small{ font-size:.44rem; letter-spacing:.16em }
+  #recapGo{ margin-top:.6rem; padding:.4rem 1rem; font-size:.68rem }
+
+  .pop{
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+    background:linear-gradient(150deg, rgba(16,20,44,.98), rgba(24,20,52,.99));
+  }
+  .pop.wx{
+    background:linear-gradient(150deg, rgba(46,32,14,.98), rgba(30,22,14,.99));
+  }
+}
 </style>
 </head>
 <body>

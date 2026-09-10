@@ -1822,6 +1822,9 @@ var hubView  = document.getElementById('hubView');
    opened, so a conversation reached from the wall returns to the wall and the
    walk post returns to the index. */
 var returnView = 'index';
+/* And whether that screen is the wall. Set in openPost, cleared wherever a screen other
+   than a post is drawn, so it is only ever true while an interview is on screen. */
+var openPostHub = false;
 
 function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 function hasCover(p){return !!(p.dataset.cover && p.dataset.cover.trim())}
@@ -1950,6 +1953,7 @@ function buildHubCards(){
    times. The whole of this file is one page; the tab says so once, in the
    <title> at the top, and nothing here touches it. */
 function openHub(push){
+  openPostHub = false;
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -1993,6 +1997,7 @@ function stopClips(){
 /* The front page, drawn and nothing else -- no history written. Everything that
    wants to GO there goes through goBack() so the entry stack stays true. */
 function showIndex(){
+  openPostHub = false;
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -2007,6 +2012,13 @@ function showIndex(){
    draws the front page instead, because history.back() there would leave the
    site altogether. */
 function goBack(){
+  /* AN OPEN INTERVIEW GOES TO THE WALL, and this is checked before history is, because
+     it is a stronger statement than "one step back": one step back from a conversation
+     reached by a shared link leaves the site, and one step back from the third
+     conversation you have chevroned through lands on the second. The wall is where a
+     reader closing an interview expects to be, every time. The Challenges post is not
+     an interview and is not covered -- it keeps ordinary Back. */
+  if(openPostHub){ openHub(true); return; }
   /* A screen of ours behind us: step back through them. */
   if(depth > 0){ history.back(); return; }
   /* No screen of ours, but we are not on the front one either -- someone opened
@@ -2041,6 +2053,12 @@ function openPost(id, push, from){
      nobody said, fall back to what the article itself is: an interview belongs
      to the wall, anything else to the index. */
   returnView = from || (p.dataset.hub === 'interviews' ? 'hub' : 'index');
+  /* AN INTERVIEW ALWAYS BELONGS TO THE WALL. Which screen you came from is a fact about
+     your route; which screen a conversation lives on is a fact about the site, and Back
+     from #7 should land on the fourteen whether you got there from the wall, from a link
+     someone sent you, or from the chevrons that walk between them. openPostHub is what
+     goBack() reads to decide -- see there. */
+  openPostHub = (p.dataset.hub === 'interviews');
   /* Nothing is written into a head any more -- there is not one. The clip's own
      title card carries the title, the mile and the place; see the note on the
      reader markup above. data-title still sets the browser tab, further down. */
@@ -3077,7 +3095,15 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
   nav{ padding:0 1.25rem; gap:1rem; margin-left:0; width:100% }
   .nav-name{ flex:0 0 auto; white-space:nowrap }
   .nav-links{
+    /* RIGHT-ALIGNED, like the full-width bar. flex:1 1 auto makes the row take all the
+       space left over between the name and the right edge, and its items then start at
+       its own left edge -- which put the five links hard against "Syl Foisy" with the
+       whole right half of the bar empty. justify-content:flex-end packs them to the far
+       end instead, so the bar reads the same at every width: name left, links right.
+       It only shows when the row is NOT scrolling; once the links overflow, the row is
+       full and there is nothing left to justify. */
     flex:1 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden; gap:1.6rem;
+    justify-content:flex-end;
     scrollbar-width:none; -ms-overflow-style:none;
     -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
             mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);

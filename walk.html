@@ -3925,7 +3925,13 @@ body.map-plain .map-readout{ text-shadow:none }
   display:flex;align-items:center;justify-content:center;gap:.5rem;
   font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#fff;
   text-decoration:none;letter-spacing:.01em;white-space:nowrap;
-  background:linear-gradient(100deg,#2f6df0 0%,#6a4ce0 55%,#8c3fd8 100%);
+  /* ONE COLOUR. It was a three-stop blue-to-purple gradient, which is a lot of button for
+     a link that sits under a satellite photograph: the gradient was the brightest thing in
+     that corner and pulled the eye off the map it belongs to. The navy is the same family
+     as the bar and the loading sheet, so the button reads as part of the page rather than
+     as something dropped onto it.
+     KNOB: this value. White type on it clears 11:1. */
+  background:#20374b;
   padding:.5rem .6rem;border-radius:.6rem;
   box-shadow:0 6px 16px -6px rgba(30,20,90,.55);
   opacity:0;transition:opacity .15s,filter .15s,transform .15s}
@@ -4982,7 +4988,14 @@ body.map-off footer{ max-width: calc(100% - 44px) }
   .nav-hamburger { display: flex; } /* show the hamburger toggleMenu() already drives */
   .article-hero {
     position: relative;
-    padding: 3.5rem 14px 2.5rem 14px;   /* dropped the right gap; the hero figure lives there now */
+    /* UP A LITTLE. The block is centred in the first screen and the bottom padding is
+       what lifts it off that centre line -- see --hero-lift in the base rule: min-height
+       covers padding, so padding at the FOOT shrinks the box the block is centred in and
+       raises it by half of whatever is added. 2.5rem to 4.25rem is 1.75rem of padding,
+       so the title and the byline come up by a little under 14px, which is the amount
+       that was making them sit low against the top of the photograph.
+       KNOB: that 4.25rem. Raising it lifts the block; nothing else moves. */
+    padding: 3.5rem 14px 4.25rem 14px;   /* dropped the right gap; the hero figure lives there now */
     /* Both halves of the desktop full-width trick are undone here, and both have to be: the
        body's left padding is 0 at this width, so cancelling it would drag the hero 84px off
        the left of the screen and the extra width would hang off the right. */
@@ -6244,6 +6257,20 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   background-position:top center;
   background-repeat:repeat-y;
 }
+/* NARROW SCREENS GET `cover`, which is what blog.html does at the same breakpoint and
+   for the same reason. Scaled to the WIDTH of a 400px phone this photograph is about
+   190px tall, so `100% auto` turns it into a thin band tiled a dozen times down the
+   sheet -- a repeating strip of sky, which is not what anyone means by a backdrop.
+   `cover` scales it to fill instead and crops the overflow. The two rules together are
+   the same pair the blog carries: width-scaled where there is width, cover where there
+   is not. */
+@media(max-width:1100px){
+  .pl-sky{
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+}
 
 .pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 
@@ -6404,6 +6431,58 @@ html .nav-mobile-menu{ background:var(--nav-solid) }
    what showed, and it sat under a white bar where it read as thicker than the white
    one that replaced it. Nailed to one value here so there is only ever one line. */
 nav{ border-bottom:1px solid var(--nav-rule) }
+
+/* ===== A PHONE HELD SIDEWAYS ===============================================
+   The hero is built to fill the first screen and centre its block in it -- which works
+   on any screen tall enough to hold the block. Turned sideways a phone is about 390px
+   tall, the block is taller than that, and it is centred: half of it goes off the top,
+   which is where the title was.
+
+   So at that height the hero stops trying to fill the screen and simply takes the height
+   of its own contents, and the type comes down a step to help. Nothing is repositioned
+   and nothing is hidden -- the block is the same block, in a box that fits it.
+   KNOB: the 560px. It is "shorter than the block", not any particular device. */
+@media (orientation:landscape) and (max-height:560px){
+  .article-hero{
+    min-height:0;
+    padding-top:1.5rem;
+    padding-bottom:1.75rem;
+    justify-content:flex-start;
+  }
+  .article-title{ font-size:clamp(1.5rem, 5.4vw, 2.4rem) }
+  .article-dek{ font-size:.9rem }
+  .article-meta, .read-time{ font-size:.78rem }
+}
+
+/* ===== A STOP, ON A PHONE HELD SIDEWAYS ====================================
+   The panel's width is scripted: it measures the lane between the page's left edge and
+   the map's, and on a wide screen that is the right answer. Sideways on a phone the lane
+   is measured the same way but everything in it is smaller, so the result was a column of
+   about 40 characters set in 13px, floating in the middle of the screen with a wide empty
+   gutter down the left -- a paragraph you have to lean in to read on the one orientation
+   you turned the phone to specifically to see more.
+
+   Here the panel stops taking the scripted width and takes the room instead: 12px from
+   the left edge, out to where the map begins. 72vw is the same lane figure the article
+   column uses at mid width, so the two agree about where the map's edge is.
+   !important because --panel-w is written onto the element by the script every time the
+   panel is re-measured, and a stylesheet cannot out-specify an inline style any other way.
+
+   The type comes up with the width. A wider measure at the same size would be worse, not
+   better -- long lines of small type are harder to track than short ones.
+   KNOBS: the 72vw, and the 15px. */
+@media (orientation:landscape) and (max-height:560px){
+  body.stop-modal.mode-quick .j-sect.is-open{
+    left:12px !important;
+    width:calc(72vw - 24px) !important;
+    max-width:none !important;
+  }
+  body.stop-modal.mode-quick .j-sect.is-open .j-card p,
+  body.stop-modal.mode-quick .j-sect.is-open .jp-txt p{
+    font-size:15px;
+    line-height:1.62;
+  }
+}
 </style>
 </head>
 <body class="mode-quick">
@@ -24824,6 +24903,13 @@ body.map-full #scrollCue{ opacity:0 !important }
   .nav-name{ flex:0 0 auto; white-space:nowrap }
   .lang-select{ flex:0 0 auto }
   .nav-links{
+    /* RIGHT-ALIGNED, like the full-width bar. flex:1 1 auto makes this row take all the
+       space between the name and the right edge, and its items then start at its own left
+       edge -- which put the five links hard against "Syl Foisy" with the right half of the
+       bar empty. flex-end packs them to the far end, so the bar reads the same at every
+       width: name left, links right. It only shows while the row is NOT scrolling; once
+       the links overflow there is nothing left to justify. */
+    justify-content:flex-end;
     flex:1 1 auto; min-width:0;
     overflow-x:auto; overflow-y:hidden;
     gap:1.6rem;                                  /* KNOB: tighter than the desktop 2.5rem */

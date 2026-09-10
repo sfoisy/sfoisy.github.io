@@ -338,6 +338,13 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
   nav{ padding:0 1.25rem; gap:1rem }
   .nav-name{ flex:0 0 auto; white-space:nowrap }
   .nav-links{
+    /* RIGHT-ALIGNED, like the full-width bar. flex:1 1 auto makes this row take all
+       the space between the name and the right edge, and its items then start at its
+       own left edge -- which put the five links hard against "Syl Foisy" with the
+       right half of the bar empty. flex-end packs them to the far end, so the bar
+       reads the same at every width: name left, links right. It only shows while the
+       row is NOT scrolling; once the links overflow there is nothing to justify. */
+    justify-content:flex-end;
     flex:1 1 auto; min-width:0;
     overflow-x:auto; overflow-y:hidden;
     gap:1.6rem;

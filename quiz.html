@@ -611,7 +611,15 @@ input.name:focus{ outline:3px solid var(--acc); outline-offset:2px; background:r
   .site-nav{ padding:0 1.25rem; gap:1rem }
   .site-nav .nav-name{ flex:0 0 auto; white-space:nowrap }
   .nav-links{
+    /* RIGHT-ALIGNED, like the full-width bar. flex:1 1 auto makes the row take all the
+       space left over between the name and the right edge, and its items then start at
+       its own left edge -- which put the five links hard against "Syl Foisy" with the
+       whole right half of the bar empty. justify-content:flex-end packs them to the far
+       end instead, so the bar reads the same at every width: name left, links right.
+       It only shows when the row is NOT scrolling; once the links overflow, the row is
+       full and there is nothing left to justify. */
     flex:1 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden; gap:1.6rem;
+    justify-content:flex-end;
     scrollbar-width:none; -ms-overflow-style:none;
     -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
             mask-image:linear-gradient(90deg, #000 calc(100% - 22px), transparent);
@@ -743,6 +751,61 @@ body{ padding-top:74px }
 .vsp-copy input{flex:1;min-width:0;border:none;outline:none;font:400 .95rem 'DM Sans',sans-serif;color:#333;background:none}
 .vsp-copybtn{flex:0 0 auto;border:1px solid #cfcfcf;background:#fff;border-radius:999px;font:700 .9rem 'DM Sans',sans-serif;color:#000;padding:.55rem 1.3rem;cursor:pointer;transition:background .15s}
 .vsp-copybtn:hover{background:#f2f2f2}
+
+/* ===== ON A PHONE, BOTH CORNER CONTROLS SIT INSIDE THE FRAME ===============
+   The hat and the Back pill are pinned to the WINDOW, which on a desktop is right:
+   the frame floats in a wide field and the two controls belong to the page around
+   it. On a phone there is no field -- the frame is the screen, give or take the
+   body's 16px -- so window corners and frame corners are nearly the same place, and
+   "nearly" is what looked wrong: both were sitting just outside the rounded edge,
+   in the strip between the frame and the screen.
+
+   They keep position:fixed and simply move in far enough to clear the corner. Fixed
+   rather than absolute-inside-the-frame on purpose: .box carries a backdrop-filter,
+   which in several browsers makes it the containing block for fixed descendants --
+   so moving the markup inside it would change what these two are positioned against
+   and, worse, change it only in some browsers.
+
+   THE NUMBERS. The body pads 16px and the frame's corner radius is 20px, so ~30px
+   in from a window edge is comfortably inside the curve. The top also has to clear
+   the bar (58) and the body's top padding (16).
+   KNOBS: the 30px inset and the 94px top. */
+@media(max-width:700px){
+  .stamp{ right:30px; bottom:30px }
+  .backw{ left:30px; top:94px }
+}
+
+/* ===== A PHONE HELD SIDEWAYS ==============================================
+   The frame is `aspect-ratio:16/10` with `min-height:540px`, and 540px is taller
+   than a phone on its side -- so the box could not shrink to fit and spilled off
+   the top and the bottom with the game unreadable between them.
+
+   Sideways, height is the scarce dimension, so height leads: the frame takes what
+   the window has, minus the padding, and the aspect ratio follows from it rather
+   than dictating it. min-height goes to 0 or it would go on overriding everything
+   here; the corner radius goes because at full-bleed there is no margin for a curve
+   to sit in.
+
+   The two corner controls come back to the window's own corners at this size -- with
+   the frame filling the screen, inside the frame and inside the window are the same
+   place, and the extra inset would only push them further into the game. */
+@media (orientation:landscape) and (max-height:520px){
+  body{ padding:8px }
+  .box{
+    min-height:0;
+    height:calc(100dvh - 16px);
+    max-height:calc(100dvh - 16px);
+    aspect-ratio:auto;
+    width:100%; max-width:none;
+    border-radius:0;
+  }
+  .stamp{ right:10px; bottom:10px; width:44px }
+  .backw{ left:10px; top:10px }
+  /* Everything inside is sized in rem off the root, so one step down there brings the
+     whole screen -- question, options, chips -- in together and keeps their proportions.
+     KNOB: the 86%. */
+  .box{ font-size:86% }
+}
 </style>
 </head>
 <body>
