@@ -6484,35 +6484,49 @@ nav{ border-bottom:1px solid var(--nav-rule) }
   }
 }
 
-/* ===== CAPTIONS AND THE MOBILE CONTROL BAR =================================
-   On a desktop the browser lifts the cue box clear of the controls when they are
-   showing and drops it back when they hide. On a phone it does not: the cue box sits
-   at one fixed height near the foot of the picture, and the control bar -- which on a
-   phone is roughly twice as tall -- comes up over the top of it.
+/* ===== CAPTIONS ON A PHONE ARE DRAWN BY THIS PAGE ===========================
+   Every previous attempt tried to move the browser's own cue box with a transform on
+   video::-webkit-media-text-track-container, and every one of them failed for the same
+   reason: that box is in the video's shadow DOM and the browser repositions it whenever
+   it feels like it -- when the controls appear, when they hide, when a new cue starts.
+   A transform from outside is a suggestion the browser overwrites, which is exactly what
+   the flicker was: our lift, then the browser putting it back, several times a second.
 
-   A constant lift was the first attempt and it was worse than the bug. Pushed up by
-   the bar's height at all times, the captions floated in the middle of the picture
-   whenever the controls were hidden, which is most of the time you are watching.
+   So on a phone the page stops asking. The text track is switched to `hidden`, which
+   keeps the cues firing and stops the browser painting them, and the cue text is drawn
+   into an ordinary <div> laid over the video. From there its position is a CSS rule like
+   any other and nothing can move it.
 
-   So the lift is a state, and .cc-up is the state. The script at the foot of this file
-   adds the class while the controls are up and takes it off when they go, so the
-   captions rise with the bar and settle back the moment it does. The .18s makes that a
-   move rather than a jump -- the bar itself fades over about that long, and the two
-   should look like one thing happening.
+   WHERE IT SITS: clear of the control bar, always. Not "up while the bar is showing" --
+   that was the old design and it needed to know something the page cannot know. One
+   position that clears the bar in both states is stable, and because this box is ours it
+   can sit much closer to the bottom edge than the browser's own ever did, so it does not
+   look stranded when the controls are hidden.
 
-   The transform is on the -webkit- pseudo-element because that is the only handle a
-   page gets on the cue box: it lives in the video's shadow DOM and ::cue can style the
-   text but cannot move the box it sits in. Firefox has no equivalent and ignores all of
-   this, which leaves it exactly where it is today.
-   KNOBS: the 2.6em -- em of the cue text, so it tracks the caption size rather than a
-   device -- and the 3.2s in the script. */
+   Desktop is untouched. Everything here is inside the phone query and the script leaves
+   the track alone above that width, so the browser goes on doing what it already does
+   correctly there.
+   KNOBS: --vcap-lift (how far above the bottom edge), and the font size. */
 @media(max-width:900px){
-  video::-webkit-media-text-track-container{
-    transition:transform .18s ease;
+  .vcap-wrap{ position:relative; display:block }
+  .vcap{
+    position:absolute; left:0; right:0;
+    bottom:var(--vcap-lift, 3.1rem);
+    z-index:2; pointer-events:none;
+    padding:0 .7rem; text-align:center;
+    font:500 .82rem/1.35 'DM Sans',sans-serif;
+    /* The text carries its own backing rather than the box: a full-width band would sit
+       over the picture even on a one-word cue, and the reason captions are set this way
+       everywhere is that the backing should be the shape of the words. */
+    color:transparent;
   }
-  video.cc-up::-webkit-media-text-track-container{
-    transform:translateY(-2.6em);
+  .vcap b{
+    display:inline; font-weight:500;
+    background:rgba(0,0,0,.72); color:#fff;
+    padding:.12em .34em; border-radius:3px;
+    box-decoration-break:clone; -webkit-box-decoration-break:clone;
   }
+  .vcap:empty{ display:none }
 }
 
 /* ===== THE PHONE MENU IS AN OVERLAY, NOT A ROW ==============================
@@ -6632,6 +6646,35 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     top:calc(var(--lock-y, 0px) * -1);
     left:0; right:0; width:100%;
     overflow:hidden;
+  }
+}
+
+/* ===== THE TAP HINT, ABOVE THE FOOTNOTE =====================================
+   On a phone .map-tap-hint carries the opinion footnote under the map, and there was
+   nothing telling anyone the map does anything when you touch it. The desktop hint says
+   so -- "Cursor over the map to highlight..." -- and is hidden here because there is no
+   cursor to hover with; a phone taps.
+
+   Two lines in one element, with the hint first, because they belong in that order: the
+   hint is about the picture directly above it and the footnote is about the page. The
+   hint is a ::before rather than new markup so the script that shows, hides and fades
+   this element goes on treating it as the one thing it has always been -- it fades the
+   pair together, which is right, since both are captions to the same picture.
+
+   The rule between them is a border on the pseudo-element, sized to the text rather than
+   the column: a full-width line under a centred line of type reads as a section break,
+   and this is a pause between two footnotes.
+   KNOBS: the 4.5rem width of the rule, and the .55rem gap either side of it. */
+@media(max-width:700px){
+  .map-tap-hint{ margin-top:.9rem }
+  .map-tap-hint::before{
+    content:"Click to highlight states/water bodies!";
+    display:block;
+    margin:0 auto .55rem;
+    padding-bottom:.55rem;
+    width:max-content;
+    max-width:100%;
+    border-bottom:1px solid rgba(255,255,255,.45);
   }
 }
 </style>
@@ -26205,62 +26248,138 @@ function goBack(e){
 })();
 </script>
 <script>
-/* ===== CAPTIONS FOLLOW THE CONTROL BAR =====================================
-   The page cannot ask a video whether its controls are showing -- they are in the
-   shadow DOM and there is no event and no property for it. What it can do is know the
-   same things the browser knows, because the rules are simple and the same everywhere:
-   the bar is up while the video is paused, it comes up on a touch, and it goes down a
-   few seconds after playback resumes. That is what this tracks.
+/* ===== CAPTIONS, DRAWN BY THE PAGE, ON PHONES ONLY =========================
+   See the .vcap rules in the stylesheet for why: the browser's cue box cannot be moved
+   from outside the shadow DOM and undoes anything the page does to it. This takes the
+   painting over instead.
 
-   DELEGATED, IN THE CAPTURE PHASE, and both halves matter. Delegated because the
-   videos on this site are built at the moment a post opens, so there is nothing to
-   bind to at load. Capture because `play` and `pause` do not bubble -- a listener on
-   document only ever sees them on the way DOWN to the target.
+   HOW IT HANGS TOGETHER
+   - `hidden` on the track, not `disabled`. Hidden keeps cuechange firing and activeCues
+     populated while stopping the browser drawing anything. Disabled would stop both.
+   - The overlay is a sibling of the <video> inside a wrapper this adds, because a <div>
+     cannot go inside a <video>. The wrapper takes the video's place in the DOM and the
+     video moves into it, so nothing else that was pointing at the video is disturbed.
+   - Delegated and observed, because the videos on this site do not exist at load: the
+     blog builds one when a post opens and the walk builds them as you scroll.
+   - `change` on the track list is the important listener. Our own caption loader sets
+     mode to 'showing' a frame after it attaches a track, and the CC button in the native
+     controls sets it too -- so this cannot set 'hidden' once and walk away. It re-asserts
+     on every change, and it respects the one state that means the reader has spoken:
+     `disabled`, which is what the CC button produces when it turns captions off.
 
-   The timer is parked on the element itself rather than in a map, so a video that is
-   removed from the page takes its timer's only reference with it.
-
-   Everything here is a class on the element; the media query decides whether that class
-   means anything. On a desktop the rule does not exist and this runs harmlessly. */
+   Above 900px none of this runs and the track is left showing, which is what desktop
+   already does correctly. */
 (function(){
-  /* 5200, not 3200. The control bar's own timeout runs about three seconds from the LAST
-     interaction, and this class was expiring on its own three-second clock started at the
-     FIRST one -- so the captions dropped while the bar was still on screen. That is the
-     glitch exactly: right position for a moment, then down, with the bar still up. Longer
-     than the bar is the safe side of that race -- captions that stay lifted a beat after
-     the bar goes read as a slow settle; captions that drop while it is up read as broken. */
-  var HOLD = 5200;   /* KNOB: how long the captions stay lifted after a touch, ms */
+  var PHONE = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
+  function onPhone(){ return PHONE ? PHONE.matches : (window.innerWidth <= 900); }
 
-  function up(v){
-    if(!v || v.tagName !== 'VIDEO') return;
-    v.classList.add('cc-up');
-    clearTimeout(v._ccT);
-    /* Paused, the bar does not go anywhere, so neither do the captions. */
-    if(v.paused) return;
-    v._ccT = setTimeout(function(){
-      if(!v.paused) v.classList.remove('cc-up');
-    }, HOLD);
+  function esc(t){
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  function fromEvent(e){
-    return e.target && e.target.closest ? e.target.closest('video') : null;
+  /* The box, and the wrapper it needs. Both are made once per video and remembered on
+     the element, so this is safe to call as often as it likes. */
+  function boxFor(v){
+    if(v._vcapBox && v._vcapBox.isConnected) return v._vcapBox;
+    var parent = v.parentNode;
+    if(!parent) return null;
+    var wrap = parent.classList && parent.classList.contains('vcap-wrap') ? parent : null;
+    if(!wrap){
+      wrap = document.createElement('div');
+      wrap.className = 'vcap-wrap';
+      parent.insertBefore(wrap, v);
+      wrap.appendChild(v);
+    }
+    var box = wrap.querySelector(':scope > .vcap');
+    if(!box){
+      box = document.createElement('div');
+      box.className = 'vcap';
+      box.setAttribute('aria-hidden', 'true');   /* the track itself is what a reader hears */
+      wrap.appendChild(box);
+    }
+    v._vcapBox = box;
+    return box;
   }
-  /* Both, for the reason the bar itself watches both: a tap starts its timer and so does a
-     drag along the scrubber, and the captions have to be on whichever clock the bar is on.
-     up() only ever resets a timeout, so running it on every move costs nothing. */
-  document.addEventListener('pointerdown', function(e){ var v = fromEvent(e); if(v) up(v); }, true);
-  document.addEventListener('pointermove', function(e){
-    /* A mouse merely hovering is not an interaction; a finger on the glass always is. */
-    if(e.buttons === 0 && e.pointerType !== 'touch') return;
-    var v = fromEvent(e); if(v) up(v);
-  }, true);
-  document.addEventListener('play',  function(e){ up(e.target); }, true);
-  document.addEventListener('pause', function(e){ up(e.target); }, true);
-  document.addEventListener('ended', function(e){ up(e.target); }, true);
-  /* A video that has never been played is showing its poster and its controls. */
-  document.addEventListener('loadedmetadata', function(e){
-    if(e.target && e.target.tagName === 'VIDEO' && e.target.paused) up(e.target);
-  }, true);
+
+  function paint(v){
+    var box = v._vcapBox;
+    if(!box) return;
+    if(!onPhone()){ box.innerHTML = ''; return; }
+    var tt = v.textTracks, out = [];
+    for(var i = 0; tt && i < tt.length; i++){
+      var t = tt[i];
+      if(t.mode === 'disabled') continue;           /* reader turned captions off */
+      var cues = t.activeCues;
+      for(var j = 0; cues && j < cues.length; j++){
+        var txt = cues[j].text;
+        /* String.fromCharCode(10) rather than a backslash-n literal: this file is
+           generated and re-generated, and an escape is one round of quoting away from
+           becoming a real line break inside a string, which is a syntax error that
+           takes the whole script with it. A character code cannot be mangled. */
+        if(txt) out.push(esc(txt).split(String.fromCharCode(10)).join('<br>'));
+      }
+    }
+    box.innerHTML = out.length ? '<b>' + out.join('</b><br><b>') + '</b>' : '';
+  }
+
+  /* Take the painting off the browser, and keep taking it: our own loader sets 'showing'
+     a frame after it attaches a track. 'disabled' is left alone -- that is the CC button
+     saying no. */
+  function claim(v){
+    var tt = v.textTracks;
+    for(var i = 0; tt && i < tt.length; i++){
+      var t = tt[i];
+      if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
+      if(onPhone()){
+        if(t.mode === 'showing') t.mode = 'hidden';
+      }else if(t.mode === 'hidden' && t._vcapTook){
+        t.mode = 'showing';                          /* handed back on a wide window */
+      }
+      if(!t._vcapTook){
+        t._vcapTook = true;
+        t.addEventListener('cuechange', function(){ paint(v); });
+      }
+    }
+    paint(v);
+  }
+
+  function bind(v){
+    if(v._vcapBound) return;
+    v._vcapBound = true;
+    boxFor(v);
+    if(v.textTracks && v.textTracks.addEventListener){
+      v.textTracks.addEventListener('addtrack', function(){ claim(v); });
+      v.textTracks.addEventListener('change',   function(){ claim(v); });
+    }
+    v.addEventListener('loadedmetadata', function(){ claim(v); });
+    v.addEventListener('play',           function(){ claim(v); });
+    claim(v);
+  }
+
+  function sweep(root){
+    var list = (root || document).querySelectorAll ? (root || document).querySelectorAll('video') : [];
+    for(var i = 0; i < list.length; i++) bind(list[i]);
+  }
+
+  /* The videos are built as the reader goes, so watching for them is the only way to
+     catch them all. Subtree-wide, attributes off: this is looking for one tag name. */
+  new MutationObserver(function(muts){
+    for(var i = 0; i < muts.length; i++){
+      var added = muts[i].addedNodes;
+      for(var j = 0; j < added.length; j++){
+        var n = added[j];
+        if(n.nodeType !== 1) continue;
+        if(n.tagName === 'VIDEO') bind(n);
+        else sweep(n);
+      }
+    }
+  }).observe(document.documentElement, {childList:true, subtree:true});
+
+  /* And on a rotate or a resize across the boundary, hand the job back or take it on. */
+  if(PHONE && PHONE.addEventListener) PHONE.addEventListener('change', function(){ sweep(document); });
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ sweep(document); });
+  else sweep(document);
 })();
 </script>
 <script>

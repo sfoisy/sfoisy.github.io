@@ -1670,6 +1670,70 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
 }
 .fsExit:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(10,20,38,.75) }
 .fsExit svg{ width:13px; height:13px; flex:0 0 13px }
+
+/* ===== TURNED SIDEWAYS WITHOUT FULL SCREEN =================================
+   Landscape is only worth having in full screen: outside it the browser's own bars keep
+   a third of the height and the frame ends up shorter than it is in portrait. Rather
+   than lay the game out twice and have the worse version show up by accident -- a phone
+   turns when you lie down -- there is one screen here with one button on it.
+
+   It is not a warning and it does not ask you to rotate back. It is the way in: press
+   it and you are in full screen, in landscape, which is where you were trying to get.
+
+   OPAQUE, AND OVER EVERYTHING. The game is still behind it, running and untouched; this
+   only stops it being played in a shape it does not fit. z-index below the exit pill and
+   above the rest, though the two are never on screen together.
+   KNOB: the 560px. It is "shorter than a phone on its side", not a device. */
+.rotgate{ display:none }
+@media (orientation:landscape) and (max-height:560px){
+  body:not(.fs) .rotgate{
+    display:flex; align-items:center; justify-content:center;
+    position:fixed; inset:0; z-index:9991;
+    background:#0b0f22;
+    padding:1rem;
+  }
+  /* Nothing else is hidden and nothing needs to be: the sheet is opaque and covers the
+     window, so the game is simply behind it. A sibling rule was tried here and is worth
+     naming as a mistake -- the gate sits at the end of <body>, and `~ *` only reaches
+     elements AFTER it, so it hid nothing it was aimed at and would have hidden the exit
+     pill if it had been written any earlier. */
+}
+.rotgate button{
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:.85rem 1.6rem; border-radius:999px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08);
+  color:#fff; font:800 .92rem 'DM Sans',sans-serif; letter-spacing:.02em;
+}
+.rotgate button:hover{ background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.55) }
+.rotgate svg{ width:16px; height:16px }
+
+/* ===== FULL SCREEN: ROOM FOR THE EXIT PILL, AND A BRIEFING THAT FITS ========
+   THE PILL sits at the top right of the WINDOW, and so does the game's own row of
+   corner buttons -- music, share, route -- so in full screen they were stacked on top
+   of each other. The row moves down below the pill, and the briefing's header, which
+   already reserved a gap on its right for that row, reserves enough for both.
+
+   THE BRIEFING was laying itself out as though it had a tall frame. The rules that turn
+   it into a card over the right-hand side of the photograph are a @container query on
+   the frame's height, and in full screen the frame is wide but not short enough for that
+   query in every browser -- so the desktop layout ran at a landscape size and the text
+   spilled across the picture. These say the same thing directly, keyed on the viewport
+   rather than the container, so the shape does not depend on which of the two fires.
+   The card scrolls if the mission text is long, which at this height it usually is.
+   KNOBS: the 56% card width and the 52px drop on the corner row. */
+@media (orientation:landscape) and (max-height:560px){
+  body.fs .corner{ top:52px }
+  body.fs .brhead{ padding-right:132px }
+  body.fs #sBrief{
+    align-items:flex-end; justify-content:flex-start; overflow:hidden;
+    padding:10px 12px;
+  }
+  body.fs #sBrief .card{
+    width:min(56%, 22rem);
+    max-height:calc(100% - 4px);
+    overflow-y:auto; overscroll-behavior:contain;
+  }
+}
 </style>
 </head>
 <body>
@@ -11305,5 +11369,14 @@ function goBack(e){
   sync();
 })();
 </script>
+
+<!-- Shown only when the phone is sideways and full screen is off -- see .rotgate. -->
+<div class="rotgate" id="rotGate">
+  <button type="button" onclick="fsEnter()">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+    Play in full screen
+  </button>
+</div>
 </body>
 </html>
