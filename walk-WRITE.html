@@ -6570,8 +6570,17 @@ nav{ border-bottom:1px solid var(--nav-rule) }
    KNOBS: the 1.35, and that 7rem. They work together -- more scale wants more lift, or
    the title drifts back down toward the skyline. */
 @media(max-width:700px){
+  /* THE SCALE IS A VARIABLE, AND THAT IS THE POINT. The script measures the photograph
+     and writes --hero-band-h; this multiplies it. Written as a number in the height, the
+     35% would be invisible to the script -- which is exactly what went wrong: the map
+     anchors itself to "the foot of the photograph" as the SCRIPT computes it, so it
+     parked where the band used to end and left a strip of sky below it. The script reads
+     --hero-band-scale off this element now (see the .map-flow branch in place()), so the
+     picture and everything anchored to it move together.
+     KNOB: --hero-band-scale. Change it here and nothing else needs touching. */
+  .article-hero{ --hero-band-scale:1.35 }
   .article-hero::before{
-    height:calc(var(--hero-band-h, 150vw) * 1.35) !important;
+    height:calc(var(--hero-band-h, 150vw) * var(--hero-band-scale, 1)) !important;
     background-size:cover !important;
     background-position:center top !important;
   }
@@ -6593,6 +6602,38 @@ nav{ border-bottom:1px solid var(--nav-rule) }
    window rather than an edge of the device. */
 @media(max-width:700px){ .backw{ display:none } }
 @media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
+
+/* ===== THE FULL-SCREEN MAP, ON A PHONE ======================================
+   TWO THINGS WERE WRONG AND THEY HAVE THE SAME CAUSE. Zoomed in, the map could not be
+   dragged, and the article behind it scrolled instead -- because a touch that starts on
+   an element with the default `touch-action` belongs to the BROWSER: it is claimed as a
+   scroll gesture before the page sees a single pointermove. The desktop version works
+   because a mouse drag is never ambiguous, so nothing has to be claimed.
+
+   touch-action:none says the page will handle this gesture, and the same pointer
+   handlers the mouse uses then get the whole drag. It is scoped to the full-screen state
+   only: over the small map in the article, a vertical swipe should still scroll the
+   page, which is what a reader expects of a picture sitting in a column of text.
+
+   The page behind is locked at the same time -- position:fixed rather than
+   overflow:hidden, because iOS ignores overflow on the body and scrolls it anyway. The
+   top offset keeps the reading position: without it, fixing the body snaps the article
+   back to the beginning, and closing the map would drop you at the top of a very long
+   page. The script writes --lock-y; the fallback of 0 is harmless if it has not. */
+@media(max-width:900px){
+  body.mapfull #map,
+  body.mapfull .map-shell,
+  body.mapfull .map-frame,
+  body.mapfull .map-stage{
+    touch-action:none;
+  }
+  body.mapfull{
+    position:fixed;
+    top:calc(var(--lock-y, 0px) * -1);
+    left:0; right:0; width:100%;
+    overflow:hidden;
+  }
+}
 </style>
 </head>
 <body class="mode-quick">
@@ -20110,7 +20151,15 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
            moving it moves both. */
         var mf = document.querySelector('.map-flow');
         if(mf && mf.offsetParent !== null){
-          var wantMF = r.top + at(IMG_END) + MAPGAP;
+          /* THE BAND MAY BE SCALED UNDER US. On a phone the stylesheet multiplies the
+             photograph's height by --hero-band-scale to give the title more sky (see the
+             rule on .article-hero::before). at() returns an offset inside the UNSCALED
+             picture, so without this the map anchors to where the band used to end and
+             sits a strip of sky short of the real foot. Read rather than hard-coded, so
+             the number lives in one place -- the stylesheet -- and cannot drift. */
+          var bandScale = parseFloat(getComputedStyle(document.querySelector('.article-hero'))
+                            .getPropertyValue('--hero-band-scale')) || 1;
+          var wantMF = r.top + at(IMG_END) * bandScale + MAPGAP;
           var curMF  = parseFloat(getComputedStyle(mf).marginTop) || 0;
           var dMF    = wantMF - mf.getBoundingClientRect().top;
           if(Math.abs(dMF) > 0.5) mf.style.marginTop = Math.max(0, Math.round(curMF + dMF)) + 'px';
@@ -26750,7 +26799,13 @@ function goBack(e){
    Everything here is a class on the element; the media query decides whether that class
    means anything. On a desktop the rule does not exist and this runs harmlessly. */
 (function(){
-  var HOLD = 3200;   /* KNOB: how long the bar stays up after a touch, ms */
+  /* 5200, not 3200. The control bar's own timeout runs about three seconds from the LAST
+     interaction, and this class was expiring on its own three-second clock started at the
+     FIRST one -- so the captions dropped while the bar was still on screen. That is the
+     glitch exactly: right position for a moment, then down, with the bar still up. Longer
+     than the bar is the safe side of that race -- captions that stay lifted a beat after
+     the bar goes read as a slow settle; captions that drop while it is up read as broken. */
+  var HOLD = 5200;   /* KNOB: how long the captions stay lifted after a touch, ms */
 
   function up(v){
     if(!v || v.tagName !== 'VIDEO') return;
@@ -26763,9 +26818,17 @@ function goBack(e){
     }, HOLD);
   }
 
-  document.addEventListener('pointerdown', function(e){
-    var v = e.target && e.target.closest ? e.target.closest('video') : null;
-    if(v) up(v);
+  function fromEvent(e){
+    return e.target && e.target.closest ? e.target.closest('video') : null;
+  }
+  /* Both, for the reason the bar itself watches both: a tap starts its timer and so does a
+     drag along the scrubber, and the captions have to be on whichever clock the bar is on.
+     up() only ever resets a timeout, so running it on every move costs nothing. */
+  document.addEventListener('pointerdown', function(e){ var v = fromEvent(e); if(v) up(v); }, true);
+  document.addEventListener('pointermove', function(e){
+    /* A mouse merely hovering is not an interaction; a finger on the glass always is. */
+    if(e.buttons === 0 && e.pointerType !== 'touch') return;
+    var v = fromEvent(e); if(v) up(v);
   }, true);
   document.addEventListener('play',  function(e){ up(e.target); }, true);
   document.addEventListener('pause', function(e){ up(e.target); }, true);
@@ -26774,6 +26837,34 @@ function goBack(e){
   document.addEventListener('loadedmetadata', function(e){
     if(e.target && e.target.tagName === 'VIDEO' && e.target.paused) up(e.target);
   }, true);
+})();
+</script>
+<script>
+/* ===== THE PAGE HOLDS STILL WHILE THE MAP IS FULL SCREEN ====================
+   body.mapfull is set by the map's own code; this only records where the article was
+   when it went on, and puts it back when it comes off. The CSS does the fixing (see
+   .mapfull above) -- position:fixed is the only lock iOS honours, and the cost of it is
+   that the page forgets its scroll, so the offset is carried in a variable.
+
+   A MutationObserver rather than a hook inside the map, because the class is written
+   from more than one place in that file and this needs to catch all of them. Watching
+   one attribute on one element is about as cheap as an observer gets. */
+(function(){
+  var y = 0, on = false;
+  function sync(){
+    var now = document.body.classList.contains('mapfull');
+    if(now === on) return;
+    on = now;
+    if(on){
+      y = window.pageYOffset || 0;
+      document.documentElement.style.setProperty('--lock-y', y + 'px');
+    }else{
+      document.documentElement.style.removeProperty('--lock-y');
+      window.scrollTo(0, y);
+    }
+  }
+  new MutationObserver(sync).observe(document.body, {attributes:true, attributeFilter:['class']});
+  sync();
 })();
 </script>
 </body></html>

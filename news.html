@@ -310,6 +310,26 @@ html{ scrollbar-gutter:stable }
    window rather than an edge of the device. */
 @media(max-width:700px){ .backw{ display:none } }
 @media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
+
+/* ===== THE BAR IS OPAQUE ON A PHONE =========================================
+   Safari repaints the whole page when a video leaves full screen, and a sticky strip
+   with a backdrop blur has to re-sample its backdrop on every one of those frames --
+   which is the flashing across the menu as the video closes. walk.html went solid for
+   the same reason months of rounds ago; this is the rest of the site catching up, on
+   phones only, where the blur was buying least and costing most.
+
+   Desktop keeps its glass: there is no video full screen to come back from, and the
+   effect is what the bar is for up there.
+   KNOB: --nav-solid. It wants to be the colour the glass averages out to. */
+@media(max-width:900px){
+  nav, .nav-mobile-menu{ --nav-solid:#0f1b2f }
+  nav{
+    background:var(--nav-solid) !important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .nav-mobile-menu{ background:var(--nav-solid) !important }
+}
 </style>
 </head>
 <body>
