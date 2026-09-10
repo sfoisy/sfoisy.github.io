@@ -6483,6 +6483,18 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     line-height:1.62;
   }
 }
+
+/* ===== CAPTIONS AND THE MOBILE CONTROL BAR =================================
+   A browser draws a video's text track in its own shadow DOM and lifts it clear of
+   the controls by an amount derived from the control bar's height. On mobile that
+   bar is roughly twice as tall as the desktop one while the lift stays about the
+   same, so the last line of a caption ends up behind the scrubber. Moving the track
+   container up by the difference is the fix, and it is scoped to the width where the
+   problem exists -- desktop was already right.
+   KNOB: the 2.4em, measured in em of the cue text so it tracks the caption size. */
+@media(max-width:900px){
+  video::-webkit-media-text-track-container{ transform:translateY(-2.4em) }
+}
 </style>
 </head>
 <body class="mode-quick">

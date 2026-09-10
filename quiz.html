@@ -790,21 +790,43 @@ body{ padding-top:74px }
    the frame filling the screen, inside the frame and inside the window are the same
    place, and the extra inset would only push them further into the game. */
 @media (orientation:landscape) and (max-height:520px){
-  body{ padding:8px }
+  /* THE BAR AT THE TOP OF THE BROWSER only retracts when the page's own scroller
+     moves, and this page never scrolled: body was exactly the height of the window,
+     so there was no gesture for the browser to read as "scrolling down". One pixel of
+     overflow is enough to give it one -- the page can now be nudged, the URL bar goes
+     with the nudge, and the frame is sized against dvh so it grows into the space the
+     bar leaves. It is a nudge, not a scroll: nothing on the page moves far enough to
+     matter. (No browser lets a page hide that bar outright; this is the whole of what
+     is available.) */
+  html, body{ min-height:calc(100dvh + 1px) }
+  body{ padding:6px; align-items:flex-start }
   .box{
     min-height:0;
-    height:calc(100dvh - 16px);
-    max-height:calc(100dvh - 16px);
+    height:calc(100dvh - 12px);
+    max-height:calc(100dvh - 12px);
     aspect-ratio:auto;
     width:100%; max-width:none;
     border-radius:0;
+    /* AND IT SCROLLS INSIDE. The frame was `overflow:hidden` and a screen taller than
+       it -- the category list is six full-width buttons plus two more underneath -- was
+       simply cut off at both ends, which is what the screenshot shows: the first option
+       sliced in half at the top and the two buttons sliced off at the foot. Shrinking
+       the type alone could not fix that; eight stacked rows do not fit 330px however
+       small they are. So what does not fit scrolls, which is the ordinary answer, and
+       overscroll-behavior keeps that scroll inside the frame rather than handing it to
+       the page behind once it reaches the end. */
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
   }
-  .stamp{ right:10px; bottom:10px; width:44px }
+  .stamp{ right:10px; bottom:10px; width:40px }
   .backw{ left:10px; top:10px }
-  /* Everything inside is sized in rem off the root, so one step down there brings the
-     whole screen -- question, options, chips -- in together and keeps their proportions.
-     KNOB: the 86%. */
-  .box{ font-size:86% }
+  /* Everything inside is sized in rem off the frame, so one step down brings the whole
+     screen -- question, options, chips -- in together and keeps their proportions. 76%
+     rather than 86%: with the list scrolling, this is about how much fits at once
+     rather than about making it fit at all.
+     KNOB: the 76%. */
+  .box{ font-size:76% }
 }
 </style>
 </head>

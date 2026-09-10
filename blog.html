@@ -1105,13 +1105,33 @@ video:fullscreen::cue{
 .post-stage .post-step-prev{ right:100%; margin-right:.55rem }
 .post-stage .post-step-next{ left:100%;  margin-left:.55rem }
 .post-stage .post-step:hover{ transform:translateY(-50%) scale(1.08) }
-/* No gutter to hang in once the column runs to the screen's edge, so they come
-   inside and sit on the picture -- still vertically centred, still clear of the
-   control bar, and above the curtain (6) so they work while it is up. */
+/* ===== ON A PHONE THEY MOVE ABOVE THE PICTURE ==============================
+   There is no gutter left to hang in once the column runs to the screen's edge, so
+   for a round they came inside and sat ON the picture. That put two round buttons
+   over the first thing in every clip -- usually the interviewee's face -- and on a
+   touch screen the same two pixels are also how you scrub and play, so a thumb
+   aimed at the video landed on "next interview".
+
+   They sit in their own row directly above the video instead, one at each end, which
+   is the same left-and-right relationship they have on a desktop -- just a row up
+   rather than a column across. The stage gets top padding to make the row, and the
+   buttons are positioned against the stage's top edge rather than its middle.
+
+   KNOB: --step-row, the height of that row. The stage's padding and the buttons'
+   offset both come off it, so one value moves both and they cannot drift apart. */
 @media(max-width:900px){
-  .post-stage .post-step-prev{ right:auto; left:.5rem;  margin:0 }
-  .post-stage .post-step-next{ left:auto;  right:.5rem; margin:0 }
-  .post-stage .post-step{ background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.55) }
+  .post-stage{ --step-row:2.9rem; padding-top:var(--step-row) }
+  .post-stage .post-step{
+    top:0; transform:none;
+    width:2.15rem; height:2.15rem;
+    background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.55);
+  }
+  .post-stage .post-step svg{ width:14px; height:14px }
+  .post-stage .post-step-prev{ right:auto; left:0;  margin:0 }
+  .post-stage .post-step-next{ left:auto;  right:0; margin:0 }
+  /* The hover lift is written as translateY(-50%) scale() further up, which was
+     cancelling the row position. Nothing moves on a touch screen anyway. */
+  .post-stage .post-step:hover{ transform:none }
 }
 
 /* ===== BACK ================================================================
@@ -1158,6 +1178,43 @@ html{ scrollbar-gutter:stable }
    nudged onto the type's middle rather than its baseline, which is where a small
    round control looks attached to a large word rather than hung off it. */
 .blog-head h1 .post-share{ vertical-align:middle; margin-left:.7rem; position:relative; top:-.14em }
+
+/* ===== PHONE-ONLY REPAIRS ==================================================
+
+   THE CAPTIONS SIT ON THE CONTROL BAR. A browser draws a video's text track inside
+   its own shadow DOM and lifts it clear of the controls by an amount it works out
+   from the control bar's height -- and on mobile that bar is roughly twice as tall
+   as the desktop one while the lift stays about the same, so the last line of every
+   caption ends up behind the scrubber. The container is reachable through the
+   -webkit- pseudo-element, and moving it up by the difference is the whole fix.
+   Desktop is untouched: it was already right, which is why this is inside a query.
+   KNOB: the 2.4em. It is measured in em of the cue text, so it tracks the caption
+   size rather than a device.
+
+   THE FOOTER CENTRES. Its two lines are pushed to opposite ends of the bar, which
+   works while the bar is wide; on a phone the name is jammed against the left edge
+   and the date against the right with nothing between them. Stacked and centred
+   they read as one credit line, which is what they are.
+
+   THE SKY REACHES THE BOTTOM. html::before is `height:100%` plus a `min-height:100vh`
+   fallback, and 100vh on a mobile browser is the window with the URL bar HIDDEN --
+   so on a short page, with the bar showing, the picture stopped an inch above the
+   footer and left a band of flat navy. dvh is the same measurement taken against the
+   window as it actually is at that moment. The vh line stays first as the fallback
+   for anything that does not know dvh. */
+@media(max-width:900px){
+  video::-webkit-media-text-track-container{
+    transform:translateY(-2.4em);
+  }
+  footer{
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:.35rem; text-align:center;
+  }
+  html::before{
+    min-height:100vh;
+    min-height:100dvh;
+  }
+}
 </style>
 </head>
 <body>
@@ -1799,7 +1856,7 @@ function toggleMenu(){
 
 <footer>
   <span class="fname">Syl Foisy</span>
-  <span class="fcredit">Last updated August 19, 2026</span>
+  <span class="fcredit">Last updated September 10, 2026</span>
 </footer>
 
 <script>
