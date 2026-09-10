@@ -9918,6 +9918,18 @@ DATA.stops.forEach(function(s){
         /* Taken BEFORE the class and the peek land, because the anchor has to be a reading of
            the page as the reader last saw it. */
         if(window.__mapHoldRead) window.__mapHoldRead(800);
+        /* THE OPEN STOP'S SHEET GLIDES TO WHERE IT IS GOING, WITH THE MAP. It used to hold still
+           for the whole of the map's move and then jump -- position, width and type size all at
+           once -- on the frame the map arrived. Told now, before the map sets off, where the map
+           will end up, so it can work out its own destination and travel there on the map's clock. */
+        if(window.__pgGlideStart){
+          /* The map's right edge does not move (it is pinned 22px from the window's edge in both
+             states), so where its left edge will be is that edge less the width it is going to. */
+          var _jm = document.querySelector('.j-map');
+          var _mr = _jm ? _jm.getBoundingClientRect().right : ((document.documentElement.clientWidth || window.innerWidth) - 22);
+          var _mw = on ? (window.__mapPeekW || 400) : (window.__mapHotW || 220);
+          window.__pgGlideStart(_mr - _mw);
+        }
         if(window.__mapPeek) window.__mapPeek(on);
         /* (The open stop is re-measured against the new column width by the render loop, on
            the frame the map's own animation comes to rest -- see the settle test there. It
@@ -12156,6 +12168,8 @@ DATA.stops.forEach(function(s){
       _pe = PEEK.t<0.5 ? 4*PEEK.t*PEEK.t*PEEK.t : 1-Math.pow(-2*PEEK.t+2,3)/2;   // easeInOutCubic
       instantScrollFactor = instantScrollFactor*(1-_pe);
     }
+    /* THE OPEN SHEET RIDES THE SAME CURVE AS THE MAP. See __pgGlideStart. */
+    if(window.__pgGlideFrame && PEEK.t > 0 && PEEK.t < 1) window.__pgGlideFrame(PEEK.on ? _pe : 1 - _pe);
     var _bdt=BIG.last ? Math.min(64,_pn-BIG.last) : 16;
     BIG.last=_pn;
     if(BIG.on && BIG.t<1)       BIG.t=Math.min(1,BIG.t+_bdt/BIG.ms);
@@ -12181,6 +12195,7 @@ DATA.stops.forEach(function(s){
        full screen is a look at the map, not a change to the article underneath. Leaving it
        fires this again with map-fs gone, and the sheet is measured against the lane it is
        actually going back to. */
+    if(_mapMoving && !_mvNow && window.__pgGlideEnd) window.__pgGlideEnd();
     if(_mapMoving && !_mvNow && !document.body.classList.contains('map-fs')
        && window.__jpRemeasure) window.__jpRemeasure();
     _mapMoving = _mvNow;
@@ -12235,6 +12250,7 @@ DATA.stops.forEach(function(s){
     // Target dimensions (Thin rectangle stretching down the right margin)
     // Adjust 82vh to be taller or shorter depending on your footer clearance preferences
     var endWidth = mq.matches ? 100 : 220;
+    var _fsK = 1;          // the phone full screen's shrink on the hotdog -- see below
     var endHeight;
     if (mq.matches && LOWH.matches) {
       // Short mobile viewport: don't shrink the map with the screen height.
@@ -12259,7 +12275,21 @@ DATA.stops.forEach(function(s){
         _ctaB = _cta.offsetHeight + (parseFloat(getComputedStyle(_cta).marginTop) || 0);
       }
       endHeight = Math.max(160, window.innerHeight - (typeof PIN_TOP === 'number' ? PIN_TOP : 76) - _ctaB - 18);
+      /* THE WALK IN FULL SCREEN ON A PHONE: THE DESKTOP'S HOTDOG, SHRUNK TO FIT. At 412px tall a
+         220px-wide hotdog is nearly square, and the route -- which the desktop shows whole in a
+         strip three times as tall as it is wide -- ran off both ends: no New York, no D.C. So the
+         width follows the height at the desktop's own proportion (220 wide on a 663-tall hotdog,
+         the laptop-window case), and the picture's sideways offset shrinks with it. Everything
+         inside the frame is then the desktop's hotdog at a smaller size.
+         KNOB: 220 / 663. */
+      if(document.documentElement.classList.contains('walk-fs')){
+        endWidth = Math.max(80, Math.round(endHeight * 220 / 663));
+        _fsK = endWidth / 220;
+      }
     }
+    /* What the sheet-glide needs to know about where the map is going (see __pgGlideStart). */
+    window.__mapPeekW = mq.matches ? window.innerWidth * 0.75 : 400;
+    window.__mapHotW = endWidth;
     
     var computedWidth, computedHeight;
     if (mq.matches) {
@@ -12586,7 +12616,7 @@ DATA.stops.forEach(function(s){
     var mapInternalScale = lerp(mq.matches ? 1.5 : 1.35, 3.15, instantScrollFactor);
     
     // Shift position 100px right and 100px up (negative Y) at start, gradually clearing to 0 as you scroll
-    var shiftX = lerp(mq.matches ? -10 : -23, mq.matches ? -32 : -70, instantScrollFactor);
+    var shiftX = lerp(mq.matches ? -10 : -23, mq.matches ? -32 : -70 * _fsK, instantScrollFactor);
     var shiftY = lerp(9, -20, instantScrollFactor);
     
     var _mapTf = 'translate(' + shiftX + 'px, ' + shiftY + 'px) scale(' + mapInternalScale + ') rotate(' + mapInternalRotation + 'deg)';
@@ -15774,6 +15804,8 @@ document.addEventListener('play', function (e) {
      correction that landed from one that was clamped. scrollTop is a plain property, not a
      scroll API call, so scroll-behavior has nothing to say about it: no glide, nothing to
      suppress, and nothing to hand back. */
+  window.__jpTakeAnchor = function(s){ return jpTakeAnchor(s); };
+  window.__jpPutAnchor = function(a){ return jpPutAnchor(a); };
   function jpPutAnchor(a){
     if(!a || !a.el || !a.el.isConnected || !a.sc || !a.sc.isConnected) return 0;
     var vr = a.sc.getBoundingClientRect(), er = a.el.getBoundingClientRect();
@@ -17389,13 +17421,47 @@ html.walk-fs .walkFsExit{
 }
 @media (orientation:landscape) and (max-height:560px){
   html .article-hero .hero-row{ transform:none }
-  body.stop-modal.mode-quick .j-sect.is-open{ --pg-w:calc(72vw - 24px) !important }
   /* The sheet is pinned to 12px / 72vw here (see "A STOP, ON A PHONE HELD SIDEWAYS"), but the
      close X and the step tabs are placed from --panel-x / --panel-w, which the script still
      writes for the centred lane -- so the X sat in the middle of the heading. The variables
      say what the sheet already does, and everything built from them lines up with it. */
-  html{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
-  body.stop-modal.mode-quick .j-sect.is-open{ --panel-x:12px !important; --panel-w:calc(72vw - 24px) !important }
+  /* The sheet's place and width now come from sheetGeom() (12px in, 72% of the window, narrowed
+     only when a peeked-out map needs the room) through --panel-x / --panel-w / --pg-w, like any
+     other width -- which is what lets it glide with the map. These follow those variables, over
+     the older pinned values above. */
+  html body.stop-modal.mode-quick .j-sect.is-open{
+    left:calc(var(--panel-x, 12px) + var(--panel-shift, 0px)) !important;
+    width:var(--panel-w, calc(72vw - 24px)) !important;
+  }
+}
+/* ===== THE WALK IN FULL SCREEN ON A PHONE: THREE THINGS =====================
+   - The opening block (title, standfirst, byline) sits in the middle of the screen, as the
+     desktop's does in its first screenful -- it was pinned to the top.
+   - "READ SECTION" is on the highlighted card only, as on an upright phone. A phone has no hover,
+     so the touch rule shows it on every card at once -- a column of instructions.
+   - The small full-screen hotdog (see the render loop) gets furniture at its own size: the
+     mileage, the logo, the compass, the scale bar and "Call your reps". Only in the hotdog
+     (body.map-plain); peeked out, the map is full size and so is everything on it. */
+@media (orientation:landscape) and (max-height:560px){
+  html.walk-fs .article-hero{
+    min-height:100vh; min-height:100dvh;
+    justify-content:center; padding-top:1rem; padding-bottom:1rem;
+  }
+  html.walk-fs body.mode-quick .j-sect:not(.is-open) .jp-more{ opacity:0 }
+  html.walk-fs body.mode-quick .j-sect:not(.is-open).card-active .jp-more{ opacity:1 }
+  html.walk-fs body.map-plain .map-hud{ bottom:.4rem; left:.35rem }
+  html.walk-fs body.map-plain .map-readout{ padding:.16rem .28rem .14rem }
+  html.walk-fs body.map-plain .map-readout .mi{ font-size:1rem }
+  html.walk-fs body.map-plain .map-readout .mi-unit{ font-size:.5rem }
+  html.walk-fs body.map-plain .map-readout .lbl{ font-size:.38rem }
+  html.walk-fs body.map-plain #mapLogoLink{ right:.35rem; bottom:.4rem }
+  html.walk-fs body.map-plain #mapLogo{ height:24px; width:auto }
+  html.walk-fs body.map-plain .map-compass{ top:.35rem; right:.35rem; width:18px; height:18px }
+  html.walk-fs body.map-plain .map-scalebar{ top:.35rem; right:calc(.35rem + 22px); gap:1.5px }
+  html.walk-fs body.map-plain .map-scalebar .msb-bar{ width:26px; height:3px; border-width:1px }
+  html.walk-fs body.map-plain .map-scalebar .msb-label{ font-size:6px }
+  html.walk-fs body.map-plain .map-cta{ font-size:.6rem; gap:.3rem; padding:.42rem .3rem }
+  html.walk-fs body.map-plain .map-cta svg{ width:10px; height:10px }
 }
 
 /* ===== ON A PHONE, THE MAP WAITS FOR THE FIRST SCROLL =======================
@@ -24171,15 +24237,141 @@ body.pg-thin .step-tab .pg-steps{ display:none }
       };
     }
     if(!sect._pgLane || !sect._pgLane.w) return;
+    var g = sheetGeom(sect, outerLane().w);
+    st.setProperty('--panel-x', g.x + 'px');
+    st.setProperty('--panel-w', g.w + 'px');
+    st.setProperty('--pg-w', g.w + 'px');
+  }
+  /* The sheet's place in a lane that ends at `laneW`. One function, used by shape() and by the
+     glide below, so the place the glide travels to is exactly the place shape() would put it.
+     A phone on its side keeps its sheet against the left edge, 72% of the window wide (see "A
+     STOP, ON A PHONE HELD SIDEWAYS"), narrowed only when the map needs the room. */
+  var LAND = window.matchMedia ? window.matchMedia('(orientation:landscape) and (max-height:560px)') : null;
+  function sheetGeom(sect, laneW){
+    var st = sect.style;
     var top = parseFloat(st.getPropertyValue('--panel-t')) || 0;
     var bottom = (window.innerWidth <= 700) ? 10 : 18;       // matches the stylesheet
     var H = Math.max(220, window.innerHeight - top - bottom);
-    var lane = outerLane();
-    var W = Math.min(Math.max(300, lane.w - LANE_PAD * 2), Math.round(H * ASPECT * WIDEN));
-    st.setProperty('--panel-x', Math.round(lane.x + (lane.w - W) / 2) + 'px');
-    st.setProperty('--panel-w', W + 'px');
-    st.setProperty('--pg-w', W + 'px');
+    if(LAND && LAND.matches){
+      var W0 = Math.round(window.innerWidth * 0.72 - 24);
+      return { x:12, w: Math.max(300, Math.min(W0, Math.round(laneW - 12 - 16))) };
+    }
+    var W = Math.min(Math.max(300, laneW - LANE_PAD * 2), Math.round(H * ASPECT * WIDEN));
+    return { x: Math.round((laneW - W) / 2), w: W };
   }
+
+  /* ===== THE SHEET GLIDES WITH THE MAP ======================================
+     Peeking the map out (hotdog to whole map) or folding it back moves the lane the open sheet
+     sits in. The sheet used to hold still for the map's whole move and then jump on the frame the
+     map arrived -- to a new place, a new width, and, because every length on the sheet is a
+     fraction of its width, a new size of type -- which is the discrete jump.
+
+     Now setFull tells the sheet, before the map sets off, where the map will end (__mapPeekW /
+     __mapHotW from the render loop), and the sheet works out its destination with the same
+     sheetGeom() that shape() uses. Then, every frame the render loop moves the map, it writes the
+     sheet's --panel-x / --panel-w / --pg-w a matching fraction of the way there, on the map's own
+     eased clock: the sheet and the map are one movement, and the type grows or shrinks smoothly
+     with the sheet instead of snapping. The close X and the step tabs are placed from the same
+     variables, and the two posts are re-placed each frame, so the furniture travels with it.
+
+     The reader's place in the sheet is held throughout -- the element at the top of the sheet's
+     scroll stays at the top (jpTakeAnchor / jpPutAnchor, the same pair the re-measure uses).
+     When the map arrives, the glide lands exactly on its target and the render loop's usual
+     re-measure then finds nothing left to move. A click that reverses the map mid-flight starts a
+     new glide from wherever the sheet is, so nothing jumps back. */
+  var GL = null;
+  function laneFor(mapLeft){
+    if(document.body.classList.contains('map-off')) return Math.max(300, window.innerWidth);
+    return Math.max(300, (mapLeft > 260) ? mapLeft : window.innerWidth);
+  }
+  function writeGeom(sect, x, w){
+    var st = sect.style, rs = document.documentElement.style;
+    var X = x.toFixed(2) + 'px', Wd = w.toFixed(2) + 'px';
+    st.setProperty('--panel-x', X); st.setProperty('--panel-w', Wd); st.setProperty('--pg-w', Wd);
+    rs.setProperty('--panel-x', X); rs.setProperty('--panel-w', Wd);
+  }
+  function holdLine(a){
+    if(!a || !a.el.isConnected) return;
+    var vr = a.sc.getBoundingClientRect(), r = a.el.getBoundingClientRect();
+    var d = (r.top - vr.top) + a.f * r.height - a.y;
+    if(Math.abs(d) >= 0.5) a.sc.scrollTop += d;
+  }
+  window.__pgGlideStart = function(mapLeft){
+    var sect = openSect;
+    GL = null;
+    if(!sect || !document.body.classList.contains('stop-modal') || window.innerWidth < MIN_W) return;
+    var st = sect.style;
+    var fx = parseFloat(st.getPropertyValue('--panel-x')), fw = parseFloat(st.getPropertyValue('--panel-w'));
+    if(!(fw > 0) || isNaN(fx)) return;
+    var to = sheetGeom(sect, laneFor(mapLeft));
+    if(Math.abs(to.x - fx) < 0.5 && Math.abs(to.w - fw) < 0.5) return;
+    clearTimeout(lt);                           // no debounced relayout landing mid-glide
+    GL = { sect:sect, fx:fx, fw:fw, tx:to.x, tw:to.w, p0:null, anc:null };
+    /* THE READER'S LINE STAYS PUT. Everything in the sheet scales together, so a point a given
+       fraction of the way down a block is the same word at every size. The block under a line
+       40% down the sheet's window is taken, with how far down it that line falls, and every
+       frame the sheet is scrolled so that same fraction of that block is back on that line. */
+    var dk = deckOf(sect);
+    if(dk){
+      var vr0 = dk.getBoundingClientRect(), line = vr0.top + vr0.height * 0.4;
+      var ks = dk.children, best = null;
+      for(var q0 = 0; q0 < ks.length; q0++){
+        var kr = ks[q0].getBoundingClientRect();
+        if(!kr.height) continue;
+        if(kr.top <= line && kr.bottom >= line){ best = ks[q0]; break; }
+        if(kr.top > line && !best){ best = ks[q0]; break; }
+      }
+      if(best){
+        var br = best.getBoundingClientRect();
+        GL.anc = { sc:dk, el:best, f: br.height ? (line - br.top) / br.height : 0, y: line - vr0.top };
+      }
+    }
+    /* THE PITCH TRAVELS TOO. snap() pins it to a whole pixel (see there -- it keeps the ruling
+       from drifting down a long page), and pinned, the type could not follow the width: the lines
+       re-wrapped at the old size all the way across and the size jumped at the end. Unpinning it
+       outright would not do either -- the unrounded value is a fraction of a pixel off the pinned
+       one, and that alone re-wraps a line or two on the first frame. So it is carried from the
+       value it is pinned at now to the whole pixel snap() will pin on arrival, and the type, the
+       leading and the ruling scale with the sheet the whole way, starting and ending exactly
+       where snap() has them. */
+    var r0 = parseFloat(st.getPropertyValue('--pg-rule'));
+    GL.r0 = (r0 > 4) ? r0 : fw * 0.0417;
+    GL.r1 = Math.round(to.w * 0.0417);
+    /* ...AND SO DOES THE SPACING BETWEEN BLOCKS. snap() writes each block's bottom margin in
+       pixels, so that the next block starts on a whole rule. Left alone, those gaps kept their
+       old size while the writing and the pictures shrank or grew around them, and snap() closed
+       or opened them all at once on arrival -- the one movement left at the end. They are
+       scaled with the pitch instead, so every block stays on the ruling the whole way down and
+       arrival has only a fraction of a pixel left to settle. */
+    var deck = deckOf(sect);
+    GL.deck = deck;
+    GL.kids = deck ? [].slice.call(deck.children).filter(function(k){ return k.nodeType === 1; }) : [];
+    GL.mb = GL.kids.map(function(k){ return parseFloat(k.style.marginBottom) || 0; });
+    GL.pb = deck ? (parseFloat(deck.style.paddingBottom) || 0) : 0;
+    document.body.classList.add('panel-snap');  // the CSS glide on `left` must not fight this one
+  };
+  window.__pgGlideFrame = function(p){
+    if(!GL) return;
+    if(GL.p0 === null) GL.p0 = Math.min(p, 0.999);
+    var e = Math.max(0, Math.min(1, (p - GL.p0) / (1 - GL.p0)));
+    writeGeom(GL.sect, GL.fx + (GL.tx - GL.fx) * e, GL.fw + (GL.tw - GL.fw) * e);
+    var r = GL.r0 + (GL.r1 - GL.r0) * e, k = r / GL.r0;
+    GL.sect.style.setProperty('--pg-rule', r.toFixed(3) + 'px');
+    for(var i = 0; i < GL.kids.length; i++){
+      if(GL.mb[i]) GL.kids[i].style.marginBottom = (GL.mb[i] * k).toFixed(3) + 'px';
+    }
+    if(GL.deck && GL.pb) GL.deck.style.paddingBottom = (GL.pb * k).toFixed(3) + 'px';
+    holdLine(GL.anc);
+    if(window.__placeRails) window.__placeRails();
+  };
+  window.__pgGlideEnd = function(){
+    if(!GL) return;
+    var g = GL; GL = null;
+    writeGeom(g.sect, g.tx, g.tw);
+    snap(g.sect); paintSheet(g.sect); paintRails(g.sect);     // the pitch pinned again, the rules on it
+    holdLine(g.anc);
+    document.body.classList.remove('panel-snap');
+  };
 
   /* --- Finding the baseline ----------------------------------------------
      Where the ruling has to be drawn inside a line box. Guessing this is what
@@ -25016,6 +25208,7 @@ body.pg-thin .step-tab .pg-steps{ display:none }
      because the lane changes with the window AND when the map is hidden -- and
      the left edge is built from the same --panel-x the sheet uses, so the three
      glide together instead of one chasing the others. */
+  window.__placeRails = function(){ placeRails(); };
   function placeRails(){
     var sect = q('.j-sect.is-open');
     if(!sect || !document.body.classList.contains('stop-modal')) return;
@@ -25104,6 +25297,9 @@ body.pg-thin .step-tab .pg-steps{ display:none }
   function relayoutSoon(){
     // A full-screen video resizes its own box twice; the stop around it has not changed.
     if(window.__vfs && window.__vfs.frozen) return;
+    // Nor mid-glide: the pictures resize every frame of it, and the glide's own arrival
+    // re-snaps the sheet (see __pgGlideEnd).
+    if(GL) return;
     clearTimeout(lt); lt = setTimeout(relayout, 70);
   }
 
