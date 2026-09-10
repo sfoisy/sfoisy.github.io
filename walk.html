@@ -5989,21 +5989,10 @@ body.map-fs #mapFsExit{ display:flex }
   /* A sky, not a white wall. Still zero bytes over the wire -- it is two gradients and a
      drifting cloud layer drawn in CSS -- which is the whole rule for this sheet: a loading
      screen that has to load is not one. */
-  /* THE SAME NIGHT SKY THE BLOG SITS ON. back2.jpg, covering the window. It was a
-     CSS dawn -- two gradients and a drifting cloud layer, zero bytes over the wire,
-     which is the right call for a loading screen in isolation and the wrong one
-     across a site: you left a dark blue page, waited on a pale blue one, and arrived
-     somewhere dark again. The sheet is the same picture as the blog now, so the wait
-     looks like part of where you are going.
-
-     The navy under it is the floor: it is what shows for the moment before the JPEG
-     arrives, and if the CDN is unreachable it is the whole sheet -- dark, which is
-     what the white progress type on this screen needs. */
-  background-color:#16243d;
-  background-image:url("https://wesitefoisy1.b-cdn.net/back2.jpg");
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
+  /* The floor under .pl-sky, which is where the picture is set. Flat navy: it is what
+     shows for the moment before the JPEG lands, and the whole sheet if the CDN is
+     unreachable -- dark, which is what the white progress type needs. */
+  background:#16243d;
   overflow:hidden;
   opacity:1;
   transition:opacity .5s ease;
@@ -6041,10 +6030,16 @@ html.pre-off  #preload{ display:none }
    KNOB: the .62 alpha. */
 html:not(.pre-off) nav,
 html:not(.pre-off) .nav-mobile-menu{ z-index:2147483001 }
-html:not(.pre-gone) nav{
-  background:linear-gradient(rgba(10,20,38,.62), rgba(10,20,38,.62));
-  border-bottom:1px solid rgba(255,255,255,.24);
-}
+/* NOTHING HERE CHANGES THE BAR. There was a rule that lightened it to .62 alpha
+   with a soft white hairline while the sheet was up, and returned it to the ordinary
+   .72 navy when the sheet went. That is a background swap on a blurred, sticky,
+   semi-transparent strip at the exact moment a full-screen element behind it is
+   being removed -- which is what was making the six links blink out and come back.
+   Two paint triggers landing on the same frame.
+
+   The bar wears the same colours from the first frame to the last now. It was only
+   ever lightened because the sheet used to be a pale blue; the sheet is a night
+   photograph, and the ordinary bar sits on it perfectly well. */
 /* NOTHING ABOUT THE BAR ANIMATES, and that is the whole of this rule now. There was
    a half-second cross-fade here as the sheet lifted, on the argument that the colour
    change should read as part of one movement -- but a bar that is doing anything at
@@ -6139,45 +6134,31 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
    sits where it is dark enough. */
 .pl-sky{
   position:absolute; inset:0; pointer-events:none; overflow:hidden;
-  /* BLUES ONLY, and barely moving. Deep at the top, a little lighter and a little softer at
-     the foot -- the sky at the top of the hero shot, and nothing else from it. No warm end, no
-     second colour to arrive at; the whole ramp travels about as far as one photograph's sky
-     does across a screen, which is not far.
+  /* THE PHOTOGRAPH, not a painted sky. back2.jpg -- the same night sky blog.html
+     sits on -- covering the sheet. There was a four-stop blue gradient here with two
+     washes drifting across it on offset loops, and it was a good loading screen in
+     isolation and the wrong one across a site: you left a dark page, waited on a
+     lighter blue one, and arrived somewhere dark again. The wait looks like part of
+     where you are going now.
 
-     Four stops rather than two, and they are doing real work even at this range: two blues
-     this close together interpolate through a flat middle that shows as a faint band across
-     the screen -- the eye is very good at finding the straight section of a shallow gradient.
-     The intermediates keep it curving.
+     THE DRIFT WENT WITH IT. The animation existed to keep a flat gradient from
+     reading as a still; a photograph of a star field has its own texture and does
+     not need to move, and a slowly panning background under a progress bar is the
+     kind of motion that makes a wait feel longer than it is.
 
-     The washes came down with it. At the strengths they had for the sunset they were the loud
-     part of a quiet sheet; at .12 and .10 they are only enough to keep the drift (see the
-     animation below) from being invisible. KNOB: all of it, but if the stops are pushed apart
-     again the washes have to come up with them or they vanish. */
-  background:
-    radial-gradient(62% 44% at 74% 76%, rgba(150,190,235,.12) 0%, rgba(150,190,235,0) 64%),
-    radial-gradient(58% 42% at 22% 14%, rgba(84,126,186,.10) 0%, rgba(84,126,186,0) 62%),
-    linear-gradient(176deg,
-      #253a5e 0%,
-      #2c456c 16%,
-      #33507a 38%,
-      #3f6390 72%,
-      #4c7099 100%);
-  background-size:200% 200%, 200% 200%, 100% 100%;
-  background-position:0% 0%, 100% 100%, 0 0;
-  animation:plDriftA 19s ease-in-out infinite alternate,
-            plDriftB 26s ease-in-out infinite alternate;
-}
-/* Two names because the two washes travel different distances in different directions; one
-   shared keyframe moving both would have them locked in step, which is what makes a drifting
-   gradient look mechanical. Only the layer being moved is named in each -- the others are
-   written as their own current values so the shorthand does not reset them. */
-@keyframes plDriftA{
-  from{ background-position:0% 0%,    100% 100%, 0 0 }
-  to  { background-position:34% 22%,  100% 100%, 0 0 }
-}
-@keyframes plDriftB{
-  from{ background-position:0% 0%, 100% 100%, 0 0 }
-  to  { background-position:0% 0%, 62%  48%,  0 0 }
+     The scrim is the one addition: an even 22% black over the picture, because the
+     title and the progress bar are white and back2.jpg has bright patches. Enough
+     to hold the type, not enough to lose the stars.
+
+     KNOBS: the .22 scrim, and the navy floor -- what shows for the moment before
+     the JPEG lands, and the whole sheet if the CDN is unreachable. */
+  background-color:#16243d;
+  background-image:
+    linear-gradient(rgba(6,12,28,.22), rgba(6,12,28,.22)),
+    url("https://wesitefoisy1.b-cdn.net/back2.jpg");
+  background-size:cover, cover;
+  background-position:center, center;
+  background-repeat:no-repeat, no-repeat;
 }
 
 .pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }

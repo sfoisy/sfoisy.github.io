@@ -422,12 +422,13 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
    check that if you ever write a longer label. */
 
 .newsfeed .entry{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75}
-/* The underline is the section's colour, not the site's lavender. It is the only
-   coloured mark in a line of black type, and a lavender rule on a rose block is
-   the one thing in the row that belongs to a different page. --btn is the same
-   value the section's button uses. */
-.newsfeed .entry a{color:inherit;font-weight:400;text-decoration:underline;text-decoration-color:var(--btn);text-underline-offset:.15em}
-.newsfeed .entry a:hover{text-decoration-color:var(--btn);text-decoration-thickness:2px}
+/* BLACK, like the sentence it is part of. It was lavender, then the section's own
+   rose -- both of which made the link the only coloured mark in a line of black
+   type, which is more attention than one link in one news entry is asking for.
+   currentColor rather than a hex: the underline is then the same value as the
+   words either side of it whatever they are set to, and cannot drift. */
+.newsfeed .entry a{color:inherit;font-weight:400;text-decoration:underline;text-decoration-color:currentColor;text-underline-offset:.15em}
+.newsfeed .entry a:hover{text-decoration-thickness:2px}
 .more-line{text-align:center;margin-top:1.75rem}
 .more-link{display:inline-block;color:var(--purple);font-size:.85rem;font-weight:500;text-decoration:none}
 .more-link:hover{color:var(--mid)}
