@@ -1866,6 +1866,22 @@ body{ padding-top:72px }          /* 58 for the bar + the 14 the page already ha
   .fsPlay svg{ width:16px; height:16px }
   .fsBtn, html.can-fs .fsBtn{ display:none !important }
 }
+
+/* ===== THE CARD UNDER THE FRAME, ON AN UPRIGHT PHONE =========================
+   Upright, the frame is a strip about 200px tall, and the interview or fun-fact card -- a name,
+   a date, a paragraph and a button -- is nearly that tall by itself. It covered the whole frame,
+   and the drawing that goes with it (the walker holding the mic into the interview's photo, the
+   rainbow, the cricket) was behind it with nowhere to be seen.
+   So on an upright phone the card comes out of the frame and stands just under it, over the
+   joystick and the jump button -- which have nothing to do while a card is open, since the game
+   is paused. The drawing then gets the whole frame (fitArtBand), and the card slides up into
+   place under it exactly as it slid up inside the frame before. The script at the foot of the
+   page moves the one element, and puts it back the moment the phone is turned sideways. */
+.touch.has-pop{ position:relative }
+.touch > .pop{
+  position:absolute; left:50%; top:0; bottom:auto; z-index:30;
+  width:100%;
+}
 </style>
 </head>
 <body>
@@ -10728,7 +10744,11 @@ function fitArtBand(){
     if(!el) return;
     var cardH  = $('pop').offsetHeight;
     var frameH = $('box').offsetHeight;
-    var band = Math.max(90, Math.round(frameH - cardH - 14));
+    /* On an upright phone the card is not in the frame at all (see "THE CARD UNDER THE FRAME"),
+       so the drawing has the frame's whole height to itself. */
+    var band = $('box').contains($('pop'))
+      ? Math.max(90, Math.round(frameH - cardH - 14))
+      : Math.max(90, Math.round(frameH - 8));
     el.style.setProperty('--artBand', band + 'px');
   }, 30);
 }
@@ -11537,6 +11557,30 @@ function goBack(e){
   }
   if(mq.addEventListener) mq.addEventListener('change', place);
   else if(mq.addListener) mq.addListener(place);
+  place();
+})();
+</script>
+
+
+<script>
+/* ===== THE CARD UNDER THE FRAME (upright phones) -- see the stylesheet ===================== */
+(function(){
+  var pop = document.getElementById('pop'), box = document.getElementById('box');
+  var touch = document.querySelector('.touch');
+  if(!pop || !box || !touch || !window.matchMedia) return;
+  var home = pop.parentNode, next = pop.nextSibling;
+  var mq = window.matchMedia('(max-width:700px) and (orientation:portrait)');
+  function place(){
+    if(mq.matches && !document.body.classList.contains('fs')){
+      if(pop.parentNode !== touch){ touch.appendChild(pop); touch.classList.add('has-pop'); }
+    }else if(pop.parentNode !== home){
+      if(next && next.parentNode === home) home.insertBefore(pop, next); else home.appendChild(pop);
+      touch.classList.remove('has-pop');
+    }
+  }
+  if(mq.addEventListener) mq.addEventListener('change', place); else if(mq.addListener) mq.addListener(place);
+  document.addEventListener('fullscreenchange', function(){ setTimeout(place, 0); });
+  document.addEventListener('webkitfullscreenchange', function(){ setTimeout(place, 0); });
   place();
 })();
 </script>

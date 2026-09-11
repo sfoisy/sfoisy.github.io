@@ -10045,9 +10045,13 @@ DATA.stops.forEach(function(s){
          it snapshots them and writes hover-only (see _featSnap), so the reader comes back to
          the sliver they started with rather than to a hotdog quietly still running radar.
          Desktop keeps its three sizes, so there this is one step and no more. */
+      /* A PHONE ON ITS SIDE HAS THE PHONE'S TWO SIZES TOO -- hotdog and full screen, no whole-map
+         peek in between -- so leaving full screen goes all the way back to the hotdog there as
+         well. */
+      var _landTouch = window.matchMedia ? window.matchMedia('(orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse)') : { matches:false };
       function exitFs(){
         setBig(false);
-        if(window.innerWidth < 701 && window.closeMapFull) window.closeMapFull();
+        if((window.innerWidth < 701 || _landTouch.matches) && window.closeMapFull) window.closeMapFull();
       }
       window.closeMapBig=function(){ if(mbEl && mbEl.classList.contains('on')) setBig(false); };
       if(mbBtn) mbBtn.addEventListener('click', function(e){
@@ -12970,7 +12974,9 @@ DATA.stops.forEach(function(s){
        button is hidden -- so gating enlarge on _vis left a phone with no way to reach full
        screen at all. It is the only route, so it has to be on the hotdog. */
     if(_mb){
-      var _mbv = mq.matches ? _mfShow : (_mfShow * _vis);
+      /* ...and a phone on its side is the same: its peek button is hidden too (see the
+         stylesheet), so full screen has to be reachable straight from the hotdog. */
+      var _mbv = (mq.matches || LANDFS.matches) ? _mfShow : (_mfShow * _vis);
       _mb.style.opacity=_mbv; _mb.style.pointerEvents=_mbv>0.5?'auto':'none';
     }
     // The circled i rides the same gate as the rest.
@@ -17489,6 +17495,14 @@ html.walk-fs{ --map-pin-top:46px }
   /* The weather clock's date comes off, and the slider takes its room: the same date is on the
      map itself, in the pill at the top of the picture, and beside the slider it left a
      scrubber about a thumb wide. */
+  /* TWO SIZES, NOT THREE: the hotdog and full screen. The whole-map peek -- a 400px map at
+     the right of a 400px-tall screen, with its layer bar hanging off the bottom -- is not
+     offered; the peek arrow goes, full screen takes its place at the top of the hotdog's
+     left edge, and the X (not the enlarge button) is the way back out, straight to the hotdog
+     (exitFs). The layer buttons in the article already open full screen here. */
+  .map-full{ display:none !important }
+  body:not(.mapfull) .map-big{ top:.3rem !important }
+  body.map-fs .map-big{ display:none !important }
   body.mapfull.map-fs .map-modes-pop #radarTime{ display:none !important }
   body.mapfull.map-fs .map-modes-pop #radarTimeRow{ gap:0 }
   body.mapfull.map-fs .map-modes-pop #radarTimeRow input[type=range]{ width:100%; flex:1 1 auto; min-width:0 }
@@ -17500,8 +17514,20 @@ html.walk-fs{ --map-pin-top:46px }
 .read-hint{
   position:absolute; left:50%; bottom:100%; transform:translateX(-50%);
   margin:0 0 .55rem; white-space:nowrap; pointer-events:none;
-  color:#fff; font:600 .72rem/1.3 'DM Sans',system-ui,sans-serif; letter-spacing:.04em;
-  text-shadow:0 1px 3px rgba(0,0,0,.45);
+  /* The same type as "All opinions expressed on this site are personal." -- Arial italic on a
+     wide screen (.lede-opinion), DM Sans italic on a phone (.map-tap-hint) -- white, no glow. */
+  color:#fff; font-family:Arial,Helvetica,sans-serif; font-style:italic; font-weight:400;
+  font-size:.85rem; line-height:1.5; letter-spacing:normal; text-shadow:none;
+}
+@media(max-width:700px){
+  .read-hint{ font-family:'DM Sans',sans-serif; font-size:.87rem; line-height:1.3 }
+}
+/* THE FULL-SCREEN MAP'S BACKDROP REACHES THE BOTTOM OF A PHONE. inset:0 is the height of the
+   window with the browser's toolbar showing; with the toolbar tucked away the screen is taller
+   than that, and a strip of the article showed under the backdrop. It overhangs both ends
+   instead -- it is a flat colour, so the part past the edge costs nothing. */
+@media(max-width:700px){
+  #mapFsBackdrop{ top:-120px; bottom:-120px }
 }
 .j-sect.is-open .read-hint{ display:none }
 html.walk-fs .walkFsExit{
