@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Comments · admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- ===========================================================================
+     comments-admin.html -- delete comments from the walk page.
+
+     Comments go live the moment they are posted, so this page is for taking
+     things DOWN: spam, anything you do not want up. Every comment is listed,
+     newest first, with a Delete button.
+
+     It has to live ON sylfoisy.com (uploaded beside walk.html). The comments
+     server only answers pages served from sylfoisy.com, so opening this file
+     straight off the Desktop will say it cannot reach the server.
+
+     No password is stored in this file. You type ADMIN_TOKEN in once per
+     visit; it is kept in sessionStorage, so it is forgotten when the tab
+     closes, and it never goes in the address bar.
+     =========================================================================== -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;color:#000;background:#f4f5f7;padding:2rem 1.25rem 5rem;line-height:1.5}
+.wrap{max-width:820px;margin:0 auto}
+h1{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:.2rem}
+.sub{color:#666;font-size:.85rem;margin-bottom:1.6rem}
+.gate{background:#fff;border:1.5px solid #000;border-radius:.6rem;padding:1.2rem;max-width:420px}
+.gate label{display:block;font-weight:600;font-size:.85rem;margin-bottom:.4rem}
+input[type=password]{
+  -webkit-appearance:none;appearance:none;width:100%;
+  font:400 .92rem 'DM Sans',sans-serif;padding:.6rem .7rem;
+  border:1.5px solid #000;border-radius:.4rem;background:#fff;color:#000}
+input:focus{outline:none;box-shadow:0 0 0 3px rgba(0,0,0,.13)}
+button{-webkit-appearance:none;appearance:none;cursor:pointer;font:600 .84rem 'DM Sans',sans-serif;
+  border:1.5px solid #000;border-radius:999px;background:#fff;color:#000;padding:.5rem 1.1rem;
+  transition:background .15s,color .15s}
+button:hover{background:#000;color:#fff}
+button:disabled{opacity:.45;cursor:default}
+button.go{background:#0f7a3d;border-color:#0f7a3d;color:#fff}
+button.go:hover{background:#0a5c2d;border-color:#0a5c2d}
+button.no{background:#fff;border-color:#a11;color:#a11}
+button.no:hover{background:#a11;color:#fff}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:.5rem;flex-wrap:wrap}
+.count{color:#666;font-size:.85rem}
+.card{background:#fff;border:1px solid #dcdfe4;border-radius:.6rem;padding:1rem 1.1rem;margin-bottom:.9rem}
+.card.pending{border-left:4px solid #f5820b}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline;font-size:.8rem;color:#666;margin-bottom:.45rem}
+.meta b{color:#000;font-size:.95rem}
+.tag{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:.15rem .5rem;border-radius:999px;background:#fdebd6;color:#8a4b00}
+.body{white-space:pre-wrap;word-break:break-word;margin-bottom:.8rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap}
+.empty{color:#666;padding:2rem 0;text-align:center}
+.err{color:#a11;font-weight:600;margin-top:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Comments</h1>
+  <p class="sub">Everything posted on the walk page, newest first. Delete removes it from the site for good.</p>
+
+  <div class="gate" id="gate">
+    <label for="tok">Admin password</label>
+    <input id="tok" type="password" autocomplete="current-password" placeholder="your ADMIN_TOKEN">
+    <p style="margin-top:.7rem"><button id="go">Unlock</button></p>
+    <p class="err" id="gateErr" hidden>That password was not accepted.</p>
+  </div>
+
+  <div id="panel" hidden>
+    <div class="bar">
+      <span class="count" id="count"></span>
+      <span class="row"><button id="refresh">Refresh</button><button id="out">Lock</button></span>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* The same server walk.html posts to. */
+  var API = 'https://comments.sylfoisy.workers.dev';
+
+  var gate = document.getElementById('gate'),
+      panel = document.getElementById('panel'),
+      list = document.getElementById('list'),
+      count = document.getElementById('count'),
+      tokIn = document.getElementById('tok'),
+      gateErr = document.getElementById('gateErr');
+  var token = sessionStorage.getItem('cmToken') || '';
+
+  function head(){ return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }; }
+
+  // Comments are strangers' text, so they go in as textContent and never as HTML --
+  // otherwise a comment could run its own code on this page, with your password in it.
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if(cls) n.className = cls;
+    if(text != null) n.textContent = text;
+    return n;
+  }
+  function when(iso){
+    var d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString();
+  }
+
+  function load(){
+    list.textContent = 'Loading\u2026';
+    count.textContent = '';
+    fetch(API + '/admin/list?status=all', { headers: head(), cache:'no-store' })
+      .then(function(r){
+        if(r.status === 401) throw new Error('unauthorized');
+        return r.json();
+      })
+      .then(function(d){ render(d.comments || []); })
+      .catch(function(e){
+        if(String(e.message) === 'unauthorized'){ lock(true); return; }
+        list.textContent = 'Could not reach the comments server. (This page only works from sylfoisy.com, not from a file on your computer.)';
+      });
+  }
+
+  function render(rows){
+    list.textContent = '';
+    count.textContent = rows.length + (rows.length === 1 ? ' comment' : ' comments');
+    if(!rows.length){ list.appendChild(el('p','empty','No comments yet.')); return; }
+    rows.forEach(function(c){
+      var card = el('div', 'card' + (c.approved ? '' : ' pending'));
+      var meta = el('div','meta');
+      meta.appendChild(el('b', null, c.name));
+      if(!c.approved) meta.appendChild(el('span', 'tag', 'hidden \u2014 not on the site'));
+      meta.appendChild(el('span', null, when(c.created)));
+      if(c.email) meta.appendChild(el('span', null, c.email));
+      card.appendChild(meta);
+      card.appendChild(el('div','body', c.body));
+
+      var row = el('div','row');
+      // Only comments from before auto-posting was switched on can be hidden. Offer to publish them.
+      if(!c.approved){
+        var ok = el('button','go','Publish');
+        ok.onclick = function(){ act('approve', c.id, ok); };
+        row.appendChild(ok);
+      }
+      var del = el('button','no','Delete');
+      del.onclick = function(){
+        if(!confirm('Delete this comment from ' + c.name + ' for good?')) return;
+        act('delete', c.id, del);
+      };
+      row.appendChild(del);
+      card.appendChild(row);
+      list.appendChild(card);
+    });
+  }
+
+  function act(what, id, btn){
+    btn.disabled = true;
+    fetch(API + '/admin/' + what, { method:'POST', headers: head(), body: JSON.stringify({ id: id }) })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); load(); })
+      .catch(function(){ btn.disabled = false; alert('That did not go through. Try again?'); });
+  }
+
+  function unlock(){
+    sessionStorage.setItem('cmToken', token);
+    gate.hidden = true; panel.hidden = false; gateErr.hidden = true;
+    load();
+  }
+  function lock(showErr){
+    sessionStorage.removeItem('cmToken'); token = ''; tokIn.value = '';
+    gate.hidden = false; panel.hidden = true; gateErr.hidden = !showErr;
+  }
+
+  document.getElementById('go').onclick = function(){
+    token = tokIn.value.trim();
+    if(token) unlock();
+  };
+  tokIn.addEventListener('keydown', function(e){ if(e.key === 'Enter') document.getElementById('go').click(); });
+  document.getElementById('refresh').onclick = load;
+  document.getElementById('out').onclick = function(){ lock(false); };
+
+  if(token) unlock();
+})();
+</script>
+</body>
+</html>
