@@ -12008,6 +12008,12 @@ DATA.stops.forEach(function(s){
      what a change of that size wants. Read once at load; a window resized across the boundary
      keeps whichever it started with, which is a fair trade for not re-reading it every frame. */
   var BIG={on:false, t:0, ms:(window.innerWidth <= 700 ? 1 : 620), last:0};
+  /* A PHONE ON ITS SIDE, FULL-SCREEN MAP: the layer bar hangs under the map everywhere else,
+     and at 400px of height that put it off the bottom of the screen. Here the map takes the
+     height and the bar stands to its right; the pair is centred, with the X just past the bar.
+     FSL_BAR is the bar's width, FSL_GAP the space between the two, FSL_X the room kept for the X. */
+  var LANDFS = window.matchMedia ? window.matchMedia('(orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse)') : { matches:false };
+  var FSL_BAR = 258, FSL_GAP = 12, FSL_X = 46, FSL_M = 12;
   window.__mapBig=function(on){ BIG.on=!!on; };
 
   // KNOB: where in the map's own fold-into-the-hotdog does the walker start fading in.
@@ -12212,7 +12218,12 @@ DATA.stops.forEach(function(s){
     var _fsW=0, _fsH=0;   // full-screen target size, when there is one
     if(_be>0){
       var _bgW, _bgH, _bgAR = 362/400;                                   // KNOB: frame aspect, kept
-      if(mq.matches){
+      if(LANDFS.matches){
+        _bgH = window.innerHeight - FSL_M * 2;
+        _bgW = _bgH / _bgAR;
+        var _lmax = window.innerWidth - FSL_M * 2 - FSL_GAP - FSL_BAR - FSL_X;
+        if(_bgW > _lmax){ _bgW = _lmax; _bgH = _bgW * _bgAR; }
+      } else if(mq.matches){
         _bgW = window.innerWidth * 0.90;                                 // KNOB: phone, share of the screen
         _bgH = _bgW*_bgAR;
         // Recompute the WIDTH when the height cap bites. Capping height alone changed
@@ -12351,7 +12362,11 @@ DATA.stops.forEach(function(s){
       var lowTopNow = lerp(lowTopGap, 10, instantScrollFactor);
       var lowBand = window.innerHeight - lowTopNow - lowBotGap;
       var _lowTop = lowTopNow + Math.max(0, (lowBand - computedHeight) / 2);
-      if(_be>0){   // full-screen: slide it to the middle of the page, both axes
+      if(_be>0 && LANDFS.matches){   // a phone on its side: map and bar side by side, centred
+        var _blk2 = computedWidth + FSL_GAP + FSL_BAR + FSL_X;
+        _lowTop = lerp(_lowTop, (window.innerHeight - computedHeight) / 2, _be);
+        setBox('right', lerp(22, window.innerWidth - ((window.innerWidth - _blk2) / 2 + computedWidth), _be));
+      } else if(_be>0){   // full-screen: slide it to the middle of the page, both axes
         _lowTop = lerp(_lowTop, fsTop(computedHeight), _be);
         setBox('right', lerp(22, Math.max(8,(window.innerWidth-computedWidth)/2), _be));
       }
@@ -12408,8 +12423,14 @@ DATA.stops.forEach(function(s){
           // Centre it in the space BELOW the site's own nav bar, not in the whole window --
           // the nav sits above everything, so a map centred on the viewport bled up behind
           // it. fsTop() measures the bar and clamps the result to the visible band.
-          _bxT = lerp(_bxT, fsTop(computedHeight), _be);
-          _bxR = lerp(_bxR, Math.max(8,(window.innerWidth -computedWidth )/2), _be);
+          if(LANDFS.matches){
+            var _blk = computedWidth + FSL_GAP + FSL_BAR + FSL_X;       // the X's room is part of the block
+            _bxT = lerp(_bxT, (window.innerHeight - computedHeight) / 2, _be);
+            _bxR = lerp(_bxR, window.innerWidth - ((window.innerWidth - _blk) / 2 + computedWidth), _be);
+          } else {
+            _bxT = lerp(_bxT, fsTop(computedHeight), _be);
+            _bxR = lerp(_bxR, Math.max(8,(window.innerWidth -computedWidth )/2), _be);
+          }
         }
         setBox('top', _bxT);
         setBox('right', _bxR);
@@ -12712,7 +12733,11 @@ DATA.stops.forEach(function(s){
       }
     }
     // Low-height mobile only: keep the big "blown out" map hidden through the ride-up + shrink; fade it in once it's the thin strip. Regular-height (hot dog) mobile shows it normally like desktop.
-    mapBox.style.opacity = LOWH.matches ? clamp((instantScrollFactor - 0.6) / 0.25, 0, 1) : '';
+    /* PEEK_TRUE, not the bent factor, and never while full screen. Opening the whole map or full
+       screen bends instantScrollFactor back to 0 (that is how the opening layout is replayed), and
+       on a short phone this line read that as "still riding up" and faded the map to nothing --
+       a phone on its side opened full screen onto a blurred page with no map on it. */
+    mapBox.style.opacity = LOWH.matches ? Math.max(clamp((PEEK_TRUE - 0.6) / 0.25, 0, 1), _be) : '';
     
     // PEEK_TRUE again: open_FINAL.jpg is the intro overlay and belongs to the top of the page.
     // The peek is about LAYOUT, not imagery, so close_FINAL.jpg stays put underneath it.
@@ -12951,7 +12976,11 @@ DATA.stops.forEach(function(s){
     if(_be>0.001){
       var _fr=mapBox.getBoundingClientRect();
       var _fx, _fy;
-      if(mq.matches){
+      if(LANDFS.matches){
+        /* Sideways: just past the layer bar, level with the top of the map. */
+        _fx = Math.min(window.innerWidth - 44, _fr.right + FSL_GAP + FSL_BAR + 8);
+        _fy = Math.max(8, _fr.top);
+      } else if(mq.matches){
         /* ON A PHONE THERE IS NO ROOM BESIDE THE MAP, so the X goes ABOVE it instead of on it.
            The desktop parks it just off the map's right edge, which works because full screen
            there still leaves a margin. A phone's full screen is the width of the window: the
@@ -17414,6 +17443,53 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
    top in setPanel, and --map-pin-top for anything else hung off that line). */
 html.walk-fs nav, html.walk-fs .nav-mobile-menu{ display:none !important }
 html.walk-fs{ --map-pin-top:46px }
+/* ===== A PHONE ON ITS SIDE: THE FULL-SCREEN MAP =============================
+   The map takes the height of the screen and the layer bar stands beside it rather than
+   under it (under it was off the bottom of a 400px screen); the render loop centres the pair
+   and parks the X just past the bar. Behind them, the page is blurred rather than blacked out,
+   so full screen reads as the map lifted off the article instead of the article going dark.
+   The bar wraps its rows to its narrower width and scrolls inside itself if a tall weather
+   group ever needs more than the screen. The page's own Exit pill stands down while the map is
+   full screen -- the X is the way out of this, and two exits side by side is one too many --
+   and so does "Call your reps", which would hang below the bottom of the screen.
+   Touch phones held sideways only; everything else keeps the layout it had.
+   KNOBS: the 258px bar (FSL_BAR in the script, and here) and the backdrop's blur. */
+@media (orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse){
+  body.map-fs #mapFsBackdrop{
+    background:rgba(10,12,26,.40);
+    -webkit-backdrop-filter:blur(16px) saturate(1.15); backdrop-filter:blur(16px) saturate(1.15);
+  }
+  body.mapfull.map-fs .map-modes{
+    top:0 !important; bottom:auto !important; left:calc(100% + 12px) !important; right:auto !important;
+    width:258px !important;
+  }
+  body.mapfull.map-fs .map-modes-pop{
+    max-height:calc(100vh - 24px); overflow-y:auto; overscroll-behavior:contain;
+    gap:.3rem .5rem; padding:.6rem .65rem; transform:none !important; margin:0 !important;
+    background:rgba(16,18,24,.78);
+  }
+  body.mapfull.map-fs .map-modes-pop .mm-row{ flex-wrap:wrap !important; gap:.28rem }
+  body.mapfull.map-fs .map-modes-pop .mm-opt{ flex:1 1 auto; text-align:center; font-size:.68rem; padding:.3rem .5rem }
+  body.map-fs .map-cta{ opacity:0 !important; pointer-events:none !important }
+  html.walk-fs body.map-fs .walkFsExit{ display:none }
+  /* The weather clock's date comes off, and the slider takes its room: the same date is on the
+     map itself, in the pill at the top of the picture, and beside the slider it left a
+     scrubber about a thumb wide. */
+  body.mapfull.map-fs .map-modes-pop #radarTime{ display:none !important }
+  body.mapfull.map-fs .map-modes-pop #radarTimeRow{ gap:0 }
+  body.mapfull.map-fs .map-modes-pop #radarTimeRow input[type=range]{ width:100%; flex:1 1 auto; min-width:0 }
+}
+/* ===== "CLICK PHOTO TO READ SECTION" =======================================
+   One line of instruction above the first card -- the Preface -- saying what the cards are
+   for. Only there: once one card has been opened, the rest need no telling. White and small,
+   on the sky photograph behind the article; gone while that card is open. */
+.read-hint{
+  position:absolute; left:50%; bottom:100%; transform:translateX(-50%);
+  margin:0 0 .55rem; white-space:nowrap; pointer-events:none;
+  color:#fff; font:600 .72rem/1.3 'DM Sans',system-ui,sans-serif; letter-spacing:.04em;
+  text-shadow:0 1px 3px rgba(0,0,0,.45);
+}
+.j-sect.is-open .read-hint{ display:none }
 html.walk-fs .walkFsExit{
   top:10px; left:auto; right:22px;
   background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.34);
@@ -18771,6 +18847,7 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
   // which is what caused the scroll-handler thrash / lag.
   // Desktop: a couple of gentle re-corrections are cheap and look nicer.
   window.addEventListener('load', function(){
+    if(window.__intDeep) return;             // an interview link: see "STRAIGHT TO AN INTERVIEW"
     var m = /[?&]v=([^&#]+)/.exec(location.search); if(!m) return;
     var key = decodeURIComponent(m[1]);
     var v = VSHARE[key]; if(!v) return;
@@ -20179,6 +20256,22 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
          behind a folded map is genuinely invisible rather than merely off-screen. */
       if(document.body.classList.contains('map-off') && window.__setMapOff) window.__setMapOff(false);
       var _wasFull = document.body.classList.contains('mapfull');
+      /* ON A PHONE -- upright, or on its side -- THE BUTTON OPENS THE MAP FULL SCREEN. The whole
+         map a phone can offer otherwise is either a hotdog too small to read a radar field on
+         (upright) or a frame whose layer bar hangs off the bottom of the screen (sideways). Full
+         screen is where both have room for the picture AND the bar (under it upright, beside it
+         sideways), so that is where the button goes. The same order as below: open first,
+         layer after, so the opening's snapshot restore cannot undo the press. */
+      var _phoneish = window.matchMedia && window.matchMedia(
+        '(max-width:700px), (orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse)').matches;
+      var _bigBtn = document.getElementById('mapBigBtn');
+      if(_phoneish && _bigBtn && !document.body.classList.contains('map-fs')){
+        _bigBtn.click();                                      // whole map, then full screen
+        setLayer(b, true);
+        b._pokeOpenedFull = !_wasFull;
+        paint();
+        return;
+      }
       if(window.openMapFull) window.openMapFull();            // the whole map -- NOT full screen
       setLayer(b, true);
       b._pokeOpenedFull = !_wasFull;                          // so pressing it again can undo it
@@ -27631,6 +27724,81 @@ function goBack(e){
   document.addEventListener('fullscreenchange', sync);
   document.addEventListener('webkitfullscreenchange', sync);
   sync();
+})();
+</script>
+<script>
+/* ===== "CLICK PHOTO TO READ SECTION" -- placed above the Preface ================ */
+(function(){
+  function place(){
+    var h = document.getElementById('stop-preface');
+    var sect = h && h.closest('.j-sect');
+    if(!sect || sect.querySelector('.read-hint')) return;
+    var p = document.createElement('p');
+    p.className = 'read-hint';
+    p.setAttribute('aria-hidden', 'true');
+    p.textContent = 'Click photo to read section';
+    sect.appendChild(p);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', place); else place();
+  window.addEventListener('load', place);
+})();
+</script>
+<script>
+/* ===== STRAIGHT TO AN INTERVIEW: walk.html?v=<name> ===========================
+   The blog's link under each interview lands here, on that interview's clip in the walk. The
+   name is the interview's own (hikaru, allegra, alan ... rob), matched against the clip's
+   title-card image, so it needs no list kept in step with the article. The stop is opened --
+   as the sheet on a wide screen, in place on a phone -- and the clip is brought to the middle
+   of the screen, re-centred a few times while the pictures above it load, until the reader
+   moves the page themselves. Anything that is not an interview name is left to the older
+   ?v= handler (the shared-clip links). */
+(function(){
+  var m = /[?&]v=([^&#]+)/.exec(location.search);
+  if(!m) return;
+  var key = decodeURIComponent(m[1]).toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  function findVid(){
+    var vs = document.querySelectorAll('video.j-card-video');
+    for(var i = 0; i < vs.length; i++){
+      var p = (vs[i].getAttribute('poster') || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+      if(p === key && /new_int_titles\//.test(vs[i].getAttribute('poster') || '')) return vs[i];
+    }
+    return null;
+  }
+  if(!findVid()) return;
+  window.__intDeep = true;
+  var stopped = false;
+  ['wheel','touchstart','keydown'].forEach(function(n){
+    window.addEventListener(n, function(){ stopped = true; }, {capture:true, passive:true, once:true});
+  });
+  function go(){
+    var v = findVid(); if(!v) return;
+    var sect = v.closest('.j-sect');
+    if(sect){
+      var r0 = sect.getBoundingClientRect();
+      window.scrollTo({ top: Math.max(0, window.pageYOffset + r0.top - 140), behavior:'auto' });
+    }
+    setTimeout(function(){
+      if(sect && !sect.classList.contains('is-open') && sect._jpOpen) sect._jpOpen();
+      var n = 0;
+      (function centre(){
+        if(stopped) return;
+        var w = v.closest('.video-share-wrap') || v;
+        var sc = document.body.classList.contains('stop-modal') ? v.closest('.j-body') : null;
+        var r = w.getBoundingClientRect();
+        if(r.height){
+          if(sc){
+            var vr = sc.getBoundingClientRect();
+            sc.scrollTop += (r.top + r.height / 2) - (vr.top + vr.height / 2);
+          }else{
+            window.scrollTo({ top: Math.max(0, window.pageYOffset + r.top + r.height / 2 - window.innerHeight / 2), behavior:'auto' });
+          }
+        }
+        if(++n < 8) setTimeout(centre, 320);
+      })();
+    }, 700);
+  }
+  if(document.readyState === 'complete') setTimeout(go, 300);
+  else window.addEventListener('load', function(){ setTimeout(go, 300); });
 })();
 </script>
 <script>
