@@ -8337,7 +8337,6 @@ nav{ border-bottom:1px solid var(--nav-rule) }
        number beside the heading. It reads as a genuine comment to a visitor, so delete this
        whole <article> before launch unless George is real and has agreed to it. -->
   <article class="cm-note">
-    <span class="cm-note-av" aria-hidden="true">G</span>
     <div class="cm-note-body">
       <span class="cm-note-name">George<time class="cm-note-time" datetime="2026-06-14T09:12">June 14, 2026 &middot; 9:12 AM</time></span>
       <p class="cm-note-txt">Wonderful work, I'm very inspired. This site is remarkable.</p>
@@ -8367,6 +8366,11 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <input id="cmEmail" name="email" type="email" maxlength="120" autocomplete="email">
       </p>
     </div>
+    <!-- Ticked, the comment is posted under the name "Anonymous" and the Name box greys out.
+         The email, if given, is still only ever seen on the admin page. -->
+    <p class="cm-anon">
+      <label><input type="checkbox" id="cmAnon" name="anon"> Post anonymously</label>
+    </p>
     <p class="cm-field">
       <label for="cmText">Comment</label>
       <textarea id="cmText" name="body" rows="5" maxlength="2000" required></textarea>
@@ -8417,8 +8421,6 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       thread.textContent = '';
       list.forEach(function(c){
         var art  = el('article','cm-note');
-        var av   = el('span','cm-note-av', (c.name||'?').trim().charAt(0).toUpperCase());
-        av.setAttribute('aria-hidden','true');
         var body = el('div','cm-note-body');
         var name = el('span','cm-note-name', c.name);
         var time = el('time','cm-note-time', when(c.created));
@@ -8426,7 +8428,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         name.appendChild(time);
         body.appendChild(name);
         body.appendChild(el('p','cm-note-txt', c.body));
-        art.appendChild(av); art.appendChild(body);
+        art.appendChild(body);
         thread.appendChild(art);
       });
       // The fold may still be mid-open, with a max-height measured before any of this
@@ -8445,11 +8447,27 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     // Only when the fold is opened: no request at all for the majority who never open it.
     window.__cmLoadThread = load;
 
+    /* Post anonymously: the Name box steps aside while it is ticked. */
+    /* The fields by id rather than as properties of the form: a field called "name" shadows
+       the form's own .name, which browsers allow but is fragile to lean on. */
+    var fName = document.getElementById('cmName'),
+        fEmail = document.getElementById('cmEmail'),
+        fBody = document.getElementById('cmText'),
+        fHp = form.querySelector('input[name="website"]');
+    var anon = document.getElementById('cmAnon');
+    function syncAnon(){
+      var on = !!(anon && anon.checked);
+      fName.disabled = on;
+      fName.placeholder = on ? 'Anonymous' : '';
+    }
+    if(anon) anon.addEventListener('change', syncAnon);
+
     form.addEventListener('submit', function(e){
       e.preventDefault();
-      var name = form.name.value.trim(),
-          body = form.body.value.trim();
-      if(name.length < 1){ status.textContent = 'A name is required \u2014 "Anonymous" is fine.'; return; }
+      var isAnon = !!(anon && anon.checked);
+      var name = isAnon ? 'Anonymous' : fName.value.trim(),
+          body = fBody.value.trim();
+      if(name.length < 1){ status.textContent = 'Add a name, or tick \u201cPost anonymously\u201d.'; return; }
       if(body.length < 2){ status.textContent = 'Say a little more than that!'; return; }
 
       submit.disabled = true;
@@ -8459,8 +8477,8 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           page: page, name: name, body: body,
-          email: form.email.value.trim(),
-          website: form.website.value          // the honeypot; the Worker checks it
+          email: fEmail.value.trim(),
+          website: fHp ? fHp.value : ''         // the honeypot; the Worker checks it
         })
       })
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
@@ -8472,6 +8490,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
            thread and the count are re-fetched rather than the comment drawn locally, so what
            appears is what the server actually has. */
         form.reset();
+        syncAnon();              // reset unticks the box; bring the Name field back with it
         status.textContent = '';
         loaded = false; load();
         if(window.__cmCount) window.__cmCount();
@@ -18339,8 +18358,12 @@ body.touring #rfQuizSep[hidden]{ display:block }
    apart from them -- see the note in the markup about removing it. */
 .cm-note{ display:flex;gap:.8rem;align-items:flex-start;margin:0 0 1.6rem;
   padding-bottom:1.4rem;border-bottom:1px solid rgba(255,255,255,.18) }
-.cm-note-av{ flex:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;
-  display:flex;align-items:center;justify-content:center;font:700 .9rem 'DM Sans',sans-serif }
+.cm-note-body{ flex:1 1 auto; min-width:0 }   /* no letter badge beside it any more: the text takes the row */
+.cm-anon{ margin:-.2rem 0 .95rem }
+.cm-anon label{ display:inline-flex; align-items:center; gap:.5rem; cursor:pointer;
+  font:500 .84rem 'DM Sans',sans-serif; color:#fff }
+.cm-anon input{ width:1.05rem; height:1.05rem; margin:0; accent-color:#fff; cursor:pointer }
+.cm-field input:disabled{ opacity:.4; cursor:not-allowed }
 .cm-note-name{ display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;font:700 .88rem 'DM Sans',sans-serif;color:#fff;margin-bottom:.2rem }
 /* When the comment was posted. Quieter than the name and on the same line, which is where
    every comment thread puts it. */
