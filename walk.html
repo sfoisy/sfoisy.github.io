@@ -8350,8 +8350,8 @@ nav{ border-bottom:1px solid var(--nav-rule) }
        comment box that cannot be made to match the page is not much of a comment box.
 
        What replaces it is a Cloudflare Worker in front of a D1 table — the same shape as
-       the wedding RSVP backend. Comments POST to it, land as pending, and appear here only
-       once approved from comments-admin.html. Set CM_API below to the Worker's URL. -->
+       the wedding RSVP backend. Comments POST to it and go live straight away (stored as
+       approved); comments-admin.html can still delete any of them. Set CM_API below to the Worker's URL. -->
   <div id="cmThread" class="cm-thread" data-page="walk" aria-live="polite"></div>
 
   <!-- novalidate: the browser's own bubbles cannot be styled and say the wrong thing about
@@ -8363,7 +8363,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <input id="cmName" name="name" type="text" maxlength="60" autocomplete="name" required>
       </p>
       <p class="cm-field">
-        <label for="cmEmail">Email <em>optional, never shown</em></label>
+        <label for="cmEmail">Email <em>optional</em></label>
         <input id="cmEmail" name="email" type="email" maxlength="120" autocomplete="email">
       </p>
     </div>
@@ -8437,7 +8437,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     var loaded = false;
     function load(){
       if(loaded) return; loaded = true;
-      fetch(CM_API + '/comments?page=' + encodeURIComponent(page))
+      fetch(CM_API + '/comments?page=' + encodeURIComponent(page), {cache:'no-store'})
         .then(function(r){ return r.json(); })
         .then(function(d){ if(d && d.comments) render(d.comments); })
         .catch(function(){ loaded = false; });   // let a later open try again
@@ -8466,8 +8466,15 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
       .then(function(res){
         if(!res.ok) throw new Error(res.j && res.j.error || 'failed');
+        /* NO CONFIRMATION LINE, AND NO WAITING ROOM. Comments go live the moment they are
+           posted (the Worker stores them as approved), so the proof it worked is the comment
+           itself appearing in the thread -- a sentence saying so would be redundant. The
+           thread and the count are re-fetched rather than the comment drawn locally, so what
+           appears is what the server actually has. */
         form.reset();
-        status.textContent = 'Thank you \u2014 posted, and it will appear once read.';
+        status.textContent = '';
+        loaded = false; load();
+        if(window.__cmCount) window.__cmCount();
       })
       .catch(function(){
         status.textContent = 'That did not send. Try again in a moment?';
@@ -17081,14 +17088,19 @@ window.__lateHit = (function(){
   var targets=[].slice.call(document.querySelectorAll('[data-comment-count]'));
   if(!targets.length) return;
   var page=targets[0].getAttribute('data-comment-count') || 'walk';
-  fetch('https://comments.sylfoisy.workers.dev/count?page=' + encodeURIComponent(page))
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var n = d && d.count;
-      if(!isFinite(n) || n <= 0) return;
-      targets.forEach(function(el){ el.textContent = n.toLocaleString(); el.hidden = false; });
-    })
-    .catch(function(){ /* no count, no chip -- it simply stays hidden */ });
+  function refreshCount(){
+    fetch('https://comments.sylfoisy.workers.dev/count?page=' + encodeURIComponent(page), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var n = d && d.count;
+        if(!isFinite(n) || n <= 0) return;
+        targets.forEach(function(el){ el.textContent = n.toLocaleString(); el.hidden = false; });
+      })
+      .catch(function(){ /* no count, no chip -- it simply stays hidden */ });
+  }
+  refreshCount();
+  // Called again by the comment form after a post, so the number moves with the thread.
+  window.__cmCount = refreshCount;
 })();
 </script>
 
