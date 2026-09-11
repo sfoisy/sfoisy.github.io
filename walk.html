@@ -7,7 +7,6 @@
      sheet at the top of <body>; this hint just gets the request out during head parsing
      rather than waiting for the stylesheet to be parsed and the sheet laid out. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="270.4 miles on foot from New York City to Washington, D.C., for weather and climate science. By Syl Foisy.">
 <title>Walking from NYC to DC · Syl Foisy</title>
 <script>
 /* ===== A VIDEO IN FULL SCREEN HAS THE WINDOW. THE PAGE WAITS. ================
@@ -70,11 +69,15 @@
        https://developers.facebook.com/tools/debug/   -> paste the URL -> "Scrape Again"
        https://www.linkedin.com/post-inspector/       -> paste the URL -> "Inspect"
      WhatsApp and Bluesky pick it up on their own. -->
+<!-- NO DESCRIPTION, on purpose: a shared link is the title and the picture and nothing
+     else. There is no og:description, no twitter:description, AND no plain
+     <meta name="description"> -- WhatsApp, Facebook and Bluesky fall back to that last one
+     when the og: one is missing, so leaving it in would bring the sentence straight back.
+     (Facebook's debugger will warn that og:description is missing. That is fine.) -->
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/walk.html">
 <meta property="og:title" content="Walking 250 miles from NYC to DC">
-<meta property="og:description" content="From May 23 to June 3, Syl Foisy walked from New York City to Washington, DC, hand-delivering nearly 300 letters from weather and climate scientists to Congress.">
 <meta property="og:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
 <meta property="og:image:secure_url" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -84,7 +87,6 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Walking 250 miles from NYC to DC">
-<meta name="twitter:description" content="From May 23 to June 3, Syl Foisy walked from NYC to DC, hand-delivering nearly 300 letters from weather and climate scientists to Congress.">
 <meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
 <meta name="twitter:image:alt" content="Walking 250 miles from NYC to DC — a photo collage from the walk with the U.S. Capitol.">
 <!-- =================================================== -->

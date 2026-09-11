@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Interviews from the road — conversations with weather and climate scientists recorded on the 270.4-mile walk from New York City to Washington, DC. By Syl Foisy.">
 <title>Blog · Syl Foisy</title>
 
 <!-- ===== Social share card (Open Graph + Twitter) ===== -->
+<!-- NO DESCRIPTION, on purpose: a shared link is the title and the picture and nothing
+     else. There is no og:description, no twitter:description, AND no plain
+     <meta name="description"> -- WhatsApp, Facebook and Bluesky fall back to that last one
+     when the og: one is missing, so leaving it in would bring the sentence straight back.
+     (Facebook's debugger will warn that og:description is missing. That is fine.) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/blog.html">
 <meta property="og:title" content="Walking 250 miles from NYC to DC">
-<meta property="og:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
 <!-- The site's card image: full_scroll.png fitted whole into 1200x630, the one shape
      Facebook and LinkedIn do not crop (see the note in walk.html's head, and
      make_share_cards.py).
@@ -28,7 +31,6 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Walking 250 miles from NYC to DC">
-<meta name="twitter:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
 <meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
 <!-- =================================================== -->
 

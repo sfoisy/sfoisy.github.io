@@ -4,18 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>The Letter Collection Game</title>
-<meta name="description" content="">
 <meta name="color-scheme" content="dark">
 <!-- ===== Social share card (Open Graph + Twitter) =====
      The picture and the sentence a link to this page shows in a feed. The
      same pair on every page of the site: this game's own title slide, and the
      one headline the share buttons send as text -- so a link previews the same
      way whether it was pasted or shared from a button. -->
+<!-- NO DESCRIPTION, on purpose: a shared link is the title and the picture and nothing
+     else. There is no og:description, no twitter:description, AND no plain
+     <meta name="description"> -- WhatsApp, Facebook and Bluesky fall back to that last one
+     when the og: one is missing, so leaving it in would bring the sentence straight back.
+     (Facebook's debugger will warn that og:description is missing. That is fine.) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/letters.html">
 <meta property="og:title" content="Check out The Letter Collection Game!">
-<meta property="og:description" content="Walk the 250 miles from NYC to DC yourself, over ground built from the weather data logged along the route.">
 <!-- The game's own title slide, fitted whole into 1200x630 (share/letter_game.jpg, built by
      make_share_cards.py) so Facebook and LinkedIn show all of it rather than cropping
      the top and bottom off -- and so LinkedIn shows THIS picture and not a fallback. -->
@@ -27,7 +30,6 @@
 <meta property="og:image:alt" content="The Letter Collection Game — title card">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Check out The Letter Collection Game!">
-<meta name="twitter:description" content="Walk the 250 miles from NYC to DC yourself, over ground built from the weather data logged along the route.">
 <meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/letter_game.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
