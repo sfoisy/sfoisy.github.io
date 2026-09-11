@@ -12,13 +12,24 @@
 <meta property="og:url" content="https://www.sylfoisy.com/blog.html">
 <meta property="og:title" content="Walking 250 miles from NYC to DC">
 <meta property="og:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
-<!-- The site's card image. A post opened in the reader swaps this for that
-     interview's own title card -- see setCardImage in the script. -->
-<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
+<!-- The site's card image: full_scroll.png fitted whole into 1200x630, the one shape
+     Facebook and LinkedIn do not crop (see the note in walk.html's head, and
+     make_share_cards.py).
+
+     THIS IS ONLY WHAT A LINK TO blog.html ITSELF SHOWS. The wall and every
+     interview are shared through their own small pages -- z_blog_interviews.html,
+     z_blog_<name>.html, z_blog_games.html -- because a crawler never sees the part
+     of a link after the #, so blog.html#post-alan and blog.html are the same page
+     to Facebook, LinkedIn and WhatsApp. See SHARE_PAGES in the script. -->
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
+<meta property="og:image:secure_url" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Walking 250 miles from NYC to DC">
 <meta name="twitter:description" content="Conversations with weather and climate scientists, recorded on foot between New York City and Washington, DC.">
-<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
 <!-- =================================================== -->
 
 <link rel="icon" type="image/png" href="https://wesitefoisy1.b-cdn.net/favicon.png">
@@ -1522,7 +1533,7 @@ function toggleMenu(){
          anything. The link it shares is this page's own #hub. -->
     <h1>Scientist Interviews<button type="button" class="post-share" title="Share the interviews"
         aria-label="Share the interviews"
-        onclick="event.stopPropagation(); openShare(this, location.origin + location.pathname + '#hub')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z"/></svg></button></h1>
+        onclick="event.stopPropagation(); openShare(this, blogShareURL('hub'))"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z"/></svg></button></h1>
   </section>
 
   <div class="grid-wrap">
@@ -2434,7 +2445,7 @@ function openPost(id, push, from){
     sh.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
     sh.addEventListener('click', function(e){
       e.stopPropagation();
-      openShare(sh, location.origin + location.pathname + '#' + p.id);
+      openShare(sh, blogShareURL(p.id));
     });
     when.appendChild(sh);
 
@@ -2574,7 +2585,8 @@ function openPost(id, push, from){
    Facebook and X fetch blog.html and read the <head> as SERVED, before a line of
    this has run, so their card is whatever the static tags say -- the site image.
    Per-interview cards for crawlers need one small HTML file per interview with its
-   own tags, which is what the z_<key>.html pages beside walk.html are.
+   own tags -- the z_blog_<name>.html pages beside this one, which is where the share
+   buttons now point (see SHARE_PAGES).
 
    Kept anyway because it costs two lines and is right wherever it is read. */
 function setCardImage(p){
@@ -2588,7 +2600,7 @@ function setCardImage(p){
   });
 }
 /* ...and back to the site's own when nothing is open. */
-var SITE_CARD = 'https://wesitefoisy1.b-cdn.net/full_scroll.png';
+var SITE_CARD = 'https://wesitefoisy1.b-cdn.net/share/walk.jpg';
 function resetCardImage(){
   ['meta[property="og:image"]', 'meta[name="twitter:image"]'].forEach(function(sel){
     var m = document.head.querySelector(sel);
@@ -2991,6 +3003,50 @@ function fitHeading(h){
   /* The whole line, ready to hand to anything that takes text. */
   function shareLine(url){ return SHARE_HEADLINE + ' ' + url + ' | ' + SHARE_HANDLE; }
   var CDN = 'https://wesitefoisy1.b-cdn.net/';
+
+  /* ===== WHAT A SHARE BUTTON HANDS OUT: A PAGE WITH ITS OWN PICTURE =========
+     The link used to be blog.html#hub or blog.html#post-alan. Everything after
+     the # stays in the browser -- it is never sent to the server -- so Facebook,
+     LinkedIn and WhatsApp all fetched plain blog.html and all drew the same card,
+     the walk's, for the wall and for every interview alike.
+
+     So each one gets a tiny page of its own beside this file, whose <head> carries
+     the right picture and whose only other job is to send a person straight on to
+     the right screen here (location.replace, so Back does not land on it again).
+     The crawler reads the tags and stops; a person never sees the page.
+
+         the wall            z_blog_interviews.html   all_interviews card
+         Walk Challenges     z_blog_games.html        games_re card
+         each interview      z_blog_<name>.html       that person's wall card
+
+     A key with no page listed here falls back to the old #link, which still
+     works, just with the walk's card -- so adding a fifteenth interview never
+     produces a dead link. To give it its own card: add a z_blog_<name>.html
+     (copy any of the fourteen, change four lines), a line to make_share_cards.py,
+     and a line here. */
+  var SITE = 'https://www.sylfoisy.com/';
+  var SHARE_PAGES = {
+    'hub':             'z_blog_interviews.html',
+    'post-games':      'z_blog_games.html',
+    'post-hikaru':     'z_blog_hikaru.html',
+    'post-allegra':    'z_blog_allegra.html',
+    'post-alan':       'z_blog_alan.html',
+    'post-mitch':      'z_blog_mitch.html',
+    'post-tim':        'z_blog_tim.html',
+    'post-bernadette': 'z_blog_bernadette.html',
+    'post-nadir':      'z_blog_nadir.html',
+    'post-becki':      'z_blog_becki.html',
+    'post-andra':      'z_blog_andra.html',
+    'post-lauren':     'z_blog_lauren.html',
+    'post-charles':    'z_blog_charles.html',
+    'post-kelsey':     'z_blog_kelsey.html',
+    'post-ross':       'z_blog_ross.html',
+    'post-rob':        'z_blog_rob.html'
+  };
+  window.blogShareURL = function(key){
+    if(SHARE_PAGES[key]) return SITE + SHARE_PAGES[key];
+    return SITE + 'blog.html#' + key;
+  };
 
   function targets(url){
     var line = shareLine(url);

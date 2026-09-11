@@ -47,21 +47,46 @@
 </script>
 <script src="https://wesitefoisy1.b-cdn.net/z_shausdb.js"></script>
 
-<!-- ===== Social share card (Open Graph + Twitter) ===== -->
+<!-- ===== Social share card (Open Graph + Twitter) =====
+     THE PICTURE IS share/walk.jpg, NOT full_scroll.png, and it is the same picture. It is
+     full_scroll.png fitted whole inside a 1200x630 frame over a blurred copy of itself
+     (make_share_cards.py builds it). Three reasons, all of them things a feed does to an
+     image you cannot see from here:
+
+       FACEBOOK CROPPED IT. Facebook and LinkedIn draw a link card at 1.91:1 and fill it by
+       cutting off whatever does not fit. full_scroll.png is not 1.91:1, so the top and
+       bottom were sliced off. A 1200x630 file IS 1.91:1 -- there is nothing left to cut.
+       The picture itself sits inside the middle 1200x600, so X's 2:1 card only trims blur.
+
+       LINKEDIN SHOWED A DIFFERENT PICTURE. LinkedIn refuses an og:image over 5 MB (a
+       full-size PNG collage is easily that) and silently falls back to something else it
+       finds on the page -- or to whatever it cached from an older version of this page,
+       which it keeps for a week. A small JPEG at a NEW address fixes the first outright and
+       the second as soon as LinkedIn re-reads the page (Post Inspector, see below).
+
+       THE SIZE TAGS WERE WRONG. They said 1920x1080; they now say what the file is.
+
+     After uploading share/ to Bunny, make both networks re-read this page once:
+       https://developers.facebook.com/tools/debug/   -> paste the URL -> "Scrape Again"
+       https://www.linkedin.com/post-inspector/       -> paste the URL -> "Inspect"
+     WhatsApp and Bluesky pick it up on their own. -->
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/walk.html">
 <meta property="og:title" content="Walking 250 miles from NYC to DC">
 <meta property="og:description" content="From May 23 to June 3, Syl Foisy walked from New York City to Washington, DC, hand-delivering nearly 300 letters from weather and climate scientists to Congress.">
-<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
-<meta property="og:image:width" content="1920">
-<meta property="og:image:height" content="1080">
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
+<meta property="og:image:secure_url" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Walking 250 miles from NYC to DC — a photo collage from the walk with the U.S. Capitol.">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Walking 250 miles from NYC to DC">
 <meta name="twitter:description" content="From May 23 to June 3, Syl Foisy walked from NYC to DC, hand-delivering nearly 300 letters from weather and climate scientists to Congress.">
-<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/full_scroll.png">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
+<meta name="twitter:image:alt" content="Walking 250 miles from NYC to DC — a photo collage from the walk with the U.S. Capitol.">
 <!-- =================================================== -->
 <link rel="icon" type="image/png" href="https://wesitefoisy1.b-cdn.net/favicon.png">
 <!-- Above the fold and loaded from CSS, so the browser would not otherwise find it until the
@@ -7451,7 +7476,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
           </div>
           <figcaption>The actual slip of paper that lived in my wallet during the full duration of the walk.</figcaption>
         </figure>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">That's enough preface from me thought--</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">That's enough preface from me though--</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Let's walk from NYC to DC!!</p>
         <h3 class="stop-head" id="jStopCentralPark" data-peek="Mile zero. The first steps, out of the park and down the length of Manhattan." data-peek-img="https://wesitefoisy1.b-cdn.net/update_thumb/Central%20Park.png">Central Park</h3>
         <p class="met">Manhattan, NY</p>

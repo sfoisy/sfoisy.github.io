@@ -8,18 +8,27 @@
 <meta name="color-scheme" content="dark">
 <!-- ===== Social share card (Open Graph + Twitter) =====
      The picture and the sentence a link to this page shows in a feed. The
-     same pair on every page of the site: the walk's own poster, and the one
-     headline the share buttons send as text -- so a link previews the same
+     same pair on every page of the site: this game's own title slide, and the
+     one headline the share buttons send as text -- so a link previews the same
      way whether it was pasted or shared from a button. -->
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Syl Foisy">
 <meta property="og:url" content="https://www.sylfoisy.com/quiz.html">
 <meta property="og:title" content="Check out Quiz Time: Climate Walk Trivia!">
 <meta property="og:description" content="A climate and weather trivia quiz built from fourteen interviews recorded on a 250-mile walk from NYC to DC.">
-<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png">
+<!-- The game's own title slide, fitted whole into 1200x630 (share/quiz_game.jpg, built by
+     make_share_cards.py) so Facebook and LinkedIn show all of it rather than cropping
+     the top and bottom off -- and so LinkedIn shows THIS picture and not a fallback. -->
+<meta property="og:image" content="https://wesitefoisy1.b-cdn.net/share/quiz_game.jpg">
+<meta property="og:image:secure_url" content="https://wesitefoisy1.b-cdn.net/share/quiz_game.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Quiz Time: Climate Walk Trivia — title card">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Check out Quiz Time: Climate Walk Trivia!">
 <meta name="twitter:description" content="A climate and weather trivia quiz built from fourteen interviews recorded on a 250-mile walk from NYC to DC.">
-<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/vid_game_backs/quiz_game.png">
+<meta name="twitter:image" content="https://wesitefoisy1.b-cdn.net/share/quiz_game.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
