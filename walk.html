@@ -8468,7 +8468,10 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       var name = isAnon ? 'Anonymous' : fName.value.trim(),
           body = fBody.value.trim();
       if(name.length < 1){ status.textContent = 'Add a name, or tick \u201cPost anonymously\u201d.'; return; }
-      if(body.length < 2){ status.textContent = 'Say a little more than that!'; return; }
+      if(body.length < 1){ status.textContent = 'Empty'; return; }
+      // The server turns away one-character comments, so catch that here too rather than let
+      // it come back as "That did not send".
+      if(body.length < 2){ status.textContent = 'Too short'; return; }
 
       submit.disabled = true;
       status.textContent = 'Sending\u2026';
