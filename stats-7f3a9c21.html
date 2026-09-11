@@ -50,12 +50,9 @@ a{ color:#2c62a8 }
 
   <div id="setup" class="card warn" hidden>
     <p class="note" style="margin:0">
-      <b>No counter connected yet.</b> These pages are static files on GitHub Pages, which has
-      no server to keep a tally on, so the count has to live somewhere that does. Pick a
-      counter service, then put its base URL in two places: <code>COUNTER</code> in the snippet
-      at the foot of each of the six pages, and <code>COUNTER</code> at the top of the script
-      in this file. Nothing else changes, and until then every page records nothing and breaks
-      nothing.
+      <b>No counter connected.</b> <code>COUNTER</code> at the top of the script in this file
+      is blank. It should be <code>https://comments.sylfoisy.workers.dev</code>, the same address
+      as the snippet at the foot of the six pages.
     </p>
   </div>
 
@@ -93,17 +90,16 @@ a{ color:#2c62a8 }
 
 <script>
 (function(){
-  /* Same value as the snippet at the foot of the six pages. Empty = nothing to read. */
-  var COUNTER = '';
+  /* The comments Worker keeps the tallies -- same address as the snippet at the foot of
+     the six pages. This page only works from sylfoisy.com: the Worker answers pages served
+     from the site, so a copy opened straight off the Desktop will show zeros. */
+  var COUNTER = 'https://comments.sylfoisy.workers.dev';
 
-  /* The six pages that carry the snippet. A key-value
-     counter cannot list its own keys, so every page has to be asked for by name: add a page
-     to the site, add its name here. The name is the file name without .html, which is what
-     the snippet sends.
-
-     `blog` is the whole blog -- blog.html, the page the home page's "See all blog posts"
-     button goes to. It was off the site for a round and its tally is unbroken across that,
-     because the key was never dropped from this list. */
+  /* Always shown, even at zero, so a page that nobody has opened yet still has a row.
+     Anything else that turns up in the tallies is added automatically -- unlike the old
+     key-value counter, this one can list its own keys, so nothing here has to be kept in
+     step with the site. Same for the referring sites: every one that has sent a visitor
+     is listed, not just the ones named in advance. */
   var PAGES = ['index', 'walk', 'blog', 'news', 'letters', 'quiz'];
 
   document.getElementById('when').textContent = new Date().toLocaleString();
@@ -111,65 +107,76 @@ a{ color:#2c62a8 }
   if(!COUNTER){ document.getElementById('setup').hidden = false; return; }
   document.getElementById('live').hidden = false;
 
-  /* One read per key. A counter service that can count can nearly always report, and the
-     shape of that report differs between them -- so the parsing is kept in one place: give
-     it whatever the service returns and it digs out the first number it finds. */
-  function read(key){
-    return fetch(COUNTER.replace(/\/$/, '') + '/get/' + encodeURIComponent(key))
-      .then(function(r){ return r.json(); })
-      .then(function(j){
-        if(typeof j === 'number') return j;
-        var v = j && (j.value !== undefined ? j.value : (j.count !== undefined ? j.count : 0));
-        return Number(v) || 0;
-      })
-      .catch(function(){ return 0; });
+  /* Built with textContent, never innerHTML. The page and referrer names come from
+     visitors' browsers; the Worker already strips them down to plain names, and this is
+     the second lock on the same door. */
+  function rows(el, pairs, top){
+    el.textContent = '';
+    if(!pairs.length){
+      var r0 = el.insertRow(), c0 = r0.insertCell();
+      c0.className = 'n'; c0.textContent = 'nothing yet';
+      return;
+    }
+    pairs.forEach(function(p){
+      var pct = top ? Math.round(p[1] / top * 100) : 0;
+      var r = el.insertRow();
+      var a = r.insertCell(); a.textContent = p[0];
+      var bar = document.createElement('div'); bar.className = 'bar';
+      var fill = document.createElement('i'); fill.style.width = pct + '%';
+      bar.appendChild(fill); a.appendChild(bar);
+      var b = r.insertCell(); b.className = 'n'; b.textContent = p[1].toLocaleString();
+    });
   }
+  function top(pairs){ return Math.max.apply(null, pairs.map(function(p){ return p[1]; }).concat([1])); }
 
-  function rows(el, pairs, total){
-    el.innerHTML = pairs.map(function(p){
-      var pct = total ? Math.round(p[1] / total * 100) : 0;
-      return '<tr><td>' + p[0] +
-             '<div class="bar"><i style="width:' + pct + '%"></i></div></td>' +
-             '<td class="n">' + p[1].toLocaleString() + '</td></tr>';
-    }).join('') || '<tr><td class="n">nothing yet</td></tr>';
-  }
+  fetch(COUNTER + '/stats', {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var c = (d && d.counters) || {};
+      var pages = {}, froms = {}, days = {};
+      PAGES.forEach(function(p){ pages[p] = 0; });
+      Object.keys(c).forEach(function(k){
+        var n = Number(c[k]) || 0, i = k.indexOf(':'), kind = k.slice(0, i), name = k.slice(i + 1);
+        if(kind === 'page') pages[name] = n;
+        else if(kind === 'from') froms[name] = n;
+        else if(kind === 'day') days[name] = n;
+      });
 
-  Promise.all(PAGES.map(function(p){ return read('page:' + p); })).then(function(counts){
-    var pairs = PAGES.map(function(p, i){ return [p, counts[i]]; })
-                     .sort(function(a, b){ return b[1] - a[1]; });
-    var total = counts.reduce(function(a, b){ return a + b; }, 0);
-    document.getElementById('total').textContent = total.toLocaleString();
-    rows(document.getElementById('pages'), pairs, Math.max.apply(null, counts.concat([1])));
-  });
+      var pagePairs = Object.keys(pages).map(function(k){ return [k, pages[k]]; })
+                            .sort(function(a, b){ return b[1] - a[1]; });
+      var total = pagePairs.reduce(function(a, p){ return a + p[1]; }, 0);
+      document.getElementById('total').textContent = total.toLocaleString();
+      rows(document.getElementById('pages'), pagePairs, top(pagePairs));
 
-  /* The referrers worth naming. A key-value counter cannot list its own keys, so the hosts
-     have to be asked for by name -- these are the ones a link to this site actually comes
-     from. Add any that start showing up in the wild. */
-  var HOSTS = ['direct', 't.co', 'x.com', 'bsky.app', 'reddit.com', 'news.ycombinator.com',
-               'facebook.com', 'instagram.com', 'linkedin.com', 'youtube.com', 'google.com',
-               'tiktok.com', 'mail.google.com', 'substack.com'];
-  Promise.all(HOSTS.map(function(h){ return read('from:' + h); })).then(function(counts){
-    var pairs = HOSTS.map(function(h, i){ return [h, counts[i]]; })
-                     .filter(function(p){ return p[1] > 0; })
-                     .sort(function(a, b){ return b[1] - a[1]; });
-    rows(document.getElementById('froms'), pairs,
-         Math.max.apply(null, counts.concat([1])));
-  });
+      var fromPairs = Object.keys(froms).map(function(k){ return [k, froms[k]]; })
+                            .filter(function(p){ return p[1] > 0; })
+                            .sort(function(a, b){ return b[1] - a[1]; });
+      rows(document.getElementById('froms'), fromPairs, top(fromPairs));
 
-  var days = [];
-  for(var i = 29; i >= 0; i--){
-    var d = new Date(); d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0, 10));
-  }
-  Promise.all(days.map(function(d){ return read('day:' + d); })).then(function(counts){
-    var peak = Math.max.apply(null, counts.concat([1]));
-    document.getElementById('spark').innerHTML = counts.map(function(c, i){
-      return '<i title="' + days[i] + ': ' + c + '" style="height:' +
-             Math.max(2, Math.round(c / peak * 52)) + 'px"></i>';
-    }).join('');
-    document.getElementById('sparkNote').textContent =
-      'Busiest day: ' + peak.toLocaleString() + ' views. Oldest bar ' + days[0] + ', newest today.';
-  });
+      /* Last 30 UTC days -- the same calendar the Worker files views under. */
+      var list = [];
+      for(var i = 29; i >= 0; i--){
+        list.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+      }
+      var counts = list.map(function(k){ return days[k] || 0; });
+      var peak = Math.max.apply(null, counts.concat([1]));
+      var spark = document.getElementById('spark');
+      spark.textContent = '';
+      counts.forEach(function(n, i){
+        var bar = document.createElement('i');
+        bar.title = list[i] + ': ' + n;
+        bar.style.height = Math.max(2, Math.round(n / peak * 52)) + 'px';
+        spark.appendChild(bar);
+      });
+      document.getElementById('sparkNote').textContent =
+        'Busiest day: ' + Math.max.apply(null, counts).toLocaleString() + ' views. Oldest bar ' +
+        list[0] + ', newest today (days are UTC). Hover a bar for its count.';
+    })
+    .catch(function(){
+      document.getElementById('total').textContent = '\u2014';
+      document.getElementById('sparkNote').textContent =
+        'Could not reach the counter. (This page only works from sylfoisy.com, not from a file on your computer.)';
+    });
 })();
 </script>
 </body>

@@ -11251,18 +11251,19 @@ if(!raf) raf = requestAnimationFrame(tick);
      terms and private paths. Same-site hops (walk -> quiz) resolve to "direct",
      since they are not a new arrival.
 
-     WHERE IT SENDS IT: --COUNTER-- below. A static site on GitHub Pages has no
-     server of its own, so the count has to live somewhere that does; stats.html
-     reads back from the same place. Set it once, in every file, or leave it as
-     it stands and the page records nothing and breaks nothing -- the fetch is
-     wrapped and the failure is silent, because a reader should never see a
-     counter fall over.
+     WHERE IT SENDS IT: the comments Worker (comments.sylfoisy.workers.dev),
+     which keeps the tallies in the walk-comments D1 database; the stats page
+     reads them back from the same place. A static site on GitHub Pages has no
+     server of its own, so the count has to live somewhere that does. If the
+     Worker is ever down the fetch fails silently -- a reader should never see
+     a counter fall over.
 
      It runs after load and out of the way of everything else: a counter is the
      least important thing on any of these pages. -->
 <script>
 (function(){
-  var COUNTER = '';           /* <-- your counter's base URL. Empty = count nothing. */
+  /* The comments server doubles as the counter -- see /view in comments-worker.js. */
+  var COUNTER = 'https://comments.sylfoisy.workers.dev';
   var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
 
   function source(){
@@ -11273,18 +11274,16 @@ if(!raf) raf = requestAnimationFrame(tick);
     }catch(e){ return 'direct'; }
   }
 
-  function bump(key){
+  /* ONE request per view. The server files it three ways -- the page, the site the
+     visitor came from, and today's date (UTC, decided by the server, so a visitor
+     with a wrong clock cannot put a view on the wrong day). */
+  function go(){
     if(!COUNTER) return;
     try{
-      fetch(COUNTER.replace(/\/$/, '') + '/hit/' + encodeURIComponent(key),
-            { mode:'no-cors', keepalive:true }).catch(function(){});
+      fetch(COUNTER.replace(/\/$/, '') + '/view?page=' + encodeURIComponent(PAGE) +
+            '&from=' + encodeURIComponent(source()),
+            { mode:'no-cors', keepalive:true, cache:'no-store' }).catch(function(){});
     }catch(e){}
-  }
-
-  function go(){
-    bump('page:' + PAGE);                       /* views of this page          */
-    bump('from:' + source());                   /* where the visitor came from */
-    bump('day:' + new Date().toISOString().slice(0,10));   /* views per day    */
   }
 
   if(document.readyState === 'complete') setTimeout(go, 0);
