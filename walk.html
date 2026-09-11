@@ -6234,6 +6234,19 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
   transform:scaleX(0); transform-origin:left center;
   transition:transform .35s cubic-bezier(.25,.8,.3,1);
 }
+/* ===== CONTINUOUS AGAIN ====================================================
+   Back to a bar that simply runs: a short bright stroke sweeping the track, over and over,
+   for as long as the sheet is up. The measured bar above answered "how much longer", but its
+   honest answer was often "stuck at 60% while one photograph finishes" -- a bar that stalls
+   reads as a page that has stalled. A continuous sweep says only that something is happening,
+   which is always true. (The measuring script no longer runs; the rule above is kept so going
+   back is deleting this block and restoring one line -- see requestAnimationFrame(measure).) */
+.pl-bar i{
+  width:36%; transform-origin:left center; transition:none;
+  animation:plRun 1.15s cubic-bezier(.45,0,.3,1) infinite;
+}
+@keyframes plRun{ 0%{ transform:translateX(-105%) } 100%{ transform:translateX(285%) } }
+@media(prefers-reduced-motion:reduce){ .pl-bar i{ animation:none; width:100%; transform:none; opacity:.55 } }
 
 /* ===== The sheet's backdrop =================================================
    NO PHOTOGRAPH. There was one -- startt.png, preloaded at high priority, pushing in slowly
@@ -6726,7 +6739,10 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     if(gone) return;
     gone = true;
     root.classList.remove('pre-lock');
-    if(window.pageYOffset !== lockY) window.scrollTo(0, lockY);
+    /* ...unless the page was opened AT an interview (walk.html?v=<name>): that link has put the
+       reader on the clip while the sheet was still up, and this line would take them back to
+       the top. See "STRAIGHT TO AN INTERVIEW". */
+    if(!window.__intDeep && window.pageYOffset !== lockY) window.scrollTo(0, lockY);
     root.classList.add('pre-gone');
     // Out of the layout and out of the accessibility tree once the fade has finished. Left
     // merely transparent it would still be a full-screen element sitting over the page.
@@ -6776,7 +6792,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     paint(Math.min(0.96, parse * 0.45 + pics * 0.40 + floor * 0.15));
     if(!gone) requestAnimationFrame(measure);
   }
-  requestAnimationFrame(measure);
+  /* requestAnimationFrame(measure); -- the bar runs continuously now; see "CONTINUOUS AGAIN". */
 
   function liftWhenDue(){
     /* Full, and a beat to see it full. A bar that vanishes at 93% leaves the reader
@@ -7451,7 +7467,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/hikaruu.mp4" type="video/mp4">
         </video>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">I couldn't think of a better way to start the walk than with Hikaru's interview-- serving as a reminder that science is only as useful as it is understood. Inspired by Hikaru’s interview, this website is actively being translated into five languages: Malagasy, Spanish, French, Bengali, and Mandarin.</p>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Towards the end of Hikaru's interview, the rain started to pick up. To see just how hard the rain was falling, you can click the button below to see the exact radar at this moment, and throughout the walk! The yellow-red colors represent heavier rain. Click "Loop" multiple times to change the playback speed, or view a specific timeframe using the slider!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Towards the end of Hikaru's interview, the rain started to pick up. To see just how hard the rain was falling, you can click the button below to see the exact radar at this moment, and throughout the walk, courtesy of <a href="https://www.ncei.noaa.gov/maps/radar/" target="_blank" rel="noopener">NOAA National Centers for Environmental Information</a> data! The yellow-red colors represent heavier rain. Click "Loop" multiple times to change the playback speed, or view a specific timeframe using the slider!</p>
         <p class="wx-poke-wrap"><button type="button" class="wx-poke" data-wx="radar"
           data-on="Radar is on — turn it off" data-off="Plot radar on the map">
           <span class="wxp-ic" aria-hidden="true">&#127786;</span><span class="wxp-lab">Plot radar on the map</span>
@@ -7499,7 +7515,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Allegra's interview was meaningful for a number of reasons, perhaps most of all to me because it demonstrated how creative weather and climate scientists can be in their quest to study Earth's past. The fact that shells of creatures at the bottom of the ocean hold secrets about what the temperature was like up to billions of years ago is nothing short of mind blowing. After Allegra’s video, much of the group departed, with the rain picking up in intensity and the Upper Bay in sight, indicating the end of the Manhattan walking stretch. Just a handful of hardy folks continued with me across the Staten Island ferry to begin the next stretch of land.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Staten Island brought a new vibe, with lovely sidewalks and conversation drifting toward atmospheric radiation-- the study of how sunlight travels through Earth’s atmosphere. After an hour of animated lightwave discussion, the group had dwindled to just two: myself and co-Livestream organizer Virginia Schutte. Fortunately, we found some company at Mile 15, where we were introduced to what I like to think was Howard Fox, the turkey. (Who knew Staten Island had turkeys?!)</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/turkey.png" alt="A turkey on Staten Island">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Virginia and I chugged along until we reached a marathon's distance, and called it a day at the sight of an appealing looking restaurant called Cucumber Sushi &amp; Salad Bar. Just before dinner, Virginia and I had our first introduction to the highly anticipated Content Bus-- which Miriam had picked up from Brooklyn and driven to meet us in. The rain had soaked through our clothes, so we were both freezing, and very grateful to be able to warm up over a nice meal. See how cold it was by clicking the temperature button below...</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Virginia and I chugged along until we reached a marathon's distance, and called it a day at the sight of an appealing looking restaurant called Cucumber Sushi &amp; Salad Bar. Just before dinner, Virginia and I had our first introduction to the highly anticipated Content Bus-- which Miriam had picked up from Brooklyn and driven to meet us in. The rain had soaked through our clothes, so we were both freezing, and very grateful to be able to warm up over a nice meal. See how cold it was by clicking the temperature button below... data courtesy of <a href="https://www.ncei.noaa.gov/cdo-web/" target="_blank" rel="noopener">Climate Data Online</a> from NOAA's National Centers for Environmental Information!</p>
         <p class="wx-poke-wrap"><button type="button" class="wx-poke" data-wx="temp"
           data-on="Temperature is on — turn it off" data-off="Plot temperature on the map">
           <span class="wxp-ic" aria-hidden="true">&#127777;</span><span class="wxp-lab">Plot temperature on the map</span>
@@ -7552,7 +7568,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <p class="met">North Brunswick, NJ</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">The next morning, I got my earliest start yet (8:00 AM), and I began my traverse through the North Brunswick area of New Jersey, filled with wildlife and forest land-- the first truly rural portion of the trip. In this stretch, I saw people fishing, running, and enjoying the outdoors, and personally, it was really nice to take a few moments to re-set and center myself next to the flowing water of Davidson's Mill Pond Park.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/davidson.png" alt="Davidson’s Mill Pond Park">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">I also saw the first wildlife of the trip-- watch the video below to see!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">I also saw the second wildlife of the trip, following the Staten Island turkey-- watch the video below to see!</p>
         <video data-srt="https://wesitefoisy1.b-cdn.net/non_interview_vid_edits/new_jersey_wildlife.srt" poster="https://wesitefoisy1.b-cdn.net/updated_titles_noninterviews_blog/new_jersey_wildlife.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/a__new_non_ints/new_jersey_wildlife.mp4" type="video/mp4">
         </video>
@@ -7564,9 +7580,9 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       <div class="j-card" data-peek="A Legion hall in South Brunswick." data-peek-img="">
         <h3 class="stop-head" id="stop-6" data-peek-img="https://wesitefoisy1.b-cdn.net/update_thumb/american%20legion.png">Lt. John Farnkopf American Legion</h3>
         <p class="met">South Brunswick, NJ</p>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After continuing a few miles down the road from Crossroads South Middle School, I was surprised to see an open door with a sign that said “Come on in!” and the smell of food... a walker’s dream. How could I not walk in? As it turns out, a Memorial Day ceremony had just ended at the Lt. John Farnkopf American Legion Post 401, and a reception was well underway. I walked in a bit hesitantly, but was quickly welcomed by a few organizers, and before I knew it, I was being provided with water bottles, snacks, and even a warm meal for the road. Inspired by the generosity of the folks, and gave out nearly 20 livestream stickers as a token of my appreciation.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After continuing a few miles down the road from Crossroads South Middle School, I was surprised to see an open door with a sign that said “Come on in!” and the smell of food... a walker’s dream. How could I not walk in? As it turns out, a Memorial Day ceremony had just ended at the Lt. John Farnkopf American Legion Post 401, and a reception was well underway. I walked in a bit hesitantly, but was quickly welcomed by a few organizers, and before I knew it, I was being provided with water bottles, snacks, and even a warm meal for the road. Inspired by the generosity of the folks, I gave out nearly 20 livestream stickers as a token of my appreciation.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/legion_fix.png" alt="The Legion hall in South Brunswick">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">During my time at the reception, I chatted with folks about my favorite ice nucleation bacteria, and the mission of the walk I was on. Many could not believe I had started in Central Park just a few days prior! I was very grateful for this stop, and it was one of the more memorable ones on the trip. It was also an honor to pay my respects for those who had served, and to their families.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">During my time at the reception, I chatted with folks about my favorite ice nucleating bacteria, and the mission of the walk I was on. Many could not believe I had started in Central Park just a few days prior! I was very grateful for this stop, and it was one of the more memorable ones on the trip. It was also an honor to pay my respects for those who had served, and to their families.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After the Legion, I continued the journey south, where I filmed the first and only timelapse video of the trip, using a GoPro Virginia kindly lent me. In the video, you'll hear one of my Mom's fiddle tunes, which I was listening to on this section! In the beginning of the video, you can also see a point of view of me filming a <a href="https://youtu.be/IHwXHCu-Yh0?si=O4ONsGqWehGAMVRz" target="_blank" rel="noopener">short video on ice nucleating bacteria</a>-- a video made better from the feedback I received from the folks at the Legion whom I had practiced on a few miles before. (They were so kind to me!)</p>
         <video poster="https://wesitefoisy1.b-cdn.net/updated_titles_noninterviews_blog/east_bruns_up.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/a__new_non_ints/east_bruns.mp4" type="video/mp4">
@@ -7576,9 +7592,9 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/non_interview_vid_edits/sun_ray.srt" poster="https://wesitefoisy1.b-cdn.net/updated_titles_noninterviews_blog/sun_ray.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/a__new_non_ints/sun_ray.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Upon my arrival, I was truly exhausted, as some of the early adrenaline had started to wear off. Fortunately, a GFDL scientist, Dr. Nadir Jeevanjee, offered to host me nd the rest of the content crew for a night, which boosted my spirits in a major way. Below, you can see an image of me editing the ice nucleating bacteria video I mentioned, while rolling out my back at Nadir's house!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Upon my arrival, I was truly exhausted, as some of the early adrenaline had started to wear off. Fortunately, a GFDL scientist, Dr. Nadir Jeevanjee, offered to host me and the rest of the content crew for a night, which boosted my spirits in a major way. Below, you can see an image of me editing the ice nucleating bacteria video I mentioned, while rolling out my back at Nadir's house!</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/udate_nadir.png" alt="With Nadir Jeevanjee">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Arriving at Nadir's house was wonderful for a multitude of reasons, two of which want to highlight here. Firstly, Dr. Andrew Williams -- lead organizer of the WC Livestream, incoming Columbia University Earth Science Professor, and person who helped inspire this entire walk -- arrived to join me for the following day's walk.  Secondly, we all had an incredible daal dinner provided by Nadir and his family-- the best meal by far of the trip.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Arriving at Nadir's house was wonderful for a multitude of reasons, two of which I want to highlight here. Firstly, Dr. Andrew Williams -- lead organizer of the WC Livestream, incoming Columbia University Earth Science Professor, and person who helped inspire this entire walk -- arrived to join me for the following day's walk.   Secondly, we all had an incredible daal dinner provided by Nadir and his family-- the best meal by far of the trip.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">1/5th of the walk done!!</p>
       </div>
     </div>
@@ -7597,12 +7613,12 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/tim.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/tim.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/timm.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Tim's interview was thrilling, and was a great example in my opinion of the serendipity of research. Namely, building climate models for Earth has helped us better identify which planets throughout the universe may house life! Another highlight was how he meticulously breaks down how counter-factual scientific inquiries are made possible by employing models. With these two incredible GFDL completed, the next was with Bernadette Woods Placky, a globally acclaimed meteorologist and climate expert. Watch Interview #6 ft. Bernadette below!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Tim's interview was thrilling, and was a great example in my opinion of the serendipity of research. Namely, building climate models for Earth has helped us better identify which planets throughout the universe may house life! Another highlight was how he meticulously breaks down how counter-factual scientific inquiries are made possible by employing models. With these two incredible GFDL interviews completed, the next was with Bernadette Woods Placky, a globally acclaimed meteorologist and climate expert. Watch Interview #6 ft. Bernadette below!</p>
         <!-- Interview: Bernadette Woods Placky -->
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/bernadette.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/bernadette.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/bernadette.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Bernadette has been a hero of mine for a few years, so this interview was extra special. Additionally, I think her interview was an amazing example of how collaborative the weather forecasting process is-- you need input from observations, models, and interpretations from experienced humans working together to create the very best forecasts. This seamless collaboration that occurs behind the scenes is undoubtedly a great example of why the US has been a world leader in weather and climate science for all these years. Lastly, in honor of Bernadette's pro tip about paying attention to dew point, I've added in a feature to visualize the dew point for each and every moment of the walk below.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Bernadette has been a hero of mine for a few years, so this interview was extra special. Additionally, I think her interview was an amazing example of how collaborative the weather forecasting process is-- you need input from observations, models, and interpretations from experienced humans working together to create the very best forecasts. This seamless collaboration that occurs behind the scenes is undoubtedly a great example of why the US has been a world leader in weather and climate science for all these years. Lastly, in honor of Bernadette's pro tip about paying attention to dew point, I've added in a feature to visualize the dew point for each and every moment of the walk below, with data again courtesy of <a href="https://www.ncei.noaa.gov/cdo-web/" target="_blank" rel="noopener">Climate Data Online</a> from NOAA's National Centers for Environmental Information!</p>
         <p class="wx-poke-wrap"><button type="button" class="wx-poke" data-wx="dwpt"
           data-on="Dew point is on — turn it off" data-off="Plot dew point on the map">
           <span class="wxp-ic" aria-hidden="true">&#128167;</span><span class="wxp-lab">Plot dew point on the map</span>
@@ -7751,7 +7767,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/andra.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/andra.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/andra.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Andra's interview was impactful in many ways, one being that she described a very local application of climate research, bringing it home to the northeast US. It was also poignant how Andra describes how federal budget cuts now will most certainly shrink the amount of people working on weather and climate research for years to come. Following Andra’s interview was Dr. Lauren Kipp, also a professor at Rowan University, and a world leading expert in chemical oceanography. Watch Interview #10 ft. Lauren below!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Andra's interview was impactful in many ways, one being that she described a very local application of climate research, bringing it home to the east US. It was also poignant how Andra describes how federal budget cuts now will most certainly shrink the amount of people working on weather and climate research for years to come. Following Andra’s interview was Dr. Lauren Kipp, also a professor at Rowan University, and a world leading expert in chemical oceanography. Watch Interview #10 ft. Lauren below!</p>
         <!-- Interview: Dr. Lauren Kipp -->
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/lauren.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/lauren.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/lauren.mp4" type="video/mp4">
@@ -7779,8 +7795,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/charles.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/charles.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/charles.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">To hear Charles’s echo the concerns from Lauren 21 miles prior regarding the potential OMB changes was powerful, specifically his point about the potential consequences for the grant-allocating process. Additionally, learning about Charles research was incredible; his work serving as a tangible example of how scientific inquiry can lead to local climate change solutions. Following the interviews, Charles, Virginia, and their kids parted ways, while the content crew headed back to my aunt's house for another night in Delaware. At my aunt's house, we were delighted to be taken care of by Luis the dog, providing a boost for the final few days of this long, long adventure. I love this photo of Miriam and Louis!</p>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Following the interviews, Charles, and their kids parted ways, while the content crew headed back to my aunt's house for another night in Delaware. At my aunt's house, we were delighted to be taken care of by Luis the dog, providing a boost for the final few days of this long, long adventure!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">To hear Charles’s echo the concerns from Lauren 21 miles prior regarding the potential OMB changes was powerful, specifically his point about the potential consequences for the grant-allocating process. Additionally, learning about Charles research was incredible; his work serving as a tangible example of how scientific inquiry can lead to local climate change solutions. Following the interviews Charles  and the kids parted ways, while the content crew headed back to my aunt's house for another night in Delaware. At my aunt's house, we were delighted to be taken care of by Luis the dog, providing a boost for the final few days of this long, long adventure. I love this photo of Miriam and Louis!</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/louis.png" alt="Outside Wilmington">
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Five days to go!</p>
       </div>
@@ -7795,7 +7810,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/kelsey.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/kelsey.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/kelseyy.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Notable, Kelsey details an early experience with the NOAA Earth Systems Research Lab, that in large part helped her become the scientist she is today. Hearing this testimony was extremely topic, given the point Andra had made in her interview 21 miles prior-- i.e. how losing federal funding now will likely reduce the number of future climate scientists. Secondly, I found there to be many parallels with Becki's interview, with regards to the cutting edge science Kelsey does, downstream of the climate models being built by federal laboratories such as the National Center for Atmospheric Research (NCAR). Through these interviews, it became more and more clear to me how important this relationship between federal labs and universities really is, and what we stand to lose if we cut funding to these labs.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Notable, Kelsey details an early experience with the NOAA Earth Systems Research Lab, that in large part helped her become the scientist she is today. Hearing this testimony was extremely topical, given the point Andra had made in her interview 21 miles prior-- i.e. how losing federal funding now will likely reduce the number of future climate scientists. Secondly, I found there to be many parallels with Becki's interview, with regards to the cutting edge science Kelsey does; research in large part made possible downstream of federally funded climate models, such as the National Center for Atmospheric Research (NCAR). Through these interviews, it became more and more clear to me how important this relationship between federal funding and universities really is, and what we stand to lose if we cut funding.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After Kelsey's interview, she was kind to treat me and the content crew to some coffee, which kept me awake for the next 13 miles, as I made my way out of Newark, and into Maryland-- the 4th state crossing of the trip! In Maryland, I navigated the Elk Mills sidewalks into North East, where I had yet another fun chance encounter with Leo, of Leo's Smash Burgers &amp; Dogs.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/smash.png" alt="Leo’s Smash Burgers &amp; Dogs">
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After the re-fueling from Leo's, I trudged along for the final seven miles of the day, through Charlestown, and eventually to Perryville near the shores of the Susquehanna River-- the third major river crossing I'd face on the trip. To see firsthand what the miles between the Kelsey interview and the Susquehanna shore were like, see below.</p>
@@ -7848,12 +7863,12 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/skiny.png" alt="On the road into Baltimore County">
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Secondly, the two workers who checked me out proved to be extremely kind, and gave me a big boost of energy going into the final two days of the walk!</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/hotellk.png" alt="WoodSpring Suites, Nottingham">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">As I departed WoodSpring Suites and headed southwest, I was feeling a bit more ambitious than usual, with 30 miles planned on the day. That ambition proved even greater than I had imagined, and I somehow found myself walking 52 miles coninuously, the 2nd most I have ever walked in a day! I past through Nottingham, Rossville, Overlea, Frankford, Belair-Edison, Baltimore, Arbutus, Elkridge, Jessup, Savage, Laurel, Beltsville, and eventually into College Park, the site of the final two interviews of the walk the following day. To see some clips of this double marathon effort, see below!</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">As I departed WoodSpring Suites and headed southwest, I was feeling a bit more ambitious than usual, with 30 miles planned on the day. That ambition proved even greater than I had imagined, and I somehow found myself walking 52 miles continuously, the 2nd most I have ever walked in a day! I past through Nottingham, Rossville, Overlea, Frankford, Belair-Edison, Baltimore, Arbutus, Elkridge, Jessup, Savage, Laurel, Beltsville, and eventually into College Park, the site of the final two interviews of the walk the following day. To see some clips of this double marathon effort, see below!</p>
         <video data-srt="https://wesitefoisy1.b-cdn.net/non_interview_vid_edits/day_10.srt" poster="https://wesitefoisy1.b-cdn.net/day_10_fix.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/a__new_non_ints/day_10.mp4" type="video/mp4">
         </video>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Miriam was an incredible support crew member-- staying up until 3 AM, picking me up, and bringing me back to her incredibly generous uncle’s house in Bethesda, MD-- our home base for the final few days of the trip.</p>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">While finishing the 52 mile was a big highlight, it was not the most memorably thing that happened on the day. The most belonged to the 2nd annual WC Livestream kickoff that happened at 3:00 PM, 12 hours earlier! While I was busy with the walk, Jonah, Andrew, Miriam, and Virginia were busy hosting and spearheading the livestream at Miriam's uncle's house, where weather and climate experts from across the US began to share their science in real-time. If you have enjoyed the expert interviews featured in this walk, you can find 50 more hours of video footage from various experts linked here. :) (here text link to https://www.youtube.com/live/v64jhYUkL8g?si=6Crn9DGgDy29P0-e please)</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">While finishing the 52 mile was a big highlight, it was not the most memorable thing that happened on the day. That belonged to the 2nd annual WC Livestream kickoff that happened at 3:00 PM, 12 hours earlier! While I was busy with the walk, Jonah, Andrew, Miriam, and Virginia were busy hosting and spearheading the livestream at Miriam's uncle's house, where weather and climate experts from across the US began to share their science in real-time. If you have enjoyed the expert interviews featured in this walk, you can find 50 more hours of video footage from various experts linked <a href="https://www.youtube.com/live/v64jhYUkL8g?si=6Crn9DGgDy29P0-e" target="_blank" rel="noopener">here</a>. :)</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">While the livestream kicking off was incredibly exciting, another development was underway, namely, details were becoming finalized regarding my letter handoff to members of Congress. If it's not obvious by now, I wasn't actually carrying the 300 letters I ended up delivering to Congress, but rather, members of the WC Livestream team, led by Marc Alessi and Virginia Schutte, were leading letter collection efforts virtually and preparing for them to be printed off in time for the press conference handoff. As I returned home in the Content Bus at 3:00 AM, I received word from Miriam that the press conference details had been confirmed: I was to meet seven members of Congress at the House Triangle at 2:00 PM on June 3rd, where I was to give a speech about my walk, and hand off the letters upon my arrival. Additionally, speakers from the American Geophysical Union (AGU) -- the country’s largest nonprofit organization of Earth and space scientists -- along with WC Livestream organizers and members of Congress, would give speeches.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">I couldn't quite believe all of this was transpiring, and having walked 52 miles, I half wondered if I was dreaming all of this!</p>
       </div>
@@ -7906,7 +7921,6 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         </video>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Ross's interview was incredible for many reasons, but one big takeaway I had was how scientific inquiry regarding atmospheric aerosols has led to much cleaner air for the citizens of Maryland to breathe. I thought this was an amazing perspective to have, complementing the sentiment shared from both the firefighters 115 miles prior, and Allison's NCA video; weather and climate research benefits all Americans. It was also jarring to hear Ross describe having no knowledge of when future funding opportunities will emerge, serving as a reminder of the purpose of this walk, and the urgency of the situation.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">On a non-science related note, I also would be remiss without noting that Ross was an incredible host, <a href="https://chem.umd.edu/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener">showing me around the University of Maryland campus</a>, and buying me ice cream. He was extremely kind to take time out of his day for this, to which I am extremely grateful! The second interview at University of Maryland, and the final (!) interview of the walk, was with Dr. Rob Levy, a world leading expert on atmospheric aerosols. Watch Interview #14 ft. Rob below!</p>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">The second interview at University of Maryland, and the final (!) interview of the walk, was with Dr. Rob Levy, a world leading expert on atmospheric aerosols. Watch Interview #14 ft. Rob below!</p>
         <!-- Interview: Dr. Rob Levy -->
         <video data-srt="https://wesitefoisy1.b-cdn.net/int_fast/rob.srt" poster="https://wesitefoisy1.b-cdn.net/new_int_titles/rob.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/int_fast/rob.mp4" type="video/mp4">
@@ -7915,7 +7929,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <video data-srt="https://wesitefoisy1.b-cdn.net/non_interview_vid_edits/day_11_new.srt" poster="https://wesitefoisy1.b-cdn.net/updated_titles_noninterviews_blog/day_11.png" class="j-card-video" style="aspect-ratio:16/9;background:#000;" controls="" preload="none" playsinline="">
           <source src="https://wesitefoisy1.b-cdn.net/non_interview_vid_edits/day_11_new.mp4" type="video/mp4">
         </video>
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After making it to Fairmont Street, myself and the content crew headed back to Miriam's uncle's house, where the 50 Livestream continued into it's second day. It was a real treat to watch some talks, but I quickly found myself needing sleep, so I headed to bed extra early, and prepared for the final day of the walk.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After making it to Fairmont Street, myself and the content crew headed back to Miriam's uncle's house, where the 50 hour Livestream continued into it's second day. It was a real treat to watch some talks, but I quickly found myself needing sleep, so I headed to bed extra early, and prepared for the final day of the walk.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Tomorrow was going to be epic!!</p>
         <!-- THE day break, and now the only one. The article runs on paragraphs the whole
              way down, so the one place the story genuinely stops for breath -- the night
@@ -7973,7 +7987,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         </video>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">After my speech, I handed the nearly 300 letters (many of which were virtually sent in, and kindly printed out by Marc Alessi and Jonah beforehand ;) directly into the hands of the members of Congress. It was one of the most surreal moments of my life, and I was filled with gratitude... and exhaustion. After conveying my extreme gratitude to the folks who showed up for me, I returned to Miriam’s uncle’s house, where I refueled, and where the 50 hour livestream of science continued on strong for it's final few hours.</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/working_it.png" alt="Handing over the letters">
-        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">The Livestream was a smashing success, featuring countless brilliant speakers, and brilliant hosts. While I didn't have too much time during walk to view it, I have since loved watching through the weather and climate science talks, and I highly recommend the stream to anyone who missed it (<a href="https://www.youtube.com/live/v64jhYUkL8g?si=O2Z9DaFSxxbQsFMM" target="_blank" rel="noopener">Link here</a>). At 5:00 PM, June 3rd, the Livestream ended, with a recap video of my walk, incredibly put together by Miriam in just one short afternoon (<a href="https://www.youtube.com/live/TzOi_kvajnc?si=Ltx5iaShia_o9Ypn&amp;t=39293" target="_blank" rel="noopener">see here</a>). With that, the Livestream, and the NYC to DC walk, had concluded.</p>
+        <p class="ph-note" style="text-align:left;margin-top:1.5rem;">The Livestream was a smashing success, featuring countless brilliant speakers, and brilliant hosts. While I didn't have too much time during the walk to view it, I have since loved watching through the weather and climate science talks, and I highly recommend the stream to anyone who missed it (<a href="https://www.youtube.com/live/v64jhYUkL8g?si=O2Z9DaFSxxbQsFMM" target="_blank" rel="noopener">Link here</a>). At 5:00 PM, June 3rd, the Livestream ended, with a recap video of my walk, incredibly put together by Miriam in just one short afternoon (<a href="https://www.youtube.com/live/TzOi_kvajnc?si=Ltx5iaShia_o9Ypn&amp;t=39293" target="_blank" rel="noopener">see here</a>). With that, the Livestream, and the NYC to DC walk, had concluded.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">There is far too much to unpack with words here, but if you feel inclined, I've written out some reflections in the following section, as this story reaches it's close. :)</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">THE END</p>
       </div>
@@ -27768,37 +27782,49 @@ function goBack(e){
   window.__intDeep = true;
   var stopped = false;
   ['wheel','touchstart','keydown'].forEach(function(n){
-    window.addEventListener(n, function(){ stopped = true; }, {capture:true, passive:true, once:true});
+    window.addEventListener(n, function(){
+      if(document.documentElement.classList.contains('pre-gone')) stopped = true;   // not while the sheet is up
+    }, {capture:true, passive:true});
   });
+  /* UNDER THE LOADING SHEET, NOT AFTER IT. This used to wait for `load` and then travel --
+     so the sheet lifted onto the top of the article, and a beat later the page jumped to the
+     clip. Now the stop is opened and the clip centred as soon as the article exists
+     (DOMContentLoaded), while the sheet is still covering it, and re-centred as pictures above
+     it arrive; the sheet's own lift leaves the position alone (see lift()). When the sheet goes,
+     the reader is already looking at the interview. Re-centring stops for good the moment they
+     move the page themselves, and a couple of seconds after the sheet has gone. */
+  function centre(v){
+    var w = v.closest('.video-share-wrap') || v;
+    var sc = document.body.classList.contains('stop-modal') ? v.closest('.j-body') : null;
+    var r = w.getBoundingClientRect();
+    if(!r.height) return;
+    if(sc){
+      var vr = sc.getBoundingClientRect();
+      sc.scrollTop += (r.top + r.height / 2) - (vr.top + vr.height / 2);
+    }else{
+      window.scrollTo({ top: Math.max(0, window.pageYOffset + r.top + r.height / 2 - window.innerHeight / 2), behavior:'auto' });
+    }
+  }
   function go(){
     var v = findVid(); if(!v) return;
     var sect = v.closest('.j-sect');
     if(sect){
       var r0 = sect.getBoundingClientRect();
       window.scrollTo({ top: Math.max(0, window.pageYOffset + r0.top - 140), behavior:'auto' });
+      if(!sect.classList.contains('is-open') && sect._jpOpen) sect._jpOpen();
     }
-    setTimeout(function(){
-      if(sect && !sect.classList.contains('is-open') && sect._jpOpen) sect._jpOpen();
-      var n = 0;
-      (function centre(){
-        if(stopped) return;
-        var w = v.closest('.video-share-wrap') || v;
-        var sc = document.body.classList.contains('stop-modal') ? v.closest('.j-body') : null;
-        var r = w.getBoundingClientRect();
-        if(r.height){
-          if(sc){
-            var vr = sc.getBoundingClientRect();
-            sc.scrollTop += (r.top + r.height / 2) - (vr.top + vr.height / 2);
-          }else{
-            window.scrollTo({ top: Math.max(0, window.pageYOffset + r.top + r.height / 2 - window.innerHeight / 2), behavior:'auto' });
-          }
-        }
-        if(++n < 8) setTimeout(centre, 320);
-      })();
-    }, 700);
+    var t0 = Date.now();
+    (function loop(){
+      if(stopped) return;
+      centre(v);
+      var lifted = document.documentElement.classList.contains('pre-off');
+      if(!lifted || Date.now() - t0 < 2500) setTimeout(loop, lifted ? 350 : 200);
+      else if(!loop._last){ loop._last = true; setTimeout(loop, 1200); }
+    })();
+    window.addEventListener('load', function(){ if(!stopped) centre(v); });
   }
-  if(document.readyState === 'complete') setTimeout(go, 300);
-  else window.addEventListener('load', function(){ setTimeout(go, 300); });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(go, 30); });
+  else setTimeout(go, 30);
 })();
 </script>
 <script>

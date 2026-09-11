@@ -1424,6 +1424,9 @@ video.cue-native::cue{
 .hub-filter button:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 .card-grid.hub-grid > .card-slot.is-filtered{ display:none !important }
 /* Under each clip: the conversation's place in the walk. And the references, under the bio. */
+.post-capacity{ text-align:center; margin:0 0 .7rem; font-size:.9rem; opacity:.85 }
+.post-capacity em{ font-style:italic }
+.about-bio a{ color:#fff; text-decoration:underline; text-underline-offset:2px }
 .post-walk-link{ text-align:center; margin:.9rem 0 0 }
 .post-walk-link a{ color:#fff; font:600 .88rem 'DM Sans',sans-serif; text-decoration:underline;
   text-underline-offset:3px; opacity:.9 }
@@ -1600,20 +1603,20 @@ function toggleMenu(){
    them; read by openPost in place of the standing bio. */
 var REFS_URL = 'https://docs.google.com/document/d/1wQbCDFdjvVtc-DxAlOxbDbg4xHH69AhzCGtf6rKLX2c/edit?tab=t.0';
 var PERSON_BIO = {
- "hikaru": "Hikaru Wakeel Hayakawa is the executive director of Climate Cardinals, and a friend of mine (and of co-organizer Berenize Garcia Nueva) from college, so meeting him at City Hall Park for the opening interview of the walk was a really fun reunion. I couldn't think of a better way to start the walk than with Hikaru's interview: a reminder that science is only as useful as it is understood. Inspired by our conversation, the walk's website is now being translated into five languages — Malagasy, Spanish, French, Bengali, and Mandarin.",
- "allegra": "Dr. Allegra LeGrande is a world-renowned expert in past Earth climates — perhaps the most on-brand expert of the entire project — and helps organize Hike the Heights. We met in the rain at Battery Park for interview #2. Her interview was meaningful to me most of all because it showed how creative weather and climate scientists can be in their quest to study Earth's past: the fact that the shells of creatures at the bottom of the ocean hold secrets about what the temperature was like up to billions of years ago is nothing short of mind-blowing.",
- "alan": "Dr. Alan Robock is a professor at Rutgers University and a world-leading expert in nuclear winter research and all things climate. We drove a little off the walking path to meet him at the Monmouth Battle Monument in Freehold, NJ, and I was thrilled he was able to work us into his schedule. His interview was meaningful to me for a number of reasons, most of all because of how strongly he believes — and has demonstrated — the importance of scientists speaking out when they discover a potential danger to society.",
+ "hikaru": "Hikaru Wakeel Hayakawa is the executive director of Climate Cardinals, and a friend of mine from college, so meeting him at City Hall Park for the opening interview of the walk was a really fun reunion. I couldn't think of a better way to start the walk than with Hikaru's interview: a reminder that science is only as useful as it is understood. Inspired by our conversation, the walk's website is now being translated into five languages — Malagasy, Spanish, French, Bengali, and Mandarin.",
+ "allegra": "Dr. Allegra LeGrande is a world-renowned expert in past Earth climates, and a lead organizer of <a href=\"https://www.hiketheheights.org/\" target=\"_blank\" rel=\"noopener\">Hike the Heights</a>— perhaps the most on-brand expert of the entire project. We met in the rain at Battery Park for interview #2. Her interview was meaningful to me most of all because it showed how creative weather and climate scientists can be in their quest to study Earth's past: the fact that the shells of creatures at the bottom of the ocean hold secrets about what the temperature was like up to billions of years ago is nothing short of mind-blowing.",
+ "alan": "Dr. Alan Robock is a professor at Rutgers University and a world-leading expert in nuclear winter research and all things climate. His interview was meaningful to me for a number of reasons, most of all because of how strongly he believes — and has demonstrated — the importance of scientists speaking out when they discover a potential danger to society.",
  "mitch": "Dr. Mitch Bushuk is a scientist at the Geophysical Fluid Dynamics Laboratory (GFDL) and a world-renowned expert in polar climate and sea ice prediction. In our interview he eloquently breaks down what a climate model really is — something I wish I had watched before starting my PhD, since climate models can be over a million lines of code! His testimony about the federal budget cuts was also extremely poignant, especially how they are hurting the quality of the forecasts GFDL is able to produce.",
- "tim": "Dr. Tim Merlis is a GFDL scientist and a world-leading expert in the circulation of atmospheres, both on Earth and on other planets throughout the universe. His interview was thrilling, and to me a great example of the serendipity of research: building climate models for Earth has helped us better identify which planets throughout the universe may house life. I also loved how meticulously he breaks down how models make counterfactual scientific questions possible — and afterwards, Tim graciously joined me to show me a scenic path for the next stretch of the walk.",
- "bernadette": "Bernadette Woods Placky is a globally acclaimed meteorologist and climate expert, and she has been a hero of mine for a few years, so this interview was extra special. It is an amazing example of how collaborative weather forecasting is — observations, models, and experienced humans working together to create the very best forecasts. That seamless collaboration behind the scenes is undoubtedly a big part of why the US has been a world leader in weather and climate science for all these years. In honor of her pro tip about paying attention to dew point, the walk's map can show the dew point for every moment of the walk.",
+ "tim": "Dr. Tim Merlis is a GFDL scientist and a world-leading expert in the circulation of atmospheres, both on Earth and on other planets throughout the universe. His interview was thrilling, and to me a great example of the serendipity of research: building climate models for Earth has helped us better identify which planets throughout the universe may house life. I also loved how meticulously he breaks down how models make counterfactual scientific questions possible.",
+ "bernadette": "Bernadette Woods Placky is a globally acclaimed meteorologist and climate expert. To me, her interview was is an amazing example of how collaborative weather forecasting is — observations, models, and experienced humans working together to create the very best forecasts. That seamless collaboration behind the scenes is undoubtedly a big part of why the US has been a world leader in weather and climate science for all these years.",
  "nadir": "Dr. Nadir Jeevanjee is an acclaimed GFDL scientist and a world-renowned expert in atmospheric radiation — part of his research was actually the basis of one of the classes I've taken in grad school. That expertise, coupled with his knowledge of the history of weather and climate forecasting at GFDL, made this one of the most memorable interviews of the entire trip. What stands out most to me is just how accurate climate forecasts have historically been, from the sensitivity of Earth's temperatures to carbon dioxide to Arctic amplification. Nadir is also a co-founder of one of my favorite organizations, Climate Up Close, whose work largely inspired my approach to this project.",
- "becki": "Dr. Becki Beadling is a world-renowned expert in all things ocean circulation and a chapter author on the upcoming 7th Intergovernmental Panel on Climate Change (IPCC) report — arguably the world's most important synthesis of the state of human-caused climate change. She is also a science communicator, leading Triple C at Triple B, a climate science public lecture series at Triple Bottom Brewing. One of my favorite parts of her interview is how it connects to the interviews 50 miles earlier at GFDL: she explains how important it is for climate models to be developed there, so that cutting-edge research can be done downstream at universities.",
- "andra": "Dr. Andra Garner is a professor at Rowan University and a world-leading expert on coastal flooding risk. Her interview was impactful in many ways, one being that she described a very local application of climate research, bringing it home to the northeast US. It was also poignant to hear her describe how federal budget cuts now will almost certainly shrink the number of people working on weather and climate research for years to come.",
- "lauren": "Dr. Lauren Kipp is a professor at Rowan University and a world-leading expert in chemical oceanography. Perhaps my favorite part of her interview is how it ties in with Nadir's, 70 miles earlier: fifty years after Syukuro Manabe and Kirk Bryan's famous prediction of Arctic amplification, Lauren spends much of her career studying the ocean-related impacts of that exact phenomenon. She also explains how the recent Office of Management and Budget (OMB) proposal, the \"Regulation for Federal Financial Assistance,\" could undermine scientific studies by shifting grant decisions away from independent scientific experts and into the hands of political appointees.",
- "charles": "Dr. Charles Schutte (Virginia's husband!) is a professor at the University of Delaware and a world-leading expert in aquatic biogeochemistry, who has played a major role in coastal wetland restoration efforts throughout New Jersey. For the final mile before our interview, Charles, Virginia, and their two brilliant kids joined me — we made paper airplanes, and they taught me how to eat honeysuckle nectar! Learning about his research was incredible, a tangible example of how scientific inquiry can lead to local climate change solutions, and hearing him echo Lauren's concerns about the proposed OMB changes to how grants are allocated was powerful.",
- "kelsey": "Dr. Kelsey Malloy is a professor at the University of Delaware and a world-leading expert in climate variability and extreme weather. In her interview she describes an early experience with the NOAA Earth System Research Lab that in large part helped her become the scientist she is today — a timely echo of Andra's point that losing federal funding now will likely mean fewer climate scientists in the future. I also saw many parallels with Becki's interview: Kelsey's cutting-edge science happens downstream of the climate models built by federal laboratories such as the National Center for Atmospheric Research (NCAR), and through these conversations it became clearer and clearer how important that relationship between federal labs and universities really is.",
- "ross": "Dr. Ross Salawitch is a professor of Earth Science at the University of Maryland and a world-renowned expert in quantifying the effects of human activity on climate. One big takeaway from his interview was how scientific inquiry into atmospheric aerosols has led to much cleaner air for the people of Maryland to breathe — a reminder that weather and climate research benefits all Americans. It was also jarring to hear him describe having no knowledge of when future funding opportunities will emerge, which underlined the purpose of this walk and the urgency of the situation. Ross was also an incredible host, showing me around campus and buying me ice cream, and I'm extremely grateful he took the time.",
- "rob": "Dr. Rob Levy is a world-leading expert on atmospheric aerosols, and his was the final interview of the walk, at the University of Maryland. Ending the walk with Rob's interview was nothing less than surreal for me, because my PhD project is in large part possible because of the work Rob has done with MODIS. In honor of this, the base map of the walk's map is an image from MODIS, taken at (almost) the exact moment this interview happened."
+ "becki": "Dr. Becki Beadling is a world-renowned expert in all things ocean circulation and a chapter author on the upcoming 7th Intergovernmental Panel on Climate Change (IPCC) report — arguably the world's most important synthesis of the state of human-caused climate change. She is also a science communicator, leading <a href=\"https://sites.temple.edu/triplectripleb/\" target=\"_blank\" rel=\"noopener\">Triple C at Triple B</a>, a climate science public lecture series at Triple Bottom Brewing. One of my favorite parts of her interview was how it connected to the interviews 50 miles earlier at GFDL: she explains how important it is for climate models to be developed there, so that cutting-edge research can be done downstream at universities.",
+ "andra": "Dr. Andra Garner is a professor at Rowan University and a world-leading expert on coastal flooding risk. Her interview was impactful in many ways, one being that she described a very local application of climate research, bringing it home to the eastern US. It was also poignant to hear her describe how federal budget cuts now will almost certainly shrink the number of people working on weather and climate research for years to come.",
+ "lauren": "Dr. Lauren Kipp is a professor at Rowan University and a world-leading expert in chemical oceanography. Perhaps my favorite part of her interview is how it ties in with Nadir's, 70 miles earlier: fifty years after Syukuro Manabe and Kirk Bryan's famous prediction of Arctic amplification, Lauren has spent much of her career studying the ocean-related impacts of that exact phenomenon. She also explains how the recent Office of Management and Budget (OMB) proposal, the \"Regulation for Federal Financial Assistance,\" could undermine scientific studies by shifting grant decisions away from independent scientific experts and into the hands of political appointees.",
+ "charles": "Dr. Charles Schutte is a professor at the University of Delaware and a world-leading expert in aquatic biogeochemistry, who has played a major role in coastal wetland restoration efforts throughout New Jersey. Learning about his research was incredible, and a tangible example of how scientific inquiry can lead to local climate change solutions. Additionally, hearing him echo Lauren's concerns 21 miles prior about the proposed OMB changes to how grants are allocated was a poignant moment.",
+ "kelsey": "Dr. Kelsey Malloy is a professor at the University of Delaware and a world-leading expert in climate variability and extreme weather. In her interview she describes an early experience with the NOAA Earth System Research Lab that in large part helped her become the scientist she is today — a timely echo of Andra's point 21 miles prior that losing federal funding now will likely mean fewer climate scientists in the future. I also saw many parallels with Becki's interview, with regards to the cutting edge science Kelsey does; research in large part made possible downstream of federally funded climate models, such as the National Center for Atmospheric Research (NCAR). It's clear in Kelsey's interview how important this synergistic relationship has been, and continues to be.",
+ "ross": "Dr. Ross Salawitch is a professor of Earth Science at the University of Maryland and a world-renowned expert in quantifying the effects of human activity on climate. One big takeaway from his interview was how scientific inquiry into atmospheric aerosols has led to much cleaner air for the people of Maryland to breathe — a reminder that weather and climate research benefits Americans. It was also jarring to hear him describe having no knowledge of when future funding opportunities will emerge, which underlined the purpose of this walk and the urgency of the situation. Ross was also an incredible host, showing me around campus and buying me ice cream, and I'm extremely grateful he took the time for my visit.",
+ "rob": "Dr. Rob Levy is a world-leading expert on atmospheric aerosols, and was the final interview of the walk. Ending the walk with Rob's interview was nothing less than surreal for me, because my PhD project is in large part possible because of the work Rob has done with MODIS. In honor of this, the base map of the walk's map is an image from MODIS, taken at (almost) the exact moment this interview happened."
 };
 </script>
 
@@ -2397,18 +2400,8 @@ function openPost(id, push, from){
      Done here rather than at load because the originals never reach the screen. */
   dressVideos(body);
   if(window.__blogCaptions) window.__blogCaptions(body);   // captions ready before the first press
-  /* UNDER THE CLIP: the same conversation in the walk, where it happened. walk.html?v=<name>
-     opens that stop and brings this clip to the middle of the screen. */
-  if(p.dataset.hub === 'interviews'){
-    var fig = body.querySelector('figure');
-    if(fig){
-      var wl = document.createElement('p');
-      wl.className = 'post-walk-link';
-      wl.innerHTML = '<a href="walk.html?v=' + encodeURIComponent(p.id.replace(/^post-/, '')) +
-        '">See where this interview happened on the walk &rarr;</a>';
-      fig.parentNode.insertBefore(wl, fig.nextSibling);
-    }
-  }
+  /* (The link to this interview's place in the walk is under the paragraph about the person
+     now -- see the standing block below.) */
   /* The caption strip needs the <track> to exist, and attachTrack adds it on the
      next frame -- so this runs after it rather than beside it. */
   if(window.__blogVcap){
@@ -2530,11 +2523,23 @@ function openPost(id, push, from){
     var who = p.id.replace(/^post-/, '');
     var bioEl = frag.querySelector('.about-bio');
     if(bioEl && PERSON_BIO[who]){
-      bioEl.textContent = PERSON_BIO[who];
+      bioEl.innerHTML = PERSON_BIO[who];                 // written as HTML: it carries its own links
+      /* Above it, the same line on every interview. */
+      var cap = document.createElement('p');
+      cap.className = 'post-capacity';
+      cap.innerHTML = '<em>All experts are speaking in their personal capacity.</em>';
+      bioEl.parentNode.insertBefore(cap, bioEl);
+      /* Under it, the conversation's place in the walk -- walk.html?v=<name> opens that stop
+         and puts this clip in the middle of the screen -- and then the references. */
+      var wl = document.createElement('p');
+      wl.className = 'post-walk-link';
+      wl.innerHTML = '<a href="walk.html?v=' + encodeURIComponent(who) +
+        '">See where this interview happened on the walk &rarr;</a>';
+      bioEl.parentNode.insertBefore(wl, bioEl.nextSibling);
       var refs = document.createElement('p');
       refs.className = 'post-refs';
       refs.innerHTML = '<a href="' + REFS_URL + '" target="_blank" rel="noopener">References</a>';
-      bioEl.parentNode.insertBefore(refs, bioEl.nextSibling);
+      wl.parentNode.insertBefore(refs, wl.nextSibling);
     }
     setCardImage(p);
     var hubLink = frag.querySelector('.about-hub');
@@ -4188,7 +4193,7 @@ body.wr-marks .wr-live.wr-gone::before{
    (Miriam, Virginia) are kept on merge by their names. */
 (function(){
   'use strict';
-  var KEY = 'blogWrite:v1';
+  var KEY = 'blogWrite:v2';   // v2: the September 11 pass merged
   var store = {};
   try{ store = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }catch(e){ store = {}; }
   var savedEl = null, saveT = null;
