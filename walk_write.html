@@ -9936,7 +9936,15 @@ DATA.stops.forEach(function(s){
            for the whole of the map's move and then jump -- position, width and type size all at
            once -- on the frame the map arrived. Told now, before the map sets off, where the map
            will end up, so it can work out its own destination and travel there on the map's clock. */
-        if(window.__pgGlideStart){
+        /* NOT ON A PHONE ON ITS SIDE. There the map has two sizes, the hotdog and full screen,
+           and the whole-map size setFull opens is only ever a step on the way into full screen
+           (see exitFs). Gliding the sheet toward it narrowed the sheet behind the full-screen map
+           and, on the way out, kept narrowing it toward a lane that was never going to be used --
+           the map's right edge is not pinned while it is centred full screen, so the guess at its
+           destination was wrong -- and then snapped it back. The sheet simply stays where the
+           hotdog wants it, the whole time. */
+        var _twoSize = window.matchMedia && window.matchMedia('(orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse)').matches;
+        if(window.__pgGlideStart && !_twoSize){
           /* The map's right edge does not move (it is pinned 22px from the window's edge in both
              states), so where its left edge will be is that edge less the width it is going to. */
           var _jm = document.querySelector('.j-map');
@@ -17431,7 +17439,28 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
        is already widened to the lane here; the ruling and the type now follow that width, so
        the writing comes out at a readable size (about 14px) instead of a sixth of an inch.
    KNOBS: the 112px that parks the pill beside the name, and the sheet width it follows. */
-.rotgate, .walkFsExit{ display:none }
+.rotgate, .walkFsExit, .walkFsPort{ display:none }
+/* ===== AN UPRIGHT PHONE: "ENTER FULL SCREEN", ALWAYS THERE, TOP LEFT ==========
+   The way into the full-screen walk without first turning the phone. It starts just under the
+   site bar, top left, and as the bar scrolls away it rides up with it and then stays in the
+   top-left corner for the rest of the page -- above the X that closes an open stop, which moves
+   down to sit under it when both are showing. In full screen it reads "Exit full screen".
+   Only where full screen exists (html.can-fs), and not over the full-screen map, which has its
+   own X. The script at the foot of the page sets its height as the bar moves. */
+@media (max-width:700px) and (orientation:portrait){
+  html.can-fs .walkFsPort{
+    display:inline-flex; align-items:center; gap:.4rem;
+    position:fixed; left:8px; top:68px; z-index:205;
+    padding:.42rem .8rem; border-radius:999px; cursor:pointer;
+    color:#fff; font:700 .7rem 'DM Sans',sans-serif; letter-spacing:.02em;
+    background:rgba(10,20,38,.66); border:1px solid rgba(255,255,255,.34);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    -webkit-tap-highlight-color:transparent;
+  }
+  html.can-fs .walkFsPort svg{ width:13px; height:13px; flex:0 0 13px }
+  html.can-fs body.map-fs .walkFsPort{ display:none }
+  html.can-fs body:not(.stop-modal) .jp-close{ top:max(52px, calc(var(--fsp-bottom, 0px) + 8px)) }
+}
 @media (orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse){
   html.can-fs:not(.walk-fs) .rotgate{
     display:flex; align-items:center; justify-content:center;
@@ -27715,6 +27744,12 @@ function goBack(e){
        stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>
   <span>Exit full screen</span>
 </button>
+<!-- Upright phones only -- see .walkFsPort. -->
+<button class="walkFsPort" id="walkFsPort" type="button" aria-label="Enter full screen">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+  <span>Enter full screen</span>
+</button>
 <script>
 /* ===== THE PAGE FULL SCREEN, ON A PHONE HELD SIDEWAYS ======================
    The letter game's two presses, for the walk: full screen and the landscape lock are
@@ -27764,6 +27799,40 @@ function goBack(e){
   document.addEventListener('fullscreenchange', sync);
   document.addEventListener('webkitfullscreenchange', sync);
   sync();
+
+  /* The upright phone's pill (see .walkFsPort): under the site bar while the bar is on screen,
+     then riding up with it into the top-left corner and staying there. Its foot is published
+     as --fsp-bottom so an open stop's X can sit just under it. */
+  var port = document.getElementById('walkFsPort');
+  if(port){
+    var nav = document.querySelector('nav'), pmq = window.matchMedia('(max-width:700px) and (orientation:portrait)');
+    var raf = 0;
+    function place(){
+      raf = 0;
+      if(!pmq.matches || getComputedStyle(port).display === 'none') return;
+      var nb = (nav && getComputedStyle(nav).display !== 'none') ? nav.getBoundingClientRect().bottom : 0;
+      var top = Math.max(10, Math.round(nb + 10));
+      port.style.top = top + 'px';
+      root.style.setProperty('--fsp-bottom', (top + port.offsetHeight) + 'px');
+    }
+    function queue(){ if(!raf) raf = requestAnimationFrame(place); }
+    function label(){
+      var fs = root.classList.contains('walk-fs');
+      port.querySelector('span').textContent = fs ? 'Exit full screen' : 'Enter full screen';
+      port.setAttribute('aria-label', fs ? 'Exit full screen' : 'Enter full screen');
+    }
+    port.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(root.classList.contains('walk-fs')) window.walkFsLeave(); else window.walkFsEnter();
+    });
+    window.addEventListener('scroll', queue, {passive:true});
+    window.addEventListener('resize', queue);
+    if(pmq.addEventListener) pmq.addEventListener('change', queue);
+    document.addEventListener('fullscreenchange', function(){ setTimeout(function(){ label(); queue(); }, 0); });
+    document.addEventListener('webkitfullscreenchange', function(){ setTimeout(function(){ label(); queue(); }, 0); });
+    label(); place();
+    window.addEventListener('load', queue);
+  }
 })();
 </script>
 <script>
@@ -27837,6 +27906,13 @@ function goBack(e){
     if(sect){
       var r0 = sect.getBoundingClientRect();
       window.scrollTo({ top: Math.max(0, window.pageYOffset + r0.top - 140), behavior:'auto' });
+      /* THE MAP CATCHES UP BEFORE THE STOP OPENS. On a phone an open stop HOLDS the map (see
+         mapHeld): it stops reading the scroll so the map stays on the stop you are reading. The
+         map reads the scroll on the scroll event, which lands a frame after this jump -- by
+         which time the stop is open and the map is already held at the top of the page: no
+         route, no dots, no labels, until the stop was closed and it was let go. Told now,
+         while it is still listening. */
+      try{ if(window.__mapResync) window.__mapResync(); }catch(e){}
       if(!sect.classList.contains('is-open') && sect._jpOpen) sect._jpOpen();
     }
     var t0 = Date.now();
