@@ -17620,28 +17620,13 @@ html.walk-fs{ --map-pin-top:46px }
   #mapFsBackdrop{ top:-120px; bottom:-120px }
 }
 .j-sect.is-open .read-hint{ display:none }
-/* THE HINT HOLDS ITS SIZE WHILE THE PREFACE CHANGES ITS OWN. The hint lives inside the
-   Preface's section, and that section is drawn at a scale: --card-scale as the page scrolls
-   (the swell, up to 1.05) and 1 on hover (the .is-solo hover rule sets transform:none). Left
-   alone, the hint grew and shrank with it. So it is scaled by the inverse of whatever the
-   section is at: 1 / --card-scale at rest, and nothing on hover. Anchored at its bottom edge,
-   so it stays the same distance above the word "Preface" and only its size is held.
-
-   Same duration and curve as the section's own transition, so the two moves cancel out
-   frame by frame instead of the hint lagging behind and wobbling.
-
-   The first transform line is the fallback for a browser that cannot divide inside scale():
-   it keeps the old behaviour rather than losing the centring. */
-body.mode-quick .j-sect:not(.is-open) .read-hint{
-  transform-origin:50% 100%;
-  transform:translateX(-50%);
-  transform:translateX(-50%) scale(calc(1 / var(--card-scale, .95)));
-  transition:transform .16s ease-out;
-}
-body.mode-quick .j-sect.is-solo:not(.is-open):hover .read-hint{ transform:translateX(-50%) }
-/* A phone draws the section unscaled (transform:none below 700px), so there is nothing to undo. */
-@media(max-width:700px){
-  body.mode-quick .j-sect:not(.is-open) .read-hint{ transform:translateX(-50%) }
+/* ON A DESKTOP THE HINT LIVES OUTSIDE THE PREFACE, so nothing the Preface does to its own size
+   (the swell as you scroll, the change on hover) can reach it. The script below parks it in the
+   Preface's parent and pins it by the Preface's layout position, which a transform never moves.
+   Fixed size, fixed place, no transition. A phone keeps it inside, where nothing scales. */
+.read-hint.read-hint-out{
+  bottom:auto; margin:-.55rem 0 0;
+  transform:translate(-50%, -100%); transition:none;
 }
 html.walk-fs .walkFsExit{
   top:10px; left:auto; right:22px;
@@ -27923,17 +27908,49 @@ function goBack(e){
 })();
 </script>
 <script>
-/* ===== "CLICK PHOTO TO READ SECTION" -- placed above the Preface ================ */
+/* ===== "CLICK PHOTO TO READ SECTION" -- placed above the Preface ================
+   DESKTOP: a sibling of the Preface, not a child of it. The Preface is drawn at a scale that
+   changes while you scroll and on hover, and anything inside it changes size with it. Out
+   here the hint is placed from the Preface's offsetTop / offsetLeft / offsetWidth -- layout
+   numbers, which ignore transforms -- so it sits in one place at one size, always.
+   PHONE: inside the Preface, as before (nothing scales on a phone). */
 (function(){
+  var hint = null, sect = null, watching = false;
   function place(){
-    var h = document.getElementById('stop-preface');
-    var sect = h && h.closest('.j-sect');
-    if(!sect || sect.querySelector('.read-hint')) return;
-    var p = document.createElement('p');
-    p.className = 'read-hint';
-    p.setAttribute('aria-hidden', 'true');
-    p.textContent = 'Click photo to read section';
-    sect.appendChild(p);
+    if(!sect){
+      var h = document.getElementById('stop-preface');
+      sect = h && h.closest('.j-sect');
+      if(!sect) return;
+    }
+    if(!hint){
+      hint = document.createElement('p');
+      hint.className = 'read-hint';
+      hint.setAttribute('aria-hidden', 'true');
+      hint.textContent = 'Click photo to read section';
+    }
+    if(window.innerWidth > 700){
+      var host = sect.parentNode;
+      if(hint.parentNode !== host) host.appendChild(hint);
+      hint.classList.add('read-hint-out');
+      hint.style.left = (sect.offsetLeft + sect.offsetWidth / 2) + 'px';
+      hint.style.top = sect.offsetTop + 'px';
+    } else {
+      if(hint.parentNode !== sect) sect.appendChild(hint);
+      hint.classList.remove('read-hint-out');
+      hint.style.left = ''; hint.style.top = '';
+    }
+    // Gone while the Preface is open, as before.
+    hint.style.display = sect.classList.contains('is-open') ? 'none' : '';
+    if(!watching){
+      watching = true;
+      // Pictures loading above it move the Preface down the page; follow it.
+      if(window.ResizeObserver){
+        var ro = new ResizeObserver(function(){ place(); });
+        ro.observe(document.body); ro.observe(sect);
+      }
+      new MutationObserver(function(){ place(); }).observe(sect, { attributes:true, attributeFilter:['class'] });
+      window.addEventListener('resize', place, { passive:true });
+    }
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', place); else place();
   window.addEventListener('load', place);
