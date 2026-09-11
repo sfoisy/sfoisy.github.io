@@ -17620,6 +17620,29 @@ html.walk-fs{ --map-pin-top:46px }
   #mapFsBackdrop{ top:-120px; bottom:-120px }
 }
 .j-sect.is-open .read-hint{ display:none }
+/* THE HINT HOLDS ITS SIZE WHILE THE PREFACE CHANGES ITS OWN. The hint lives inside the
+   Preface's section, and that section is drawn at a scale: --card-scale as the page scrolls
+   (the swell, up to 1.05) and 1 on hover (the .is-solo hover rule sets transform:none). Left
+   alone, the hint grew and shrank with it. So it is scaled by the inverse of whatever the
+   section is at: 1 / --card-scale at rest, and nothing on hover. Anchored at its bottom edge,
+   so it stays the same distance above the word "Preface" and only its size is held.
+
+   Same duration and curve as the section's own transition, so the two moves cancel out
+   frame by frame instead of the hint lagging behind and wobbling.
+
+   The first transform line is the fallback for a browser that cannot divide inside scale():
+   it keeps the old behaviour rather than losing the centring. */
+body.mode-quick .j-sect:not(.is-open) .read-hint{
+  transform-origin:50% 100%;
+  transform:translateX(-50%);
+  transform:translateX(-50%) scale(calc(1 / var(--card-scale, .95)));
+  transition:transform .16s ease-out;
+}
+body.mode-quick .j-sect.is-solo:not(.is-open):hover .read-hint{ transform:translateX(-50%) }
+/* A phone draws the section unscaled (transform:none below 700px), so there is nothing to undo. */
+@media(max-width:700px){
+  body.mode-quick .j-sect:not(.is-open) .read-hint{ transform:translateX(-50%) }
+}
 html.walk-fs .walkFsExit{
   top:10px; left:auto; right:22px;
   background:rgba(10,20,38,.62); border-color:rgba(255,255,255,.34);
