@@ -1537,13 +1537,16 @@ function toggleMenu(){
       <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk! Sort the interviews by topic by clicking the buttons below.</p>
     </div>
 
-    <!-- THE FOUR TOPICS. One press shows only the interviews on that topic; the same press
-         again shows all fourteen. Each interview's topics are on its article (data-topics). -->
+    <!-- THE TOPICS. One press shows only the interviews on that topic; All (or the same press
+         again) shows all fourteen. Each interview's topics are on its article (data-topics). -->
     <div class="hub-filter" id="hubFilter" role="group" aria-label="Sort the interviews by topic">
+      <button type="button" data-topic="" class="is-on" aria-pressed="true">All</button>
       <button type="button" data-topic="ocean" aria-pressed="false">Ocean</button>
       <button type="button" data-topic="atmosphere" aria-pressed="false">Atmosphere</button>
       <button type="button" data-topic="weather" aria-pressed="false">Weather</button>
       <button type="button" data-topic="climate" aria-pressed="false">Climate</button>
+      <button type="button" data-topic="seaice" aria-pressed="false">Sea Ice</button>
+      <button type="button" data-topic="land" aria-pressed="false">Land</button>
     </div>
 
     <div class="card-grid hub-grid" id="hubGrid"></div>
@@ -1778,7 +1781,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 9 &middot; ALLEGRA LEGRANDE ================= -->
   <article class="post" id="post-allegra"
-    data-topics="climate"
+    data-topics="climate ocean atmosphere"
     data-hub="interviews"
     data-n="2"
     data-name="Dr. Allegra LeGrande"
@@ -1804,7 +1807,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 42 &middot; ALAN ROBOCK ================= -->
   <article class="post" id="post-alan"
-    data-topics="climate atmosphere"
+    data-topics="climate atmosphere land"
     data-hub="interviews"
     data-n="3"
     data-name="Dr. Alan Robock"
@@ -1830,7 +1833,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 56 &middot; MITCH BUSHUK ================= -->
   <article class="post" id="post-mitch"
-    data-topics="climate ocean"
+    data-topics="climate seaice ocean"
     data-hub="interviews"
     data-n="4"
     data-name="Dr. Mitch Bushuk"
@@ -1908,7 +1911,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 61 &middot; NADIR JEEVANJEE ================= -->
   <article class="post" id="post-nadir"
-    data-topics="climate weather"
+    data-topics="climate weather ocean"
     data-hub="interviews"
     data-n="7"
     data-name="Dr. Nadir Jeevanjee"
@@ -1986,7 +1989,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 131 &middot; LAUREN KIPP ================= -->
   <article class="post" id="post-lauren"
-    data-topics="ocean climate"
+    data-topics="ocean climate seaice"
     data-hub="interviews"
     data-n="10"
     data-name="Dr. Lauren Kipp"
@@ -2012,7 +2015,7 @@ var PERSON_BIO = {
 
   <!-- ================= MILE 152 &middot; CHARLES SCHUTTE ================= -->
   <article class="post" id="post-charles"
-    data-topics="climate"
+    data-topics="climate land"
     data-hub="interviews"
     data-n="11"
     data-name="Dr. Charles Schutte"
@@ -3954,9 +3957,9 @@ function blogBack(e){
 </script>
 
 <script>
-/* ===== THE FOUR TOPIC BUTTONS ON THE WALL ===================================
-   One press keeps only the interviews on that topic; pressing the lit button again shows all
-   fourteen. A different button moves the filter to it. The cards carry their topics from the
+/* ===== THE TOPIC BUTTONS ON THE WALL =======================================
+   One press keeps only the interviews on that topic; All, or pressing the lit button again,
+   shows all fourteen. A different button moves the filter to it. The cards carry their topics from the
    articles (data-topics), so adding an interview needs nothing here. */
 (function(){
   var bar = document.getElementById('hubFilter'), grid = document.getElementById('hubGrid');
@@ -3968,7 +3971,7 @@ function blogBack(e){
       cell.classList.toggle('is-filtered', !!current && t.indexOf(' ' + current + ' ') < 0);
     });
     [].forEach.call(bar.querySelectorAll('button'), function(b){
-      var on = b.getAttribute('data-topic') === current;
+      var on = (b.getAttribute('data-topic') || null) === current;   // All is lit when nothing is picked
       b.classList.toggle('is-on', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
@@ -3976,7 +3979,7 @@ function blogBack(e){
   bar.addEventListener('click', function(e){
     var b = e.target.closest && e.target.closest('button[data-topic]');
     if(!b) return;
-    var t = b.getAttribute('data-topic');
+    var t = b.getAttribute('data-topic') || null;        // All clears the filter
     current = (current === t) ? null : t;
     apply();
   });
