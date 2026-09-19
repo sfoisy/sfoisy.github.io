@@ -18018,6 +18018,14 @@ html.walk-fs nav, html.walk-fs .nav-mobile-menu{ display:none !important }
 }
 .video-share-wrap.vfs-stage video{ width:100% !important; height:100% !important; max-height:none !important; object-fit:contain; background:#000 }
 body.vfs-staged .walkFsExit{ display:none !important }
+/* Nothing else shows over a staged clip. The stage lives inside the open stop's sheet, whose
+   own layer (46) sits UNDER the stop's X (49), the map (60) and the step posts -- so those
+   were still visible on top of the picture. While a clip has the screen they stand down. */
+body.vfs-staged .jp-close,
+body.vfs-staged #stepPrev, body.vfs-staged #stepNext,
+body.vfs-staged .j-map, body.vfs-staged .map-flow, body.vfs-staged .map-cta,
+body.vfs-staged .map-hud, body.vfs-staged #mapRestore, body.vfs-staged #mapLogoLink,
+body.vfs-staged .read-float, body.vfs-staged .walkFsPort, body.vfs-staged .backw{ visibility:hidden !important; pointer-events:none !important }
 html.walk-fs{ --map-pin-top:46px }
 /* ===== A PHONE ON ITS SIDE: THE FULL-SCREEN MAP =============================
    The map takes the height of the screen and the layer bar stands beside it rather than
@@ -28388,6 +28396,28 @@ function goBack(e){
     if(fe === root) pageFs = true;
     else if(!fe) pageFs = false;
     root.classList.toggle('walk-fs', pageFs);
+    /* ===== ON A PHONE, LEAVING FULL SCREEN REBUILDS THE PAGE (19 Sep 2026) =========
+       The page is laid out by sixty scripts that measure the window, and coming out of full
+       screen the window changes size twice in a row, the bar returns and the map re-pins.
+       Some measurement from the full-screen layout always survived that -- a spacer, a
+       min-height, a written width -- and the page could be scrolled far past its own end.
+       Chasing each one is a losing game, so the page is simply loaded again, fresh, at the
+       place the reader was: the open stop (or the stop nearest the top of the screen) goes
+       into the address as #stop-…, the loading sheet covers the rebuild, and the hash handler
+       re-opens that stop and lands on it. Everything is measured once, at the right size.
+       Phones only: a desktop's exit is a normal resize. */
+    var phone = window.matchMedia && window.matchMedia('(hover:none) and (pointer:coarse)').matches;
+    if(was && !pageFs && phone){
+      var el = document.querySelector('.j-sect.is-open') || (fsAnchor && fsAnchor.el) || (window.__langTake ? window.__langTake().el : null);
+      if(el && !el.classList.contains('j-sect')) el = el.closest ? el.closest('.j-sect') : null;
+      var h = el && el.querySelector('.stop-head'), id = (h && h.id) ? h.id : '';
+      fsAnchor = null;
+      setTimeout(function(){
+        try{ history.replaceState(null, '', location.pathname + (id ? '#' + id : '')); }catch(e){}
+        location.reload();
+      }, 320);
+      return;
+    }
     if(was && !pageFs && fsAnchor && window.__langPut){
       var a = fsAnchor; fsAnchor = null;
       requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); }); setTimeout(function(){ window.__langPut(a); }, 260); });
