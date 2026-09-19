@@ -6216,7 +6216,14 @@ html .nav-mobile-menu{ background:var(--nav-solid) }
    the scroll differs between engines, and overscroll-behavior stops the rubber-band on iOS
    dragging the sheet around. The class is removed the moment the sheet starts to lift. */
 html.pre-lock{ overflow:hidden !important; overscroll-behavior:none; touch-action:none }
-html.pre-lock body{ overscroll-behavior:none; touch-action:none }
+/* ...AND BODY'S OVERFLOW IS FORCED VISIBLE MEANWHILE. An interview link opens its stop as a
+   panel under the sheet, and an open stop freezes the page with body.stop-modal{overflow:hidden}.
+   While <html> is also overflow:hidden (the lock), body's value stops propagating to the
+   viewport and body becomes a scroll container of its own -- so the sticky bar sticks to it,
+   goes up out of the window when the link scrolls to the clip, and comes back only when the
+   lock lifts. That was the bar vanishing and returning on walk.html?v=<interview>. The lock
+   already stops all scrolling, so body needs no overflow of its own for as long as it lasts. */
+html.pre-lock body{ overflow:visible !important; overscroll-behavior:none; touch-action:none }
 /* NOT overflow:hidden ON BODY AS WELL, and this is the fix for the bar vanishing behind the
    sheet on walk.html?v=<interview>. With overflow:hidden on BOTH html and body, html's
    propagates to the viewport and body's stays put -- which makes body a scroll container of

@@ -42,6 +42,7 @@
    + '.lang-pop{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;color:#111;border:1px solid #e9e9e9;border-radius:10px;'
    + 'box-shadow:0 10px 30px -10px rgba(0,0,0,.35);padding:.35rem;min-width:200px;z-index:300;text-transform:none;letter-spacing:0}'
    + '.lang-pop.open{display:block}'
+   + '.lang-pop.up{top:auto;bottom:calc(100% + 8px)}'
    + '.lang-pop button{display:block;width:100%;text-align:left;font:400 .88rem "DM Sans",sans-serif;background:none;border:0;border-radius:6px;padding:.5rem .7rem;color:#111;cursor:pointer}'
    + '.lang-pop button:hover{background:#f2f2f2}'
    + '.lang-pop button.active{font-weight:700;background:#f6f6f6}'
@@ -51,25 +52,23 @@
    + '.lang-row button{font:500 .8rem "DM Sans",sans-serif;color:var(--nav-ink,#fff);background:none;border:1px solid currentColor;border-radius:999px;padding:.28rem .7rem;cursor:pointer;opacity:.85}'
    + '.lang-row button.active{background:var(--nav-ink,#fff);color:var(--nav-sheet,#0a1426);opacity:1}'
    + '@media(min-width:701px) and (max-width:1100px){.lang-pick{margin-left:.4rem}}'
-   /* the games' title screens: a quiet row of pills under the Play button */
-   + '.lang-title{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.4rem;margin-top:1.4rem}'
-   + '.lang-title .g{font-size:1rem;opacity:.75;margin-right:.15rem}'
-   + '.lang-title button{font:500 .74rem "DM Sans",sans-serif;color:inherit;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.28rem .7rem;cursor:pointer;opacity:.8;transition:.2s}'
-   + '.lang-title button:hover{opacity:1;background:rgba(255,255,255,.16)}'
-   + '.lang-title button.active{background:#fff;color:#1a1830;border-color:#fff;opacity:1}'
-   + '.lang-title small{display:block;font-size:.58rem;opacity:.7;line-height:1;margin-top:.15rem}'
-   + '.lang-title.compact{justify-content:flex-start;margin:-.4rem 0 .9rem;gap:.3rem}'
-   + '.lang-title.compact .g{display:none}'
-   + '.lang-title.compact button{font-size:.68rem;padding:.2rem .55rem;color:#fff}'
-   + '.lang-title.compact small{display:none}'
-   + '.page-head .lang-title{margin-top:1.1rem;color:#fff}';
+   /* the same dropdown in a slot: centred under a game's Play button, under the interviews
+      masthead, and compact under an open interview's date line */
+   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:5}'
+   + '.lang-title .lang-btn{color:#fff;font-size:.72rem;padding:.36rem .8rem}'
+   + '.lang-title .lang-pop{right:auto;left:50%;transform:translateX(-50%)}'
+   + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem}'
+   + '.lang-title.compact .lang-btn{font-size:.64rem;padding:.26rem .62rem;opacity:.85}'
+   + '.lang-title.compact .lang-pop{left:0;transform:none}'
+   + '.page-head .lang-title{margin-top:1.1rem}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var cur = 'en';
   function label(l){ return LANGS[l] || l; }
-  function buildButton(){
-    var links = document.querySelector('nav .nav-links, .site-nav .nav-links');
-    if(links && !links.querySelector('.lang-pick')){
+  /* The same dropdown everywhere: the bar, the games' title screens, the interviews page's
+     masthead and each open interview. A globe, the current language, a chevron; the six
+     languages in a small panel that opens below -- or above, when there is no room below. */
+  function makePick(){
       var pick = document.createElement('div'); pick.className = 'lang-pick';
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'lang-btn'; btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
       btn.innerHTML = '<span class="g" aria-hidden="true">&#127760;</span><span class="l"></span><span class="c" aria-hidden="true">&#9660;</span>';
@@ -86,8 +85,16 @@
       btn.addEventListener('click', function(e){ e.stopPropagation(); var o = pop.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
       document.addEventListener('click', function(e){ if(!pick.contains(e.target)) close(); });
       document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
-      pick.appendChild(btn); pick.appendChild(pop); links.appendChild(pick);
-    }
+      btn.addEventListener('click', function(){
+        /* open upwards if the panel would run off the bottom of the window */
+        var r = btn.getBoundingClientRect(); pop.classList.toggle('up', r.bottom + 270 > window.innerHeight && r.top > 270);
+      });
+      pick.appendChild(btn); pick.appendChild(pop);
+      return pick;
+  }
+  function buildButton(){
+    var links = document.querySelector('nav .nav-links, .site-nav .nav-links');
+    if(links && !links.querySelector('.lang-pick')) links.appendChild(makePick());
     var menu = document.querySelector('.nav-mobile-menu');
     if(menu && !menu.querySelector('.lang-row')){
       var row = document.createElement('div'); row.className = 'lang-row';
@@ -107,23 +114,15 @@
      built when it is opened) are filled when the page calls window.siteLangMount(). */
   function mountRows(){
     [].forEach.call(document.querySelectorAll('[data-lang-row]'), function(slot){
-      if(slot.querySelector('button')) return;
-      var g = document.createElement('span'); g.className = 'g'; g.setAttribute('aria-hidden', 'true'); g.innerHTML = '&#127760;'; slot.appendChild(g);
-      slot.setAttribute('role', 'group'); slot.setAttribute('aria-label', 'Language');
-      Object.keys(LANGS).forEach(function(l){
-        var b = document.createElement('button'); b.type = 'button'; b.dataset.lang = l; b.textContent = LANGS[l];
-        if(l !== 'en'){ var sm = document.createElement('small'); sm.textContent = 'in development'; b.appendChild(sm); }
-        b.addEventListener('click', function(e){ e.stopPropagation(); setLang(l); });
-        slot.appendChild(b);
-      });
+      if(slot.querySelector('.lang-pick')) return;
+      slot.appendChild(makePick());
     });
     paintButton();
   }
   window.siteLangMount = mountRows;
   function paintButton(){
-    var l = document.querySelector('.lang-btn .l'); if(l){ l.textContent = label(cur); }
-    var btn = document.querySelector('.lang-btn'); if(btn) btn.title = 'Language: ' + label(cur) + (cur !== 'en' ? ' (in development)' : '');
-    [].forEach.call(document.querySelectorAll('.lang-pop button, .lang-row button, [data-lang-row] button'), function(b){ b.classList.toggle('active', b.dataset.lang === cur); });
+    [].forEach.call(document.querySelectorAll('.lang-btn'), function(btn){ var l = btn.querySelector('.l'); if(l) l.textContent = label(cur); btn.title = 'Language: ' + label(cur) + (cur !== 'en' ? ' (in development)' : ''); });
+    [].forEach.call(document.querySelectorAll('.lang-pop button, .lang-row button'), function(b){ b.classList.toggle('active', b.dataset.lang === cur); });
     document.documentElement.lang = cur;
   }
 
