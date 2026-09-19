@@ -158,17 +158,28 @@
       });
     });
   }
+  /* Added nodes are handled once per frame, in a batch, and character data is not watched at
+     all: scripts that change a label do it with textContent, which replaces the node and is
+     caught as a child-list change. Answering every text write in a microtask is how an
+     observer becomes a second main-thread loop on a busy page. */
+  var _pend = [], _flushQ = false;
+  function flush(){
+    _flushQ = false;
+    var q = _pend; _pend = [];
+    if(cur === 'en') return;
+    for(var i = 0; i < q.length; i++){ try{ walk(q[i]); if(q[i].nodeType === 1) attrs(q[i]); }catch(e){} }
+  }
   function watch(){
     if(mo || !window.MutationObserver) return;
     mo = new MutationObserver(function(recs){
       if(cur === 'en') return;
       for(var i = 0; i < recs.length; i++){
-        var r = recs[i];
-        if(r.type === 'characterData') doNode(r.target);
-        else if(r.addedNodes) for(var j = 0; j < r.addedNodes.length; j++){ walk(r.addedNodes[j]); if(r.addedNodes[j].nodeType === 1) attrs(r.addedNodes[j]); }
+        var a = recs[i].addedNodes;
+        for(var j = 0; a && j < a.length; j++) _pend.push(a[j]);
       }
+      if(_pend.length && !_flushQ){ _flushQ = true; requestAnimationFrame(flush); }
     });
-    mo.observe(document.body, { childList:true, subtree:true, characterData:true });
+    mo.observe(document.body, { childList:true, subtree:true });
   }
   var seq = 0;
   function apply(lang){
@@ -196,11 +207,8 @@
 
   function start(){
     buildButton();
-    var saved = null; try{ saved = localStorage.getItem('site-lang'); }catch(e){}
-    if(saved && LANGS[saved] && saved !== 'en'){
-      cur = saved; paintButton();
-      if(!OWN_ENGINE) apply(saved);          // walk.html applies its own saved language itself
-    }
+    /* Every page starts in English, every time (19 Sep 2026). A language chosen on one page
+       is not carried to the next or to the next visit; the reader picks it where they want it. */
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

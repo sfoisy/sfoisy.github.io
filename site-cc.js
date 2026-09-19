@@ -108,10 +108,13 @@
 
   /* The site's language changed: every clip whose captions are on follows it. */
   window.__ccSetPageLang = function(l){
-    [].forEach.call(document.querySelectorAll('video'), function(v){
-      if(!v._ccEls) return;
-      var on = onTrack(v);
-      if(on) window.__ccShow(v, l, on.mode);
-    });
+    /* A few clips per frame. Forty clips each swapping six track modes and a source in one
+       synchronous pass is a lot of media-element work in one task; spread out it is nothing. */
+    var vs = [].slice.call(document.querySelectorAll('video')).filter(function(v){ return !!v._ccEls; }), i = 0;
+    (function step(){
+      var end = Math.min(vs.length, i + 4);
+      for(; i < end; i++){ var on = onTrack(vs[i]); if(on) window.__ccShow(vs[i], l, on.mode); }
+      if(i < vs.length) requestAnimationFrame(step);
+    })();
   };
 })();

@@ -14980,9 +14980,8 @@ document.addEventListener('play', function (e) {
   }
   document.addEventListener('DOMContentLoaded', function(){
     collect();
-    var saved = null;
-    try{ saved = localStorage.getItem('site-lang'); }catch(e){}
-    if(saved && saved !== 'en') setLang(saved);
+    /* Every visit starts in English (19 Sep 2026): the language a reader chose last time is
+       no longer applied on load. The choice is still remembered for the menu, nothing more. */
     fixLedeGap();
   });
   window.addEventListener('load', fixLedeGap);
@@ -15089,25 +15088,57 @@ document.addEventListener('play', function (e) {
     else if(n.__set != null && v === n.__set){ n.__set = null; n.nodeValue = n.__en; }
   }
 
-  function walk(root){
-    if(root.nodeType === 3){ doNode(root); return; }
-    if(root.nodeType !== 1 && root.nodeType !== 9) return;
+  function collect(root){
+    if(root.nodeType === 3) return [root];
+    if(root.nodeType !== 1 && root.nodeType !== 9) return [];
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false), n, list = [];
     while((n = w.nextNode())) list.push(n);
-    for(var i = 0; i < list.length; i++) doNode(list[i]);
+    return list;
+  }
+  function walk(root){ var list = collect(root); for(var i = 0; i < list.length; i++) doNode(list[i]); }
+  /* ===== IN SLICES, NOT IN ONE GO ==============================================
+     Rewriting every text node on this page in a single synchronous pass was the freeze:
+     this document is two megabytes of DOM with sixty scripts on it, several of which force
+     a layout the moment something changes, and a burst of a few hundred writes with forced
+     layouts between them is seconds of main thread on a slow machine -- during which nothing
+     can be clicked. So the rewrite is dealt out in slices of a few hundred nodes, one slice
+     per animation frame, and the browser gets to lay out, paint and answer the reader in
+     between. The whole page still takes well under half a second. */
+  var SLICE = 250;
+  function walkAsync(root, done){
+    var list = collect(root), i = 0;
+    (function step(){
+      var end = Math.min(list.length, i + SLICE);
+      for(; i < end; i++) doNode(list[i]);
+      if(i < list.length) requestAnimationFrame(step); else if(done) done();
+    })();
   }
 
+  /* The observer catches what the page's own scripts add later (stop cards, the comments,
+     the caption strip) and translates it -- but it is NOT told about character data, and it
+     does its work once per frame. The map's render loop rewrites text every frame (the
+     mileage, the town, the labels), and an observer answering each of those writes in a
+     microtask, on a page this size, is a second main-thread loop running alongside the
+     first. A script that changes a label does it with textContent, which replaces the text
+     node and is caught here as a child-list change. */
+  var _pend = [], _flushQ = false;
+  function flush(){
+    _flushQ = false;
+    var q = _pend; _pend = [];
+    if(cur === 'en') return;
+    for(var i = 0; i < q.length; i++){ try{ walk(q[i]); }catch(e){} }
+  }
   function watch(){
     if(mo || !window.MutationObserver) return;
     mo = new MutationObserver(function(recs){
       if(cur === 'en') return;
       for(var i = 0; i < recs.length; i++){
-        var r = recs[i];
-        if(r.type === 'characterData'){ doNode(r.target); }
-        else if(r.addedNodes){ for(var j = 0; j < r.addedNodes.length; j++) walk(r.addedNodes[j]); }
+        var a = recs[i].addedNodes;
+        for(var j = 0; a && j < a.length; j++) _pend.push(a[j]);
       }
+      if(_pend.length && !_flushQ){ _flushQ = true; requestAnimationFrame(flush); }
     });
-    mo.observe(document.body, { childList:true, subtree:true, characterData:true });
+    mo.observe(document.body, { childList:true, subtree:true });
   }
 
   window.__i18nFetch = function(lang, cb){ if(lang === 'en'){ cb(null); return; } fetchLang(lang, cb); };
@@ -15116,21 +15147,21 @@ document.addEventListener('play', function (e) {
      the rest down: the text, the captions and the place-restore are each fenced, and the
      sheet -- if it is down -- is lifted in a finally, two frames after the rewrite, so what
      it lifts onto is already the new language, laid out and back on its pixel. */
+  var switching = false;
   function applyNow(lang, d){
     var a = window.__langTake ? window.__langTake() : null;
-    try{
-      cur = lang; dict = (lang === 'en') ? null : (d || { text:{} });
-      if(lang !== 'en') watch();
-      try{ walk(document.body); }catch(e){}
+    switching = true;
+    var guard = setTimeout(function(){ switching = false; }, 4000);   // whatever happens, the next press is not refused forever
+    cur = lang; dict = (lang === 'en') ? null : (d || { text:{} });
+    if(lang !== 'en') watch();
+    walkAsync(document.body, function(){
       try{ if(window.__ccApply) window.__ccApply(lang, dict ? (dict.cues || null) : null); }catch(e){}
-    }finally{
-      if(a && window.__langPut){
-        window.__langPut(a);
-        requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); }); });
-      }
-    }
+      if(a && window.__langPut){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); }); }
+      clearTimeout(guard); switching = false;
+    });
   }
   window.__i18nApply = function(lang){
+    if(switching) return;                       // one switch at a time; a second press mid-rewrite is what doubles the work
     var my = ++seq;
     if(lang === 'en'){ applyNow('en', null); return; }
     /* No sheet for this (19 Sep 2026): the rewrite is fast, the file is small, and a sheet
