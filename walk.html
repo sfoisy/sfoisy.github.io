@@ -360,6 +360,11 @@ body {
 @media(max-width:700px){ :root{--map-pin-top:10px} }
 
 nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--pale);margin-left:-5.25rem;width:calc(100% + 5.25rem);padding:0 3rem 0 5.25rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+/* Retired furniture, hidden HERE in the first stylesheet rather than at the foot of the file:
+   the rule used to live 28,000 lines down, and on a cold load the Back pill was painted and
+   then removed once the parser reached it -- a flash. See "THE OPENING, CLEARED" at the foot
+   for what each of these was. */
+.backw, #hatCornerLink, #scrollHint, #scrollCue, #mScrollCue{ display:none !important }
 .nav-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--deep);text-decoration:none}
 .nav-links{display:flex;gap:2.5rem}
 .nav-links a{font-size:.78rem;font-weight:500;text-decoration:none;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;transition:.2s}
@@ -6313,7 +6318,17 @@ html .nav-mobile-menu{ background:var(--nav-solid) }
    you somewhere arbitrary once it settles. Locked on <html> AND <body> because which one owns
    the scroll differs between engines, and overscroll-behavior stops the rubber-band on iOS
    dragging the sheet around. The class is removed the moment the sheet starts to lift. */
-html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavior:none; touch-action:none }
+html.pre-lock{ overflow:hidden !important; overscroll-behavior:none; touch-action:none }
+html.pre-lock body{ overscroll-behavior:none; touch-action:none }
+/* NOT overflow:hidden ON BODY AS WELL, and this is the fix for the bar vanishing behind the
+   sheet on walk.html?v=<interview>. With overflow:hidden on BOTH html and body, html's
+   propagates to the viewport and body's stays put -- which makes body a scroll container of
+   its own, and a position:sticky bar sticks to the nearest scroll container. So the bar was
+   sticking to body, and when the interview link scrolled the window thousands of pixels
+   under the sheet, the bar went up the page with everything else. On a plain load scrollY is
+   0 the whole time the sheet is up, which is why it never showed there. html alone is enough
+   to lock the viewport in every current engine, and the wheel / touchmove / key handlers in
+   the sheet script are the second lock on the same door. */
 @keyframes plBail{ to{ opacity:0; visibility:hidden; pointer-events:none } }
 
 .pl-box{ display:flex; flex-direction:column; align-items:center; gap:1.15rem; padding:0 1rem }
@@ -28800,7 +28815,8 @@ function goBack(e){
    Hidden rather than deleted, because four scripts still write opacity to these elements
    on every scroll frame and are happier finding them than not; display:none costs nothing
    and their writes land on a box that is never painted. Restoring any of them is one line. */
-#hatCornerLink, .backw, #scrollHint, #scrollCue, #mScrollCue{ display:none !important }
+/* The rule itself now lives in the first stylesheet (next to nav's own rule), so it is in
+   force before the first paint; see the note there. */
 </style>
 <style>
 /* ===== THE FOUR CONTROLS AT THE FOOT (19 Sep 2026, third pass) =================
