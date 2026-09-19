@@ -1291,6 +1291,17 @@ html{ scrollbar-gutter:stable }
    window rather than an edge of the device. */
 @media(max-width:700px){ .backw{ display:none } }
 @media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
+/* ===== ...AND ONLY INSIDE A CONVERSATION (19 Sep 2026) =======================
+   On the front page and on the wall of fourteen the pill is gone: there is nothing to go
+   back TO from the wall that the bar does not already offer, and on the front page it
+   pointed at the home page, which the name in the bar does. It appears when a single
+   conversation is open, where Back means the wall (goBack() already knows that), and
+   goes again when the conversation closes. body.in-post is set by openPost and cleared by
+   showIndex and openHub. */
+.backw{ display:none }
+body.in-post .backw{ display:flex }
+@media(max-width:700px){ body.in-post .backw{ display:none } }
+@media (orientation:landscape) and (max-height:560px){ body.in-post .backw{ display:none } }
 
 /* ===== THE BAR IS OPAQUE ON A PHONE =========================================
    Safari repaints the whole page when a video leaves full screen, and a sticky strip
@@ -2293,6 +2304,7 @@ function buildHubCards(){
    <title> at the top, and nothing here touches it. */
 function openHub(push){
   openPostHub = false;
+  document.body.classList.remove('in-post');
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -2337,6 +2349,7 @@ function stopClips(){
    wants to GO there goes through goBack() so the entry stack stays true. */
 function showIndex(){
   openPostHub = false;
+  document.body.classList.remove('in-post');
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -2573,6 +2586,7 @@ function openPost(id, push, from){
   indexView.style.display = 'none';
   hubView.style.display = 'none';
   reader.classList.add('open');
+  document.body.classList.add('in-post');
   window.scrollTo(0, 0);
   if(push) pushView('#' + id);
 }

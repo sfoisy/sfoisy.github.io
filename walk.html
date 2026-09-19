@@ -7038,19 +7038,29 @@ nav{ border-bottom:1px solid var(--nav-rule) }
      change under you. So the sheet comes back down for that beat (the earth included), and
      lifts the moment the page is in the new language. Never for a language already loaded.
      No scroll lock here: the page is not moving, only its words are. */
-  var _shownAt = 0;
+  var _shownAt = 0, _dog = null, _offT = null;
   window.__sheetShow = function(){
     if(!gone) return;                                   // still up from the load
     _shownAt = now();
+    clearTimeout(_offT);
     root.classList.add('pre-again');
     root.classList.remove('pre-off');
-    requestAnimationFrame(function(){ root.classList.remove('pre-gone'); });
+    requestAnimationFrame(function(){ if(_shownAt) root.classList.remove('pre-gone'); });
+    /* WATCHDOG. Whatever goes wrong under it -- a file that never arrives, a script that
+       throws -- the sheet lifts on its own. A loading screen that can stay forever is the
+       one failure a reader cannot get out of. */
+    clearTimeout(_dog); _dog = setTimeout(function(){ if(_shownAt) window.__sheetHide(); }, 9000);
   };
   window.__sheetHide = function(){
     if(!gone || !_shownAt) return;
     var wait = Math.max(0, 600 - (now() - _shownAt)); _shownAt = 0;
-    setTimeout(function(){ root.classList.add('pre-gone'); setTimeout(function(){ root.classList.add('pre-off'); }, 640); }, wait);
+    clearTimeout(_dog);
+    setTimeout(function(){
+      root.classList.add('pre-gone');
+      clearTimeout(_offT); _offT = setTimeout(function(){ root.classList.add('pre-off'); }, 640);
+    }, wait);
   };
+  window.__sheetUp = function(){ return !!_shownAt; };
 
   /* ===== WHAT "READY" MEANS NOW ===========================================
      It used to be window `load` -- every image on the page, the map legends, the YouTube
@@ -14943,12 +14953,18 @@ document.addEventListener('play', function (e) {
      window when it began, put back on the same pixel after the rewrite, and again over the
      next second as the fonts, the hero fit and the backdrop settle. An open stop is a frozen
      page with its own scroller, so that one is held through the paginator's own anchor. */
-  function holdPlace(fn){
-    var de = document.documentElement;
-    var panel = document.querySelector('.j-sect.is-open');
-    var pa = (panel && window.__jpTakeAnchor) ? window.__jpTakeAnchor(panel) : null;
-    var y = window.scrollY || 0, el = null, top = 0;
-    if(y > 4){
+  /* take() measures where the reader is; put() puts them back there. Kept apart so a
+     caller can rewrite the page, let the browser lay it out, and restore ONCE -- five timed
+     corrections over a second were the "jumping around" after a switch. With a stop open the
+     page is frozen behind the panel and only the panel's own scroller matters, so that is
+     the one anchored there (through the paginator's own anchor). Every read is fenced: a
+     measurement that throws must never stop the switch itself. */
+  function take(){
+    var a = { el:null, top:0, pa:null };
+    try{
+      var panel = document.querySelector('.j-sect.is-open');
+      if(panel){ if(window.__jpTakeAnchor) a.pa = window.__jpTakeAnchor(panel); return a; }
+      if((window.scrollY || 0) <= 4) return a;
       var cands = [].slice.call(document.querySelectorAll('.j-sect, .j-lead, .article-hero, .games, #comments, .jl-head'));
       var best = null, bd = 1e9, ref = 120;
       cands.forEach(function(c){
@@ -14956,23 +14972,27 @@ document.addEventListener('play', function (e) {
         var d = Math.abs(r.top - ref); if(r.top < -r.height) d += 1e6;   // wholly above the window: last resort
         if(d < bd){ bd = d; best = c; }
       });
-      if(best){ el = best; top = best.getBoundingClientRect().top; }
-    }
-    fn();
-    function put(){
-      if(pa && window.__jpPutAnchor) window.__jpPutAnchor(pa);
-      if(!el) return;
-      var d = el.getBoundingClientRect().top - top;
+      if(best){ a.el = best; a.top = best.getBoundingClientRect().top; }
+    }catch(e){}
+    return a;
+  }
+  function put(a){
+    try{
+      if(a.pa && window.__jpPutAnchor) window.__jpPutAnchor(a.pa);
+      if(!a.el) return;
+      var d = a.el.getBoundingClientRect().top - a.top;
       if(Math.abs(d) > 0.5){
-        var sb = de.style.scrollBehavior; de.style.scrollBehavior = 'auto';
+        var de = document.documentElement, sb = de.style.scrollBehavior; de.style.scrollBehavior = 'auto';
         window.scrollTo(0, Math.max(0, (window.scrollY || 0) + d));
         de.style.scrollBehavior = sb;
       }
-    }
-    put(); requestAnimationFrame(put);
-    [120, 300, 600, 1100].forEach(function(ms){ setTimeout(put, ms); });
+    }catch(e){}
   }
-  window.__langHold = holdPlace;
+  function holdPlace(fn){
+    var a = take();
+    try{ fn(); }finally{ put(a); requestAnimationFrame(function(){ put(a); }); }
+  }
+  window.__langTake = take; window.__langPut = put; window.__langHold = holdPlace;
   window.setLang = function(lang){ holdPlace(function(){ setLangNow(lang); }); };
   function setLangNow(lang){
     if(!els) collect();
@@ -15229,28 +15249,32 @@ document.addEventListener('play', function (e) {
 
   window.__i18nFetch = function(lang, cb){ if(lang === 'en'){ cb(null); return; } fetchLang(lang, cb); };
   var seq = 0;
-  function hold(fn){ if(window.__langHold) window.__langHold(fn); else fn(); }
+  /* Rewrite the page in `lang`, holding the reader's place, and never let any one step take
+     the rest down: the text, the captions and the place-restore are each fenced, and the
+     sheet -- if it is down -- is lifted in a finally, two frames after the rewrite, so what
+     it lifts onto is already the new language, laid out and back on its pixel. */
+  function applyNow(lang, d){
+    var a = window.__langTake ? window.__langTake() : null;
+    try{
+      cur = lang; dict = (lang === 'en') ? null : (d || { text:{} });
+      if(lang !== 'en') watch();
+      try{ walk(document.body); }catch(e){}
+      try{ if(window.__ccApply) window.__ccApply(lang, dict ? (dict.cues || null) : null); }catch(e){}
+    }finally{
+      if(a && window.__langPut){
+        window.__langPut(a);
+        requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); if(window.__sheetHide) window.__sheetHide(); }); });
+      } else if(window.__sheetHide) window.__sheetHide();
+    }
+  }
   window.__i18nApply = function(lang){
     var my = ++seq;
-    if(lang === 'en'){
-      hold(function(){
-        cur = 'en'; dict = null;
-        try{ walk(document.body); }catch(e){}
-        if(window.__ccApply) window.__ccApply('en', null);
-      });
-      return;
-    }
+    if(lang === 'en'){ applyNow('en', null); return; }
     var fetching = !window.WALK_I18N[lang];
-    if(fetching && window.__sheetShow) window.__sheetShow();
+    if(fetching && window.__sheetShow){ try{ window.__sheetShow(); }catch(e){} }
     fetchLang(lang, function(d){
-      if(my !== seq){ if(fetching && window.__sheetHide) window.__sheetHide(); return; }   // a later choice has overtaken this one
-      hold(function(){
-        cur = lang; dict = d || { text:{} };
-        watch();
-        try{ walk(document.body); }catch(e){}
-        if(window.__ccApply) window.__ccApply(lang, dict.cues || null);
-      });
-      if(fetching && window.__sheetHide) window.__sheetHide();
+      if(my !== seq){ if(window.__sheetHide) window.__sheetHide(); return; }   // a later choice has overtaken this one
+      applyNow(lang, d);
     });
   };
 })();
