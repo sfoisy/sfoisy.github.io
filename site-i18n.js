@@ -60,6 +60,9 @@
    + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem}'
    + '.lang-title.compact .lang-btn{font-size:.64rem;padding:.26rem .62rem;opacity:.85}'
    + '.lang-title.compact .lang-pop{left:0;transform:none}'
+   + '.lang-title.compact.centred{justify-content:center;margin:-.6rem 0 1.1rem}'
+   + '.lang-title.compact.centred .lang-pop{left:50%;transform:translateX(-50%)}'
+   + '.blog-head .lang-title{margin:.2rem 0 1rem}'
    + '.page-head .lang-title{margin-top:1.1rem}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
