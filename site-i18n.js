@@ -25,7 +25,7 @@
    beside each language means. Corrections go in the language file, keyed by the English. */
 (function(){
   var LANGS = { en:'English', es:'Español', fr:'Français', vi:'Tiếng Việt', zh:'中文', mg:'Malagasy' };
-  var VERSION = '20260919c';   /* bumped with every release of the language files, so a reader's browser never keeps an old one */
+  var VERSION = '20260919d';   /* bumped with every release of the language files, so a reader's browser never keeps an old one */
   var FILE = window.SITE_I18N_FILE || 'site-i18n-{lang}.js';
   var OWN_ENGINE = typeof window.__i18nApply === 'function';   // walk.html: it has its own
   var SKIP = { SCRIPT:1, STYLE:1, NOSCRIPT:1, CODE:1, TITLE:1, TEXTAREA:1, PRE:1, SVG:1, MATH:1, INPUT:1 };
@@ -43,7 +43,7 @@
    + '.lang-pop{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;color:#111;border:1px solid #e9e9e9;border-radius:10px;'
    + 'box-shadow:0 10px 30px -10px rgba(0,0,0,.35);padding:.35rem;min-width:200px;z-index:300;text-transform:none;letter-spacing:0}'
    + '.lang-pop.open{display:block}'
-   + '.lang-pop.fixed{position:fixed;right:auto;transform:none;z-index:9000}'
+   + '.lang-pop.up{top:auto;bottom:calc(100% + 8px)}'
    + '.lang-pop button{display:block;width:100%;text-align:left;font:400 .88rem "DM Sans",sans-serif;background:none;border:0;border-radius:6px;padding:.5rem .7rem;color:#111;cursor:pointer}'
    + '.lang-pop button:hover{background:#f2f2f2}'
    + '.lang-pop button.active{font-weight:700;background:#f6f6f6}'
@@ -90,15 +90,13 @@
       document.addEventListener('click', function(e){ if(!pick.contains(e.target)) close(); });
       document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
       btn.addEventListener('click', function(){
-        /* The panel is placed from the button's position on screen, always BELOW it, so it
-           opens under the button wherever the button is -- never up into the site bar, and
-           never clipped by a scrolling container around it. In the bar the panel stays where
-           the stylesheet puts it. */
+        /* Below the button unless there is no room below -- a game's title screen puts the
+           button near the foot of the window -- in which case above it, but never so far up
+           that it would rise into the site bar. Positioned within the button's own box, so a
+           title screen that animates with a transform still places it correctly. */
         if(!pick.closest('.nav-links')){
-          var r = btn.getBoundingClientRect();
-          pop.classList.add('fixed');
-          pop.style.top = (r.bottom + 8) + 'px';
-          pop.style.left = Math.max(8, Math.min(window.innerWidth - 208, r.left + r.width / 2 - 100)) + 'px';
+          var r = btn.getBoundingClientRect(), need = 290;
+          pop.classList.toggle('up', r.bottom + need > window.innerHeight && r.top - need > 70);
         }
       });
       pick.appendChild(btn); pick.appendChild(pop);

@@ -15184,7 +15184,7 @@ document.addEventListener('play', function (e) {
     if(PENDING[lang]){ PENDING[lang].push(cb); return; }
     PENDING[lang] = [cb];
     var el = document.createElement('script');
-    el.src = 'walk-i18n-' + lang + '.js?v=20260919c'; el.async = true;
+    el.src = 'walk-i18n-' + lang + '.js?v=20260919d'; el.async = true;
     function done(){ var d = window.WALK_I18N[lang] || null, q = PENDING[lang] || []; delete PENDING[lang]; q.forEach(function(f){ f(d); }); }
     el.onload = done; el.onerror = done;
     document.head.appendChild(el);
@@ -29150,6 +29150,6 @@ body.mode-quick .j-sect:not(.is-open):focus-within{ --wash-rgb:14,26,46 }
   body.mode-quick .j-sect.is-solo:not(.is-open){ height:auto; aspect-ratio:2522 / 1404; min-height:0 }
 }
 </style>
-<script src="site-i18n.js?v=20260919c" defer></script>
-<script src="site-cc.js?v=20260919c" defer></script>
+<script src="site-i18n.js?v=20260919d" defer></script>
+<script src="site-cc.js?v=20260919d" defer></script>
 </body></html>
