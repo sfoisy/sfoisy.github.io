@@ -1,88 +1,117 @@
-/* ===== site-cc.js -- a subtitle-language pill on every captioned clip =================
-   A page's caption code calls window.__ccPill(video) once a clip has a track. The pill sits
-   in the clip's top-right corner: "CC · English ▾". Opening it lists the six languages;
-   choosing one fetches that language's file (if it is not already here) and repaints THAT
-   clip's track through window.__ccApplyVideo(video, lang, cues), leaving the rest of the
-   page alone. Changing the page's language from the site bar re-captions every clip and
-   clears these per-clip choices (the page calls window.__ccPillRefresh).
+/* ===== site-cc.js -- every caption language is a real <track> on the clip ==============
+   A page's caption code hands a clip its English cues once:
+       window.__ccTracks(video, englishCues, clipKey)
+   and this adds six <track>s to it -- English, Español, Français, Tiếng Việt, 中文, Malagasy.
+   That is the whole trick: a desktop browser's own captions menu (the three dots on the
+   control bar, or the CC button) lists a clip's tracks, so the languages appear there, in the
+   place a viewer already looks, with no pill or menu of ours over the picture.
 
-   The pill is only a picker: the captions' on/off switch stays where it is -- the browser's
-   own CC control on a desktop, the page's own on a phone. */
+   The five translated tracks start EMPTY. A language's cues arrive with its language file
+   (walk-i18n-<lang>.js on the walk, site-i18n-<lang>.js everywhere else), which is fetched
+   the first time a viewer picks that language -- from the captions menu or from the site
+   bar -- and the chosen track's source is swapped for a VTT built from the translation at
+   the same timings. Nothing is fetched for a language nobody picks.
+
+   ONE TRACK ON AT A TIME. Both painters on this site (the blog's strip and the walk's phone
+   strip) show the first track that is on, so when a track turns on the others are turned
+   off. Changing the site's language (window.__ccSetPageLang) moves the ON track to that
+   language on every clip that has captions on, and leaves clips with captions off alone.
+   On a phone, where the page draws its own controls and there is no captions menu, the
+   caption language simply follows the site language. */
 (function(){
   var LANGS = window.siteLangs || { en:'English', es:'Español', fr:'Français', vi:'Tiếng Việt', zh:'中文', mg:'Malagasy' };
-  var css = ''
-   + '.cc-pick{position:absolute;top:8px;right:8px;z-index:30;line-height:1;font-family:"DM Sans",sans-serif}'
-   + '.cc-btn{display:inline-flex;align-items:center;gap:.35rem;font:600 .68rem/1 "DM Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;'
-   + 'color:#fff;background:rgba(10,14,24,.62);border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:.32rem .6rem;cursor:pointer;'
-   + 'opacity:0;transition:opacity .2s;backdrop-filter:blur(6px)}'
-   + '.cc-btn .c{font-size:.55rem;opacity:.8}'
-   + '.video-share-wrap:hover .cc-btn,.vp-wrap:hover .cc-btn,.cc-pick.open .cc-btn,.cc-btn:focus-visible{opacity:1}'
-   + '@media(hover:none){.cc-btn{opacity:.85}}'
-   + '.cc-pop{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;color:#111;border:1px solid #e6e6e6;border-radius:10px;'
-   + 'box-shadow:0 10px 30px -10px rgba(0,0,0,.45);padding:.3rem;min-width:190px;text-transform:none;letter-spacing:0}'
-   + '.cc-pick.open .cc-pop{display:block}'
-   + '.cc-pop b{display:block;font:600 .66rem "DM Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#777;padding:.35rem .6rem .2rem}'
-   + '.cc-pop button{display:block;width:100%;text-align:left;font:400 .84rem "DM Sans",sans-serif;background:none;border:0;border-radius:6px;padding:.42rem .6rem;color:#111;cursor:pointer}'
-   + '.cc-pop button:hover{background:#f2f2f2}'
-   + '.cc-pop button.active{font-weight:700;background:#f6f6f6}'
-   + '.cc-pop small{font-size:.72em;opacity:.6;margin-left:.3rem;white-space:nowrap}'
-   + '.cc-pop .loading{opacity:.5;pointer-events:none}';
-  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  var ORDER = ['en','es','fr','vi','zh','mg'];
 
-  function pageLang(){ return (window.siteLang && window.siteLang()) || document.documentElement.lang || 'en'; }
-  function langOf(v){ return v._ccLang || pageLang(); }
-  function short(l){ return ({en:'EN',es:'ES',fr:'FR',vi:'VI',zh:'中文',mg:'MG'})[l] || l.toUpperCase(); }
-
-  function fetchLang(lang, cb){
-    if(lang === 'en'){ cb(null); return; }
-    var f = window.__i18nFetch || window.siteLangFetch;
-    if(!f){ cb(null); return; }
-    f(lang, cb);
+  function ts(x){ x = Math.max(0, +x || 0); var h = Math.floor(x / 3600), m = Math.floor(x % 3600 / 60), s = x % 60;
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s.toFixed(3); }
+  function toVTT(cues){ var out = ['WEBVTT', '']; cues.forEach(function(c, i){ out.push(String(i + 1), ts(c[0]) + ' --> ' + ts(c[1]), c[2], ''); }); return out.join('\n'); }
+  function pageLang(){ var l = (window.siteLang && window.siteLang()) || document.documentElement.lang || 'en'; return LANGS[l] ? l : 'en'; }
+  function fetchLang(l, cb){ if(l === 'en'){ cb(null); return; } var f = window.__i18nFetch || window.siteLangFetch; if(!f){ cb(null); return; } f(l, cb); }
+  function cuesFor(v, l, d){
+    var en = v._ccEn;
+    if(l === 'en' || !d || !d.cues) return en;
+    var t = d.cues[v._ccKey]; if(!t || t.length !== en.length) return en;   // no translation for this clip: English
+    return en.map(function(c, i){ return [c[0], c[1], t[i] || c[2]]; });
   }
-
-  window.__ccPill = function(v, tries){
-    if(!v || v._ccPill) return;
-    /* The clip's wrapper is what the pill sits in. On walk.html the wrap is put round the
-       clip by a later script than the one that captions it, so on a first call it may not be
-       there yet: try again for a few seconds, then give up quietly. */
-    var wrap = v.closest ? v.closest('.video-share-wrap, .vp-wrap') : null;
-    if(!wrap){ tries = tries || 0; if(tries < 20) setTimeout(function(){ window.__ccPill(v, tries + 1); }, 400); return; }
-    if(getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
-    v._ccPill = true;
-    var pick = document.createElement('div'); pick.className = 'cc-pick';
-    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cc-btn'; btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = 'CC · <span class="l"></span> <span class="c" aria-hidden="true">&#9660;</span>';
-    var pop = document.createElement('div'); pop.className = 'cc-pop'; pop.setAttribute('role', 'menu');
-    var head = document.createElement('b'); head.textContent = 'Subtitles'; pop.appendChild(head);
-    Object.keys(LANGS).forEach(function(l){
-      var b = document.createElement('button'); b.type = 'button'; b.dataset.lang = l; b.setAttribute('role', 'menuitem'); b.textContent = LANGS[l];
-      if(l !== 'en'){ var sm = document.createElement('small'); sm.textContent = '(in development)'; b.appendChild(sm); }
-      b.addEventListener('click', function(e){
-        e.stopPropagation(); close();
-        b.classList.add('loading');
-        fetchLang(l, function(d){
-          b.classList.remove('loading');
-          if(window.__ccApplyVideo) window.__ccApplyVideo(v, l, d && d.cues ? d.cues : null);
-          paint();
-        });
-      });
-      pop.appendChild(b);
+  function setSrc(el, cues){
+    if(el._blob){ try{ URL.revokeObjectURL(el._blob); }catch(e){} }
+    el._blob = URL.createObjectURL(new Blob([toVTT(cues)], {type:'text/vtt'}));
+    el.src = el._blob;
+  }
+  function ensure(v, l, cb){
+    var el = v._ccEls && v._ccEls[l]; if(!el){ cb && cb(); return; }
+    if(el._loaded){ cb && cb(); return; }
+    if(l === 'en'){ setSrc(el, v._ccEn); el._loaded = true; cb && cb(); return; }
+    if(el._pending){ el._pending.push(cb); return; }
+    el._pending = [cb];
+    fetchLang(l, function(d){
+      setSrc(el, cuesFor(v, l, d)); el._loaded = true;
+      var q = el._pending; el._pending = null; q.forEach(function(f){ f && f(); });
     });
-    function paint(){
-      var l = langOf(v);
-      btn.querySelector('.l').textContent = short(l);
-      btn.title = 'Subtitles: ' + (LANGS[l] || l) + (l !== 'en' ? ' (in development)' : '');
-      [].forEach.call(pop.querySelectorAll('button'), function(b){ b.classList.toggle('active', b.dataset.lang === l); });
-    }
-    function close(){ pick.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-    btn.addEventListener('click', function(e){ e.stopPropagation(); e.preventDefault(); var o = pick.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
-    // a click on the pill must not reach the clip (which would play/pause it) or the card behind it
-    ['pointerdown','touchstart','mousedown'].forEach(function(ev){ pick.addEventListener(ev, function(e){ e.stopPropagation(); }, {passive:true}); });
-    document.addEventListener('click', function(e){ if(!pick.contains(e.target)) close(); });
-    pick.appendChild(btn); pick.appendChild(pop); wrap.appendChild(pick);
-    v._ccPaintPill = paint; paint();
+  }
+  function onTrack(v){ var tt = v.textTracks; for(var i = 0; tt && i < tt.length; i++) if(tt[i].mode !== 'disabled') return tt[i]; return null; }
+
+  /* Turn language l on for this clip, in the given mode ('showing' by default; the walk's
+     phone controls use 'hidden' and mark the track, so that mode is carried over). */
+  window.__ccShow = function(v, l, mode){
+    if(!v._ccEls) return;
+    if(!LANGS[l]) l = 'en';
+    var was = onTrack(v);
+    mode = mode || (was ? was.mode : 'showing');
+    v._ccBusy = true;
+    ensure(v, l, function(){
+      var tt = v.textTracks;
+      for(var i = 0; tt && i < tt.length; i++){
+        var t = tt[i], mine = (t.language || '') === l;
+        if(mine){ t.mode = mode; if(mode === 'hidden') t._vcapTook = true; }
+        else if(t.mode !== 'disabled') t.mode = 'disabled';
+      }
+      v._ccBusy = false;
+    });
   };
-  window.__ccPillRefresh = function(){
-    [].forEach.call(document.querySelectorAll('video'), function(v){ if(v._ccPaintPill) v._ccPaintPill(); });
+  window.__ccOff = function(v){ var tt = v.textTracks; for(var i = 0; tt && i < tt.length; i++) tt[i].mode = 'disabled'; };
+  window.__ccLangOf = function(v){ var t = onTrack(v); return t ? (t.language || 'en') : null; };
+
+  window.__ccTracks = function(v, enCues, key){
+    if(!v || v._ccEls || !enCues || !enCues.length) return;
+    v._ccEn = enCues; v._ccKey = key || ''; v._ccEls = {};
+    ORDER.forEach(function(l){
+      var el = document.createElement('track');
+      el.kind = 'captions'; el.label = LANGS[l]; el.srclang = l; el.setAttribute('data-cc', l);
+      if(l === 'en'){ setSrc(el, enCues); el._loaded = true; }
+      else { el.src = URL.createObjectURL(new Blob(['WEBVTT\n\n'], {type:'text/vtt'})); }   // filled on first pick
+      v.appendChild(el); v._ccEls[l] = el;
+    });
+    /* The browser's captions menu turns a track on: load its cues, and turn the others off. */
+    var tt = v.textTracks;
+    if(tt && tt.addEventListener) tt.addEventListener('change', function(){
+      if(v._ccBusy) return;
+      var on = null;
+      for(var i = 0; i < tt.length; i++) if(tt[i].mode === 'showing'){ on = tt[i]; break; }
+      if(!on) return;
+      ensure(v, on.language || 'en');
+      v._ccBusy = true;
+      for(var j = 0; j < tt.length; j++) if(tt[j] !== on && tt[j].mode !== 'disabled') tt[j].mode = 'disabled';
+      v._ccBusy = false;
+    });
+    /* As the single English track always did: captions on from the start, in the site's language.
+       default="" is only read while markup is parsed, so a track added afterwards starts disabled --
+       and not in this tick either: the TextTrack object does not exist until the browser has
+       taken the element in. */
+    requestAnimationFrame(function(){ window.__ccShow(v, pageLang(), 'showing'); });
+  };
+
+  /* Clips captioned before this file had run (the walk captions at parse time) queued up. */
+  (window.__ccQueue || []).forEach(function(q){ window.__ccTracks.apply(null, q); });
+  window.__ccQueue = null;
+  window.__ccQueued = false;
+
+  /* The site's language changed: every clip whose captions are on follows it. */
+  window.__ccSetPageLang = function(l){
+    [].forEach.call(document.querySelectorAll('video'), function(v){
+      if(!v._ccEls) return;
+      var on = onTrack(v);
+      if(on) window.__ccShow(v, l, on.mode);
+    });
   };
 })();

@@ -273,8 +273,14 @@ function srtParse(txt){
     });
   return out;
 }
-function attachCues(v, cues){
+function attachCues(v, cues, key){
   if(!cues || !cues.length) return;
+  /* ONE TRACK PER LANGUAGE -- see site-cc.js. The player's own captions menu (the three
+     dots) lists English and the five translations; a translation's cues are fetched with
+     its language file the first time it is picked. Without site-cc.js: the single English
+     track, as before. */
+  if(window.__ccTracks){ window.__ccTracks(v, cues, key); return; }
+  if(document.readyState === 'loading'){ (window.__ccQueue = window.__ccQueue || []).push([v, cues, key]); return; }
   var tr=document.createElement('track');
   tr.kind='captions'; tr.label='English'; tr.srclang='en';
   tr.src=URL.createObjectURL(new Blob([toVTT(cues)],{type:'text/vtt'}));
@@ -287,13 +293,15 @@ function attachCues(v, cues){
     if(tt && tt.length) tt[tt.length-1].mode='showing';
   });
 }
+/* The site's language changed (site-i18n.js): captions follow it. */
+window.__ccApply = function(lang){ if(window.__ccSetPageLang) window.__ccSetPageLang(lang || 'en'); };
 function ccKey(url){ return (url||'').split('/').pop().replace(/\.srt$/i,''); }
 function caption(v, srt){
   var built = CC_CUES[ccKey(srt)];
-  if(built && built.length){ attachCues(v, built); return; }
+  if(built && built.length){ attachCues(v, built, ccKey(srt)); return; }
   if(!srt) return;
   fetch(srt).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
-    .then(function(t){ attachCues(v, srtParse(t)); })
+    .then(function(t){ attachCues(v, srtParse(t), ccKey(srt)); })
     .catch(function(e){
       console.warn('[captions] '+srt+' \u2014 '+(e && e.message ? e.message : e) +
                    '. If this says "Failed to fetch", the CDN is not sending ' +
@@ -439,5 +447,6 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
 })();
 </script>
 <script src="site-i18n.js" defer></script>
+<script src="site-cc.js" defer></script>
 </body>
 </html>

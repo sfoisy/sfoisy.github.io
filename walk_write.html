@@ -18912,23 +18912,29 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
     if(!t || t.length !== en.length) return en;
     return en.map(function(c, i){ return [c[0], c[1], t[i] || c[2]]; });
   }
+  /* ONE TRACK PER LANGUAGE NOW -- see site-cc.js. The browser's own captions menu (the three
+     dots on the control bar) lists them, so the language lives where a viewer already looks
+     for captions. The single-track painter below is kept for a page opened with site-cc.js
+     missing; with it present, attachTrack hands the clip over and everything else here is
+     bypassed. */
   window.__ccApply = function(lang, cues){
     CC_LANG = lang || 'en'; CC_DICT = cues || null;
-    [].slice.call(document.querySelectorAll('.j-card-video')).forEach(function(v){ if(v._ccEn){ v._ccLang = null; v._ccDict = null; paintTrack(v); } });
-    if(window.__ccPillRefresh) window.__ccPillRefresh();
-  };
-  window.__ccApplyVideo = function(v, lang, cues){
-    if(!v || !v._ccEn) return;
-    if(!lang || lang === CC_LANG){ v._ccLang = null; v._ccDict = null; } else { v._ccLang = lang; v._ccDict = cues || null; }
-    paintTrack(v);
+    if(window.__ccSetPageLang){ window.__ccSetPageLang(CC_LANG); return; }
+    [].slice.call(document.querySelectorAll('.j-card-video')).forEach(function(v){ if(v._ccEn && !v._ccEls) paintTrack(v); });
   };
   function attachTrack(v, cues){
     if(!cues || !cues.length || v.dataset.ccTrack) return;
     v.dataset.ccTrack = '1';
     v._ccEn = cues;
-    paintTrack(v);
-    if(window.__ccPill) window.__ccPill(v);
+    var key = v.dataset.ccKey;
+    if(window.__ccTracks) window.__ccTracks(v, cues, key); else (window.__ccQueue = window.__ccQueue || []).push([v, cues, key]);
   }
+  /* If site-cc.js never arrives, the queued clips get their single English track after all. */
+  window.addEventListener('load', function(){
+    if(window.__ccTracks || !window.__ccQueue) return;
+    var q = window.__ccQueue; window.__ccQueue = null;
+    q.forEach(function(e){ paintTrack(e[0]); });
+  });
   function paintTrack(v){
     var cues = localCues(v); if(!cues) return;
     var old = v.querySelector('track[data-cc]');
@@ -28546,7 +28552,11 @@ function goBack(e){
     cc.addEventListener('click', function(e){
       e.stopPropagation();
       var tt = v.textTracks, want = !capsOn();
-      for(var i = 0; tt && i < tt.length; i++){
+      /* Six tracks, one per language (site-cc.js): turning captions ON here turns on the ONE
+         for the site's language, 'hidden' so the page's own strip paints it rather than the
+         browser ("THE TRACK, ON A PHONE" shows it again in full screen). */
+      if(want && window.__ccShow && v._ccEls){ window.__ccShow(v, (window.siteLang && window.siteLang()) || 'en', 'hidden'); }
+      else for(var i = 0; tt && i < tt.length; i++){
         var t = tt[i];
         if(t.kind !== 'captions' && t.kind !== 'subtitles') continue;
         if(want){ t._vcapTook = true; t.mode = 'hidden'; }   // "THE TRACK, ON A PHONE" shows it again in full screen
