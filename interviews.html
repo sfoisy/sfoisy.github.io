@@ -169,6 +169,8 @@ function toggleMenu(){
 <header class="page-head">
   <h1>Scientist Interviews</h1>
   <p>Fourteen conversations, in the order I walked them &mdash; mile 8 to mile 256.</p>
+  <!-- Language pills, filled in by site-i18n.js (data-lang-row). The captions follow the choice. -->
+  <div class="lang-title" data-lang-row></div>
 </header>
 
 <main>
@@ -333,7 +335,8 @@ function openVideo(i, push){
   var p=INTERVIEWS[i];
   if(!p) return;
   vboxInner.innerHTML='<h3>Interview #'+esc(p.n)+': '+esc(p.name)+'</h3>'+
-                      '<p class="vbox-when">'+esc(p.when)+'  &middot;  Mile '+esc(p.mile)+'</p>';
+                      '<p class="vbox-when">'+esc(p.when)+'  &middot;  Mile '+esc(p.mile)+'</p>'+
+                      '<div class="lang-title compact" data-lang-row></div>';   // filled by site-i18n.js; the captions follow it
   var v=document.createElement('video');
   v.controls=true; v.preload='none'; v.poster=p.poster;
   v.setAttribute('playsinline','');
@@ -341,6 +344,7 @@ function openVideo(i, push){
   src.src=p.video; src.type='video/mp4';
   v.appendChild(src);
   vboxInner.appendChild(v);
+  if(window.siteLangMount) window.siteLangMount();
   caption(v, p.srt);
   vbox.classList.add('open');
   document.body.style.overflow='hidden';
