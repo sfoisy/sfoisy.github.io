@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Translation review · Walking NYC to DC</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+<!-- ===========================================================================
+     TRANSLATION REVIEW  --  translate.html
+
+     One page a speaker opens to check a whole language: every string on walk.html on
+     the left in English, the machine draft on the right in a box they can edit, and
+     every caption cue under its clip with its timings. Nothing here needs a server:
+
+       - walk-i18n-en.js       the English side (strings in page order, cues with timings)
+       - walk-i18n-<lang>.js   the language file the site itself loads -- the same file
+                               the reviewer is correcting
+
+     Edits are kept in this browser (localStorage) as they type, so they can close the
+     tab and come back. When they are done, "Download corrected file" writes a new
+     walk-i18n-<lang>.js in exactly the shape the site expects, with their progress
+     recorded inside it (_review) -- so uploading that file to the repo both fixes the
+     site AND lets the reviewer carry on where they left off from any device.
+
+     Keyed by the English string, exactly like the site: a line the reviewer leaves
+     blank stays English on the site, which is the safe failure.
+     ========================================================================= -->
+<style>
+:root{
+  --navy:#1b2a41; --ink:#1a1830; --muted:#6b6882; --pale:#e8e5f8; --fog:#f4f2ff;
+  --ok:#2a9d8f; --warn:#d9534f; --edit:#7b62d8; --white:#fff; --sky:#dbe7f6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-padding-top:120px}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:#f6f7fb;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--navy)}
+
+/* --- top bar: language, progress, actions --------------------------------- */
+.bar{position:sticky;top:0;z-index:50;background:rgba(27,42,65,.96);color:#fff;backdrop-filter:blur(10px);padding:.7rem 1.2rem;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center}
+.bar h1{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-right:auto;white-space:nowrap}
+.bar select,.bar input[type=search]{font:500 .85rem 'DM Sans',sans-serif;padding:.4rem .6rem;border-radius:.4rem;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff}
+.bar select option{color:#111}
+.bar input[type=search]{min-width:190px}
+.bar input::placeholder{color:rgba(255,255,255,.6)}
+.btn{font:600 .82rem 'DM Sans',sans-serif;padding:.45rem .9rem;border-radius:999px;border:1.5px solid rgba(255,255,255,.55);background:none;color:#fff;cursor:pointer;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.14)}
+.btn.primary{background:#fff;color:var(--navy);border-color:#fff}
+.btn.primary:hover{background:#e6ecf7}
+.btn.danger:hover{background:rgba(217,83,79,.35)}
+.prog{display:flex;align-items:center;gap:.5rem;font-size:.8rem;white-space:nowrap}
+.prog i{display:block;width:120px;height:7px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+.prog i b{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.saved{font-size:.72rem;opacity:.7;white-space:nowrap}
+
+/* --- sub bar: tabs + filters ---------------------------------------------- */
+.sub{position:sticky;top:0;z-index:49;background:#fff;border-bottom:1px solid var(--pale);padding:.5rem 1.2rem;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center}
+.tabs{display:flex;gap:.25rem}
+.tab{font:600 .82rem 'DM Sans',sans-serif;padding:.4rem .8rem;border-radius:.4rem;border:1px solid transparent;background:none;color:var(--muted);cursor:pointer}
+.tab.on{background:var(--fog);color:var(--navy);border-color:var(--pale)}
+.filters{display:flex;gap:.25rem;margin-left:auto}
+.chip{font:500 .76rem 'DM Sans',sans-serif;padding:.3rem .65rem;border-radius:999px;border:1px solid var(--pale);background:none;color:var(--muted);cursor:pointer}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+main{max-width:1180px;margin:0 auto;padding:1.2rem 1.2rem 6rem}
+.intro{background:var(--white);border:1px solid var(--pale);border-radius:.8rem;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:.9rem;color:var(--muted)}
+.intro b{color:var(--ink)}
+.intro kbd{font:500 .75rem 'DM Sans',sans-serif;background:var(--fog);border:1px solid var(--pale);border-radius:.25rem;padding:.05rem .35rem}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.meta label{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.meta input{width:100%;font:400 .95rem 'DM Sans',sans-serif;padding:.5rem .65rem;border:1.5px solid var(--pale);border-radius:.4rem;background:#fff}
+
+/* --- the rows ----------------------------------------------------------------- */
+.section{margin:1.6rem 0 .6rem}
+.section h2{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--navy);display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.section h2 small{font:500 .74rem 'DM Sans',sans-serif;color:var(--muted);letter-spacing:.04em}
+.row{display:grid;grid-template-columns:44px 1fr 1fr;gap:0 .9rem;background:#fff;border:1px solid var(--pale);border-radius:.7rem;padding:.7rem .8rem;margin-bottom:.55rem;align-items:start;transition:border-color .15s,background .15s}
+.row.checked{border-color:rgba(42,157,143,.55);background:#f5fbfa}
+.row.edited:not(.checked){border-color:rgba(123,98,216,.5)}
+.row.hidden{display:none}
+.tick{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding-top:.15rem}
+.tick input{width:1.15rem;height:1.15rem;accent-color:var(--ok);cursor:pointer}
+.tick .n{font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.en{font-size:.92rem;color:var(--ink);white-space:pre-wrap;word-wrap:break-word}
+.en .t{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.04em;margin-bottom:.15rem;font-variant-numeric:tabular-nums}
+.en .same{display:inline-block;margin-top:.3rem;font-size:.68rem;color:var(--muted);background:var(--fog);border-radius:.3rem;padding:.1rem .4rem}
+textarea{width:100%;min-height:2.4rem;font:400 .95rem/1.5 'DM Sans',sans-serif;padding:.45rem .6rem;border:1.5px solid var(--pale);border-radius:.45rem;resize:vertical;background:#fff;color:var(--ink);overflow:hidden}
+textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,42,65,.12)}
+textarea.blank{background:#fff8f2}
+.row .tr{position:relative}
+.row .undo{position:absolute;right:.35rem;bottom:.35rem;font:500 .66rem 'DM Sans',sans-serif;color:var(--muted);background:var(--fog);border:1px solid var(--pale);border-radius:.3rem;padding:.1rem .4rem;cursor:pointer;display:none}
+.row.edited .undo{display:block}
+.empty{color:var(--muted);font-size:.9rem;padding:2rem;text-align:center}
+
+/* --- clips -------------------------------------------------------------------- */
+.clip{margin:1.4rem 0 .5rem}
+.clip h3{font:700 .95rem 'DM Sans',sans-serif;color:var(--navy);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;cursor:pointer;user-select:none}
+.clip h3 .k{font-weight:400;color:var(--muted);font-size:.78rem}
+.clip h3 .p{font-weight:500;color:var(--muted);font-size:.78rem;margin-left:auto}
+.clip h3::before{content:"▾";font-size:.85rem;transition:transform .15s}
+.clip.folded h3::before{transform:rotate(-90deg)}
+.clip.folded .rows{display:none}
+
+.toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--navy);color:#fff;padding:.6rem 1rem;border-radius:999px;font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+.toast.on{opacity:1}
+
+@media(max-width:760px){
+  .row{grid-template-columns:36px 1fr;gap:.35rem .6rem}
+  .row .tr{grid-column:2}
+  .bar h1{width:100%}
+  .prog i{width:80px}
+  .filters{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>Translation review</h1>
+  <select id="lang" aria-label="Language"></select>
+  <input type="search" id="q" placeholder="Search English or translation…" aria-label="Search">
+  <span class="prog"><span id="progT">0 / 0</span><i><b id="progB"></b></i></span>
+  <span class="saved" id="saved"></span>
+  <button class="btn" id="btnLoad" title="Load a walk-i18n file you downloaded earlier">Load file…</button>
+  <button class="btn danger" id="btnReset" title="Throw away every edit and go back to the file on the site">Reset</button>
+  <button class="btn primary" id="btnSave">Download corrected file</button>
+</div>
+<div class="sub">
+  <div class="tabs">
+    <button class="tab on" data-tab="text">Page text <span id="cText"></span></button>
+    <button class="tab" data-tab="cues">Captions <span id="cCues"></span></button>
+  </div>
+  <div class="filters">
+    <button class="chip on" data-f="all">All</button>
+    <button class="chip" data-f="unchecked">Unchecked</button>
+    <button class="chip" data-f="edited">Edited</button>
+    <button class="chip" data-f="blank">Left in English</button>
+  </div>
+</div>
+
+<main>
+  <div class="intro">
+    <b>How this works.</b> Every line on the left is the English as it appears on
+    <a href="walk.html" target="_blank" rel="noopener">the walk page</a>; the box on the right is the machine draft in your language.
+    Correct anything that reads wrong, then tick the box (or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> in a box) to mark it checked.
+    Your work saves in this browser as you type. When you are done — or just done for today — press <b>Download corrected file</b>
+    and send that file to Syl; it drops straight into the site. A box you leave <em>empty</em> shows the English on the site,
+    which is the safe choice if you are unsure. Names of people and places are best left as they are.
+  </div>
+
+  <div class="meta" id="meta"></div>
+
+  <div id="tab-text"></div>
+  <div id="tab-cues" hidden></div>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileIn" accept=".js,.json" hidden>
+
+<script src="walk-i18n-en.js"></script>
+<script>
+(function(){
+  var EN = window.WALK_I18N_EN;
+  if(!EN){ document.querySelector('main').innerHTML = '<p class="empty">walk-i18n-en.js did not load. It has to sit in the same folder as this page.</p>'; return; }
+
+  var LANGS = EN.langs, lang = null, file = null, state = null, filter = 'all', tab = 'text', query = '';
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return [].slice.call((r||document).querySelectorAll(s)); };
+
+  /* ---- language picker (and ?lang= in the address) ------------------------ */
+  var sel = $('#lang');
+  Object.keys(LANGS).forEach(function(k){ var o = document.createElement('option'); o.value = k; o.textContent = LANGS[k]; sel.appendChild(o); });
+  var want = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('tr-lang') || 'es');
+  if(!LANGS[want]) want = 'es';
+  sel.value = want;
+  sel.addEventListener('change', function(){ load(sel.value); });
+
+  /* ---- storage: one draft per language -------------------------------------- */
+  function key(){ return 'tr-draft-' + lang; }
+  function store(){
+    try{ localStorage.setItem(key(), JSON.stringify(state)); localStorage.setItem('tr-lang', lang); }catch(e){}
+    $('#saved').textContent = 'saved ' + new Date().toLocaleTimeString();
+    paintProgress();
+  }
+  var storeT = null;
+  function storeSoon(){ clearTimeout(storeT); storeT = setTimeout(store, 300); }
+
+  /* ---- load the language file the site uses ----------------------------- */
+  function load(l){
+    lang = l; sel.value = l;
+    history.replaceState(null, '', '?lang=' + l);
+    $('#tab-text').innerHTML = '<p class="empty">Loading ' + LANGS[l] + '…</p>';
+    $('#tab-cues').innerHTML = '';
+    window.WALK_I18N = window.WALK_I18N || {};
+    delete window.WALK_I18N[l];
+    var s = document.createElement('script');
+    s.src = 'walk-i18n-' + l + '.js?v=' + Date.now();
+    s.onload = function(){ file = window.WALK_I18N[l] || {text:{}, cues:{}}; begin(); };
+    s.onerror = function(){ file = {label:LANGS[l], text:{}, cues:{}}; begin(); };
+    document.head.appendChild(s);
+  }
+
+  /* The working state: file values plus edits and ticks. A draft in this browser wins
+     over the file; the file's own _review block (progress a reviewer downloaded earlier)
+     wins over nothing-at-all. */
+  function begin(){
+    var draft = null;
+    try{ draft = JSON.parse(localStorage.getItem(key()) || 'null'); }catch(e){}
+    var rv = file._review || {};
+    state = draft || {
+      label: file.label || LANGS[lang], mile: file.mile || '', mileTo: file.mileTo || '',
+      text: {}, textChecked: {}, cues: {}, cuesChecked: {}
+    };
+    if(!draft){
+      EN.order.forEach(function(k){ state.text[k] = (file.text && k in file.text) ? file.text[k] : ''; });
+      Object.keys(EN.cues).forEach(function(c){
+        var f = (file.cues && file.cues[c]) || [];
+        state.cues[c] = EN.cues[c].map(function(cue, i){ return f[i] != null ? f[i] : ''; });
+      });
+      (rv.textChecked || []).forEach(function(k){ state.textChecked[k] = 1; });
+      Object.keys(rv.cuesChecked || {}).forEach(function(c){ state.cuesChecked[c] = rv.cuesChecked[c].slice(); });
+    }
+    render();
+  }
+
+  /* ---- rendering ------------------------------------------------------------ */
+  function meta(){
+    var m = $('#meta'); m.innerHTML = '';
+    [['label','Language name (as shown in the menu)'],['mile','"Mile X" label — keep {a}'],['mileTo','"Mile X to Y" label — keep {a} and {b}']].forEach(function(p){
+      var w = document.createElement('div'); var lab = document.createElement('label'); lab.textContent = p[1];
+      var inp = document.createElement('input'); inp.value = state[p[0]] || '';
+      inp.addEventListener('input', function(){ state[p[0]] = inp.value; storeSoon(); });
+      w.appendChild(lab); w.appendChild(inp); m.appendChild(w);
+    });
+  }
+  function autosize(t){ t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; }
+  function original(kind, k, i){ return kind === 'text' ? ((file.text && k in file.text) ? file.text[k] : '') : (((file.cues && file.cues[k]) || [])[i] || ''); }
+
+  function row(kind, k, i, en, n, time){
+    var val = kind === 'text' ? state.text[k] : state.cues[k][i];
+    var checked = kind === 'text' ? !!state.textChecked[k] : (state.cuesChecked[k] || []).indexOf(i) > -1;
+    var orig = original(kind, k, i);
+    var r = document.createElement('div'); r.className = 'row' + (checked ? ' checked' : '') + (val !== orig ? ' edited' : '');
+    r.dataset.en = en.toLowerCase();
+    var tick = document.createElement('div'); tick.className = 'tick';
+    var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = checked; cb.title = 'Checked';
+    var num = document.createElement('span'); num.className = 'n'; num.textContent = n;
+    tick.appendChild(cb); tick.appendChild(num);
+    var e = document.createElement('div'); e.className = 'en';
+    if(time){ var t = document.createElement('span'); t.className = 't'; t.textContent = time; e.appendChild(t); }
+    e.appendChild(document.createTextNode(en));
+    if(kind === 'text' && !(file.text && k in file.text) && !val){ var sm = document.createElement('span'); sm.className = 'same'; sm.textContent = 'same in every language (a name, a number) — translate only if it should change'; e.appendChild(sm); }
+    var tr = document.createElement('div'); tr.className = 'tr';
+    var ta = document.createElement('textarea'); ta.value = val; ta.rows = 1; ta.placeholder = '(empty = show the English on the site)'; ta.spellcheck = true;
+    ta.className = val ? '' : 'blank';
+    var undo = document.createElement('button'); undo.type = 'button'; undo.className = 'undo'; undo.textContent = 'undo my edit'; undo.title = orig ? 'Back to: ' + orig.slice(0, 80) : 'Back to empty';
+    tr.appendChild(ta); tr.appendChild(undo);
+    r.appendChild(tick); r.appendChild(e); r.appendChild(tr);
+
+    function set(v){
+      if(kind === 'text') state.text[k] = v; else state.cues[k][i] = v;
+      r.classList.toggle('edited', v !== orig); ta.className = v ? '' : 'blank'; r.dataset.tr = v.toLowerCase();
+      storeSoon();
+    }
+    function setChecked(on){
+      if(kind === 'text'){ if(on) state.textChecked[k] = 1; else delete state.textChecked[k]; }
+      else { var a = state.cuesChecked[k] = state.cuesChecked[k] || []; var at = a.indexOf(i); if(on && at < 0) a.push(i); if(!on && at > -1) a.splice(at, 1); }
+      cb.checked = on; r.classList.toggle('checked', on); storeSoon(); applyFilter();
+    }
+    ta.addEventListener('input', function(){ autosize(ta); set(ta.value); });
+    ta.addEventListener('keydown', function(ev){ if((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter'){ ev.preventDefault(); setChecked(!cb.checked); } });
+    cb.addEventListener('change', function(){ setChecked(cb.checked); });
+    undo.addEventListener('click', function(){ ta.value = orig; autosize(ta); set(orig); });
+    r.dataset.tr = (val || '').toLowerCase();
+    requestAnimationFrame(function(){ autosize(ta); });
+    return r;
+  }
+
+  function render(){
+    meta();
+    var T = $('#tab-text'); T.innerHTML = '';
+    var h = document.createElement('div'); h.className = 'section';
+    h.innerHTML = '<h2>Page text <small>' + EN.order.length + ' lines, in the order they appear on the page</small></h2>';
+    T.appendChild(h);
+    EN.order.forEach(function(k, n){ T.appendChild(row('text', k, null, k, n + 1)); });
+
+    var C = $('#tab-cues'); C.innerHTML = '';
+    var h2 = document.createElement('div'); h2.className = 'section';
+    var total = 0; Object.keys(EN.cues).forEach(function(c){ total += EN.cues[c].length; });
+    h2.innerHTML = '<h2>Captions <small>' + Object.keys(EN.cues).length + ' clips, ' + total + ' cues — one line per cue, timings stay as they are</small></h2>';
+    C.appendChild(h2);
+    Object.keys(EN.cues).forEach(function(c){
+      var clip = document.createElement('div'); clip.className = 'clip folded'; clip.dataset.clip = c;
+      var hd = document.createElement('h3');
+      hd.innerHTML = '<span>' + (EN.clipTitles[c] || c) + '</span><span class="k">' + c + '</span><span class="p"></span>';
+      hd.addEventListener('click', function(){ clip.classList.toggle('folded'); });
+      clip.appendChild(hd);
+      var rows = document.createElement('div'); rows.className = 'rows';
+      EN.cues[c].forEach(function(cue, i){ rows.appendChild(row('cue', c, i, cue[2], i + 1, fmt(cue[0]) + ' → ' + fmt(cue[1]))); });
+      clip.appendChild(rows); C.appendChild(clip);
+    });
+    $$('.clip').length && $('.clip').classList.remove('folded');
+    paintProgress(); applyFilter(); showTab(tab);
+  }
+  function fmt(s){ s = Math.max(0, +s || 0); var m = Math.floor(s / 60), x = s - m * 60; return m + ':' + (x < 10 ? '0' : '') + x.toFixed(1); }
+
+  function paintProgress(){
+    if(!state) return;
+    var tDone = Object.keys(state.textChecked).length, tAll = EN.order.length;
+    var cDone = 0, cAll = 0;
+    Object.keys(EN.cues).forEach(function(c){ cAll += EN.cues[c].length; cDone += (state.cuesChecked[c] || []).length;
+      var clip = $('.clip[data-clip="' + c + '"] .p'); if(clip) clip.textContent = (state.cuesChecked[c] || []).length + ' / ' + EN.cues[c].length + ' checked'; });
+    var done = tDone + cDone, all = tAll + cAll;
+    $('#progT').textContent = done + ' / ' + all + ' checked';
+    $('#progB').style.width = (all ? done / all * 100 : 0) + '%';
+    $('#cText').textContent = '· ' + tDone + '/' + tAll;
+    $('#cCues').textContent = '· ' + cDone + '/' + cAll;
+  }
+
+  /* ---- tabs, filters, search ------------------------------------------------ */
+  function showTab(t){
+    tab = t;
+    $$('.tab').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === t); });
+    $('#tab-text').hidden = t !== 'text'; $('#tab-cues').hidden = t !== 'cues';
+  }
+  $$('.tab').forEach(function(b){ b.addEventListener('click', function(){ showTab(b.dataset.tab); }); });
+  $$('.chip').forEach(function(b){ b.addEventListener('click', function(){ filter = b.dataset.f; $$('.chip').forEach(function(x){ x.classList.toggle('on', x === b); }); applyFilter(); }); });
+  $('#q').addEventListener('input', function(){ query = $('#q').value.trim().toLowerCase(); applyFilter(); });
+  function applyFilter(){
+    $$('.row').forEach(function(r){
+      var show = true;
+      if(filter === 'unchecked') show = !r.classList.contains('checked');
+      else if(filter === 'edited') show = r.classList.contains('edited');
+      else if(filter === 'blank') show = !(r.dataset.tr || '');
+      if(show && query) show = (r.dataset.en.indexOf(query) > -1) || ((r.dataset.tr || '').indexOf(query) > -1);
+      r.classList.toggle('hidden', !show);
+    });
+    // a clip with nothing to show folds out of the way; one with matches opens
+    $$('.clip').forEach(function(c){ var any = $$('.row:not(.hidden)', c).length; c.style.display = any ? '' : 'none'; if(any && (query || filter !== 'all')) c.classList.remove('folded'); });
+  }
+
+  /* ---- download: the site's own file shape, plus the reviewer's progress --- */
+  function build(){
+    var text = {}; EN.order.forEach(function(k){ var v = (state.text[k] || '').trim(); if(v && v !== k) text[k] = v; });
+    var cues = {}; Object.keys(EN.cues).forEach(function(c){ cues[c] = EN.cues[c].map(function(cue, i){ var v = (state.cues[c][i] || '').trim(); return v || cue[2]; }); });
+    var out = { label: state.label || LANGS[lang], mile: state.mile || '', mileTo: state.mileTo || '', text: text, cues: cues,
+      _review: { textChecked: Object.keys(state.textChecked), cuesChecked: state.cuesChecked, exported: new Date().toISOString() } };
+    var hdr = '/* walk-i18n-' + lang + '.js -- ' + (state.label || LANGS[lang]) + ' for walk.html.\n' +
+      '   Reviewed with translate.html; exported ' + new Date().toLocaleString() + '. Shape:\n' +
+      '     text:  { "English string as it appears in the page": "translation" }  -- a missing key stays English on the site\n' +
+      '     cues:  { clipKey: [ one string per caption cue, in order ] }\n' +
+      '     mile / mileTo: templates for the folded cards\' labels; _review: the reviewer\'s progress. */\n';
+    return hdr + 'window.WALK_I18N=window.WALK_I18N||{};\nwindow.WALK_I18N.' + lang + '=' + JSON.stringify(out) + ';\n';
+  }
+  $('#btnSave').addEventListener('click', function(){
+    store();
+    var blob = new Blob([build()], {type:'text/javascript;charset=utf-8'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'walk-i18n-' + lang + '.js';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast('Downloaded walk-i18n-' + lang + '.js — send it to Syl.');
+  });
+
+  /* ---- load a file downloaded earlier (or the one Syl put on the site) ------ */
+  $('#btnLoad').addEventListener('click', function(){ $('#fileIn').click(); });
+  $('#fileIn').addEventListener('change', function(){
+    var f = $('#fileIn').files[0]; if(!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){
+      try{
+        var src = String(rd.result), m = src.match(/window\.WALK_I18N\.(\w+)\s*=\s*(\{[\s\S]*\});?\s*$/);
+        var obj = m ? JSON.parse(m[2]) : JSON.parse(src);
+        var l = (m && m[1]) || lang;
+        if(!LANGS[l]) throw new Error('unknown language ' + l);
+        lang = l; sel.value = l; file = obj;
+        try{ localStorage.removeItem(key()); }catch(e){}
+        begin(); store(); toast('Loaded ' + f.name);
+      }catch(e){ toast('Could not read that file: ' + e.message); }
+      $('#fileIn').value = '';
+    };
+    rd.readAsText(f);
+  });
+
+  $('#btnReset').addEventListener('click', function(){
+    if(!confirm('Throw away every edit and tick for ' + LANGS[lang] + ' in this browser, and start again from the file on the site?')) return;
+    try{ localStorage.removeItem(key()); }catch(e){}
+    load(lang);
+  });
+
+  var toastT;
+  function toast(msg){ var t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('on'); }, 2600); }
+
+  load(want);
+})();
+</script>
+</body>
+</html>
