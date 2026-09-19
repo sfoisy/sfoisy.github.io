@@ -1152,7 +1152,14 @@ html .nav-mobile-menu{ background:var(--nav-solid) }
    the scroll differs between engines, and overscroll-behavior stops the rubber-band on iOS
    dragging the sheet around. The class is removed the moment the sheet starts to lift. */
 html.pre-lock{ overflow:hidden !important; overscroll-behavior:none; touch-action:none }
-html.pre-lock body{ overscroll-behavior:none; touch-action:none }
+/* BODY'S OVERFLOW GOES VISIBLE WHILE THE SHEET IS UP. This page's body has overflow-x:hidden
+   (the ordinary guard against sideways scroll). Normally that propagates to the viewport and
+   body itself stays visible; but while the lock above puts overflow:hidden on <html>, body's
+   value no longer propagates and body becomes a scroll container of its own -- and the
+   sticky bar sticks to IT. On an arrival that lands scrolled down (index.html#blog from
+   another page's menu) the bar went up out of the window with the body, and the sheet was
+   all that showed. Visible here means the viewport owns the scroll and the bar stays put. */
+html.pre-lock body{ overflow:visible !important; overscroll-behavior:none; touch-action:none }
 /* NOT overflow:hidden ON BODY AS WELL, and this is the fix for the bar vanishing behind the
    sheet on walk.html?v=<interview>. With overflow:hidden on BOTH html and body, html's
    propagates to the viewport and body's stays put -- which makes body a scroll container of
