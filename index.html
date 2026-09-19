@@ -1001,8 +1001,391 @@ html{ scrollbar-gutter:stable }
   .nav-mobile-menu{ background:var(--nav-solid) !important }
 }
 </style>
+<!-- ===== The loading sheet, from walk.html ================================
+     The same pixel earth over the same night sky, while the page assembles. The sky (back2.jpg)
+     is preloaded at high priority so it is the first thing to arrive; the sheet lifts the moment
+     the page and its hero photograph are ready, and never later than CAP. -->
+<link rel="preload" as="image" href="https://wesitefoisy1.b-cdn.net/back2.jpg" fetchpriority="high">
+<style>
+/* ===== The loading sheet ====================================================
+   A white sheet over the whole page while it puts itself together: a strip of prints going
+   past, the mileage, and a bar. Nobody walks on it -- see the note further down.
+
+   Why a sheet at all. This page assembles itself in script: the accordion builds the stop
+   cards, the map measures itself and morphs, the trail measures every card and lays a few
+   hundred footprints. All of that happens over the first second or so, and watching it happen
+   is watching the furniture being carried in. The sheet covers that and lifts once the page
+   has settled.
+
+   The state lives on <html>'s class list, not <body>'s. <body>'s list is busy -- the map's
+   render loop writes to it on every frame and the trail watches it -- and a sheet that raises
+   and lowers has no business waking either of them.
+
+   Two escape hatches, because the one failure mode that matters here is a white page with no
+   way out of it. The script hides the sheet; if the script never runs, the animation at the
+   bottom of this rule lifts it anyway. */
+#preload{
+  position:fixed; inset:0;
+  /* 9990: ABOVE every piece of the page (the highest thing in the article is 400)
+     and BELOW every overlay that has to beat it (the lightbox, the share sheet, the
+     tour, the quiz win screen -- all 9998 and up). It was 2147483000, a number that
+     means "above absolutely everything", which forced the bar to be raised above it
+     by a rule keyed on the loading state -- and that rule changed the bar's z-index
+     mid-load, which is a compositing change on a sticky translucent strip at the
+     worst possible moment. Sitting the sheet in the gap instead lets the bar hold ONE
+     z-index for the whole visit. See nav's rule below. */
+  z-index:9990;
+  display:flex; align-items:center; justify-content:center;
+  /* A sky, not a white wall. Still zero bytes over the wire -- it is two gradients and a
+     drifting cloud layer drawn in CSS -- which is the whole rule for this sheet: a loading
+     screen that has to load is not one. */
+  /* The floor under .pl-sky, which is where the picture is set. Flat navy: it is what
+     shows for the moment before the JPEG lands, and the whole sheet if the CDN is
+     unreachable -- dark, which is what the white progress type needs. */
+  background:#16243d;
+  overflow:hidden;
+  opacity:1;
+  transition:opacity .5s ease;
+  /* The bail-out. Nine seconds is far longer than the script ever takes; it exists only for
+     the case where the script is not there at all. */
+  animation:plBail .8s ease 9s forwards;
+}
+html.pre-gone #preload{ opacity:0; pointer-events:none }
+html.pre-off  #preload{ display:none }
+/* ===== THE BAR STAYS UP WHILE THE SHEET IS DOWN =============================
+   The menu rides OVER the loading sheet rather than under it. This page is 1.9 MB and the
+   sheet can be up for several seconds on a slow connection; a reader who arrived by mistake,
+   or who only wanted the blog, should not have to watch a progress bar finish before the site
+   will admit it has other pages. It is also the one piece of furniture that is finished
+   before anything else on the page is -- six links and a name, no measuring, no images -- so
+   it is not part of the assembly the sheet exists to hide.
+
+   IT IS SIMPLY THERE, from the first frame. There was a .55s rise on it for a round -- the
+   bar sliding down out of the top edge as the sheet appeared -- and it was wrong twice over:
+   for half a second there was no menu at all, which is exactly the half second this whole
+   rule exists to fill, and a bar that moves is furniture being carried in, which is what the
+   sheet is covering up. Nothing here animates. The bar is drawn where it belongs before the
+   first paint and does not move again.
+
+   Two things still make it look deliberate rather than like a bar that failed to get covered:
+
+   1. It is lighter over the sheet than it is over the article. The sheet is a pale sky and a
+      72%-opaque navy bar lands on it as a hard black stripe; .62 lets the sky through and the
+      white type still clears 9:1 against it.
+   2. The hairline under it goes to a soft white, which reads as an edge on a pale ground
+      where the dark rule it normally wears reads as a crack.
+
+   Both selectors are html-qualified, which is what lets them beat the palette block at the
+   foot of the file without !important: specificity settles it, not source order.
+   KNOB: the .62 alpha. */
+/* ONE Z-INDEX, ALWAYS. 9991 is one above the loading sheet and below every overlay
+   that must cover the bar, so the bar is above the sheet from the first frame to the
+   last without anything ever being switched. Nothing about the bar is keyed on the
+   loading state any more -- not its colour, not its border, not its stacking -- which
+   is the only way to be sure it cannot flash: there is no moment at which it changes.
+
+   The back pill rides with it for the same reason. */
+nav, .nav-mobile-menu, .backw{ z-index:9991 }
+/* NOTHING HERE CHANGES THE BAR. There was a rule that lightened it to .62 alpha
+   with a soft white hairline while the sheet was up, and returned it to the ordinary
+   .72 navy when the sheet went. That is a background swap on a blurred, sticky,
+   semi-transparent strip at the exact moment a full-screen element behind it is
+   being removed -- which is what was making the six links blink out and come back.
+   Two paint triggers landing on the same frame.
+
+   The bar wears the same colours from the first frame to the last now. It was only
+   ever lightened because the sheet used to be a pale blue; the sheet is a night
+   photograph, and the ordinary bar sits on it perfectly well. */
+/* NOTHING ABOUT THE BAR ANIMATES, and that is the whole of this rule now. There was
+   a half-second cross-fade here as the sheet lifted, on the argument that the colour
+   change should read as part of one movement -- but a bar that is doing anything at
+   all while a 1.9 MB page assembles itself behind it reads as the bar being part of
+   the assembly. It is the one finished thing on screen; it should look finished.
+
+   THE LAYER IS THE OTHER HALF. A sticky, semi-transparent strip with a backdrop
+   blur has to re-sample that blur every time anything behind it paints -- and behind
+   it, during load, is a fading full-screen sheet. A browser that has not given the
+   bar a layer of its own re-rasterises the strip on frames it cannot keep up with,
+   which is seen as the text blinking out and coming back. An identity 3D transform
+   puts it on its own layer; backface-visibility and isolation stop it being folded
+   back in with what is painting behind it. Nothing about how it looks changes. */
+/* ===== THE BAR IS OPAQUE ON THIS PAGE, AND THAT IS THE FIX ==================
+   Everywhere else on the site the bar is 72% navy with a 12px backdrop blur, which
+   is fine over a page that simply scrolls. This page is not that: a full-screen
+   loading sheet fades out behind the bar, a 1.9 MB article assembles under it, and
+   a map redraws as you scroll. A backdrop blur has to RE-SAMPLE everything behind
+   it every time any of that paints, and on the frames the compositor cannot keep
+   up, the strip is drawn without its backdrop -- which is seen as the bar and its
+   six links flashing a different colour and back.
+
+   Three things were tried before this. Removing the load-time colour change helped
+   and did not finish it. Promoting the bar to its own layer with a 3D transform
+   made it worse: a blur and a forced layer are contradictory instructions -- the
+   blur wants to sample what is behind it, the layer exists to stop it having to.
+   Then the layer promotion came out again, and the flash came back with the blur.
+
+   So the blur goes. A solid navy needs no backdrop, cannot be re-sampled, and
+   cannot fail to composite; over the night-sky sheet and over the article it reads
+   the same as the translucent version did, because what was behind it was dark
+   both times. The other pages keep their glass -- none of them has a sheet lifting
+   behind the bar.
+
+   html-qualified so it beats the palette block at the foot of the file on
+   specificity rather than on source order.
+   KNOB: --nav-solid. It wants to be the colour the glass used to average out to. */
+html nav, html .nav-mobile-menu{ --nav-solid:#0f1b2f }
+html nav{
+  background:var(--nav-solid);
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+html .nav-mobile-menu{ background:var(--nav-solid) }
+@media(max-width:700px){
+  /* The narrow bar composited over --nav-under for the same blur-off reason; with
+     no blur anywhere there is nothing left for that rule to solve. */
+  html nav{ background:var(--nav-solid) }
+}
+
+/* NO SCROLLING WHILE THE SHEET IS UP. The article underneath is still measuring itself -- the
+   map is sizing, the accordion is building its sections -- and scrolling through that lands
+   you somewhere arbitrary once it settles. Locked on <html> AND <body> because which one owns
+   the scroll differs between engines, and overscroll-behavior stops the rubber-band on iOS
+   dragging the sheet around. The class is removed the moment the sheet starts to lift. */
+html.pre-lock{ overflow:hidden !important; overscroll-behavior:none; touch-action:none }
+html.pre-lock body{ overscroll-behavior:none; touch-action:none }
+/* NOT overflow:hidden ON BODY AS WELL, and this is the fix for the bar vanishing behind the
+   sheet on walk.html?v=<interview>. With overflow:hidden on BOTH html and body, html's
+   propagates to the viewport and body's stays put -- which makes body a scroll container of
+   its own, and a position:sticky bar sticks to the nearest scroll container. So the bar was
+   sticking to body, and when the interview link scrolled the window thousands of pixels
+   under the sheet, the bar went up the page with everything else. On a plain load scrollY is
+   0 the whole time the sheet is up, which is why it never showed there. html alone is enough
+   to lock the viewport in every current engine, and the wheel / touchmove / key handlers in
+   the sheet script are the second lock on the same door. */
+@keyframes plBail{ to{ opacity:0; visibility:hidden; pointer-events:none } }
+
+.pl-box{ display:flex; flex-direction:column; align-items:center; gap:1.15rem; padding:0 1rem }
+
+/* The stage. He walks ON THE SPOT and the ground moves under him, which is the only way to
+   loop a walk seamlessly: a figure that crosses the box has to teleport back to the left edge
+   at the end of every lap, and there is no hiding that. This way the loop is one translate on
+   one strip of prints, and the strip is four identical tiles wide so the reset lands on an
+   identical frame and never shows a seam. */
+/* ===== The loading sheet's contents =========================================
+   THE FOOTPRINTS ARE GONE. A 528px SVG strip of prints was translated -132px on a loop to
+   fake a walk. The seam never quite landed: the strip is four tiles wide but the animation
+   moved one tile, so any rounding in the compositor showed as a stutter at the wrap, and the
+   whole thing juddered against the sheet's own fade. Nothing replaced it -- the sheet is a
+   destination and a progress bar now, which is all it ever needed to be.
+   Gone with it: the mileage counter that ticked up to 270.4, and the grey rotating subtitle.
+
+   Restoring the prints means bringing back three things together: the .pl-stage / .pl-track
+   CSS, the <svg class="pl-track"> markup, and the plTrack keyframes. */
+
+.pl-cap{ text-align:center; line-height:1.25 }
+.pl-title{
+  display:block;
+  /* The body face, not the display serif -- this is a plain statement of where the walk goes,
+     and it was reading as a title card. No text-shadow at all: the white halo it had was doing
+     contrast work that the backdrop behind it already does, and at this size it
+     just looked like the letters were printed on frosted glass. */
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  font-size:1.32rem; font-weight:600; letter-spacing:-.01em; color:#fff;
+}
+
+/* ===== The bar ==============================================================
+   The original hairline, in white. A 2px track with a short sliver sliding across it and
+   starting again -- indeterminate, which is the honest shape for this sheet: it comes down
+   on a timer and on `load`, not on a count of anything, so a 0-to-100 readout would have
+   been a number invented to look like a measurement.
+
+   It was near-black on a white wash. Both ends of that flipped when the title went white:
+   the backdrop behind the type is dark now, so the track is white at low
+   alpha and the sliver is solid white. */
+/* ===== THE BAR REPORTS, IT DOES NOT PERFORM ================================
+   It was a 36%-wide sliver sweeping left to right on a 1.5s loop -- an indeterminate
+   bar, which is the honest choice when you have nothing to measure and a lie when you
+   do. This page has plenty to measure (see the script at the foot of the sheet), so
+   the fill is now a real fraction: it starts at zero, only ever moves forward, and
+   reaches the end when the page is genuinely ready.
+
+   transform:scaleX rather than width, so each step is a composited transform rather
+   than a layout pass -- the point of a progress bar is to be the cheapest thing on a
+   busy page. transform-origin:left because a scaled box grows from its centre by
+   default, which would have it opening outward from the middle.
+
+   The .35s easing smooths the steps: real progress arrives in jumps (a batch of
+   images completes at once) and a bar that teleports reads as broken. Long enough to
+   glide, short enough that the bar is never far behind the truth. */
+.pl-bar{ width:168px; height:2px; border-radius:2px; background:rgba(255,255,255,.3); overflow:hidden; margin-top:.9rem }
+.pl-bar i{
+  display:block; width:100%; height:100%; background:#fff;
+  transform:scaleX(0); transform-origin:left center;
+  transition:transform .35s cubic-bezier(.25,.8,.3,1);
+}
+/* ===== CONTINUOUS AGAIN ====================================================
+   Back to a bar that simply runs: a short bright stroke sweeping the track, over and over,
+   for as long as the sheet is up. The measured bar above answered "how much longer", but its
+   honest answer was often "stuck at 60% while one photograph finishes" -- a bar that stalls
+   reads as a page that has stalled. A continuous sweep says only that something is happening,
+   which is always true. (The measuring script no longer runs; the rule above is kept so going
+   back is deleting this block and restoring one line -- see requestAnimationFrame(measure).) */
+.pl-bar i{
+  width:36%; transform-origin:left center; transition:none;
+  animation:plRun 1.15s cubic-bezier(.45,0,.3,1) infinite;
+}
+@keyframes plRun{ 0%{ transform:translateX(-105%) } 100%{ transform:translateX(285%) } }
+@media(prefers-reduced-motion:reduce){ .pl-bar i{ animation:none; width:100%; transform:none; opacity:.55 } }
+
+/* ===== The sheet's backdrop =================================================
+   NO PHOTOGRAPH. There was one -- startt.png, preloaded at high priority, pushing in slowly
+   under a white wash -- and it was the one thing on this sheet that had to arrive over the
+   wire. A loading screen whose own backdrop is still loading is a contradiction; on a cold
+   connection it showed as a flat gradient for a beat and then swapped, which is precisely the
+   pop the sheet exists to hide.
+
+   What replaces it is three layers of colour and nothing else. Zero bytes, painted on the
+   first frame, and it cannot fail to arrive.
+
+     - a base ramp, deep blue at the top down to a warm cream at the foot;
+     - two soft radial washes, one cool and one warm, drifting slowly against each other.
+
+   The drift is the whole trick. Both washes are far larger than the screen and move a few
+   percent on long, offset loops, so the colour under the title is never quite the same twice
+   and the sheet reads as alive rather than as a still. background-position on a
+   background-size:200% layer, not a transform on a child: it composites on the same layer as
+   the paint it is moving, so there is no extra element and nothing to promote.
+
+   The white oval that used to sit behind the type is gone with the photograph. It was there
+   to hold contrast over an unpredictable sky; the gradient is chosen, so the type simply
+   sits where it is dark enough. */
+.pl-sky{
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+  /* THE PHOTOGRAPH, not a painted sky. back2.jpg -- the same night sky blog.html
+     sits on -- covering the sheet. There was a four-stop blue gradient here with two
+     washes drifting across it on offset loops, and it was a good loading screen in
+     isolation and the wrong one across a site: you left a dark page, waited on a
+     lighter blue one, and arrived somewhere dark again. The wait looks like part of
+     where you are going now.
+
+     THE DRIFT WENT WITH IT. The animation existed to keep a flat gradient from
+     reading as a still; a photograph of a star field has its own texture and does
+     not need to move, and a slowly panning background under a progress bar is the
+     kind of motion that makes a wait feel longer than it is.
+
+     NO SCRIM. There was an even 22% black over the picture for the white title and
+     progress bar, and it made this the same photograph a shade darker than the blog
+     -- which is the one thing a shared backdrop must not be. The type holds on the
+     picture as it stands; it already holds on the blog, which sets white on the same
+     file with nothing over it.
+
+     KNOB: the navy floor -- what shows for the moment before
+     the JPEG lands, and the whole sheet if the CDN is unreachable. */
+  background-color:#16243d;
+  background-image:url("https://wesitefoisy1.b-cdn.net/back2.jpg");
+  /* FRAMED THE WAY blog.html FRAMES IT, which is the point of using the same file:
+     the picture is scaled to the WIDTH of the window and pinned to the top, so the
+     part you see here is the part you see there. `cover` was scaling it to fill both
+     axes and centring the overflow, which on a short window crops in on the middle of
+     the sky -- the same photograph showing a different piece of itself, which is
+     exactly what a shared backdrop must not do.
+     repeat-y for the same reason it is there on the blog: a window taller than the
+     picture's own aspect gets more picture rather than a band of flat navy. */
+  background-size:100% auto;
+  background-position:top center;
+  background-repeat:repeat-y;
+}
+/* NARROW SCREENS GET `cover`, which is what blog.html does at the same breakpoint and
+   for the same reason. Scaled to the WIDTH of a 400px phone this photograph is about
+   190px tall, so `100% auto` turns it into a thin band tiled a dozen times down the
+   sheet -- a repeating strip of sky, which is not what anyone means by a backdrop.
+   `cover` scales it to fill instead and crops the overflow. The two rules together are
+   the same pair the blog carries: width-scaled where there is width, cover where there
+   is not. */
+@media(max-width:1100px){
+  .pl-sky{
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+}
+
+.pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
+
+/* ===== The pixel earth =======================================================
+   loader.html's animation, moved in whole and scoped under #preload. Eight 48px cubes on a
+   2x2x2 lattice, each face a 12x12 pixel map painted as ONE 4px square plus box-shadow
+   copies -- no extra DOM, painted once. The lattice tumbles on a 12s loop while the eight
+   slots breathe apart to 52px and back to 24px on a 3.6s loop. Zero bytes over the wire,
+   which is the whole rule for this sheet. KNOBS: --ocean/--land/--ice/--inner, and the two
+   animation durations. */
+#preload{ --ocean:#2b6a9b; --land:#4c8c3f; --ice:#dfeaf0; --inner:#1d4d73 }
+.pl-scene{ width:260px; height:250px; perspective:1000px; display:grid; place-items:center }
+.pl-lattice{ position:relative; width:0; height:0; transform-style:preserve-3d; animation:plTumble 12s linear infinite; will-change:transform }
+.pl-slot{ position:absolute; inset:0; transform-style:preserve-3d; animation:plBreathe 3.6s cubic-bezier(.65,0,.35,1) infinite }
+.pl-cube{ position:absolute; width:48px; height:48px; margin:-24px 0 0 -24px; transform-style:preserve-3d }
+.pl-f{ position:absolute; inset:0; display:block; background:var(--ocean); backface-visibility:hidden }
+.pl-f.in{ background:var(--inner) }
+.pl-f.px::before{ content:""; position:absolute; left:0; top:0; width:4px; height:4px; background:var(--p); box-shadow:var(--s) }
+.pl-f.front { transform:translateZ(24px) }
+.pl-f.back  { transform:rotateY(180deg) translateZ(24px); filter:brightness(.82) }
+.pl-f.right { transform:rotateY(90deg)  translateZ(24px); filter:brightness(.92) }
+.pl-f.left  { transform:rotateY(-90deg) translateZ(24px); filter:brightness(.88) }
+.pl-f.top   { transform:rotateX(90deg)  translateZ(24px); filter:brightness(1.06) }
+.pl-f.bottom{ transform:rotateX(-90deg) translateZ(24px); filter:brightness(.74) }
+@keyframes plTumble{
+  from{ transform:rotateX(-18deg) rotateY(0deg)   rotateZ(4deg) }
+  to  { transform:rotateX(-18deg) rotateY(360deg) rotateZ(4deg) }
+}
+@keyframes plBreathe{
+  0%, 25%  { transform:translate3d(calc(var(--x) * 24px), calc(var(--y) * 24px), calc(var(--z) * 24px)) }
+  55%, 68% { transform:translate3d(calc(var(--x) * 52px), calc(var(--y) * 52px), calc(var(--z) * 52px)) }
+  100%     { transform:translate3d(calc(var(--x) * 24px), calc(var(--y) * 24px), calc(var(--z) * 24px)) }
+}
+/* "Save our forecasts", one word after another. White, in the body face, on the night sky. */
+.pl-label{ display:flex; gap:.3em; margin-top:2px; color:#fff; font:400 1.15rem/1 'DM Sans',system-ui,-apple-system,Helvetica,Arial,sans-serif; letter-spacing:.01em }
+.pl-label span{ opacity:0; animation:plSurface .6s ease-out forwards }
+.pl-label span:nth-child(2){ animation-delay:.25s }
+.pl-label span:nth-child(3){ animation-delay:.5s }
+@keyframes plSurface{ from{ opacity:0; transform:translateY(6px) } to{ opacity:.9; transform:translateY(0) } }
+@media(prefers-reduced-motion:reduce){
+  .pl-lattice{ animation-duration:60s }
+  .pl-slot, .pl-label span{ animation:none }
+  .pl-label span{ opacity:.9 }
+
+/* The bar rides over the sheet, as on the walk: 9991 is one above it. */
+nav, .nav-mobile-menu{ z-index:9991 }
+</style>
 </head>
 <body>
+<div id="preload" role="status" aria-live="polite" aria-label="Loading">
+  <div class="pl-sky" aria-hidden="true"></div>
+  <div class="pl-box">
+    <!-- The route line that used to sit here -- "New York City to Washington, D.C." -- is
+         gone. The page it is loading says that in type four times the size, ten seconds
+         later; on the sheet it was a caption for a picture that is not there yet. What is
+         left is the bar, which is the only thing on a loading screen a reader actually
+         wants: how much longer. -->
+    <!-- The pixel earth from loader.html -- eight cubes that split apart and rejoin while the
+         whole thing tumbles -- and its three-word line. Same markup, same keyframes, the
+         class names prefixed pl- so nothing on this page can reach them. The progress bar
+         it replaces is gone: the earth is the "something is happening" and the words are
+         the destination. -->
+    <div class="pl-scene" aria-hidden="true">
+      <div class="pl-lattice">
+        <div class="pl-slot" style="--x:-1;--y:-1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),32px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),28px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),28px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land)"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:var(--land);--s:4px 0px var(--land),4px 4px var(--land)"></i><i class="pl-f top px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),16px 16px var(--land),20px 16px var(--land),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),40px 36px var(--ice),44px 36px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),40px 40px var(--ice),44px 40px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice),40px 44px var(--ice),44px 44px var(--ice)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y:-1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),40px 16px var(--land),44px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),40px 20px var(--land),44px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),44px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),44px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land)"></i><i class="pl-f right px" style="--p:transparent;--s:12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),4px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),4px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),40px 16px var(--land),44px 16px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),40px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),44px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),20px 32px var(--land),24px 32px var(--land),40px 32px var(--land),44px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),28px 16px var(--land),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),0px 36px var(--ice),4px 36px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),0px 40px var(--ice),4px 40px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),0px 44px var(--ice),4px 44px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y:-1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),44px 16px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),44px 32px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:40px 0px var(--land),44px 0px var(--land),44px 4px var(--land),12px 36px var(--land),16px 40px var(--land)"></i><i class="pl-f top px" style="--p:transparent;--s:16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),40px 0px var(--ice),44px 0px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),40px 4px var(--ice),44px 4px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),40px 8px var(--ice),44px 8px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),16px 16px var(--land),20px 16px var(--land),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),36px 20px var(--land),40px 20px var(--land),44px 20px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),36px 24px var(--land),40px 24px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),40px 28px var(--land),44px 28px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y:-1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:32px 0px var(--ice),36px 0px var(--ice),0px 4px var(--land),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),28px 12px var(--ice),32px 12px var(--ice),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),32px 16px var(--ice),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right px" style="--p:transparent;--s:44px 8px var(--land),44px 24px var(--land),44px 28px var(--land),44px 32px var(--land),44px 36px var(--land),40px 40px var(--land),44px 40px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top px" style="--p:var(--ice);--s:4px 0px var(--ice),8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),0px 4px var(--ice),4px 4px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--ice),4px 8px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),4px 20px var(--land),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),8px 24px var(--land),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),12px 28px var(--land),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),4px 32px var(--land),8px 32px var(--land),24px 32px var(--ice),28px 32px var(--ice),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y: 1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),4px 8px var(--land),8px 8px var(--land),16px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),0px 16px var(--land),16px 16px var(--land),20px 16px var(--land),28px 16px var(--land),8px 20px var(--land),12px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),8px 44px var(--land),12px 44px var(--land)"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:8px 24px var(--land),8px 28px var(--land),4px 32px var(--land)"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),40px 0px var(--ice),44px 0px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),40px 4px var(--ice),44px 4px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),40px 8px var(--ice),44px 8px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y: 1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),24px 4px var(--land),28px 4px var(--land),24px 8px var(--land),44px 12px var(--land),44px 16px var(--land),44px 28px var(--land),44px 32px var(--land),44px 36px var(--land)"></i><i class="pl-f right px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),20px 44px var(--land),24px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:var(--ice);--s:4px 0px var(--ice),8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),0px 4px var(--ice),4px 4px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--ice),4px 8px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y: 1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),40px 12px var(--land),44px 12px var(--land),44px 16px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:none"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),40px 36px var(--ice),44px 36px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),40px 40px var(--ice),44px 40px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice),40px 44px var(--ice),44px 44px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y: 1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),20px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),0px 8px var(--land),4px 8px var(--land),0px 12px var(--land),0px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right px" style="--p:transparent;--s:40px 0px var(--land),44px 0px var(--land),40px 4px var(--land),44px 4px var(--land),44px 8px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),12px 4px var(--land),16px 4px var(--land),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),0px 36px var(--ice),4px 36px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),0px 40px var(--ice),4px 40px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),0px 44px var(--ice),4px 44px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice)"></i></div></div>
+      </div>
+    </div>
+    <div class="pl-label"><span>Save</span><span>our</span><span>forecasts</span></div>
+  </div>
+</div>
 
 <!-- THE SAME FOUR ITEMS ON EVERY PAGE THAT HAS A BAR. About, Blog, Contact, CV -- and
      nothing else. The bar had drifted into three different shapes across the site (eight
@@ -1181,7 +1564,7 @@ function toggleMenu(){
   <div class="about-left">
     <div style="display:flex;flex-direction:column;gap:1rem">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
-        <video autoplay loop muted playsinline style="width:100%;display:block">
+        <video loop muted playsinline preload="metadata" data-autoplay-in-view style="width:100%;display:block">
           <source src="animation_fixed.mp4" type="video/mp4">
         </video>
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" style="color:var(--muted);text-decoration:underline;text-decoration-color:var(--lavender)">NASA GISS ModelE</a>. Each column of atmosphere is colored by its volume-dominant aerosol species.</p>
@@ -1211,7 +1594,7 @@ function toggleMenu(){
     </div>
     <div class="chamber-img">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
-        <img src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;height:auto;display:block" decoding="async">
+        <img loading="lazy" src="aerosol_photos.png" alt="Aerosol microscopy images" style="width:100%;height:auto;display:block" decoding="async">
         <p style="font-size:.72rem;color:var(--muted);padding:.75rem 1rem;line-height:1.55;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Images I took of super-coarse aerosol droplets undergoing liquid-liquid phase separation in the new cloud chamber.</p>
       </div>
     </div>
@@ -1314,7 +1697,7 @@ function toggleMenu(){
          width and this lands underneath it.
     <div class="pub-right">
       <div style="border-radius:1rem;overflow:hidden;border:1px solid var(--pale);background:var(--white)">
-        <img src="sky_composite.png" alt="Sky photos" style="width:100%;display:block;margin-top:0" decoding="async">
+        <img loading="lazy" src="sky_composite.png" alt="Sky photos" style="width:100%;display:block;margin-top:0" decoding="async">
         <p style="font-size:.75rem;color:var(--muted);padding:.75rem 1rem;line-height:1.6;font-weight:300;font-style:italic;border-top:1px solid var(--pale)">Some random cloud photos I've taken that I love. The sky is full of beauty!!</p>
       </div>
     </div>
@@ -1344,7 +1727,7 @@ function toggleMenu(){
 </section>
 
 <div class="sky-divider sky-divider-tall">
-  <img src="new_break.png" alt="Break" style="object-position:center top" decoding="async">
+  <img loading="lazy" src="new_break.png" alt="Break" style="object-position:center top" decoding="async">
 </div>
 
 <!-- SCICOMM -->
@@ -1362,13 +1745,13 @@ function toggleMenu(){
          The markup is untouched inside here: uncomment to bring it back.
     <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14)">
       <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank">
-        <img src="hour_0.png" alt="Hosting Hour 0 of the 100-Hour Weather and Climate Livestream" style="width:100%;display:block" decoding="async">
+        <img loading="lazy" src="hour_0.png" alt="Hosting Hour 0 of the 100-Hour Weather and Climate Livestream" style="width:100%;display:block" decoding="async">
       </a>
       <p class="scicomm-caption" style="padding:.6rem 1rem">Hosting Hour 0 of the <a href="https://www.youtube.com/watch?v=CcWR6CdJnvQ&t=15361s" target="_blank" style="color:#000;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3)">100-Hour Weather & Climate Livestream</a>, 2025</p>
     </div>
     -->
     <div style="border-radius:1rem;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:var(--white)">
-      <img src="speech.png" alt="Syl speaking at the Capitol podium" style="width:100%;display:block;object-fit:cover;max-height:240px;object-position:center top" decoding="async">
+      <img loading="lazy" src="speech.png" alt="Syl speaking at the Capitol podium" style="width:100%;display:block;object-fit:cover;max-height:240px;object-position:center top" decoding="async">
       <p class="scicomm-caption">Speaking at the U.S. Capitol press conference in June 2026!</p>
     </div>
   </div>
@@ -1394,13 +1777,13 @@ function toggleMenu(){
   <div class="tiktok-grid">
     <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7113236030878223659" target="_blank">
       <div class="tiktok-thumb-img">
-        <img src="guess.png" alt="TikTok: guess the song" decoding="async">
+        <img loading="lazy" src="guess.png" alt="TikTok: guess the song" decoding="async">
         <div class="tiktok-play">▶</div>
       </div>
     </a>
     <a class="tiktok-thumb" href="https://www.tiktok.com/@syl_foisy/video/7278141576805715231" target="_blank">
       <div class="tiktok-thumb-img">
-        <img src="best_plane.png" alt="TikTok: how to make the best airplane" decoding="async">
+        <img loading="lazy" src="best_plane.png" alt="TikTok: how to make the best airplane" decoding="async">
         <div class="tiktok-play">▶</div>
       </div>
     </a>
@@ -1803,5 +2186,55 @@ video[autoplay][loop][muted]{ aspect-ratio:16 / 9 }
   }
 })();
 </script>
+
+<!-- ===== Lifting the sheet ================================================= -->
+<script>
+(function(){
+  var root = document.documentElement;
+  function now(){ return (window.performance && performance.now) ? performance.now() : Date.now(); }
+  var t0 = now(), MIN = 900, CAP = 4200, gone = false;   // KNOBS: shortest and longest the sheet is up, ms
+  root.classList.add('pre-lock');
+  var lockY = window.pageYOffset || 0;
+  function blockScroll(e){ if(!gone) e.preventDefault(); }
+  window.addEventListener('wheel', blockScroll, {passive:false});
+  window.addEventListener('touchmove', blockScroll, {passive:false});
+  window.addEventListener('keydown', function(e){ if(!gone && [32,33,34,35,36,37,38,39,40].indexOf(e.keyCode) > -1) e.preventDefault(); }, {passive:false});
+  function lift(){
+    if(gone) return; gone = true;
+    root.classList.remove('pre-lock');
+    if(!location.hash && window.pageYOffset !== lockY) window.scrollTo(0, lockY);
+    root.classList.add('pre-gone');
+    setTimeout(function(){ root.classList.add('pre-off'); }, 640);
+  }
+  function liftWhenDue(){ setTimeout(lift, Math.max(180, MIN - (now() - t0))); }
+  /* Ready = the document is parsed and the hero photograph (back_new.png, behind the name) has
+     arrived -- or the whole page has loaded, whichever is first. */
+  function whenHeroIn(done){
+    var im = new Image(); var fired = false;
+    function one(){ if(fired) return; fired = true; done(); }
+    im.onload = one; im.onerror = one; im.src = 'back_new.png';
+    if(im.complete) one();
+  }
+  function onDom(){ requestAnimationFrame(function(){ whenHeroIn(liftWhenDue); }); }
+  if(document.readyState === 'complete') liftWhenDue();
+  else {
+    if(document.readyState !== 'loading') onDom(); else document.addEventListener('DOMContentLoaded', onDom);
+    window.addEventListener('load', liftWhenDue);
+  }
+  setTimeout(lift, CAP);
+})();
+</script>
+<script>
+/* The About animation used to autoplay from the top of the page, which downloads the whole
+   MP4 before anything above it has finished. It plays the moment it scrolls into view. */
+(function(){
+  var v = document.querySelector('video[data-autoplay-in-view]'); if(!v) return;
+  function go(){ try{ var p = v.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} }
+  if(!('IntersectionObserver' in window)){ go(); return; }
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ go(); io.disconnect(); } }); }, { rootMargin:'300px 0px' });
+  io.observe(v);
+})();
+</script>
+<script src="site-i18n.js" defer></script>
 </body>
 </html>

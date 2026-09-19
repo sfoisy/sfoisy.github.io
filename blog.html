@@ -3442,11 +3442,28 @@ var CC_CUES = {
     cues.forEach(function(c, i){ out.push(String(i+1), ts(c[0])+' --> '+ts(c[1]), c[2], ''); });
     return out.join('\n');
   }
-  function attach(v, cues){
-    if(!cues.length || v.dataset.ccTrack) return;
-    v.dataset.ccTrack = '1';
-    var tr = document.createElement('track');
-    tr.kind = 'captions'; tr.label = 'English'; tr.srclang = 'en';
+  /* ===== CAPTIONS IN THE READER'S LANGUAGE ==================================
+     The English cues stay on the clip (v._ccEn) and the track is painted from them: in
+     English as they are, otherwise with each cue's text swapped for the translation at the
+     same index (timings never change). The translations come with the site's language file
+     (site-i18n-<lang>.js, see site-i18n.js); a clip the file does not carry, or carries
+     with a different count, keeps its English. The page's language re-captions every clip
+     through __ccApply; the pill on a clip re-captions that one through __ccApplyVideo. */
+  var CC_LANG = 'en', CC_DICT = null;
+  function localCues(v){
+    var en = v._ccEn; if(!en) return null;
+    var L = v._ccLang || CC_LANG, D = v._ccLang ? v._ccDict : CC_DICT;
+    if(L === 'en' || !D) return en;
+    var t = D[v.dataset.ccKey]; if(!t || t.length !== en.length) return en;
+    return en.map(function(c, i){ return [c[0], c[1], t[i] || c[2]]; });
+  }
+  function paint(v){
+    var cues = localCues(v); if(!cues) return;
+    var old = v.querySelector('track[data-cc]'), wasOn = true;
+    if(old){ try{ wasOn = old.track ? old.track.mode !== 'disabled' : true; }catch(e){} try{ URL.revokeObjectURL(old.src); }catch(e){} old.parentNode.removeChild(old); }
+    var L = v._ccLang || CC_LANG;
+    var tr = document.createElement('track'); tr.setAttribute('data-cc', '1');
+    tr.kind = 'captions'; tr.label = (window.siteLangs && window.siteLangs[L]) || 'English'; tr.srclang = L;
     tr.src = URL.createObjectURL(new Blob([toVTT(cues)], {type:'text/vtt'}));
     v.appendChild(tr);
     /* default="" is only read while the markup is parsed, so a track added
@@ -3454,8 +3471,26 @@ var CC_CUES = {
        object does not exist until the browser has taken the element in. */
     requestAnimationFrame(function(){
       var tt = v.textTracks;
-      if(tt && tt.length) tt[tt.length-1].mode = 'showing';
+      if(tt && tt.length) tt[tt.length-1].mode = wasOn ? 'showing' : 'disabled';
     });
+  }
+  window.__ccApply = function(lang, cues){
+    CC_LANG = lang || 'en'; CC_DICT = cues || null;
+    [].slice.call(document.querySelectorAll('video[data-srt]')).forEach(function(v){ if(v._ccEn){ v._ccLang = null; v._ccDict = null; paint(v); } });
+    if(window.__ccPillRefresh) window.__ccPillRefresh();
+  };
+  window.__ccApplyVideo = function(v, lang, cues){
+    if(!v || !v._ccEn) return;
+    if(!lang || lang === CC_LANG){ v._ccLang = null; v._ccDict = null; } else { v._ccLang = lang; v._ccDict = cues || null; }
+    paint(v);
+  };
+  function attach(v, cues){
+    if(!cues.length || v.dataset.ccTrack) return;
+    v.dataset.ccTrack = '1';
+    v.dataset.ccKey = ccKey(v.getAttribute('data-srt'));
+    v._ccEn = cues;
+    paint(v);
+    if(window.__ccPill) window.__ccPill(v);
   }
   /* The key is what ccKey pulls off the data-srt filename, which is how the
      cues above are keyed -- so a clip is captioned by being named, and there is
@@ -4049,5 +4084,7 @@ function blogBack(e){
   new MutationObserver(function(){ if(current) apply(); }).observe(grid, {childList:true});
 })();
 </script>
+<script src="site-i18n.js" defer></script>
+<script src="site-cc.js" defer></script>
 </body>
 </html>

@@ -15165,6 +15165,7 @@ document.addEventListener('play', function (e) {
     mo.observe(document.body, { childList:true, subtree:true, characterData:true });
   }
 
+  window.__i18nFetch = function(lang, cb){ if(lang === 'en'){ cb(null); return; } fetchLang(lang, cb); };
   var seq = 0;
   window.__i18nApply = function(lang){
     var my = ++seq;
@@ -19059,20 +19060,29 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
   var CC_LANG = 'en', CC_DICT = null;
   function localCues(v){
     var en = v._ccEn; if(!en) return null;
-    if(CC_LANG === 'en' || !CC_DICT) return en;
-    var t = CC_DICT[v.dataset.ccKey];
+    /* A clip's own choice (the CC pill, see site-cc.js) beats the page's. */
+    var L = v._ccLang || CC_LANG, D = v._ccLang ? v._ccDict : CC_DICT;
+    if(L === 'en' || !D) return en;
+    var t = D[v.dataset.ccKey];
     if(!t || t.length !== en.length) return en;
     return en.map(function(c, i){ return [c[0], c[1], t[i] || c[2]]; });
   }
   window.__ccApply = function(lang, cues){
     CC_LANG = lang || 'en'; CC_DICT = cues || null;
-    [].slice.call(document.querySelectorAll('.j-card-video')).forEach(function(v){ if(v._ccEn) paintTrack(v); });
+    [].slice.call(document.querySelectorAll('.j-card-video')).forEach(function(v){ if(v._ccEn){ v._ccLang = null; v._ccDict = null; paintTrack(v); } });
+    if(window.__ccPillRefresh) window.__ccPillRefresh();
+  };
+  window.__ccApplyVideo = function(v, lang, cues){
+    if(!v || !v._ccEn) return;
+    if(!lang || lang === CC_LANG){ v._ccLang = null; v._ccDict = null; } else { v._ccLang = lang; v._ccDict = cues || null; }
+    paintTrack(v);
   };
   function attachTrack(v, cues){
     if(!cues || !cues.length || v.dataset.ccTrack) return;
     v.dataset.ccTrack = '1';
     v._ccEn = cues;
     paintTrack(v);
+    if(window.__ccPill) window.__ccPill(v);
   }
   function paintTrack(v){
     var cues = localCues(v); if(!cues) return;
@@ -19086,7 +19096,8 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
     if(!wasOn) v._ccOff = true;
     var tr = document.createElement('track');
     tr.setAttribute('data-cc', '1');
-    tr.kind = 'captions'; tr.label = (window.__i18nLabel && window.__i18nLabel(CC_LANG)) || 'English'; tr.srclang = CC_LANG; tr.default = true;
+    var _L = v._ccLang || CC_LANG;
+    tr.kind = 'captions'; tr.label = (window.__i18nLabel && window.__i18nLabel(_L)) || 'English'; tr.srclang = _L; tr.default = true;
     tr.src = URL.createObjectURL(new Blob([toVTT(cues)], {type:'text/vtt'}));
     v.appendChild(tr);
     /* default="" is only read while the markup is being parsed, so a track added afterwards
@@ -28996,4 +29007,6 @@ body.mode-quick .j-sect:not(.is-open):focus-within{ --wash-rgb:14,26,46 }
   body.mode-quick .j-sect.is-solo:not(.is-open){ height:auto; aspect-ratio:2522 / 1404; min-height:0 }
 }
 </style>
+<script src="site-i18n.js" defer></script>
+<script src="site-cc.js" defer></script>
 </body></html>
