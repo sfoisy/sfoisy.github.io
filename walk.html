@@ -7040,6 +7040,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
      No scroll lock here: the page is not moving, only its words are. */
   var _shownAt = 0, _dog = null, _offT = null;
   window.__sheetShow = function(){
+    return;   /* RETIRED (19 Sep 2026): the language switch no longer raises the sheet. Kept so nothing that calls it can throw. */
     if(!gone) return;                                   // still up from the load
     _shownAt = now();
     clearTimeout(_offT);
@@ -15263,17 +15264,17 @@ document.addEventListener('play', function (e) {
     }finally{
       if(a && window.__langPut){
         window.__langPut(a);
-        requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); if(window.__sheetHide) window.__sheetHide(); }); });
-      } else if(window.__sheetHide) window.__sheetHide();
+        requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); }); });
+      }
     }
   }
   window.__i18nApply = function(lang){
     var my = ++seq;
     if(lang === 'en'){ applyNow('en', null); return; }
-    var fetching = !window.WALK_I18N[lang];
-    if(fetching && window.__sheetShow){ try{ window.__sheetShow(); }catch(e){} }
+    /* No sheet for this (19 Sep 2026): the rewrite is fast, the file is small, and a sheet
+       that could ever fail to lift is worse than a beat of the old words. */
     fetchLang(lang, function(d){
-      if(my !== seq){ if(window.__sheetHide) window.__sheetHide(); return; }   // a later choice has overtaken this one
+      if(my !== seq) return;                    // a later choice has overtaken this one
       applyNow(lang, d);
     });
   };
