@@ -44,7 +44,16 @@
   }catch(_){}
 })();
 </script>
-<script src="https://wesitefoisy1.b-cdn.net/z_shausdb.js"></script>
+<!-- The CDN connection is opened HERE, before the shapes script asks for the first byte of it. -->
+<link rel="preconnect" href="https://wesitefoisy1.b-cdn.net" crossorigin>
+<!-- The loading sheet's own backdrop, at the head of the queue: it is the first thing on screen. -->
+<link rel="preload" as="image" href="https://wesitefoisy1.b-cdn.net/back2.jpg" fetchpriority="high">
+<!-- DEFERRED. This used to be a plain blocking script tag, which halts the parser -- the whole 2 MB
+     document, loading sheet included -- until the file has arrived. Deferred, it downloads
+     alongside the parse and runs just before DOMContentLoaded; the one reader of MAP_SHAPES
+     (the hover-region highlight in the map script) now waits for that moment instead of
+     assuming the shapes are already there. -->
+<script src="https://wesitefoisy1.b-cdn.net/z_shausdb.js" defer></script>
 
 <!-- ===== Social share card (Open Graph + Twitter) =====
      THE PICTURE IS share/walk.jpg, NOT full_scroll.png, and it is the same picture. It is
@@ -97,7 +106,7 @@
      the loading sheet, so racing them against the picture the reader is actually looking at
      only made that one arrive later. They have the whole of the sheet's minimum on-screen
      time to fetch in. -->
-<link rel="preload" as="image" href="https://wesitefoisy1.b-cdn.net/finalproba.png">
+<link rel="preload" as="image" href="https://wesitefoisy1.b-cdn.net/aaa_back.png">
 <!-- The CDN every image and all 39 videos come from. Without this the first video request
      pays a DNS lookup and a TLS handshake before a single byte of it moves; with it, the
      connection is already open and warm by the time anything asks for one. -->
@@ -276,7 +285,7 @@ html::before{
      element's flat colour. Cover-sized and centred, it can never run out: the pan slides the
      sharp copy across a floor that is already the same photograph, so a seam cannot appear
      even for a frame. It costs one more decode of a file the page is fetching anyway. */
-  background:#eef4fe url("https://wesitefoisy1.b-cdn.net/new_backgund.png") center / cover no-repeat;
+  background:#eef4fe url("https://wesitefoisy1.b-cdn.net/try_full.png") center / cover no-repeat;
 }
 #skyFix img{
   position:absolute; left:0; top:0;
@@ -438,7 +447,8 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
 }
 
 /* --- The opening photograph --------------------------------------------------
-   finalproba.png — the Hudson from the bridge, the Manhattan skyline, the river, the cirrus
+   aaa_back.png (it replaced finalproba.png on 19 Sep 2026; the numbers below were
+   measured off finalproba.png at 2822x2940 -- re-measure RATIO if this file is a different frame) — the Hudson from the bridge, the Manhattan skyline, the river, the cirrus
    deck below it and the NYC->DC arrow, all in ONE exposure, with the fade to the white page
    painted into the file's own alpha channel.
 
@@ -488,7 +498,7 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
      an explicit pixel pair by the script while everything else stays put. --hero-focus is 0
      and stays 0: the picture is shown from its own top pixel down, uncropped at the top,
      which is what makes it start where the reader's eye does. */
-  background-image:url("https://wesitefoisy1.b-cdn.net/finalproba.png");
+  background-image:url("https://wesitefoisy1.b-cdn.net/aaa_back.png");
   background-repeat:no-repeat;
   background-size:var(--hero-bg-size, cover);
   background-position:50% var(--hero-focus, 0px);
@@ -559,6 +569,16 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1p
   max-width: 34ch;
   margin: 0 auto 1.15rem;
 }
+
+/* The opinion footnote under the dek. The dek's face and colour, italic, one step smaller;
+   the dek's bottom margin is handed to this line so the byline sits where it did. */
+.article-opinion{
+  font-family:'DM Sans',sans-serif; font-style:italic;
+  font-size:clamp(.8rem, 1.1vw, .9rem); font-weight:300; line-height:1.5;
+  color:rgba(255,255,255,.9);
+  max-width:34ch; margin:-.85rem auto 1.15rem;
+}
+@media(max-width:700px){ .article-opinion{ font-size:.78rem } }
 
 .article-meta {
   font-size: .78rem;
@@ -747,6 +767,12 @@ body.mode-quick .j-lead{margin-bottom:150vh}   /* KNOB: Discrete hides the jump 
    forever over an element nobody can see. Kept in the layout it costs one line of empty sky
    over the photograph and every one of those measurements goes on answering correctly. */
 @media(max-width:700px){ .j-lead .lede-opinion{ visibility:hidden } }
+/* AT EVERY WIDTH NOW. The sentence lives under the dek in the hero (.article-opinion); this
+   element stays in the document only because the backdrop script measures it to place the
+   map -- see the phone note above for why visibility and not display. Same for the phone
+   twin under the map, .map-tap-hint. */
+.j-lead .lede-opinion{ visibility:hidden }
+.map-tap-hint{ visibility:hidden !important }
 
 /* ===== Intro paragraph, column mode =======================================
    Below 1101px the stylesheet drops the intro out of the headline's column and stacks it
@@ -1388,7 +1414,7 @@ body.mode-quick .j-sect:not(.is-open):not(.is-solo){
      KNOB: the two colours, which must stay the same or the seam shows as the wash lightens. */
   background-color:#0e1a2e;           /* under a photo that has not loaded, or a stop with none */
   background-image:
-    linear-gradient(180deg, rgba(14,26,46,var(--card-dim)) 0%, rgba(14,26,46,var(--card-dim)) 100%),
+    linear-gradient(180deg, rgba(var(--wash-rgb, 135,166,219), var(--card-dim)) 0%, rgba(var(--wash-rgb, 135,166,219), var(--card-dim)) 100%),
     var(--card-img, none);
   background-size:cover;
   background-position:center;
@@ -1616,6 +1642,12 @@ body.mode-quick .j-sect:not(.is-open) .jp-more{
    still read as one decision. */
 body.mode-quick:not(.no-hover) .j-sect:not(.is-open):hover .jp-more,
 body.mode-quick .j-sect:not(.is-open):focus-within .jp-more{ opacity:1 }
+/* ...AND BACK ON THE HIGHLIGHTED CARD (19 Sep 2026). The "Click photo to read section" hint
+   over the Preface is gone, and this is what replaces it: the card the map is naming carries
+   its own words -- "Mile 9 to 29", "Preface" -- so the reader is told what a card is and what
+   is in it by the one card they are at, rather than by a caption over the first one. The
+   swell still says which card; the words now say what it holds. */
+body.mode-quick .j-sect:not(.is-open).card-active .jp-more{ opacity:1 }
 /* No hover on a touch screen, so there it simply stays visible -- otherwise it would be a
    control nobody could ever reach. */
 @media(hover:none){
@@ -4817,6 +4849,88 @@ body.mm-measure .map-modes-pop [data-ov="1"]{ display:flex !important }
   .map-info-close{display:flex;align-items:center;justify-content:center;position:absolute;top:.4rem;left:.5rem;width:30px;height:30px;border:none;background:none;font-size:1.6rem;line-height:1;color:#000;cursor:pointer;z-index:2}
   .map-info-pop p{margin-top:1.6rem}
 }
+
+/* ===== THE TWO BOOKENDS ARE PICTURES, AT HALF SIZE =========================
+   Preface and Reflection were a line of type for a round (see the "words, not cards" block
+   above). They are cards again -- z_preface.png and z_reflect.png -- but HALF the size of a
+   stop card, so they still read as the way in and the way out rather than as two more stops.
+   The pictures are 2522x1404, a wider frame than the 232x148 stop card, and that is kept on
+   purpose: the height comes from the picture's own shape, not from --jp-card-h.
+
+   Everything a stop card does, they do: the same blue wash at rest (--card-dim), the same
+   lift of it on hover, focus and when the map is on them (.card-active -- the render loop
+   already flags the two bookends), the same rounded corners, shadow and click target. The
+   ONE thing on the hover is the word -- "Preface", "Reflection" -- in the same pill and at
+   the same place the stop cards print their mile range; the label script writes it in.
+
+   Written AFTER every rule that made them text, at the same specificity, so source order
+   settles it. Anything the text rules set (background:none, height:auto, the static head)
+   is put back here rather than removed there, so restoring the words is deleting this block.
+   KNOB: the .5 (size against a stop card), the 1.796 (the pictures' own aspect). */
+body.mode-quick .j-sect.is-solo:not(.is-open){
+  --bk-w:calc(var(--jp-card-w) * .5);
+  width:var(--bk-w); height:calc(var(--bk-w) / 1.796); min-height:0;
+  /* Centred over the column it introduces or closes: the column formula places the LEFT edge
+     where a full-width card's would go, so a half-width card is nudged right by a quarter. */
+  /* (Card width minus bookend width) / 2 rather than a fixed quarter, so the centring holds
+     whatever --bk-w is -- and it is no longer half a card: the hint script writes the hint's
+     own measured width into --bk-w on both bookends, see "AS WIDE AS THE HINT" below. */
+  margin-left:calc(var(--stop-indent, 0px) +
+                   var(--col, 0) * (100% - var(--stop-indent, 0px) - var(--jp-card-w)) / (var(--jp-cols) - 1) +
+                   (var(--jp-card-w) - var(--bk-w)) / 2);
+  --card-dim:.84;
+  background-color:#0e1a2e;
+  background-image:
+    linear-gradient(180deg, rgba(var(--wash-rgb, 135,166,219), var(--card-dim)) 0%, rgba(var(--wash-rgb, 135,166,219), var(--card-dim)) 100%),
+    var(--card-img, none);
+  background-size:cover; background-position:center; background-repeat:no-repeat;
+  border-radius:16px; overflow:hidden;
+  box-shadow:0 8px 22px -10px rgba(0,0,0,.5);
+  transition:transform .18s cubic-bezier(.3,.8,.3,1), box-shadow .18s ease, background-color .2s ease;
+}
+body.mode-quick .j-sect.is-solo:not(.is-open):hover{
+  transform:translateY(-3px) scale(var(--card-scale, .95));
+  box-shadow:0 14px 30px -12px rgba(0,0,0,.6);
+}
+/* The same lift of the wash a stop card gets when you point at it or the map names it. */
+body.mode-quick:not(.no-hover) .j-sect.is-solo:not(.is-open):hover,
+body.mode-quick .j-sect.is-solo:not(.is-open):focus-within,
+body.mode-quick .j-sect.is-solo:not(.is-open).card-active{ --card-dim:.3 }
+/* Nothing printed on the picture but the pill: the heading goes the way the stop cards' went. */
+body.mode-quick .j-sect.is-solo:not(.is-open) .jp-head{ display:none }
+/* The pill lives in .jp-txt, which the text rules switched off for the bookends. Back on,
+   laid out exactly as it is on a stop card (see "The click target" and .jp-txt above). */
+body.mode-quick .j-sect.is-solo:not(.is-open) .jp-txt{
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+  position:absolute; inset:0; z-index:2; width:auto;
+  padding-bottom:var(--jp-txt-top, .34rem); box-sizing:border-box;
+}
+/* Half the card, so a little less than a stop card's type or the word fills the frame. */
+body.mode-quick .j-sect.is-solo:not(.is-open) .jp-more{ font-size:.86rem; letter-spacing:.05em }
+@media(max-width:700px){
+  /* The phone runs one column of full-width, 150px cards. The bookends take half of that
+     height -- and their width from it, at the pictures' shape -- and sit centred in the lane. */
+  body.mode-quick .j-sect.is-solo:not(.is-open){
+    height:75px; width:calc(75px * 1.796); min-height:0;
+    margin-left:auto; margin-right:auto;
+    margin-top:1.15rem; margin-bottom:1.15rem;
+  }
+  body.mode-quick .j-sect.is-solo:not(.is-open):hover{ transform:none; box-shadow:0 8px 22px -10px rgba(0,0,0,.5) }
+  body.mode-quick .j-sect.is-solo:not(.is-open) .jp-more{ font-size:.74rem }
+}
+/* ===== THE BOOKENDS DO NOT SWELL ===========================================
+   Every card on the staircase is scaled by --card-scale, which the render loop rewrites on
+   every frame from the reading line, and again on hover -- so the Preface and the
+   Reflection grew and shrank as you scrolled past them and swelled under the pointer. The
+   "Click photo to read section" hint above the Preface does not: it is placed from layout
+   numbers and holds one size. The two pictures now hold that same one size, always. The
+   hover keeps the 3px lift and the shadow; only the scale is gone. Written after the
+   bookend block at the same specificity, so source order settles it. */
+body.mode-quick .j-sect.is-solo:not(.is-open){ transform:none }
+body.mode-quick .j-sect.is-solo:not(.is-open):hover{ transform:translateY(-3px) }
+@media(max-width:700px){
+  body.mode-quick .j-sect.is-solo:not(.is-open):hover{ transform:none }
+}
 </style>
 <script>
 (function(){
@@ -6350,6 +6464,48 @@ html.pre-lock, html.pre-lock body{ overflow:hidden !important; overscroll-behavi
 
 .pl-box{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 
+/* ===== The pixel earth =======================================================
+   loader.html's animation, moved in whole and scoped under #preload. Eight 48px cubes on a
+   2x2x2 lattice, each face a 12x12 pixel map painted as ONE 4px square plus box-shadow
+   copies -- no extra DOM, painted once. The lattice tumbles on a 12s loop while the eight
+   slots breathe apart to 52px and back to 24px on a 3.6s loop. Zero bytes over the wire,
+   which is the whole rule for this sheet. KNOBS: --ocean/--land/--ice/--inner, and the two
+   animation durations. */
+#preload{ --ocean:#2b6a9b; --land:#4c8c3f; --ice:#dfeaf0; --inner:#1d4d73 }
+.pl-scene{ width:260px; height:250px; perspective:1000px; display:grid; place-items:center }
+.pl-lattice{ position:relative; width:0; height:0; transform-style:preserve-3d; animation:plTumble 12s linear infinite; will-change:transform }
+.pl-slot{ position:absolute; inset:0; transform-style:preserve-3d; animation:plBreathe 3.6s cubic-bezier(.65,0,.35,1) infinite }
+.pl-cube{ position:absolute; width:48px; height:48px; margin:-24px 0 0 -24px; transform-style:preserve-3d }
+.pl-f{ position:absolute; inset:0; display:block; background:var(--ocean); backface-visibility:hidden }
+.pl-f.in{ background:var(--inner) }
+.pl-f.px::before{ content:""; position:absolute; left:0; top:0; width:4px; height:4px; background:var(--p); box-shadow:var(--s) }
+.pl-f.front { transform:translateZ(24px) }
+.pl-f.back  { transform:rotateY(180deg) translateZ(24px); filter:brightness(.82) }
+.pl-f.right { transform:rotateY(90deg)  translateZ(24px); filter:brightness(.92) }
+.pl-f.left  { transform:rotateY(-90deg) translateZ(24px); filter:brightness(.88) }
+.pl-f.top   { transform:rotateX(90deg)  translateZ(24px); filter:brightness(1.06) }
+.pl-f.bottom{ transform:rotateX(-90deg) translateZ(24px); filter:brightness(.74) }
+@keyframes plTumble{
+  from{ transform:rotateX(-18deg) rotateY(0deg)   rotateZ(4deg) }
+  to  { transform:rotateX(-18deg) rotateY(360deg) rotateZ(4deg) }
+}
+@keyframes plBreathe{
+  0%, 25%  { transform:translate3d(calc(var(--x) * 24px), calc(var(--y) * 24px), calc(var(--z) * 24px)) }
+  55%, 68% { transform:translate3d(calc(var(--x) * 52px), calc(var(--y) * 52px), calc(var(--z) * 52px)) }
+  100%     { transform:translate3d(calc(var(--x) * 24px), calc(var(--y) * 24px), calc(var(--z) * 24px)) }
+}
+/* "Save our forecasts", one word after another. White, in the body face, on the night sky. */
+.pl-label{ display:flex; gap:.3em; margin-top:2px; color:#fff; font:400 1.15rem/1 'DM Sans',system-ui,-apple-system,Helvetica,Arial,sans-serif; letter-spacing:.01em }
+.pl-label span{ opacity:0; animation:plSurface .6s ease-out forwards }
+.pl-label span:nth-child(2){ animation-delay:.25s }
+.pl-label span:nth-child(3){ animation-delay:.5s }
+@keyframes plSurface{ from{ opacity:0; transform:translateY(6px) } to{ opacity:.9; transform:translateY(0) } }
+@media(prefers-reduced-motion:reduce){
+  .pl-lattice{ animation-duration:60s }
+  .pl-slot, .pl-label span{ animation:none }
+  .pl-label span{ opacity:.9 }
+}
+
 @media(max-width:700px){
   .pl-title{ font-size:1.16rem }
 }
@@ -6443,7 +6599,8 @@ html.back-gone .backw{
 .backw:hover{ color:#fff; border-color:rgba(255,255,255,.28); background:rgba(10,20,38,.55) }
 .backw:focus-visible{ outline:2px solid #fff; outline-offset:2px }
 @media(max-width:600px){ .backw span{ display:none } }
-.read-float{ top:calc(var(--map-pin-top,76px) + 42px) }
+/* The 42px that cleared the Back pill is gone with the pill -- see "THE OPENING, CLEARED". */
+.read-float{ top:var(--map-pin-top,76px) }
 /* The bar lands in the same place on every page because the scrollbar's width is
    always reserved, whether the page is long enough to need one or not. Without
    this, a short page (the blog, the news list) is 15px wider than a long one (the
@@ -6730,7 +6887,24 @@ nav{ border-bottom:1px solid var(--nav-rule) }
          later; on the sheet it was a caption for a picture that is not there yet. What is
          left is the bar, which is the only thing on a loading screen a reader actually
          wants: how much longer. -->
-    <div class="pl-bar"><i></i></div>
+    <!-- The pixel earth from loader.html -- eight cubes that split apart and rejoin while the
+         whole thing tumbles -- and its three-word line. Same markup, same keyframes, the
+         class names prefixed pl- so nothing on this page can reach them. The progress bar
+         it replaces is gone: the earth is the "something is happening" and the words are
+         the destination. -->
+    <div class="pl-scene" aria-hidden="true">
+      <div class="pl-lattice">
+        <div class="pl-slot" style="--x:-1;--y:-1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),32px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),28px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),28px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land)"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:var(--land);--s:4px 0px var(--land),4px 4px var(--land)"></i><i class="pl-f top px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),16px 16px var(--land),20px 16px var(--land),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),40px 36px var(--ice),44px 36px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),40px 40px var(--ice),44px 40px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice),40px 44px var(--ice),44px 44px var(--ice)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y:-1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),40px 16px var(--land),44px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),40px 20px var(--land),44px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),44px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),44px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land)"></i><i class="pl-f right px" style="--p:transparent;--s:12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),4px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),4px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),40px 16px var(--land),44px 16px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),40px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),44px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),20px 32px var(--land),24px 32px var(--land),40px 32px var(--land),44px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),28px 16px var(--land),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),0px 36px var(--ice),4px 36px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),0px 40px var(--ice),4px 40px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),0px 44px var(--ice),4px 44px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y:-1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),4px 12px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),44px 12px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),44px 16px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),40px 24px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),36px 28px var(--land),40px 28px var(--land),44px 28px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),44px 32px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:40px 0px var(--land),44px 0px var(--land),44px 4px var(--land),12px 36px var(--land),16px 40px var(--land)"></i><i class="pl-f top px" style="--p:transparent;--s:16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),40px 0px var(--ice),44px 0px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),40px 4px var(--ice),44px 4px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),40px 8px var(--ice),44px 8px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),16px 16px var(--land),20px 16px var(--land),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),36px 20px var(--land),40px 20px var(--land),44px 20px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),36px 24px var(--land),40px 24px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),40px 28px var(--land),44px 28px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),36px 32px var(--land),40px 32px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),36px 36px var(--land),40px 36px var(--land),44px 36px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),32px 40px var(--land),36px 40px var(--land),40px 40px var(--land),44px 40px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land),24px 44px var(--land),28px 44px var(--land),32px 44px var(--land),36px 44px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y:-1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:32px 0px var(--ice),36px 0px var(--ice),0px 4px var(--land),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--land),4px 12px var(--land),8px 12px var(--land),28px 12px var(--ice),32px 12px var(--ice),0px 16px var(--land),4px 16px var(--land),8px 16px var(--land),12px 16px var(--land),32px 16px var(--ice),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right px" style="--p:transparent;--s:44px 8px var(--land),44px 24px var(--land),44px 28px var(--land),44px 32px var(--land),44px 36px var(--land),40px 40px var(--land),44px 40px var(--land),40px 44px var(--land),44px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top px" style="--p:var(--ice);--s:4px 0px var(--ice),8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),0px 4px var(--ice),4px 4px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--ice),4px 8px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),4px 20px var(--land),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),8px 24px var(--land),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),12px 28px var(--land),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),4px 32px var(--land),8px 32px var(--land),24px 32px var(--ice),28px 32px var(--ice),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),0px 44px var(--land),4px 44px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land)"></i><i class="pl-f bottom in"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y: 1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),4px 8px var(--land),8px 8px var(--land),16px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),0px 16px var(--land),16px 16px var(--land),20px 16px var(--land),28px 16px var(--land),8px 20px var(--land),12px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),0px 36px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),0px 40px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),8px 44px var(--land),12px 44px var(--land)"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:8px 24px var(--land),8px 28px var(--land),4px 32px var(--land)"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),40px 0px var(--ice),44px 0px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),40px 4px var(--ice),44px 4px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),40px 8px var(--ice),44px 8px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y: 1;--z:-1"><div class="pl-cube"><i class="pl-f front in"></i><i class="pl-f back px" style="--p:var(--land);--s:4px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),24px 4px var(--land),28px 4px var(--land),24px 8px var(--land),44px 12px var(--land),44px 16px var(--land),44px 28px var(--land),44px 32px var(--land),44px 36px var(--land)"></i><i class="pl-f right px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),24px 0px var(--land),28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),12px 4px var(--land),16px 4px var(--land),20px 4px var(--land),24px 4px var(--land),28px 4px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),0px 8px var(--land),4px 8px var(--land),8px 8px var(--land),12px 8px var(--land),16px 8px var(--land),20px 8px var(--land),24px 8px var(--land),28px 8px var(--land),32px 8px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),8px 12px var(--land),12px 12px var(--land),16px 12px var(--land),20px 12px var(--land),24px 12px var(--land),28px 12px var(--land),32px 12px var(--land),36px 12px var(--land),40px 12px var(--land),8px 16px var(--land),12px 16px var(--land),16px 16px var(--land),20px 16px var(--land),24px 16px var(--land),28px 16px var(--land),32px 16px var(--land),36px 16px var(--land),12px 20px var(--land),16px 20px var(--land),20px 20px var(--land),24px 20px var(--land),28px 20px var(--land),32px 20px var(--land),36px 20px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),28px 24px var(--land),32px 24px var(--land),36px 24px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),32px 28px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),32px 32px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),32px 36px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),28px 40px var(--land),20px 44px var(--land),24px 44px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:var(--ice);--s:4px 0px var(--ice),8px 0px var(--ice),12px 0px var(--ice),16px 0px var(--ice),20px 0px var(--ice),24px 0px var(--ice),28px 0px var(--ice),32px 0px var(--ice),36px 0px var(--ice),0px 4px var(--ice),4px 4px var(--ice),8px 4px var(--ice),12px 4px var(--ice),16px 4px var(--ice),20px 4px var(--ice),24px 4px var(--ice),28px 4px var(--ice),32px 4px var(--ice),36px 4px var(--ice),0px 8px var(--ice),4px 8px var(--ice),8px 8px var(--ice),12px 8px var(--ice),16px 8px var(--ice),20px 8px var(--ice),24px 8px var(--ice),28px 8px var(--ice),32px 8px var(--ice),36px 8px var(--ice),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),16px 12px var(--ice),20px 12px var(--ice),24px 12px var(--ice),28px 12px var(--ice),32px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x:-1;--y: 1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:transparent;--s:28px 0px var(--land),32px 0px var(--land),36px 0px var(--land),40px 0px var(--land),44px 0px var(--land),32px 4px var(--land),36px 4px var(--land),40px 4px var(--land),44px 4px var(--land),36px 8px var(--land),40px 8px var(--land),44px 8px var(--land),40px 12px var(--land),44px 12px var(--land),44px 16px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right in"></i><i class="pl-f left px" style="--p:transparent;--s:none"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:32px 12px var(--ice),36px 12px var(--ice),40px 12px var(--ice),44px 12px var(--ice),24px 16px var(--ice),28px 16px var(--ice),32px 16px var(--ice),36px 16px var(--ice),40px 16px var(--ice),44px 16px var(--ice),20px 20px var(--ice),24px 20px var(--ice),28px 20px var(--ice),32px 20px var(--ice),36px 20px var(--ice),40px 20px var(--ice),44px 20px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),32px 24px var(--ice),36px 24px var(--ice),40px 24px var(--ice),44px 24px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),36px 28px var(--ice),40px 28px var(--ice),44px 28px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),36px 32px var(--ice),40px 32px var(--ice),44px 32px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),40px 36px var(--ice),44px 36px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),40px 40px var(--ice),44px 40px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice),40px 44px var(--ice),44px 44px var(--ice)"></i></div></div>
+        <div class="pl-slot" style="--x: 1;--y: 1;--z: 1"><div class="pl-cube"><i class="pl-f front px" style="--p:var(--land);--s:4px 0px var(--land),8px 0px var(--land),20px 0px var(--land),0px 4px var(--land),4px 4px var(--land),8px 4px var(--land),0px 8px var(--land),4px 8px var(--land),0px 12px var(--land),0px 16px var(--land),0px 20px var(--land),4px 20px var(--land),8px 20px var(--land),12px 20px var(--land),16px 20px var(--land),0px 24px var(--land),4px 24px var(--land),8px 24px var(--land),12px 24px var(--land),16px 24px var(--land),20px 24px var(--land),24px 24px var(--land),0px 28px var(--land),4px 28px var(--land),8px 28px var(--land),12px 28px var(--land),16px 28px var(--land),20px 28px var(--land),24px 28px var(--land),28px 28px var(--land),0px 32px var(--land),4px 32px var(--land),8px 32px var(--land),12px 32px var(--land),16px 32px var(--land),20px 32px var(--land),24px 32px var(--land),28px 32px var(--land),4px 36px var(--land),8px 36px var(--land),12px 36px var(--land),16px 36px var(--land),20px 36px var(--land),24px 36px var(--land),28px 36px var(--land),4px 40px var(--land),8px 40px var(--land),12px 40px var(--land),16px 40px var(--land),20px 40px var(--land),24px 40px var(--land),8px 44px var(--land),12px 44px var(--land),16px 44px var(--land),20px 44px var(--land)"></i><i class="pl-f back in"></i><i class="pl-f right px" style="--p:transparent;--s:40px 0px var(--land),44px 0px var(--land),40px 4px var(--land),44px 4px var(--land),44px 8px var(--land)"></i><i class="pl-f left in"></i><i class="pl-f top in"></i><i class="pl-f bottom px" style="--p:transparent;--s:8px 0px var(--land),12px 0px var(--land),16px 0px var(--land),20px 0px var(--land),12px 4px var(--land),16px 4px var(--land),0px 12px var(--ice),4px 12px var(--ice),8px 12px var(--ice),12px 12px var(--ice),0px 16px var(--ice),4px 16px var(--ice),8px 16px var(--ice),12px 16px var(--ice),16px 16px var(--ice),20px 16px var(--ice),0px 20px var(--ice),4px 20px var(--ice),8px 20px var(--ice),12px 20px var(--ice),16px 20px var(--ice),20px 20px var(--ice),24px 20px var(--ice),0px 24px var(--ice),4px 24px var(--ice),8px 24px var(--ice),12px 24px var(--ice),16px 24px var(--ice),20px 24px var(--ice),24px 24px var(--ice),28px 24px var(--ice),0px 28px var(--ice),4px 28px var(--ice),8px 28px var(--ice),12px 28px var(--ice),16px 28px var(--ice),20px 28px var(--ice),24px 28px var(--ice),28px 28px var(--ice),32px 28px var(--ice),0px 32px var(--ice),4px 32px var(--ice),8px 32px var(--ice),12px 32px var(--ice),16px 32px var(--ice),20px 32px var(--ice),24px 32px var(--ice),28px 32px var(--ice),32px 32px var(--ice),0px 36px var(--ice),4px 36px var(--ice),8px 36px var(--ice),12px 36px var(--ice),16px 36px var(--ice),20px 36px var(--ice),24px 36px var(--ice),28px 36px var(--ice),32px 36px var(--ice),36px 36px var(--ice),0px 40px var(--ice),4px 40px var(--ice),8px 40px var(--ice),12px 40px var(--ice),16px 40px var(--ice),20px 40px var(--ice),24px 40px var(--ice),28px 40px var(--ice),32px 40px var(--ice),36px 40px var(--ice),0px 44px var(--ice),4px 44px var(--ice),8px 44px var(--ice),12px 44px var(--ice),16px 44px var(--ice),20px 44px var(--ice),24px 44px var(--ice),28px 44px var(--ice),32px 44px var(--ice),36px 44px var(--ice)"></i></div></div>
+      </div>
+    </div>
+    <div class="pl-label"><span>Save</span><span>our</span><span>forecasts</span></div>
   </div>
 </div>
 <script>
@@ -6743,8 +6917,11 @@ nav{ border-bottom:1px solid var(--nav-rule) }
      glitch rather than as a loading screen. CAP is the other end: if something on the page
      never finishes loading, the sheet lifts anyway rather than holding the whole article
      hostage to one stalled photograph. */
-  var MIN = 900;     // KNOB: shortest the sheet is ever up, ms
-  var CAP = 5200;    // KNOB: longest, whatever the page is still doing
+  /* MIN is deliberately generous now: the pixel earth takes about two seconds to split apart
+     and rejoin once, and a sheet that lifts mid-breath looks cut off. On a warm cache this is
+     the whole of the wait; on a cold one the page usually is not ready sooner anyway. */
+  var MIN = 2600;    // KNOB: shortest the sheet is ever up, ms
+  var CAP = 5000;    // KNOB: longest, whatever the page is still doing
   var gone = false;
 
   /* The scroll lock goes on immediately -- not on DOMContentLoaded, which is already too late
@@ -6828,8 +7005,32 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     setTimeout(lift, Math.max(180, MIN - (now() - t0)));
   }
 
+  /* ===== WHAT "READY" MEANS NOW ===========================================
+     It used to be window `load` -- every image on the page, the map legends, the YouTube
+     API, the lot -- which on a cold connection held the sheet for its whole CAP. The sheet
+     exists to hide the ASSEMBLY (the accordion, the map, the trail), and that is done by the
+     end of DOMContentLoaded. So: DOMContentLoaded, plus the two pictures the reader will
+     actually be looking at when the sheet goes (the fixed sky behind the article and the
+     hero), whichever of those or `load` comes first. Everything below the fold is lazy and
+     arrives in its own time. */
+  function whenPicsIn(done){
+    var pics = [];
+    var sky = document.querySelector('#skyFix img'); if(sky) pics.push(sky);
+    var hero = new Image(); hero.src = 'https://wesitefoisy1.b-cdn.net/aaa_back.png'; pics.push(hero);
+    var n = pics.length;
+    function one(){ if(--n <= 0) done(); }
+    pics.forEach(function(im){
+      if(im.complete) one();
+      else { im.addEventListener('load', one, {once:true}); im.addEventListener('error', one, {once:true}); }
+    });
+  }
+  function onDom(){ requestAnimationFrame(function(){ whenPicsIn(liftWhenDue); }); }
   if(document.readyState === 'complete') liftWhenDue();
-  else window.addEventListener('load', liftWhenDue);
+  else {
+    if(document.readyState !== 'loading') onDom();
+    else document.addEventListener('DOMContentLoaded', onDom);
+    window.addEventListener('load', liftWhenDue);
+  }
   setTimeout(lift, CAP);
 
   /* The sprite swap that used to live here is gone with the walker: it polled for the map's
@@ -6843,7 +7044,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
      It carries no lazy attribute on purpose -- it is the one image on the page that is visible
      before anything is scrolled. -->
 <div id="skyFix" aria-hidden="true">
-  <img src="https://wesitefoisy1.b-cdn.net/new_backgund.png" alt="" decoding="async">
+  <img src="https://wesitefoisy1.b-cdn.net/try_full.png" alt="" decoding="async">
 </div>
 <!-- The page always opens Discrete: the folded stop list is the way in, and
      Continuous is something you choose once you know what you are choosing. --><div id="walkerFig"></div>
@@ -7019,8 +7220,12 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     <div class="hero-text">
   <h1 class="article-title" data-i18n="hero.title"><strong>Walking 250 miles from NYC to DC</strong></h1>
   <p class="article-dek" data-i18n="hero.dek">A walk in support of weather and climate science.</p>
+  <!-- The opinion footnote, under the dek. Italic, a size under the dek, same white. The old
+       #opinionLine is still in the document further down (invisible) because four scripts
+       measure it to place the map -- see its note. -->
+  <p class="article-opinion">All opinions expressed on this site are personal.</p>
   <p class="article-meta">
-  <span style="font-family:Arial,Helvetica,sans-serif;">By Syl Foisy · 9/8/2026</span>
+  <span style="font-family:Arial,Helvetica,sans-serif;">By Syl Foisy · 9/19/2026</span>
   <!-- Headshot removed from the byline. The markup is left here, commented, because the
        .meta-headshot rule is still in the stylesheet if you ever want it back.
   <img src="https://wesitefoisy1.b-cdn.net/head_shot.png" alt="Syl Foisy" class="meta-headshot">
@@ -7092,11 +7297,11 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     </button>
     <span class="lang-menu" id="langMenu" role="menu">
       <button role="menuitem" data-lang="en" onclick="setLang('en')">English</button>
-      <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy</button>
-      <button role="menuitem" data-lang="es" onclick="setLang('es')">Español</button>
-      <button role="menuitem" data-lang="vi" onclick="setLang('vi')">Tiếng Việt</button>
-      <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français</button>
-      <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文</button>
+      <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy <small class="lang-dev">(in development)</small></button>
+      <button role="menuitem" data-lang="es" onclick="setLang('es')">Español <small class="lang-dev">(in development)</small></button>
+      <button role="menuitem" data-lang="vi" onclick="setLang('vi')">Tiếng Việt <small class="lang-dev">(in development)</small></button>
+      <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français <small class="lang-dev">(in development)</small></button>
+      <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文 <small class="lang-dev">(in development)</small></button>
     </span>
   </span>
 </p>
@@ -7399,7 +7604,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
 <div class="j-travel" id="travelIntro" style="height: var(--stop1-offset, 0px);padding:0;"></div>   <!-- KNOB: the gap below "here we go!!" is the image's own margin now -->
     <div class="j-step" data-i="0">
       <div class="j-card">
-        <h3 class="stop-head" id="stop-preface" data-peek="How a message in an organizing chat became 270 miles of sidewalk &mdash; the plan, the merch and the crew." data-peek-img="https://wesitefoisy1.b-cdn.net/update_thumb/Preface.png">Preface</h3>
+        <h3 class="stop-head" id="stop-preface" data-peek="How a message in an organizing chat became 270 miles of sidewalk &mdash; the plan, the merch and the crew." data-peek-img="https://wesitefoisy1.b-cdn.net/z_preface.png">Preface</h3>
         <p class="met">April 22 to May 22</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Hi, I'm Syl! I'm an Earth Science PhD candidate studying aerosols -- tiny liquid and solid bits of matter in the atmosphere -- who recently walked from NYC to DC. Why did I do this? Well, to answer that, we need to go back to April 22nd, 2026.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">On April 22nd, I received a message on my phone from Andrew Williams, whom I fondly co-hosted the opening of the Weather &amp; Climate Livestream with in 2025 (and who many have rumored to be my long-lost brother :). Andrew noted in the WC Livestream organizing chat a few alarming facts:</p>
@@ -7449,7 +7654,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">Having secured the 11 interviews, I then procured 500 stickers, 25 vintage pins, and 20 embroidered hats to hand out along the walk. I figured having things to hand out would make conversing with folks a bit easier, and would be a way to thank the interviewers for their time. See below a cube full of merch images --</p>
         <figure class="j-fig j-carousel">
           <div class="jc-stage">
-            <img class="jc-sizer" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="" aria-hidden="true">
+            <img class="jc-sizer" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="" aria-hidden="true">
             <img class="jc-item jc-first" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="Weather and Climate Livestream merch: embroidered hat, t-shirt, two sticker sizes, and a vintage pin">
             <img class="jc-item" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="The embroidered hat, close up">
             <img class="jc-item" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/merch_fancy.png" alt="Stickers in both sizes">
@@ -8024,7 +8229,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
            j-step 22 rather than after it: the builder only looks at `.j-step > .j-card`, and
            adding a 24th j-step would add a step to the map's scroll choreography. -->
       <div class="j-card">
-        <h3 class="stop-head" id="stop-reflection" data-peek="What 270 miles of sidewalk did and did not change &mdash; and what came after the letters were handed over." data-peek-img="https://wesitefoisy1.b-cdn.net/update_thumb/26.png">Reflection</h3>
+        <h3 class="stop-head" id="stop-reflection" data-peek="What 270 miles of sidewalk did and did not change &mdash; and what came after the letters were handed over." data-peek-img="https://wesitefoisy1.b-cdn.net/z_reflect.png">Reflection</h3>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">As I am writing this out right now, three months later, from my first steps, I truly can’t believe this walk happened, and I am unbelievably proud and grateful to be able to put it into a final form here on this website. It goes without saying that a walk like this takes immense privilege, and I couldn’t have done it without the endless support of my fiancée, my family and the friends who have all made many sacrifices for this to happen. To them, I extend sincere gratitude, and I will end this piece with a brief reflection selfishly for my closure, and also to thank them.</p>
         <p class="ph-note" style="text-align:left;margin-top:1.5rem;">To begin, I will continue talking a bit about what happened after the Livestream ended. After the livestream ended, all co-organizers hopped on a Zoom call to reflect on the event. See image below. It was a collective sigh of relief, and a moment to celebrate. :)</p>
         <img class="j-card-img" loading="lazy" decoding="async" src="https://wesitefoisy1.b-cdn.net/final_walk_images_all/post_zoom.png" alt="After the walk">
@@ -8223,13 +8428,13 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       <div class="map-source">Source: MODIS onboard Terra</div>
       <div id="mapStatic" class="map-static" aria-hidden="true"><img class="map-static-img" src="https://wesitefoisy1.b-cdn.net/open_FINAL.jpg" alt=""></div>
     </div>
-    <img id="legAge" class="map-legend" src="https://wesitefoisy1.b-cdn.net/z_age_color.png" alt="Bedrock age scale">
-    <img id="legTopo" class="map-legend" src="https://wesitefoisy1.b-cdn.net/z_topo_color.png" alt="Topography scale">
+    <img id="legAge" class="map-legend" loading="lazy" src="https://wesitefoisy1.b-cdn.net/z_age_color.png" alt="Bedrock age scale">
+    <img id="legTopo" class="map-legend" loading="lazy" src="https://wesitefoisy1.b-cdn.net/z_topo_color.png" alt="Topography scale">
     <a id="mapLogoLink" href="https://wclivestream.com/" target="_blank" rel="noopener" aria-label="The Weather &amp; Climate Livestream (opens in a new tab)" title="The Weather &amp; Climate Livestream"><img id="mapLogo" alt="The Weather &amp; Climate Livestream"></a>
     <div class="wx-timecard" id="wxTimeCard" aria-hidden="true">&mdash;</div>
-    <img id="legRadar" class="map-radbar" src="https://wesitefoisy1.b-cdn.net/z_radar_colorbar.png" alt="Radar intensity: lighter to heavier">
-    <img id="legTemp" class="map-radbar" src="https://wesitefoisy1.b-cdn.net/z_temp_colorbar.png" alt="Temperature (F): cool to warm" onerror="this.style.display='none'">
-    <img id="legDew" class="map-radbar" src="https://wesitefoisy1.b-cdn.net/z_dew_colorbar.png" alt="Dew point (F): dry to humid" onerror="this.style.display='none'">
+    <img id="legRadar" class="map-radbar" loading="lazy" src="https://wesitefoisy1.b-cdn.net/z_radar_colorbar.png" alt="Radar intensity: lighter to heavier">
+    <img id="legTemp" class="map-radbar" loading="lazy" src="https://wesitefoisy1.b-cdn.net/z_temp_colorbar.png" alt="Temperature (F): cool to warm" onerror="this.style.display='none'">
+    <img id="legDew" class="map-radbar" loading="lazy" src="https://wesitefoisy1.b-cdn.net/z_dew_colorbar.png" alt="Dew point (F): dry to humid" onerror="this.style.display='none'">
     <!-- The town pill -- "Manhattan, NY  0%", the current town and the mileage gauge in one
          dark capsule -- is OFF. .map-cta below took its slot. Commented rather than deleted:
          its stylesheet block, its fill animation and every script that feeds it are all still
@@ -8245,7 +8450,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
       <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 16.9v2.8a1.9 1.9 0 0 1-2.1 1.9 18.6 18.6 0 0 1-8.1-2.9 18.3 18.3 0 0 1-5.6-5.6A18.6 18.6 0 0 1 2.8 4.9 1.9 1.9 0 0 1 4.7 2.8h2.8a1.9 1.9 0 0 1 1.9 1.6c.1.9.3 1.8.7 2.7a1.9 1.9 0 0 1-.4 2l-1.2 1.2a15 15 0 0 0 5.6 5.6l1.2-1.2a1.9 1.9 0 0 1 2-.4c.9.3 1.8.6 2.7.7a1.9 1.9 0 0 1 1.6 1.9z"/></svg>
       <span>Call your reps</span>
     </a>
-    <div class="map-hover-hint" id="mapHoverHint" aria-hidden="true"><span class="mth-arrow">&#8593;</span> Cursor over the map to highlight borders/water features!</div>
+    <div class="map-hover-hint" id="mapHoverHint" aria-hidden="true">Cursor over the map to highlight borders/water features!</div>
     <div class="map-caption" id="mapCaption"><span class="cap-full">Image from MODIS aboard NASA's Terra satellite, taken on June 2nd. I'm somewhere near the star marking DC, lol!</span><span class="cap-mobile">Image from MODIS aboard NASA's Terra satellite (6/2/26)</span></div>
   </div>
 </div>
@@ -9013,7 +9218,7 @@ nav{ border-bottom:1px solid var(--nav-rule) }
      nothing. Left in place rather than deleted so putting it back is uncommenting one span --
      its .fname rule is still in the stylesheet.
      <span class="fname">Syl Foisy</span> -->
-<footer><span class="fcredit">Last updated August 30, 2026</span></footer>
+<footer><span class="fcredit">Last updated September 19, 2026</span></footer>
 
 <script>
 /* ===== Hover means the pointer moved =======================================
@@ -9427,7 +9632,9 @@ DATA.stops.forEach(function(s){
   // first fill hit walking forwards is always the tightest region under the cursor -- that's
   // what lets Rhode Island win over the Atlantic, or DC win over Maryland. Water tends to come
   // first only because water bodies happen to be small; it isn't a water/land priority.
-  (function(){
+  /* Runs once MAP_SHAPES exists. The shapes file is deferred now (see <head>), so at parse
+     time it usually is not here yet; DOMContentLoaded is after every deferred script has run. */
+  function hoverRegions(){
     if(typeof MAP_SHAPES==='undefined') return;
     // Interaction mode follows the *device*, not the window size: a desktop window dragged narrow
     // still has a mouse, so it keeps hover. Only real touch devices get tap-to-highlight.
@@ -10888,7 +11095,9 @@ DATA.stops.forEach(function(s){
       if(stick) return; stick=true;
       requestAnimationFrame(function(){ stick=false; evaluate(lastX, lastY); });
     }, {passive:true});
-  })();
+  }
+  if(typeof MAP_SHAPES!=='undefined' || document.readyState!=='loading') hoverRegions();
+  else document.addEventListener('DOMContentLoaded', hoverRegions);
   var wk=document.getElementById('walkerFig'), WK=DATA.walker, DISP, dw, WALKER_BGSIZE, BOAT_BGSIZE;
   var WALKER_BG="url(data:image/png;base64,"+WK.b64+")";
   var BOAT_BG="url(https://wesitefoisy1.b-cdn.net/boat.png)", boatOn=false;
@@ -13835,7 +14044,7 @@ DATA.stops.forEach(function(s){
   if(map){ map.style.willChange='auto'; }   // stop Safari caching a low-res raster of the scaled SVG map
 })();
 </script>
-<script src="https://www.youtube.com/iframe_api"></script>
+<script src="https://www.youtube.com/iframe_api" async></script>
 <script>
 (function () {
   var vids = document.querySelectorAll('.j-card-video');
@@ -14543,6 +14752,10 @@ document.addEventListener('play', function (e) {
 .lang-menu button{display:block;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:400;background:none;border:none;border-radius:5px;padding:.5rem .7rem;color:#000;cursor:pointer;transition:background .15s}
 .lang-menu button:hover{background:#f2f2f2}
 .lang-menu button.active{font-weight:700;background:#f6f6f6}
+/* "(in development)" beside every language but English. Small, quiet, and the same on the
+   menu item and on the button once one is chosen. */
+.lang-dev{font-size:.72em;font-weight:400;opacity:.62;letter-spacing:0;white-space:nowrap}
+.lang-menu button{min-width:190px}
 </style>
 <script>
 (function(){
@@ -14683,7 +14896,12 @@ document.addEventListener('play', function (e) {
                                // headline has to be its final size first
     document.documentElement.lang = lang;
     var lbl = document.getElementById('langLabel');
-    if(lbl && LABELS[lang]) lbl.textContent = LABELS[lang];
+    if(lbl && LABELS[lang]){
+      lbl.textContent = LABELS[lang];
+      /* Every translation on this site is machine-drafted and not yet checked by a speaker,
+         and it says so wherever the language is named -- here and on each menu item. */
+      if(lang !== 'en'){ var dv = document.createElement('small'); dv.className = 'lang-dev'; dv.textContent = '(in development)'; lbl.appendChild(document.createTextNode(' ')); lbl.appendChild(dv); }
+    }
     document.querySelectorAll('.lang-menu button').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-lang') === lang);
     });
@@ -14691,6 +14909,10 @@ document.addEventListener('play', function (e) {
     if(m) m.classList.remove('open');
     fixLedeGap();
     try{ localStorage.setItem('site-lang', lang); }catch(e){}
+    /* The rest of the page -- every paragraph, caption, label and cue -- see WHOLE-PAGE
+       TRANSLATION below. After the hero, because that block sets innerHTML on three elements
+       and this one works on text nodes; in this order the two never touch the same node. */
+    if(window.__i18nApply) window.__i18nApply(lang);
   };
   // Holds a constant two-line gap below the opinion line, and decides — by measurement, not
   // by breakpoint — whether the intro paragraph sits in the headline's column or stacks
@@ -14793,6 +15015,7 @@ document.addEventListener('play', function (e) {
   window.addEventListener('load', fixLedeGap);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(fixLedeGap);
   var _lgt;
+  window.__i18nLabel = function(lang){ return LABELS[lang] || lang; };
   window.addEventListener('resize', function(){
     /* Re-fit first, then re-place. A narrower window rewraps the English too, so
        the target height moves with it -- a size that fitted at 1400px is the
@@ -14800,6 +15023,136 @@ document.addEventListener('play', function (e) {
     clearTimeout(_lgt); _lgt = setTimeout(function(){ fitI18n(); fixLedeGap(); }, 120);
   });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitI18n);
+})();
+</script>
+<script>
+/* ===== WHOLE-PAGE TRANSLATION (in development) ===============================
+   The dropdown used to swap three hero strings. It swaps the page now: every text node in
+   <body>, the card blurbs the accordion writes in from data-peek, the labels the scripts
+   author ("Show less", "Mile 9 to 29"), and the caption cues on every clip whose cues live
+   in this file.
+
+   HOW. Each language is a separate file, walk-i18n-<lang>.js, fetched the first time that
+   language is chosen and never otherwise -- five languages inline would have been half a
+   megabyte on a page that is already being asked to load faster. The file sets
+   window.WALK_I18N.<lang> = { label, mile, mileTo, text:{ English: translation, ... },
+   cues:{ clipKey:[ ...one string per cue... ] } }. Text is keyed by the ENGLISH STRING
+   itself, whitespace collapsed, so nothing in the markup had to be tagged and a string the
+   file does not know simply stays in English -- which is also how a sentence edited in the
+   HTML fails: visibly, in English, rather than as a stale translation.
+
+   Text nodes are what is written to, never innerHTML, so links, emphasis and every inline
+   element keep their place and their handlers. A node remembers the English it carried
+   (n.__en) and the last value this script wrote (n.__set): if the two differ from what is
+   there now, the page has changed the text itself and THAT is the new English. A
+   MutationObserver catches nodes the scripts add later (stop cards, the comments, the
+   caption strip) and text the scripts change (the open/close labels), and translates them
+   the same way. Two patterns are handled by template rather than by lookup: "Mile X to Y"
+   and "Mile X".
+
+   Attributes (alt, title, aria-label) are left alone for now.
+
+   EVERYTHING IN THOSE FILES IS MACHINE-DRAFTED AND UNCHECKED, which is what the
+   "(in development)" beside each language means. The English-keyed shape is deliberate: a
+   speaker can correct a line in the file without touching this page. */
+(function(){
+  var SKIP = { SCRIPT:1, STYLE:1, NOSCRIPT:1, CODE:1, TITLE:1, TEXTAREA:1, PRE:1, SVG:1, MATH:1 };
+  var PENDING = {}, cur = 'en', dict = null, mo = null;
+  window.WALK_I18N = window.WALK_I18N || {};
+
+  function norm(t){ return String(t).replace(/\s+/g, ' ').trim(); }
+
+  function fetchLang(lang, cb){
+    if(window.WALK_I18N[lang]){ cb(window.WALK_I18N[lang]); return; }
+    if(PENDING[lang]){ PENDING[lang].push(cb); return; }
+    PENDING[lang] = [cb];
+    var el = document.createElement('script');
+    el.src = 'walk-i18n-' + lang + '.js'; el.async = true;
+    function done(){ var d = window.WALK_I18N[lang] || null, q = PENDING[lang] || []; delete PENDING[lang]; q.forEach(function(f){ f(d); }); }
+    el.onload = done; el.onerror = done;
+    document.head.appendChild(el);
+  }
+
+  function skipEl(el){
+    for(var p = el; p && p.nodeType === 1; p = p.parentNode){
+      var tag = (p.tagName || '').toUpperCase();
+      if(SKIP[tag]) return true;
+      if(p.id === 'langMenu' || p.id === 'langLabel') return true;
+      if(p.getAttribute && p.getAttribute('translate') === 'no') return true;
+    }
+    return false;
+  }
+
+  /* English string in, translation out, or null. Exact key first, then the two templates. */
+  function lookup(en){
+    if(!dict) return null;
+    var k = norm(en); if(!k) return null;
+    var T = dict.text || {};
+    if(Object.prototype.hasOwnProperty.call(T, k)) return T[k];
+    var m = k.match(/^Mile (\S+) to (\S+)$/);
+    if(m && dict.mileTo) return dict.mileTo.replace('{a}', m[1]).replace('{b}', m[2]);
+    m = k.match(/^Mile (\S+)$/);
+    if(m && dict.mile) return dict.mile.replace('{a}', m[1]);
+    return null;
+  }
+
+  function write(n, s){
+    var v = n.nodeValue, lead = v.match(/^\s*/)[0], tail = v.match(/\s*$/)[0];
+    var out = lead + s + tail;
+    if(n.nodeValue !== out){ n.__set = out; n.nodeValue = out; }
+    else n.__set = out;
+  }
+
+  function doNode(n){
+    if(!n.parentNode || skipEl(n.parentNode)) return;
+    var v = n.nodeValue;
+    if(!norm(v)) return;
+    /* Whatever the page wrote last is the English -- unless what is there is our own write. */
+    if(n.__set == null || v !== n.__set) n.__en = v;
+    if(cur === 'en'){ if(n.__set != null && v === n.__set){ n.__set = null; n.nodeValue = n.__en; } return; }
+    var t = lookup(n.__en);
+    if(t != null) write(n, t);
+    else if(n.__set != null && v === n.__set){ n.__set = null; n.nodeValue = n.__en; }
+  }
+
+  function walk(root){
+    if(root.nodeType === 3){ doNode(root); return; }
+    if(root.nodeType !== 1 && root.nodeType !== 9) return;
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false), n, list = [];
+    while((n = w.nextNode())) list.push(n);
+    for(var i = 0; i < list.length; i++) doNode(list[i]);
+  }
+
+  function watch(){
+    if(mo || !window.MutationObserver) return;
+    mo = new MutationObserver(function(recs){
+      if(cur === 'en') return;
+      for(var i = 0; i < recs.length; i++){
+        var r = recs[i];
+        if(r.type === 'characterData'){ doNode(r.target); }
+        else if(r.addedNodes){ for(var j = 0; j < r.addedNodes.length; j++) walk(r.addedNodes[j]); }
+      }
+    });
+    mo.observe(document.body, { childList:true, subtree:true, characterData:true });
+  }
+
+  var seq = 0;
+  window.__i18nApply = function(lang){
+    var my = ++seq;
+    if(lang === 'en'){
+      cur = 'en'; dict = null;
+      walk(document.body);
+      if(window.__ccApply) window.__ccApply('en', null);
+      return;
+    }
+    fetchLang(lang, function(d){
+      if(my !== seq) return;                    // a later choice has overtaken this one
+      cur = lang; dict = d || { text:{} };
+      watch();
+      walk(document.body);
+      if(window.__ccApply) window.__ccApply(lang, dict.cues || null);
+    });
+  };
 })();
 </script>
 
@@ -14912,6 +15265,44 @@ document.addEventListener('play', function (e) {
       buildSection(sect, card);
     });
   });
+
+  /* ===== "MILE X TO Y", NOT "READ SECTION" ===================================
+     The word on a folded card's hover was the same on every card. The one thing that IS
+     different card to card is the stretch of road inside it, so that is what it says now:
+     this stop's mile marker to the next stop's. Read off the mile markers the jump list
+     already prints (the .si-num cloned into each heading), so a stop taken out of the list
+     simply widens the range of the one before it. The two bookends -- the Preface and the
+     Reflection -- have no mile and keep the old word. The last stop has nothing after it and
+     reads "Mile 270". The label is kept on the section so the open/close toggle can put it
+     back after "Show less". */
+  (function(){
+    var all = [].slice.call(document.querySelectorAll('.j-sect'));
+    function fmt(x){ return String(Math.round(x * 10) / 10); }
+    var miles = all.map(function(s){
+      var n = s.querySelector('.jp-head .si-num');
+      var m = n ? parseFloat((n.textContent || '').replace(/[^\d.]/g, '')) : NaN;
+      return isNaN(m) ? null : m;
+    });
+    all.forEach(function(s, i){
+      /* The two bookends have no mile. Their hover word is their own name -- "Preface",
+         "Reflection" -- which is the whole of what the card has to say; the picture says
+         the rest. (Read off the heading rather than written here, so the translation engine
+         sees one string, not two.) */
+      var h = s.querySelector('.stop-head');
+      if(h && (h.id === 'stop-preface' || h.id === 'stop-reflection')){   // .is-solo is not on yet: the staircase pass below adds it
+        s._moreLabel = h ? (h.textContent || '').trim() : 'Read section';
+        var lab0 = s.querySelector('.jp-more-label');
+        if(lab0 && !s.classList.contains('is-open')) lab0.textContent = s._moreLabel;
+        return;
+      }
+      if(miles[i] == null) return;
+      var next = null;
+      for(var j = i + 1; j < all.length; j++){ if(miles[j] != null){ next = miles[j]; break; } }
+      s._moreLabel = next != null ? 'Mile ' + fmt(miles[i]) + ' to ' + fmt(next) : 'Mile ' + fmt(miles[i]);
+      var lab = s.querySelector('.jp-more-label');
+      if(lab && !s.classList.contains('is-open')) lab.textContent = s._moreLabel;
+    });
+  })();
 
   /* ===== Leg grouping =====================================================
      The 23 stops plus the two bookends get folded into eight legs. Mileage is the
@@ -15595,7 +15986,7 @@ document.addEventListener('play', function (e) {
     if(peek){
       peek.setAttribute('aria-expanded', open?'true':'false');
       var lab=peek.querySelector('.jp-more-label');
-      if(lab) lab.textContent = open ? 'Show less' : 'Read section';
+      if(lab) lab.textContent = open ? 'Show less' : (sect._moreLabel || 'Read section');
     }
     // Anything inside was never intersected while it was display:none, so the
     // fade-in observer never fired for it. Light it up by hand on the way open.
@@ -17620,6 +18011,10 @@ html.walk-fs{ --map-pin-top:46px }
   #mapFsBackdrop{ top:-120px; bottom:-120px }
 }
 .j-sect.is-open .read-hint{ display:none }
+/* NOT DRAWN ANY MORE (19 Sep 2026): the highlighted card carries its own label instead -- see
+   the .card-active .jp-more rule. visibility, not display, because the hint script measures
+   this element's width to size the two bookend pictures; hidden, it still has one. */
+.read-hint{ visibility:hidden !important }
 /* ON A DESKTOP THE HINT LIVES OUTSIDE THE PREFACE, so nothing the Preface does to its own size
    (the swell as you scroll, the change on hover) can reach it. The script below parks it in the
    Preface's parent and pins it by the Preface's layout position, which a transform never moves.
@@ -18596,11 +18991,45 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
     });
     return out.join('\n');
   }
+  /* ===== CAPTIONS IN THE READER'S LANGUAGE ==================================
+     The English cues are kept on the video (v._ccEn) and the track is PAINTED from them
+     each time: in English as they are, in any other language with every cue's text swapped
+     for the translation at the same index -- the timings never change, only the words. The
+     translations arrive with the language file (walk-i18n-<lang>.js, see WHOLE-PAGE
+     TRANSLATION) and a clip whose cues that file does not carry, or carries with a different
+     count, keeps its English. __ccApply(lang, cues) repaints every track that exists;
+     ones built later read the same two variables. */
+  var CC_LANG = 'en', CC_DICT = null;
+  function localCues(v){
+    var en = v._ccEn; if(!en) return null;
+    if(CC_LANG === 'en' || !CC_DICT) return en;
+    var t = CC_DICT[v.dataset.ccKey];
+    if(!t || t.length !== en.length) return en;
+    return en.map(function(c, i){ return [c[0], c[1], t[i] || c[2]]; });
+  }
+  window.__ccApply = function(lang, cues){
+    CC_LANG = lang || 'en'; CC_DICT = cues || null;
+    [].slice.call(document.querySelectorAll('.j-card-video')).forEach(function(v){ if(v._ccEn) paintTrack(v); });
+  };
   function attachTrack(v, cues){
     if(!cues || !cues.length || v.dataset.ccTrack) return;
     v.dataset.ccTrack = '1';
+    v._ccEn = cues;
+    paintTrack(v);
+  }
+  function paintTrack(v){
+    var cues = localCues(v); if(!cues) return;
+    var old = v.querySelector('track[data-cc]');
+    var wasOn = true;
+    if(old){
+      try{ wasOn = old.track ? old.track.mode !== 'disabled' : true; }catch(e){}
+      try{ URL.revokeObjectURL(old.src); }catch(e){}
+      old.parentNode.removeChild(old);
+    }
+    if(!wasOn) v._ccOff = true;
     var tr = document.createElement('track');
-    tr.kind = 'captions'; tr.label = 'English'; tr.srclang = 'en'; tr.default = true;
+    tr.setAttribute('data-cc', '1');
+    tr.kind = 'captions'; tr.label = (window.__i18nLabel && window.__i18nLabel(CC_LANG)) || 'English'; tr.srclang = CC_LANG; tr.default = true;
     tr.src = URL.createObjectURL(new Blob([toVTT(cues)], {type:'text/vtt'}));
     v.appendChild(tr);
     /* default="" is only read while the markup is being parsed, so a track added afterwards
@@ -18608,12 +19037,13 @@ button.meta-chip:focus-visible{outline:3px solid #f5820b;outline-offset:3px}
        object does not exist until the browser has taken the element in. */
     requestAnimationFrame(function(){
       var tt = v.textTracks;
-      if(tt && tt.length) tt[tt.length-1].mode = 'showing';
+      if(tt && tt.length) tt[tt.length-1].mode = (wasOn ? 'showing' : 'disabled');
     });
   }
   function loadCaptions(v){
     var url = v.getAttribute('data-srt');
     if(!url || v.dataset.ccOn) return;
+    v.dataset.ccKey = ccKey(url);
     var built = CC_CUES[ccKey(url)];
     if(built && built.length){ v.dataset.ccOn = '1'; attachTrack(v, built); return; }
     v.dataset.ccOn = '1';
@@ -26557,9 +26987,10 @@ body.map-full #scrollCue{ opacity:0 !important }
    them reads as a break in the block rather than as breathing room, and the
    language pill below makes the run feel longer still. Halved below 701px.
 
-   KNOB: --rt-gap is the multiplier on that 1.15rem. 1 desktop, .5 phone. */
+   KNOB: --rt-gap is the multiplier on that 1.15rem. HALVED on 19 Sep 2026: .5 desktop,
+   .25 phone -- the byline row and the read-time row read as one block now. */
 .read-time{
-  margin:calc(1.15rem * var(--hero-scale, 1) * var(--rt-gap, 1)) 0 0;
+  margin:calc(1.15rem * var(--hero-scale, 1) * var(--rt-gap, .5)) 0 0;
   display:flex; align-items:center; justify-content:center;
   flex-wrap:wrap; gap:.3rem .5rem;
   font-family:'DM Sans', sans-serif;
@@ -26575,7 +27006,7 @@ body.map-full #scrollCue{ opacity:0 !important }
   color:rgba(255,255,255,.96);
 }
 @media(max-width:700px){
-  .read-time{ --rt-gap:.5 }
+  .read-time{ --rt-gap:.25 }
 }
 /* No bold. It was a label and a value for a round; the colon carries that on
    its own, and at the byline's size the weight was the loudest thing in the
@@ -27585,6 +28016,27 @@ function goBack(e){
   var MIN_MS = 350, QUIET_MS = 300, BACK_MS = 1600, MAX_MS = 4000, HOLD_MS = 1600, PRESS_MS = 15000, ARM_MS = 10000;
   var press = null, snap = null, exitAt = 0, pollT = null, holdRAF = 0, sbSaved = null, touched = false;
   var armed = null, armT = null;
+  /* ===== THE PAGE'S OWN FULL SCREEN COMES BACK ==============================
+     On a phone held sideways in the walk's full screen (html.walk-fs), a clip's own
+     fullscreen button nests the clip inside the page's full screen. Closing the clip does not
+     hand the screen back to the page: the browser drops the whole stack, the page is no
+     longer full screen, the landscape lock is released with it, the phone turns back upright,
+     the window crosses the 700px line and the open stop is torn down into the folded map.
+     "Where you left off" is gone twice over -- out of full screen AND out of the stop.
+
+     So the sheet remembers whether the PAGE had the screen when the clip took it, and asks
+     for it back the moment the clip lets go. That request rides on the same tap that closed
+     the clip (a fresh user activation), so it is granted on the routes a reader actually
+     uses; a route with no tap behind it (the phone's Back gesture) is refused, and the page
+     then does what it always did -- shows the "Enter full screen" sheet. Either way the clip
+     is still put back on its pixel by the code below. */
+  var wasPageFs = false;
+  function reenterPageFs(){
+    if(!wasPageFs) return;
+    wasPageFs = false;
+    if(D.fullscreenElement || D.webkitFullscreenElement) return;   // the page still has it
+    if(typeof W.walkFsEnter === 'function'){ try{ W.walkFsEnter(); }catch(e){} }
+  }
 
   function now(){ return performance.now(); }
 
@@ -27655,6 +28107,7 @@ function goBack(e){
     exitAt = 0;
     stopHold();
     disarm();
+    wasPageFs = de.classList.contains('walk-fs');
     /* The press is used if it was on this clip, recently, and the page has not been scrolled
        since -- a scroll with the window unchanged is the reader, not the full screen. */
     var ok = press && (now() - press.t < PRESS_MS) && (press.v === v || (press.el.contains && press.el.contains(v)));
@@ -27674,6 +28127,7 @@ function goBack(e){
       markNative(v);
     }else if(G.frozen && !exitAt){
       exitAt = now();
+      reenterPageFs();
     }else if(!G.frozen && armed){
       /* Out of full screen with the phone still sideways, and now it has been turned back: once
          the window is quiet again, the clip goes back on its pixel. */
@@ -27717,11 +28171,18 @@ function goBack(e){
 
   /* Put the clip's top edge back on its pixel. Innermost scrolling box first; whatever it
      cannot absorb goes to the window. */
+  /* The scroll NUMBER is only a fallback while the window is the shape it was taken in. A
+     phone that left full screen sideways and came back upright has a different page under it
+     -- a stop open as the desktop panel sits over a page parked at the folded map, so its
+     scrollY is the map's -- and restoring that number is how a closed clip landed the reader
+     on the hotdog. In a changed window, a clip that cannot be measured is left where it is
+     and measured again on the next frame (hold() keeps trying for HOLD_MS). */
+  function sameShape(s){ return W.innerWidth === s.w && W.innerHeight === s.h; }
   function place(s){
     var a = s.el;
-    if(!a || !a.isConnected){ W.scrollTo(0, s.y); return; }
+    if(!a || !a.isConnected){ if(sameShape(s)) W.scrollTo(0, s.y); return; }
     var r = a.getBoundingClientRect();
-    if(!r.width && !r.height){ W.scrollTo(0, s.y); return; }     // not laid out: the number will do
+    if(!r.width && !r.height){ if(sameShape(s)) W.scrollTo(0, s.y); return; }     // not laid out
     var d = r.top - s.top;
     if(Math.abs(d) < 0.5) return;
     /* Read live, not from the snapshot: the layout it comes back to may scroll the clip in a
@@ -27753,6 +28214,23 @@ function goBack(e){
     for(var i = 0; i < q.length; i++){ try{ q[i](); }catch(e){} }
 
     if(!s){ endHold(); return; }
+    /* ===== THE STOP COMES BACK WITH THE CLIP ==================================
+       The crossing just run (a phone turned back upright after the page's full screen was
+       dropped along with the clip's) tears the desktop panel down and closes the stop -- and
+       the clip the reader was watching is inside it. If the page's own full screen could not
+       be taken back (no tap to ride on: the Back gesture, the iOS player's Done), that is
+       where the reader is left: a folded card, a map, no clip. So the stop is opened again
+       here, in the phone's own way (in place, the map held on it), and the clip is put back
+       on its pixel inside it. _jpOpen is the accordion's own entry point, the same one the
+       ?v= interview links use. */
+    if(s.v && s.v.closest){
+      var sect = s.v.closest('.j-sect');
+      if(sect && !sect.classList.contains('is-open') && typeof sect._jpOpen === 'function'){
+        try{ if(W.__mapResync) W.__mapResync(); }catch(e){}
+        try{ sect._jpOpen(); }catch(e){}
+        s.reopened = true;
+      }
+    }
     for(var j = 0; j < s.sc.length; j++){
       if(s.sc[j].el.isConnected) setTop(s.sc[j].el, s.sc[j].top);
     }
@@ -27772,7 +28250,7 @@ function goBack(e){
     if(sbSaved === null) sbSaved = de.style.scrollBehavior;
     de.style.scrollBehavior = 'auto';
     touched = false;
-    var until = now() + HOLD_MS;
+    var until = now() + HOLD_MS + (s.reopened ? 900 : 0);   // a stop reopening takes a beat longer to settle
     function step(){
       if(touched || now() > until){ endHold(); return; }
       place(s);
@@ -27932,12 +28410,31 @@ function goBack(e){
       var host = sect.parentNode;
       if(hint.parentNode !== host) host.appendChild(hint);
       hint.classList.add('read-hint-out');
+      /* ===== AS WIDE AS THE HINT ===============================================
+         The two bookend pictures were half a stop card wide, a number that had nothing to
+         do with the line of text sitting over the Preface -- so the picture came out
+         narrower than its own caption. The hint's rendered width is measured here (it is
+         the one thing on the page that knows it) and written onto BOTH bookends as --bk-w,
+         which their stylesheet rule sizes from. Inline beats the rule's own calc(), and the
+         height follows through the same variable. Measured before the hint is moved, from
+         its natural width, and rewritten whenever this runs -- a translation changes the
+         words, the words change the width, the pictures follow. */
+      var hw = hint.offsetWidth;
+      if(hw > 40){
+        [].forEach.call(document.querySelectorAll('#stop-preface, #stop-reflection'), function(h){
+          var b = h.closest('.j-sect');
+          if(b && b.style.getPropertyValue('--bk-w') !== hw + 'px') b.style.setProperty('--bk-w', hw + 'px');
+        });
+      }
       hint.style.left = (sect.offsetLeft + sect.offsetWidth / 2) + 'px';
       hint.style.top = sect.offsetTop + 'px';
     } else {
       if(hint.parentNode !== sect) sect.appendChild(hint);
       hint.classList.remove('read-hint-out');
       hint.style.left = ''; hint.style.top = '';
+      [].forEach.call(document.querySelectorAll('#stop-preface, #stop-reflection'), function(h){
+        var b = h.closest('.j-sect'); if(b) b.style.removeProperty('--bk-w');   // the phone sizes them itself
+      });
     }
     // Gone while the Preface is open, as before.
     hint.style.display = sect.classList.contains('is-open') ? 'none' : '';
@@ -28287,4 +28784,128 @@ function goBack(e){
   };
 })();
 </script>
+<style>
+/* ===== THE OPENING, CLEARED ==================================================
+   Three pieces of furniture that sat over the opening photograph are gone:
+     - the Weather & Climate Livestream hat in the bottom-right corner (#hatCornerLink).
+       The logo the MAP carries (#mapLogoLink) is untouched -- that is the one that
+       arrives with the map and stays.
+     - the Back pill under the bar (.backw). The bar's own name and links are the way out.
+     - every "scroll" cue: the "scroll!" with the arrow in the hero (#scrollHint), the fixed
+       chevron at the foot of a wide window (#scrollCue) and the phone's cue under the
+       photograph (#mScrollCue).
+   Hidden rather than deleted, because four scripts still write opacity to these elements
+   on every scroll frame and are happier finding them than not; display:none costs nothing
+   and their writes land on a box that is never painted. Restoring any of them is one line. */
+#hatCornerLink, .backw, #scrollHint, #scrollCue, #mScrollCue{ display:none !important }
+</style>
+<style>
+/* ===== THE FOUR CONTROLS AT THE FOOT (19 Sep 2026, third pass) =================
+   Three pills, three hues, all deep enough to stand off the pale sky and far enough apart
+   to read as three destinations: Videos in a warm red (the playlist lives on YouTube),
+   Livestream in violet (the quiz tile's family, and the livestream's own purple), Blogs in
+   a sea green. Each keeps a shadow in its own hue -- a neutral drop shadow under a coloured
+   button is what makes it look tinted rather than made. Comments is the one full-width
+   control and takes the site's deep navy so it reads as a bar, not a fourth pill.
+   The original blue -> indigo -> purple ramp is still in the stylesheet above; strike this
+   block and it is back. */
+.walk-links .wl-videos{
+  background:linear-gradient(180deg,#d9534f 0%,#b53a36 100%);
+  box-shadow:0 6px 13px -6px rgba(140,40,35,.55), inset 0 -2px 0 rgba(0,0,0,.15);
+}
+.walk-links .wl-videos:hover{ box-shadow:0 11px 20px -8px rgba(140,40,35,.6), inset 0 -2px 0 rgba(0,0,0,.15) }
+.walk-links .wl-videos:active{ box-shadow:0 3px 7px -5px rgba(140,40,35,.45), inset 0 2px 4px rgba(0,0,0,.2) }
+.walk-links .wl-livestream{
+  background:linear-gradient(180deg,#7b62d8 0%,#5b45b3 100%);
+  box-shadow:0 6px 13px -6px rgba(60,40,140,.55), inset 0 -2px 0 rgba(0,0,0,.15);
+}
+.walk-links .wl-livestream:hover{ box-shadow:0 11px 20px -8px rgba(60,40,140,.6), inset 0 -2px 0 rgba(0,0,0,.15) }
+.walk-links .wl-livestream:active{ box-shadow:0 3px 7px -5px rgba(60,40,140,.45), inset 0 2px 4px rgba(0,0,0,.2) }
+.walk-links .wl-blogs{
+  background:linear-gradient(180deg,#2a9d8f 0%,#1f7a6f 100%);
+  box-shadow:0 6px 13px -6px rgba(20,80,70,.55), inset 0 -2px 0 rgba(0,0,0,.15);
+}
+.walk-links .wl-blogs:hover{ box-shadow:0 11px 20px -8px rgba(20,80,70,.6), inset 0 -2px 0 rgba(0,0,0,.15) }
+.walk-links .wl-blogs:active{ box-shadow:0 3px 7px -5px rgba(20,80,70,.45), inset 0 2px 4px rgba(0,0,0,.2) }
+.cm-expand{ background:#1b2a41; box-shadow:0 8px 18px -8px rgba(10,20,40,.6) }
+.cm-expand:hover{ background:#24384f }
+
+/* ===== THE WASH: LIGHT BLUE AT REST, THE OLD NAVY ON THE HIGHLIGHTED CARD ======
+   The card gradients read their colour from --wash-rgb (light blue by default, see the two
+   card rules). The card the map is naming goes back to the navy the wash used to be, so the
+   one lit card is the one in the darker, deeper tint and every other card sits in the pale
+   blue. Solos included. */
+body.mode-quick .j-sect:not(.is-open).card-active{ --wash-rgb:14,26,46 }
+</style>
+<style>
+/* ===== BLACK TYPE, NO GLOW (19 Sep 2026) ====================================
+   Five pieces of white type went black, and the footer credit lost its shadow: the three
+   action chips under the comments (Share full article / Call your reps / References), the
+   "More walk content:" heading, and the "Cursor over the map..." line under the map. The
+   sky behind the article is pale now, and white on pale was the one thing not reading. */
+footer .fcredit{ text-shadow:none; color:#000 }
+.cm-act, .cm-act:hover{ color:#000 }
+.cm-act:focus-visible{ outline-color:#f5820b }
+.games-title{ color:#000 }
+.map-hover-hint{ color:#000 }
+</style>
+<style>
+/* ===== THE LABEL BAND (19 Sep 2026) ==========================================
+   The card's label -- "Mile 131 to 139.1", "Preface" -- is a band across the whole foot of
+   the card now, edge to edge, like the mile signs in the letter game: one flat colour,
+   small white caps, nothing else. The colour is the stop's own map-pin colour (--pin,
+   which buildSection writes on every section from its jump-list row), taken down a fifth
+   toward black so white type holds on the paler pins; the two bookends have no pin and
+   fall back to the site navy. The wood it replaces was four stacked gradients repainted on
+   every card as the wash animated, which is what was lagging.
+
+   The band does not change on hover: the folded-card hover rule further up set
+   background:none, which is why it vanished under the pointer. It is restated here, after
+   that rule, so hover keeps the colour. Opacity is still the only thing that shows or
+   hides it (highlight, hover, focus -- see the .jp-more opacity rules). */
+body.mode-quick .j-sect:not(.is-open) .jp-txt{ padding-bottom:0 }
+body.mode-quick .j-sect:not(.is-open) .jp-more,
+body.mode-quick .j-sect:not(.is-open) .jp-more:hover{
+  width:100%; justify-content:center;
+  margin:0; padding:.3rem .5rem; border:0; border-radius:0;
+  background:var(--pin, #20374b);
+  background:color-mix(in srgb, var(--pin, #20374b) 80%, #000);
+  color:#fff; font:700 .68rem/1.2 'DM Sans',sans-serif;
+  text-transform:uppercase; letter-spacing:.07em;
+  box-shadow:none; transform:none;
+  /* The card is 16px-rounded but overflow:visible (its corner brackets live outside it),
+     so the band rounds its own bottom corners to match rather than poking out square. */
+  border-radius:0 0 16px 16px;
+}
+body.mode-quick .j-sect:not(.is-open) .jp-more .jp-more-label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+/* The two bookends: their own rules outrank the ones above (.is-solo), so the band's size
+   and seat are restated at that specificity. */
+body.mode-quick .j-sect.is-solo:not(.is-open) .jp-txt{ padding-bottom:0 }
+body.mode-quick .j-sect.is-solo:not(.is-open) .jp-more{ font-size:.68rem; letter-spacing:.07em }
+@media(max-width:700px){
+  body.mode-quick .j-sect:not(.is-open) .jp-more,
+  body.mode-quick .j-sect:not(.is-open) .jp-more:hover{ font-size:.62rem; padding:.26rem .4rem }
+}
+
+/* ===== HOVER GETS THE HIGHLIGHT'S WASH =======================================
+   Pointing at a card the map is not naming gives it the same dark navy wash the named card
+   wears, so hover and highlight look like the same thing -- which to the reader they are:
+   "this one". The hover half is gated on body:not(.no-hover) for the same reason the pill's
+   hover is (a parked cursor under a scrolling page is not a hover). */
+body.mode-quick:not(.no-hover) .j-sect:not(.is-open):hover,
+body.mode-quick .j-sect:not(.is-open):focus-within{ --wash-rgb:14,26,46 }
+</style>
+<style>
+/* ===== THE DOTS: COLOURED WHEN THEY SHOW, SHOWING AS THEY DID (19 Sep 2026) =====
+   The reveal is the original one: a stop's dot shows while the walker is AT that stop
+   (.active) and goes again as you move on; only a stop you have opened (.is-lit) keeps
+   its dot for good. What changed is the colour -- wherever a dot shows, it is in the
+   stop's own --pin-col, the same hue as its label band and jump-list pin. Nothing is
+   white any more: the two off-route stops, which used to show white while active, take
+   their colour like every other. */
+.pin .pin-dot{ fill:none }
+.pin.active .pin-dot,
+.pin.pin-off:not(.is-lit) .pin-dot{ fill:var(--pin-col, #ffeb3b) }
+.pin.is-lit .pin-dot{ fill:var(--pin-col, #ffeb3b) }
+</style>
 </body></html>
