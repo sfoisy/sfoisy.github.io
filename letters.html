@@ -8019,6 +8019,13 @@ function drawTalk(){
 function drawSaid(x, y, txt, done, tag, full){
   ctx.save();
   ctx.font = '800 12px DM Sans, sans-serif';
+  /* Translated as a whole line before it is wrapped -- wrapped fragments match nothing -- and
+     the typed part is the same fraction of the translated line. */
+  if(window.siteT){
+    var _f = full || txt, _ft = window.siteT(_f);
+    if(_ft !== _f){ var _r = full ? Math.min(1, txt.length / Math.max(1, full.length)) : 1; txt = _ft.slice(0, Math.ceil(_ft.length * _r)); full = full ? _ft : full; }
+    if(tag) tag = window.siteT(tag);
+  }
   var words = (full || txt).split(' '), lines = [], cur = '';
   for(var i=0;i<words.length;i++){
     var t2 = cur ? cur + ' ' + words[i] : words[i];
@@ -10663,6 +10670,9 @@ function typeBrief(html){
 function typeType(el, html, startDelay, onDone){
   typeStop();
   if(!el) return;
+  /* In the reader's language BEFORE it is typed: otherwise the English types itself out and
+     flips to the translation at the end, which is the worst of both. */
+  if(window.siteTHTML) html = window.siteTHTML(html);
   var tmp = document.createElement('div');
   tmp.innerHTML = html;
   var blocks = tmp.querySelectorAll('.bp');

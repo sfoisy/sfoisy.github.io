@@ -54,7 +54,7 @@
    + '@media(min-width:701px) and (max-width:1100px){.lang-pick{margin-left:.4rem}}'
    /* the same dropdown in a slot: centred under a game's Play button, under the interviews
       masthead, and compact under an open interview's date line */
-   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:400;min-height:2.2rem}'   /* z above a clip's curtain; the height is reserved so the page does not shift when the button lands */
+   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:50;min-height:2.2rem}'   /* above a clip's curtain (6), under the site bar (100); the height is reserved so the page does not shift when the button lands */
    + '.lang-title .lang-btn{color:#fff;font-size:.72rem;padding:.36rem .8rem}'
    + '.lang-title .lang-pop{right:auto;left:50%;transform:translateX(-50%)}'
    + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem;min-height:1.7rem}'
@@ -159,6 +159,15 @@
     if(Object.prototype.hasOwnProperty.call(T, q)) return T[q];
     var nums = [], k2 = q.replace(/\d+(?:[.,]\d+)?/g, function(m){ nums.push(m); return '{n}'; });
     if(nums.length && Object.prototype.hasOwnProperty.call(T, k2)){ var i = 0; return T[k2].replace(/\{n\}/g, function(){ return nums[i++] || ''; }); }
+    /* "AIR CLARITY" is keyed as "air clarity": the games upper-case their labels on the way to
+       the screen, so try the lower case, and hand the translation back in capitals. */
+    if(q !== q.toLowerCase() && q === q.toUpperCase()){
+      if(!T.__lc){ T.__lc = {}; for(var k in T) if(k !== '__lc' && Object.prototype.hasOwnProperty.call(T, k)) T.__lc[k.toLowerCase()] = T[k]; }
+      var lc = q.toLowerCase();
+      if(Object.prototype.hasOwnProperty.call(T.__lc, lc)) return String(T.__lc[lc]).toUpperCase();
+      var nums2 = [], k3 = lc.replace(/\d+(?:[.,]\d+)?/g, function(m){ nums2.push(m); return '{n}'; });
+      if(nums2.length && Object.prototype.hasOwnProperty.call(T.__lc, k3)){ var j = 0; return String(T.__lc[k3]).toUpperCase().replace(/\{N\}/g, function(){ return nums2[j++] || ''; }); }
+    }
     return null;
   }
   function lookup(en){
@@ -178,17 +187,28 @@
         rest = pre.slice(-1) + rest; pre = pre.slice(0, -1);
       }
     }
-    if(k.indexOf(' — ') > -1){
-      var parts = k.split(' — '), any = false;
-      var out = parts.map(function(p){
+    if(/ — | · /.test(k)){
+      var parts = k.split(/( — | · )/), any = false;
+      var out = parts.map(function(p, i){
+        if(i % 2) return p;                        // the joiner itself
         var q = p.replace(/^— /, ''), t = hit(T, q); if(t == null) t = hit(T, p);
-        if(t == null){ var m2 = q.match(/^(\d[\d.,]*\s+)(.+)$/); if(m2){ var t2 = hit(T, m2[2]); if(t2 != null) t = m2[1] + t2; } }
+        if(t == null){ var m2 = q.match(/^(\d[\d.,%]*\s+)(.+)$/); if(m2){ var t2 = hit(T, m2[2]); if(t2 != null) t = m2[1] + t2; } }
         if(t != null){ any = true; return t; } return p;
       });
-      if(any) return out.join(' — ');
+      if(any) return out.join('');
     }
     return null;
   }
+  /* For a page's own scripts: translate a string (or the text inside an HTML string) before
+     they type it out or wrap it -- the letter game's typewriter and speech bubbles. */
+  window.siteT = function(t){ if(cur === 'en' || !dict || typeof t !== 'string') return t; var r = lookup(t); return r == null ? t : r; };
+  window.siteTHTML = function(html){
+    if(cur === 'en' || !dict || typeof html !== 'string') return html;
+    var d = document.createElement('div'); d.innerHTML = html;
+    var w = document.createTreeWalker(d, NodeFilter.SHOW_TEXT, null, false), n;
+    while((n = w.nextNode())){ var r = lookup(n.nodeValue); if(r != null){ var v = n.nodeValue, lead = v.match(/^\s*/)[0], tail = v.match(/\s*$/)[0]; n.nodeValue = lead + r + tail; } }
+    return d.innerHTML;
+  };
   /* ---------- canvas text ----------------------------------------------------
      The letter game draws its HUD and signs on a canvas, where there are no text nodes to
      rewrite. The three text calls are wrapped once, page-wide: what the game asks to draw
