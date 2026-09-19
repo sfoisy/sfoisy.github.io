@@ -116,13 +116,48 @@
     }
     return false;
   }
+  /* Exact match first. Then two shapes the games build at run time:
+       "3 INTERVIEWS STILL TO RECORD", "57% WATER"  -- a number in front of a known phrase
+       "The water caught you — back to the start"   -- two known phrases joined with a dash
+     A part with no translation stays English, so a half-known line still reads. */
   function lookup(en){
     if(!dict) return null;
     var k = norm(en); if(!k) return null;
     var T = dict.text || {};
     if(Object.prototype.hasOwnProperty.call(T, k)) return T[k];
+    var m = k.match(/^([\d][\d.,%°+\-–\s]*)(.+)$/);
+    if(m){
+      /* "57% WATER" is keyed as "% WATER", "3 INTERVIEWS…" as "INTERVIEWS…": hand the symbols
+         after the digits back to the phrase one at a time until something matches. */
+      var pre = m[1], rest = m[2];
+      for(;;){
+        var q = rest.replace(/^\s+/, '');
+        if(Object.prototype.hasOwnProperty.call(T, q)) return pre + (rest.slice(0, rest.length - q.length)) + T[q];
+        if(!pre.length || /[\d]$/.test(pre)) break;
+        rest = pre.slice(-1) + rest; pre = pre.slice(0, -1);
+      }
+    }
+    if(k.indexOf(' — ') > -1){
+      var parts = k.split(' — '), hit = false;
+      var out = parts.map(function(p){ var q = p.replace(/^— /, ''); if(Object.prototype.hasOwnProperty.call(T, q)){ hit = true; return T[q]; } if(Object.prototype.hasOwnProperty.call(T, p)){ hit = true; return T[p]; } return p; });
+      if(hit) return out.join(' — ');
+    }
     return null;
   }
+  /* ---------- canvas text ----------------------------------------------------
+     The letter game draws its HUD and signs on a canvas, where there are no text nodes to
+     rewrite. The three text calls are wrapped once, page-wide: what the game asks to draw
+     is looked up in the same dictionary on the way to the screen, and measured the same way
+     so its layout matches. In English the wrappers pass everything straight through. */
+  (function(){
+    var P = window.CanvasRenderingContext2D && window.CanvasRenderingContext2D.prototype; if(!P || P.__i18n) return;
+    P.__i18n = true;
+    function tr(t){ if(cur === 'en' || !dict || typeof t !== 'string') return t; var r = lookup(t); return r == null ? t : r; }
+    ['fillText','strokeText','measureText'].forEach(function(fn){
+      var orig = P[fn]; if(!orig) return;
+      P[fn] = function(t){ var a = Array.prototype.slice.call(arguments); a[0] = tr(t); return orig.apply(this, a); };
+    });
+  })();
   function write(n, s){
     var v = n.nodeValue, lead = v.match(/^\s*/)[0], tail = v.match(/\s*$/)[0], out = lead + s + tail;
     if(n.nodeValue !== out){ n.__set = out; n.nodeValue = out; } else n.__set = out;
