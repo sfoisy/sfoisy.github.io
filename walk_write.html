@@ -6628,6 +6628,22 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     left:12px !important;
     width:calc(72vw - 24px) !important;
     max-width:none !important;
+    transition:left .55s cubic-bezier(.25,.8,.28,1), width .55s cubic-bezier(.25,.8,.28,1);
+  }
+  /* With the map folded the lane is the whole screen: the sheet takes a readable measure of it
+     and sits in the middle, and glides there from beside the map (19 Sep 2026). */
+  body.map-off.stop-modal.mode-quick .j-sect.is-open{
+    width:min(calc(100vw - 24px), 720px) !important;
+    left:calc((100vw - min(calc(100vw - 24px), 720px)) / 2) !important;
+  }
+  /* The folded cards' column too: never wider than the screen, and centred on it. The 5.25rem
+     is body's own left padding, the 4rem half of .j-card's right gutter -- the same arithmetic
+     the mid-width block uses, against the viewport rather than body's box. */
+  html.walk-fs body.map-off{ --mw-col:min(900px, calc(100vw - 5.25rem - 12px)); --mw-lane:calc(var(--mw-col) - 8rem) }
+  html.walk-fs body.map-off .journey-inner,
+  html.walk-fs body.map-off .comments,
+  html.walk-fs body.map-off .games{
+    margin-left:max(0px, calc((100vw - var(--mw-col)) / 2 - 5.25rem + 4rem)) !important;
   }
   body.stop-modal.mode-quick .j-sect.is-open .j-card p,
   body.stop-modal.mode-quick .j-sect.is-open .jp-txt p{
@@ -17992,6 +18008,16 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
    stop's sheet both pin 46px down -- just under it (PIN_TOP in the render loop, the panel's own
    top in setPanel, and --map-pin-top for anything else hung off that line). */
 html.walk-fs nav, html.walk-fs .nav-mobile-menu{ display:none !important }
+/* A clip on the stage (see stage() in the phone player): the screen, with the page still in
+   full screen behind it. The page's Exit pill and the stop's X sit below it while it is up. */
+.video-share-wrap.vfs-stage{
+  position:fixed !important; inset:0 !important; z-index:10080 !important;
+  width:auto !important; height:auto !important; max-width:none !important; max-height:none !important;
+  margin:0 !important; border-radius:0 !important; transform:none !important; zoom:1 !important;
+  background:#000 !important; display:flex !important; align-items:center; justify-content:center;
+}
+.video-share-wrap.vfs-stage video{ width:100% !important; height:100% !important; max-height:none !important; object-fit:contain; background:#000 }
+body.vfs-staged .walkFsExit{ display:none !important }
 html.walk-fs{ --map-pin-top:46px }
 /* ===== A PHONE ON ITS SIDE: THE FULL-SCREEN MAP =============================
    The map takes the height of the screen and the layer bar stands beside it rather than
@@ -28347,11 +28373,26 @@ function goBack(e){
   if(canFs) root.classList.add('can-fs');
   var pageFs = false;
   function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  /* ===== LEAVING FULL SCREEN KEEPS YOUR PLACE (phone, 19 Sep 2026) =================
+     Coming out of page full screen the window changes size, the bar comes back, the map
+     re-pins and every fixed thing re-measures -- and the page landed somewhere far down. So
+     while full screen is on, the block nearest the top of the window is noted on every
+     scroll (the language switch's own anchor, __langTake), and once the page has re-laid
+     itself out after the exit it is put back on the same pixel (__langPut), twice, a beat
+     apart, because the bar and the map settle on different frames. */
+  var fsAnchor = null, fsAnchorRAF = 0;
+  function noteAnchor(){ fsAnchorRAF = 0; if(pageFs && window.__langTake) fsAnchor = window.__langTake(); }
+  window.addEventListener('scroll', function(){ if(pageFs && !fsAnchorRAF) fsAnchorRAF = requestAnimationFrame(noteAnchor); }, {passive:true});
   function sync(){
-    var fe = fsEl();
+    var fe = fsEl(), was = pageFs;
     if(fe === root) pageFs = true;
     else if(!fe) pageFs = false;
     root.classList.toggle('walk-fs', pageFs);
+    if(was && !pageFs && fsAnchor && window.__langPut){
+      var a = fsAnchor; fsAnchor = null;
+      requestAnimationFrame(function(){ window.__langPut(a); requestAnimationFrame(function(){ window.__langPut(a); }); setTimeout(function(){ window.__langPut(a); }, 260); });
+    }
+    if(pageFs && !was) noteAnchor();
   }
   function lock(){
     try{
@@ -28671,7 +28712,18 @@ function goBack(e){
       cc.style.display = has ? '' : 'none';
       cc.classList.toggle('off', !capsOn());
     }
-    function inFs(){ var fe = fsEl(); return fe === wrap || fe === v; }
+    function inFs(){ var fe = fsEl(); return fe === wrap || fe === v || wrap.classList.contains('vfs-stage'); }
+    /* THE STAGE. With the PAGE in full screen, a clip's own full screen used to ask the browser
+       for a second one -- which replaced the page's, so closing the clip dropped the whole page
+       out of full screen (and re-asking for it needs a tap the browser had already spent). Now
+       the clip simply takes the screen with CSS: fixed, edge to edge, black behind it, its own
+       controls and captions riding along. Closing it puts it back, and the page's full screen
+       is never touched. */
+    function stage(on){
+      wrap.classList.toggle('vfs-stage', on);
+      document.body.classList.toggle('vfs-staged', on);
+      paintFs(); tell(); arm();
+    }
     function paintFs(){ fsb.innerHTML = inFs() ? SVG.fsx : SVG.fs; fsb.setAttribute('aria-label', inFs() ? 'Exit full screen' : 'Full screen'); }
 
     hit.addEventListener('click', function(e){ e.stopPropagation(); if(on) hide(); else show(); });
@@ -28702,6 +28754,8 @@ function goBack(e){
     }
     fsb.addEventListener('click', function(e){
       e.stopPropagation();
+      if(wrap.classList.contains('vfs-stage')){ stage(false); return; }
+      if(document.documentElement.classList.contains('walk-fs')){ stage(true); return; }
       if(inFs()){
         try{ if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(_){}
         try{ if(document.exitFullscreen) document.exitFullscreen(); else if(document.webkitExitFullscreen) document.webkitExitFullscreen(); }catch(_){}
