@@ -6112,6 +6112,9 @@ body.map-fs #mapFsExit{ display:flex }
   animation:plBail .8s ease 9s forwards;
 }
 html.pre-gone #preload{ opacity:0; pointer-events:none }
+/* Raised again for a language fetch (see __sheetShow): the 9s bail-out animation has long since
+   finished with its forwards fill of opacity:0, and would keep the sheet invisible. Off, then. */
+html.pre-again #preload{ animation:none }
 html.pre-off  #preload{ display:none }
 /* ===== THE BAR STAYS UP WHILE THE SHEET IS DOWN =============================
    The menu rides OVER the loading sheet rather than under it. This page is 1.9 MB and the
@@ -6920,6 +6923,25 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     paint(1);
     setTimeout(lift, Math.max(180, MIN - (now() - t0)));
   }
+  /* ===== THE SHEET, AGAIN, FOR A LANGUAGE ======================================
+     The first time a language is chosen its file has to be fetched and the whole page
+     rewritten, which can take a beat on a slow connection -- long enough to watch the words
+     change under you. So the sheet comes back down for that beat (the earth included), and
+     lifts the moment the page is in the new language. Never for a language already loaded.
+     No scroll lock here: the page is not moving, only its words are. */
+  var _shownAt = 0;
+  window.__sheetShow = function(){
+    if(!gone) return;                                   // still up from the load
+    _shownAt = now();
+    root.classList.add('pre-again');
+    root.classList.remove('pre-off');
+    requestAnimationFrame(function(){ root.classList.remove('pre-gone'); });
+  };
+  window.__sheetHide = function(){
+    if(!gone || !_shownAt) return;
+    var wait = Math.max(0, 600 - (now() - _shownAt)); _shownAt = 0;
+    setTimeout(function(){ root.classList.add('pre-gone'); setTimeout(function(){ root.classList.add('pre-off'); }, 640); }, wait);
+  };
 
   /* ===== WHAT "READY" MEANS NOW ===========================================
      It used to be window `load` -- every image on the page, the map legends, the YouTube
@@ -14775,7 +14797,46 @@ document.addEventListener('play', function (e) {
   }
   window.__fitLang = fitI18n;
 
-  window.setLang = function(lang){
+  /* ===== NOBODY MOVES ON A LANGUAGE SWITCH =======================================
+     Rewriting every word on the page changes the height of everything above the reader, and
+     the two scroll-holds this page already has anchor on the comments block at the foot --
+     which is the wrong end of the page for a reader halfway down it, and on a bad frame threw
+     them to the top. So the switch holds its own anchor: the block nearest the top of the
+     window when it began, put back on the same pixel after the rewrite, and again over the
+     next second as the fonts, the hero fit and the backdrop settle. An open stop is a frozen
+     page with its own scroller, so that one is held through the paginator's own anchor. */
+  function holdPlace(fn){
+    var de = document.documentElement;
+    var panel = document.querySelector('.j-sect.is-open');
+    var pa = (panel && window.__jpTakeAnchor) ? window.__jpTakeAnchor(panel) : null;
+    var y = window.scrollY || 0, el = null, top = 0;
+    if(y > 4){
+      var cands = [].slice.call(document.querySelectorAll('.j-sect, .j-lead, .article-hero, .games, #comments, .jl-head'));
+      var best = null, bd = 1e9, ref = 120;
+      cands.forEach(function(c){
+        var r = c.getBoundingClientRect(); if(!r.height) return;
+        var d = Math.abs(r.top - ref); if(r.top < -r.height) d += 1e6;   // wholly above the window: last resort
+        if(d < bd){ bd = d; best = c; }
+      });
+      if(best){ el = best; top = best.getBoundingClientRect().top; }
+    }
+    fn();
+    function put(){
+      if(pa && window.__jpPutAnchor) window.__jpPutAnchor(pa);
+      if(!el) return;
+      var d = el.getBoundingClientRect().top - top;
+      if(Math.abs(d) > 0.5){
+        var sb = de.style.scrollBehavior; de.style.scrollBehavior = 'auto';
+        window.scrollTo(0, Math.max(0, (window.scrollY || 0) + d));
+        de.style.scrollBehavior = sb;
+      }
+    }
+    put(); requestAnimationFrame(put);
+    [120, 300, 600, 1100].forEach(function(ms){ setTimeout(put, ms); });
+  }
+  window.__langHold = holdPlace;
+  window.setLang = function(lang){ holdPlace(function(){ setLangNow(lang); }); };
+  function setLangNow(lang){
     if(!els) collect();
     els.forEach(function(el){
       var k = el.getAttribute('data-i18n');
@@ -14994,7 +15055,8 @@ document.addEventListener('play', function (e) {
     else n.__set = out;
   }
 
-  function doNode(n){
+  function doNode(n){ try{ doNode2(n); }catch(e){} }
+  function doNode2(n){
     if(!n.parentNode || skipEl(n.parentNode)) return;
     var v = n.nodeValue;
     if(!norm(v)) return;
@@ -15029,20 +15091,28 @@ document.addEventListener('play', function (e) {
 
   window.__i18nFetch = function(lang, cb){ if(lang === 'en'){ cb(null); return; } fetchLang(lang, cb); };
   var seq = 0;
+  function hold(fn){ if(window.__langHold) window.__langHold(fn); else fn(); }
   window.__i18nApply = function(lang){
     var my = ++seq;
     if(lang === 'en'){
-      cur = 'en'; dict = null;
-      walk(document.body);
-      if(window.__ccApply) window.__ccApply('en', null);
+      hold(function(){
+        cur = 'en'; dict = null;
+        try{ walk(document.body); }catch(e){}
+        if(window.__ccApply) window.__ccApply('en', null);
+      });
       return;
     }
+    var fetching = !window.WALK_I18N[lang];
+    if(fetching && window.__sheetShow) window.__sheetShow();
     fetchLang(lang, function(d){
-      if(my !== seq) return;                    // a later choice has overtaken this one
-      cur = lang; dict = d || { text:{} };
-      watch();
-      walk(document.body);
-      if(window.__ccApply) window.__ccApply(lang, dict.cues || null);
+      if(my !== seq){ if(fetching && window.__sheetHide) window.__sheetHide(); return; }   // a later choice has overtaken this one
+      hold(function(){
+        cur = lang; dict = d || { text:{} };
+        watch();
+        try{ walk(document.body); }catch(e){}
+        if(window.__ccApply) window.__ccApply(lang, dict.cues || null);
+      });
+      if(fetching && window.__sheetHide) window.__sheetHide();
     });
   };
 })();

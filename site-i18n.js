@@ -32,7 +32,8 @@
 
   /* ---------- the button ------------------------------------------------------ */
   var css = ''
-   + '.lang-pick{position:relative;display:inline-flex;align-items:center;flex:0 0 auto}'
+   + '.nav-links{align-items:center}'   /* the pill is taller than the links; without this the links sit high beside it */
+   + '.lang-pick{position:relative;display:inline-flex;align-items:center;align-self:center;flex:0 0 auto}'
    + '.lang-btn{display:inline-flex;align-items:center;gap:.4rem;font:500 .74rem "DM Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;'
    + 'color:var(--nav-ink,#fff);background:rgba(255,255,255,.08);border:1px solid currentColor;border-radius:999px;padding:.32rem .72rem;cursor:pointer;opacity:.92;white-space:nowrap;transition:.2s}'
    + '.lang-btn:hover{opacity:1;background:rgba(255,255,255,.18)}'
@@ -127,6 +128,9 @@
     if(n.nodeValue !== out){ n.__set = out; n.nodeValue = out; } else n.__set = out;
   }
   function doNode(n){
+    try{ doNode2(n); }catch(e){}
+  }
+  function doNode2(n){
     if(!n.parentNode || skipEl(n.parentNode)) return;
     var v = n.nodeValue; if(!norm(v)) return;
     if(n.__set == null || v !== n.__set) n.__en = v;
