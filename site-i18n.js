@@ -54,10 +54,10 @@
    + '@media(min-width:701px) and (max-width:1100px){.lang-pick{margin-left:.4rem}}'
    /* the same dropdown in a slot: centred under a game's Play button, under the interviews
       masthead, and compact under an open interview's date line */
-   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:5}'
+   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:400;min-height:2.2rem}'   /* z above a clip's curtain; the height is reserved so the page does not shift when the button lands */
    + '.lang-title .lang-btn{color:#fff;font-size:.72rem;padding:.36rem .8rem}'
    + '.lang-title .lang-pop{right:auto;left:50%;transform:translateX(-50%)}'
-   + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem}'
+   + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem;min-height:1.7rem}'
    + '.lang-title.compact .lang-btn{font-size:.64rem;padding:.26rem .62rem;opacity:.85}'
    + '.lang-title.compact .lang-pop{left:0;transform:none}'
    + '.lang-title.compact.centred{justify-content:center;margin:-.6rem 0 1.1rem}'
@@ -153,27 +153,39 @@
        "3 INTERVIEWS STILL TO RECORD", "57% WATER"  -- a number in front of a known phrase
        "The water caught you — back to the start"   -- two known phrases joined with a dash
      A part with no translation stays English, so a half-known line still reads. */
+  /* One phrase: exact, or with every number swapped for {n} -- so "until all 3 interviews are
+     recorded" is found under "until all {n} interviews are recorded" and the 3 is put back. */
+  function hit(T, q){
+    if(Object.prototype.hasOwnProperty.call(T, q)) return T[q];
+    var nums = [], k2 = q.replace(/\d+(?:[.,]\d+)?/g, function(m){ nums.push(m); return '{n}'; });
+    if(nums.length && Object.prototype.hasOwnProperty.call(T, k2)){ var i = 0; return T[k2].replace(/\{n\}/g, function(){ return nums[i++] || ''; }); }
+    return null;
+  }
   function lookup(en){
     if(!dict) return null;
     var k = norm(en); if(!k) return null;
     var T = dict.text || {};
-    if(Object.prototype.hasOwnProperty.call(T, k)) return T[k];
+    var r = hit(T, k); if(r != null) return r;
     var m = k.match(/^([\d][\d.,%°+\-–\s]*)(.+)$/);
     if(m){
       /* "57% WATER" is keyed as "% WATER", "3 INTERVIEWS…" as "INTERVIEWS…": hand the symbols
          after the digits back to the phrase one at a time until something matches. */
       var pre = m[1], rest = m[2];
       for(;;){
-        var q = rest.replace(/^\s+/, '');
-        if(Object.prototype.hasOwnProperty.call(T, q)) return pre + (rest.slice(0, rest.length - q.length)) + T[q];
+        var q = rest.replace(/^\s+/, ''), t = hit(T, q);
+        if(t != null) return pre + (rest.slice(0, rest.length - q.length)) + t;
         if(!pre.length || /[\d]$/.test(pre)) break;
         rest = pre.slice(-1) + rest; pre = pre.slice(0, -1);
       }
     }
     if(k.indexOf(' — ') > -1){
-      var parts = k.split(' — '), hit = false;
-      var out = parts.map(function(p){ var q = p.replace(/^— /, ''); if(Object.prototype.hasOwnProperty.call(T, q)){ hit = true; return T[q]; } if(Object.prototype.hasOwnProperty.call(T, p)){ hit = true; return T[p]; } return p; });
-      if(hit) return out.join(' — ');
+      var parts = k.split(' — '), any = false;
+      var out = parts.map(function(p){
+        var q = p.replace(/^— /, ''), t = hit(T, q); if(t == null) t = hit(T, p);
+        if(t == null){ var m2 = q.match(/^(\d[\d.,]*\s+)(.+)$/); if(m2){ var t2 = hit(T, m2[2]); if(t2 != null) t = m2[1] + t2; } }
+        if(t != null){ any = true; return t; } return p;
+      });
+      if(any) return out.join(' — ');
     }
     return null;
   }

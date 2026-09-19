@@ -585,7 +585,7 @@ nav{background:rgba(10,20,38,.72);backdrop-filter:blur(12px);border-bottom:1px s
    this is the whole range.
    KNOB: the 2.14em. If the clamp on .post-hd's font-size changes, this does not need to
    -- it is in em, so it tracks whatever size the heading ends up at. */
-.post-hd{ text-align:center; margin:0 0 .4rem; min-height:2.14em }
+.post-hd{ text-align:center; margin:0 0 .4rem; min-height:1.1em }   /* was 2.14em: a one-line heading left an empty line under it before the date (19 Sep 2026) */
 /* When it was filmed. Under the name and much quieter than it -- a dateline,
    not a second heading. This is the one fact the title card does not carry,
    which is why it survived the caption being cut. */
@@ -1549,7 +1549,7 @@ function toggleMenu(){
         onclick="event.stopPropagation(); openShare(this, blogShareURL('hub'))"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 100-6 3 3 0 00-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 100 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 105.84 0 2.92 2.92 0 00-2.92-2.92z"/></svg></button></h1>
     <!-- The language dropdown, filled in by site-i18n.js (data-lang-row): the same one the bar
          carries, here where the fourteen are. The captions follow the choice. -->
-    <div class="lang-title" data-lang-row></div>
+    <div class="lang-title" data-lang-row style="min-height:2.2rem"></div>
   </section>
 
   <div class="grid-wrap">
