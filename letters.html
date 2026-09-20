@@ -9586,8 +9586,8 @@ function unlocked(i){ return i === 0 || (prog()['L'+(i-1)]||0) > 0; }
      The rows carry the number of legs, so a board only ever compares runs of the same shape:
      if a twelfth leg ever gets added, today's scores will not be competing with it. */
 var CLOUD = {
-  url:   '',                 // e.g. 'https://abcdefghijkl.supabase.co'  (no trailing slash)
-  key:   '',                 // the anon / publishable key
+  url:   'https://leaderboard.sylfoisy.workers.dev',                 // e.g. 'https://abcdefghijkl.supabase.co'  (no trailing slash)
+  key:   'k8Fw2pQzT7mB4vN9xRc3LhJ6yDs5GaU1eW0',                 // the anon / publishable key
   table: 'letter_scores'
 };
 var cloudOn = !!(CLOUD.url && CLOUD.key);
