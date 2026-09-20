@@ -18118,6 +18118,15 @@ html.vfs-hold *, html.vfs-hold *::before, html.vfs-hold *::after{ transition:non
   }
   html.can-fs .walkFsPort svg{ width:13px; height:13px; flex:0 0 13px }
   html.can-fs body.map-fs .walkFsPort{ display:none }
+  /* NOT BEFORE THE HOTDOG (20 Sep 2026). The pill used to sit in the corner from the first
+     scroll, over the hero and the lede, before there was anything to put full screen. It now
+     rides the same curve as the little walker and the reading switch: --rf-fade is the
+     hotdog factor the render loop writes every frame, 0 until the map has folded into its
+     strip and 1 once it has, and body.rf-on flips visibility and pointer events on the same
+     frame the walker arrives. In full screen it is the Exit pill and stays regardless. */
+  html.can-fs .walkFsPort{ opacity:var(--rf-fade, 0); visibility:hidden; pointer-events:none }
+  html.can-fs body.rf-on .walkFsPort{ visibility:visible; pointer-events:auto }
+  html.can-fs.walk-fs .walkFsPort{ opacity:1; visibility:visible; pointer-events:auto }
   html.can-fs body:not(.stop-modal) .jp-close{ top:max(52px, calc(var(--fsp-bottom, 0px) + 8px)) }
 }
 @media (orientation:landscape) and (max-height:560px) and (hover:none) and (pointer:coarse){
