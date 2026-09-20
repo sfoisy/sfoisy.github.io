@@ -14145,7 +14145,42 @@ DATA.stops.forEach(function(s){
     function cover(){
       curtain.hidden = false;
       wrap.classList.remove('is-playing');
+      clearCard();
     }
+    /* ===== THE MILE CARD ON PAUSE (20 Sep 2026) ==========================================
+       A paused clip stays on the frame it stopped on -- and a transparent version of its
+       title card (the wood strip with the mile marker, clear everywhere else) is laid over
+       it, so a reader who comes back to a paused clip can see at once where on the walk it
+       is from. The transparent cards live beside the opaque ones on the CDN:
+         new_int_titles/<name>.png                  -> transparent_titles_interviews_blog/<name>.png
+         updated_titles_noninterviews_blog/<n>.png  -> transparent_titles_noninterviews_blog/<n>.png
+       and the few "fix" cards at the root map onto the same folder by their plain name. A
+       clip whose picture is a stop photograph rather than a title card gets no overlay.
+       The full title card still comes back when a clip ENDS. */
+    function mileCard(){
+      var pth = v.getAttribute('poster') || v.dataset.poster || '';
+      var m = pth.match(/\/([^\/]+)\.png$/); if(!m) return null;
+      var name = decodeURIComponent(m[1]), base = 'https://wesitefoisy1.b-cdn.net/';
+      if(/\/new_int_titles\//.test(pth)) return base + 'transparent_titles_interviews_blog/' + encodeURIComponent(name) + '.png';
+      var fix = { 'aberdeen_vid_title_fix':'aberdeen', 'day_10_fix':'day_10', 'blog_5-fix':'blog_5', 'east_bruns_up':'east_bruns' };
+      if(/\/updated_titles_noninterviews_blog\//.test(pth) || fix[name]) return base + 'transparent_titles_noninterviews_blog/' + encodeURIComponent(fix[name] || name) + '.png';
+      return null;
+    }
+    var mileEl = null;
+    function pauseCard(){
+      var src = mileCard();
+      if(src && !mileEl){
+        mileEl = document.createElement('div'); mileEl.className = 'vp-mile';
+        var im = document.createElement('div'); im.className = 'vp-mile-img'; im.style.backgroundImage = 'url("' + src + '")';
+        mileEl.appendChild(im); wrap.appendChild(mileEl);
+        void im.offsetHeight;            // let the picture start above the frame, so its first appearance glides too
+      }
+      wrap.classList.add('is-paused');
+    }
+    function clearCard(){ wrap.classList.remove('is-paused'); }
+    v.addEventListener('play', clearCard);
+    v.addEventListener('playing', clearCard);
+
     /* A SCRUB IS NOT A PAUSE, and the browser does not say so. Dragging the scrubber while a
        clip is playing makes Chrome pause it for the length of the drag and play it again on
        release -- a real 'pause' event, arriving BEFORE the first 'seeking', and otherwise
@@ -14186,7 +14221,7 @@ DATA.stops.forEach(function(s){
         if(holding || scrubbing || v.seeking || v.ended || !v.paused) return;
         var since = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - lastSeek;
         if(since < SEEK_QUIET){ coverT = setTimeout(check, SEEK_QUIET - since); return; }
-        cover();
+        pauseCard();                      // the frame stays; the mile card goes over it
       }, delay || 0);
     }
     function markSeek(){ lastSeek = (typeof performance !== 'undefined' ? performance.now() : Date.now()); }
@@ -17780,6 +17815,15 @@ window.__lateHit = (function(){
 
    The share chip goes with them -- "an inviting play button and nothing else" -- and comes
    back with the controls on first press. */
+/* The transparent mile card over a paused clip (see pauseCard): above the picture, under the
+   phone controls (4) and the curtain (6), and clear to the pointer so the control bar works. */
+/* The card GLIDES: down into place on pause, and quickly back up out of the top on play. The
+   outer box only clips (the video's corner, no overflow); the picture inside is what moves,
+   so the wood strip comes down from above the frame rather than fading in. */
+.vp-mile{ position:absolute; inset:0; z-index:3; pointer-events:none; border-radius:.75rem; overflow:hidden }
+.vp-mile-img{ position:absolute; inset:0; background:center / cover no-repeat; transform:translateY(-100%); transition:transform .16s ease-in }
+.video-share-wrap.is-paused .vp-mile-img{ transform:none; transition:transform .3s cubic-bezier(.22,.8,.3,1) }
+.video-share-wrap:fullscreen .vp-mile, .video-share-wrap:-webkit-full-screen .vp-mile, .video-share-wrap.vfs-stage .vp-mile{ border-radius:0 }
 .vp-curtain{
   position:absolute; inset:0; z-index:6;
   /* THE SAME CORNER THE VIDEO HAS. .j-card-video is border-radius:.75rem, and the curtain sits

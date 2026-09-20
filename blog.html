@@ -777,6 +777,11 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 }
 .vp-curtain[hidden]{ display:none }
 .vp-wrap.is-playing .vp-curtain{ opacity:0; visibility:hidden; pointer-events:none }
+/* The transparent mile card over a paused clip (see pauseCard): above the picture, under the
+   curtain, and clear to the pointer so the control bar works. */
+.vp-mile{ position:absolute; inset:0; z-index:3; pointer-events:none; background:center / cover no-repeat; border-radius:.75rem; overflow:hidden; display:none }   /* the same corner the video and the curtain have */
+.vp-wrap.is-paused .vp-mile{ display:block }   /* instant, no fade: a fade reads as lag */
+.vp-wrap:fullscreen .vp-mile, .vp-wrap:-webkit-full-screen .vp-mile{ border-radius:0 }
 /* A soft disc with a triangle in it, drawn rather than an asset, lifting on
    hover so it reads as pressable. KNOB: 74px is the disc. */
 .vp-curtain i{
@@ -3322,7 +3327,36 @@ function dressVideos(root){
       if(v.dataset.poster) v.setAttribute('poster', v.dataset.poster);
       curtain.hidden = false;
       wrap.classList.remove('is-playing');
+      clearCard();
     }
+    /* ===== THE MILE CARD ON PAUSE (20 Sep 2026) ==========================================
+       A paused clip stays on the frame it stopped on -- and a transparent version of its
+       title card (the wood strip with the mile marker, clear everywhere else) is laid over
+       it, so a reader who comes back to a paused clip can see at once where on the walk it
+       is from. The transparent cards live beside the opaque ones on the CDN:
+         new_int_titles/<name>.png                  -> transparent_titles_interviews_blog/<name>.png
+         updated_titles_noninterviews_blog/<n>.png  -> transparent_titles_noninterviews_blog/<n>.png
+       and the few "fix" cards at the root map onto the same folder by their plain name. A
+       clip whose picture is a stop photograph rather than a title card gets no overlay.
+       The full title card still comes back when a clip ENDS. */
+    function mileCard(){
+      var pth = v.getAttribute('poster') || v.dataset.poster || '';
+      var m = pth.match(/\/([^\/]+)\.png$/); if(!m) return null;
+      var name = decodeURIComponent(m[1]), base = 'https://wesitefoisy1.b-cdn.net/';
+      if(/\/new_int_titles\//.test(pth)) return base + 'transparent_titles_interviews_blog/' + encodeURIComponent(name) + '.png';
+      var fix = { 'aberdeen_vid_title_fix':'aberdeen', 'day_10_fix':'day_10', 'blog_5-fix':'blog_5', 'east_bruns_up':'east_bruns' };
+      if(/\/updated_titles_noninterviews_blog\//.test(pth) || fix[name]) return base + 'transparent_titles_noninterviews_blog/' + encodeURIComponent(fix[name] || name) + '.png';
+      return null;
+    }
+    var mileEl = null;
+    function pauseCard(){
+      var src = mileCard();
+      /* Blog: no card. A pause keeps the frame and nothing goes over it (20 Sep 2026). */
+    }
+    function clearCard(){ wrap.classList.remove('is-paused'); }
+    v.addEventListener('play', clearCard);
+    v.addEventListener('playing', clearCard);
+
 
     /* A SCRUB IS NOT A PAUSE, and the browser does not say so. Dragging the
        scrubber while a clip is playing makes Chrome pause it for the length of
@@ -3362,7 +3396,7 @@ function dressVideos(root){
         if(holding || scrubbing || v.seeking || v.ended || !v.paused) return;
         var since = now() - lastSeek;
         if(since < SEEK_QUIET){ coverT = setTimeout(check, SEEK_QUIET - since); return; }
-        cover();
+        pauseCard();                      // the frame stays; the mile card goes over it
       }, delay || 0);
     }
     function markSeek(){ lastSeek = now(); }
@@ -3371,20 +3405,25 @@ function dressVideos(root){
       v.addEventListener(e, function(){ holding = true; cancelCover(); }, {passive:true});
     });
     ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(e){
-      v.addEventListener(e, function(){ holding = false; }, {passive:true});
+      v.addEventListener(e, function(){ holding = false; if(v.paused && !v.ended) coverIfStopped(60); }, {passive:true});
     });
     // The pointer can be released outside the video -- a scrubber drag often ends off it.
-    window.addEventListener('pointerup', function(){ holding = false; }, {passive:true});
+    window.addEventListener('pointerup', function(){ if(!holding) return; holding = false; if(v.paused && !v.ended) coverIfStopped(60); }, {passive:true});
 
     v.addEventListener('seeking', function(){ scrubbing = true;  markSeek(); cancelCover(); });
-    v.addEventListener('seeked',  function(){ scrubbing = false; markSeek(); });
+    v.addEventListener('seeked',  function(){ scrubbing = false; markSeek(); if(v.paused && !v.ended && !holding) coverIfStopped(0); });
     /* A PAUSE STAYS WHERE IT PAUSED (20 Sep 2026, blog only). The title card no longer
        comes back on pause: the frame you stopped on stays up, with the control bar, so a
        paused clip looks paused rather than unwatched, and the scrubber is reachable. All of
        the scrub-and-seek bookkeeping above is kept for the one case that still covers -- the
        clip ENDING, handled below -- and so the walk's player, which still covers on pause,
        stays event-for-event the same code. */
-    v.addEventListener('pause', function(){ /* nothing: the frame stays */ });
+    v.addEventListener('pause', function(){
+      if(v.ended) return;                 // an ended clip is handled below
+      if(v.seeking || scrubbing) return;  // mid-drag: the clip has not stopped, only moved
+      if(holding) return;                 // the button is still down; the release decides
+      coverIfStopped(0);                  // the mile card, unless a seek has just happened
+    });
     // 'ended' does not reliably fire 'pause' in every browser, so it is asked for
     // by name -- and it is immediate, since there is nothing left for a seek to
     // be part of.
