@@ -2339,8 +2339,19 @@ function openHub(push){
    from it passes push=false, or a press of Back would push a new entry and the
    two would fight. */
 var depth = 0;
+/* ===== THE ADDRESS BAR SHOWS THE SHAREABLE ADDRESS (20 Sep 2026) ==============
+   A crawler building a link preview never sees the part of an address after #, so a
+   conversation copied from the address bar as blog.html#post-nadir got the walk's card, not
+   Nadir's. The wall and each conversation already have a page of their own with the right
+   card in its head (z_blog_<name>.html, see SHARE_PAGES) -- so that is what the address bar
+   shows while you are on that screen. pushState can change the path without loading it; the
+   screen is the same one blog.html draws, only the address is different. Copy it, paste it
+   anywhere, and the preview is that conversation's. Someone who opens it lands on the stub,
+   which sends them straight here, where the address is put back to the stub's again.
+   history.state carries the view's key, since a path has no hash to read. */
 function pushView(hash){
-  try{ history.pushState(null, '', hash); depth++; }
+  var key = hash.replace(/^#/, ''), path = window.blogSharePath ? window.blogSharePath(key) : null;
+  try{ history.pushState({ key:key }, '', path || hash); depth++; }
   catch(e){ location.hash = hash; }
 }
 function stopClips(){
@@ -2381,7 +2392,7 @@ function goBack(){
      out of a deep link. */
   if(indexView.style.display === 'none'){
     showIndex();
-    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    try{ history.replaceState(null, '', 'blog.html'); }catch(e){}   // not location.pathname: that may be a share stub's
     return;
   }
   /* ON THE FRONT PAGE ALREADY, which is where this used to do nothing at all:
@@ -2395,7 +2406,7 @@ function goBack(){
 function closeHub(){ goBack(); }
 window.addEventListener('popstate', function(){
   if(depth > 0) depth--;
-  var h = (location.hash || '').slice(1);
+  var h = (history.state && history.state.key) || (location.hash || '').slice(1);
   if(h === 'hub'){ openHub(false); return; }
   if(h && document.getElementById(h)){ openPost(h, false, h === 'post-games' ? 'index' : 'hub'); return; }
   showIndex();
@@ -3073,6 +3084,7 @@ function fitHeading(h){
     if(SHARE_PAGES[key]) return SITE + SHARE_PAGES[key];
     return SITE + 'blog.html#' + key;
   };
+  window.blogSharePath = function(key){ return SHARE_PAGES[key] || null; };
 
   function targets(url){
     var line = shareLine(url);
@@ -3563,6 +3575,9 @@ buildHubCards();
 var h = location.hash.slice(1);
 if(h === 'hub'){ openHub(false); }
 else if(h && document.getElementById(h)){ openPost(h, false); }
+/* And the address bar shows the shareable address from the first screen, not only after a
+   press: a deep link arrives as #hub or #post-… and is rewritten to its stub's path. */
+if(h && window.blogSharePath && window.blogSharePath(h)){ try{ history.replaceState({ key:h }, '', window.blogSharePath(h)); }catch(e){} }
 </script>
 
 <!-- ===== visit counter =======================================================
