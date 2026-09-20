@@ -3371,23 +3371,20 @@ function dressVideos(root){
       v.addEventListener(e, function(){ holding = true; cancelCover(); }, {passive:true});
     });
     ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(e){
-      v.addEventListener(e, function(){ holding = false; if(v.paused && !v.ended) coverIfStopped(60); }, {passive:true});
+      v.addEventListener(e, function(){ holding = false; }, {passive:true});
     });
     // The pointer can be released outside the video -- a scrubber drag often ends off it.
-    window.addEventListener('pointerup', function(){
-      if(!holding) return;
-      holding = false;
-      if(v.paused && !v.ended) coverIfStopped(60);
-    }, {passive:true});
+    window.addEventListener('pointerup', function(){ holding = false; }, {passive:true});
 
     v.addEventListener('seeking', function(){ scrubbing = true;  markSeek(); cancelCover(); });
-    v.addEventListener('seeked',  function(){ scrubbing = false; markSeek(); if(v.paused && !v.ended && !holding) coverIfStopped(0); });
-    v.addEventListener('pause', function(){
-      if(v.ended) return;                 // an ended clip is handled below
-      if(v.seeking || scrubbing) return;  // mid-drag: the clip has not stopped, only moved
-      if(holding) return;                 // the button is still down; the release decides
-      coverIfStopped(0);                  // immediate unless a seek has just happened
-    });
+    v.addEventListener('seeked',  function(){ scrubbing = false; markSeek(); });
+    /* A PAUSE STAYS WHERE IT PAUSED (20 Sep 2026, blog only). The title card no longer
+       comes back on pause: the frame you stopped on stays up, with the control bar, so a
+       paused clip looks paused rather than unwatched, and the scrubber is reachable. All of
+       the scrub-and-seek bookkeeping above is kept for the one case that still covers -- the
+       clip ENDING, handled below -- and so the walk's player, which still covers on pause,
+       stays event-for-event the same code. */
+    v.addEventListener('pause', function(){ /* nothing: the frame stays */ });
     // 'ended' does not reliably fire 'pause' in every browser, so it is asked for
     // by name -- and it is immediate, since there is nothing left for a seek to
     // be part of.
