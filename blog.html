@@ -20,8 +20,8 @@
      make_share_cards.py).
 
      THIS IS ONLY WHAT A LINK TO blog.html ITSELF SHOWS. The wall and every
-     interview are shared through their own small pages -- z_blog_interviews.html,
-     z_blog_<name>.html, z_blog_games.html -- because a crawler never sees the part
+     interview are shared through their own small pages -- scientists.html,
+     <name>.html, games.html -- because a crawler never sees the part
      of a link after the #, so blog.html#post-alan and blog.html are the same page
      to Facebook, LinkedIn and WhatsApp. See SHARE_PAGES in the script. -->
 <meta property="og:image" content="https://wesitefoisy1.b-cdn.net/share/walk.jpg">
@@ -2348,7 +2348,7 @@ var depth = 0;
    A crawler building a link preview never sees the part of an address after #, so a
    conversation copied from the address bar as blog.html#post-nadir got the walk's card, not
    Nadir's. The wall and each conversation already have a page of their own with the right
-   card in its head (z_blog_<name>.html, see SHARE_PAGES) -- so that is what the address bar
+   card in its head (<name>.html, see SHARE_PAGES) -- so that is what the address bar
    shows while you are on that screen. pushState can change the path without loading it; the
    screen is the same one blog.html draws, only the address is different. Copy it, paste it
    anywhere, and the preview is that conversation's. Someone who opens it lands on the stub,
@@ -2627,7 +2627,7 @@ function openPost(id, push, from){
    Facebook and X fetch blog.html and read the <head> as SERVED, before a line of
    this has run, so their card is whatever the static tags say -- the site image.
    Per-interview cards for crawlers need one small HTML file per interview with its
-   own tags -- the z_blog_<name>.html pages beside this one, which is where the share
+   own tags -- the <name>.html pages beside this one, which is where the share
    buttons now point (see SHARE_PAGES).
 
    Kept anyway because it costs two lines and is right wherever it is read. */
@@ -3057,19 +3057,19 @@ function fitHeading(h){
      the right screen here (location.replace, so Back does not land on it again).
      The crawler reads the tags and stops; a person never sees the page.
 
-         the wall            z_blog_interviews.html   all_interviews card
-         Walk Challenges     z_blog_games.html        games_re card
-         each interview      z_blog_<name>.html       that person's wall card
+         the wall            scientists.html   all_interviews card
+         Walk Challenges     games.html        games_re card
+         each interview      <name>.html       that person's wall card
 
      A key with no page listed here falls back to the old #link, which still
      works, just with the walk's card -- so adding a fifteenth interview never
-     produces a dead link. To give it its own card: add a z_blog_<name>.html
+     produces a dead link. To give it its own card: add a <name>.html
      (copy any of the fourteen, change four lines), a line to make_share_cards.py,
      and a line here. */
   var SITE = 'https://www.sylfoisy.com/';
   var SHARE_PAGES = {
-    'hub':             'z_blog_interviews.html',
-    'post-games':      'z_blog_games.html',
+    'hub':             'scientists.html',
+    'post-games':      'games.html',
     'post-hikaru':     'hikaru.html',
     'post-allegra':    'allegra.html',
     'post-alan':       'alan.html',
