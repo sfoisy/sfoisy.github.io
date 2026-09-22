@@ -1355,7 +1355,19 @@ video.cue-native::cue{
    of the screen wide. index.html's #blog does the same at the same widths, so pressing "See
    all blog posts" still arrives somewhere that looks like where you pressed it.
    The wall of fourteen is untouched. KNOBS: the .6rem gap and the date's .56rem. */
-@media(max-width:700px), (orientation:landscape) and (max-height:560px){
+/* ===== ...UNLESS THE PHONE IS UPRIGHT ON THE BLOG ITSELF (22 Sep 2026) ================
+   Here, on blog.html, an upright phone gets the three cards in ONE COLUMN, each as wide as the
+   page, the date at its ordinary size under each. The one-row rule below now applies only to
+   a phone held sideways. index.html's #blog is its own page and keeps its row. */
+@media(max-width:700px) and (orientation:portrait){
+  .card-grid.index-grid{
+    grid-template-columns:1fr;
+    row-gap:1.25rem;
+    max-width:none; width:100%;
+  }
+  .card-grid.index-grid .card-cover{ border-radius:.6rem }
+}
+@media(orientation:landscape) and (max-height:560px){
   .card-grid.index-grid{
     grid-template-columns:repeat(3,minmax(0,1fr));
     column-gap:.6rem; row-gap:.6rem;
