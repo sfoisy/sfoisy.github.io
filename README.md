@@ -12,7 +12,7 @@ everything lands one directory deep.
 | `walk.html` | The article — the map, the stops, the clips, the comments. |
 | `walk_write.html` | The same article for the merge tool. Every edit to `walk.html` is applied here too. |
 | `blog.html` | The blog: its own front page, the wall of fourteen (`#hub`), every post. |
-| `interviews.html` | The fourteen interviews as a wall of thumbnails, each opening in a player. |
+| `interviews.html` | Retired: sends anyone who arrives to the blog's wall (`blog.html#hub`). |
 | `news.html` | The full dated list. Add entries at the top of the `<ul>`. |
 | `challenges.html` | The two games' front door. |
 | `letters.html` | The Letter Collection Game. |
@@ -41,8 +41,7 @@ choice is not carried to the next page or the next visit.
 **Where the chooser is.** A "🌐 English ▾" dropdown at the right end of the bar on every page,
 and a row of pills at the top of the phone menu. The same dropdown also sits under the Play
 button on both games' title screens (the bar is gone in full screen), under the "Scientist
-Interviews" heading on the blog's wall and on the interviews page, and inside every opened
-interview under its date line. The walk keeps its own dropdown in the byline as well.
+Interviews" heading on the blog's wall, and inside every opened interview under its date line. The walk keeps its own dropdown in the byline as well.
 
 **How it works.** Nothing in the markup is tagged. Each language file is a dictionary keyed
 by the English string exactly as it appears on the page; the engine walks every text node and
@@ -62,7 +61,7 @@ screen.
 
 Language files are fetched the first time a language is chosen, never before.
 
-**Subtitles.** Every captioned clip — on the walk, the blog and the interviews page — carries
+**Subtitles.** Every captioned clip — on the walk and the blog — carries
 six real `<track>`s, so the browser's own captions menu (the three dots on the control bar)
 lists the languages. The five translated tracks start empty and fill the first time one is
 picked. Changing the site's language moves the on-track to that language on every clip whose
