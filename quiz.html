@@ -1599,7 +1599,8 @@ function confetti(){
 
 
 
-function show(el){ [sTitle,sPick,sPlay,sRecap,sEnd,sBoard].forEach(function(s){ s.classList.toggle('on', s===el); }); }
+function show(el){
+  if(sEnd && el !== sEnd && sEnd.classList.contains('on')) flushCloud(); [sTitle,sPick,sPlay,sRecap,sEnd,sBoard].forEach(function(s){ s.classList.toggle('on', s===el); }); }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 
 /* PLAY starts the quiz. There is nothing between the title screen and question one:
@@ -1814,10 +1815,40 @@ function recap(){
    a run that went the distance gets somewhere to type, anything else gets the board to look
    at. That flag is set in recap() and nowhere else. */
 var lastEntry = null;
+/* ===== THE SCORE GOES ON THE BOARD BY ITSELF (23 Sep 2026) =========================
+   A finished run is on the board the moment the end screen opens -- under the name the player
+   used last time, or a Player### made up on the spot -- and the name box becomes a way to
+   put a name on it. The shared board is told once: when the player presses Save with a
+   name, or when they move on, or after twenty seconds, whichever comes first, so a name typed
+   in that window is the one that goes up. Nothing is ever posted twice. */
+var cloudDone = false, autoT = null;
+function genName(){ return 'Player' + (100 + Math.floor(Math.random() * 900)); }
+function autoSave(){
+  cloudDone = false; clearTimeout(autoT);
+  var saved = ''; try{ saved = localStorage.getItem('sylfoisy.quizName') || ''; }catch(e){}
+  saved = saved.trim().slice(0, 14);
+  var name = saved || genName();
+  lastEntry = { n:name, s:score, r:ROUNDS, cat:runCat, ms:runMs, d:Date.now() };
+  var b = board();
+  b.push(lastEntry);
+  b.sort(function(x,y){ return y.s - x.s || (x.ms||1e9) - (y.ms||1e9) || x.d - y.d; });
+  saveBoard(b);
+  nameIn.value = saved;
+  nameIn.placeholder = saved ? 'your name' : 'your name (on the board as ' + name + ')';
+  autoT = setTimeout(flushCloud, 20000);
+}
+function flushCloud(){
+  if(cloudDone || !lastEntry) return;
+  cloudDone = true; clearTimeout(autoT);
+  $('saveWrap').classList.add('saved');
+  postScore(lastEntry).then(function(){ paintBoard(); });
+}
+document.addEventListener('visibilitychange', function(){ if(document.hidden) flushCloud(); });
 function finish(){
   lastEntry = null;
   $('saveWrap').classList.remove('saved');
   $('saveWrap').style.display = finishedRun ? '' : 'none';
+  if(finishedRun) autoSave();
 
   paintBoard();
   show(sEnd);
@@ -1874,18 +1905,18 @@ function paintBoard(lb){
 }
 
 function saveScore(){
-  var name = (nameIn.value||'').trim().slice(0,14) || 'Anonymous';
-  try{ localStorage.setItem('sylfoisy.quizName', name); }catch(e){}
-  lastEntry = { n:name, s:score, r:ROUNDS, cat:runCat, ms:runMs, d:Date.now() };
-
-  // The device copy is written either way: it is the fallback the board falls back to.
-  var b = board();
-  b.push(lastEntry);
-  b.sort(function(x,y){ return y.s - x.s || (x.ms||1e9) - (y.ms||1e9) || x.d - y.d; });
-  saveBoard(b);
-
-  $('saveWrap').classList.add('saved');
-  postScore(lastEntry).then(function(){ paintBoard(); });
+  if(!lastEntry) return;
+  var name = (nameIn.value||'').trim().slice(0,14);
+  if(name){
+    try{ localStorage.setItem('sylfoisy.quizName', name); }catch(e){}
+    lastEntry.n = name;
+    // the device copy: find the entry that was written on arrival and rename it there too
+    var b = board();
+    for(var i = 0; i < b.length; i++) if(b[i].d === lastEntry.d){ b[i].n = name; break; }
+    saveBoard(b);
+    paintBoard();
+  }
+  flushCloud();
 }
 
 $('recapBtn').addEventListener('click', finish);

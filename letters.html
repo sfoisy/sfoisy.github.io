@@ -9515,6 +9515,7 @@ function drawHUD(cam, camY){
    named one on, so an id missing from here is a blank frame rather than an error. */
 var screens = ['sTitle','sChar','sStory','sMap','sBrief','sWin','sRecap','sEnd'];
 function screen(id){
+  if(id !== 'sEnd' && typeof flushCloud === 'function') flushCloud();   // leaving the stats screen posts the run
   routeOn  = (id === 'sMap');
   titleOn  = (id === 'sTitle');
   charOn   = (id === 'sChar');
@@ -9737,25 +9738,57 @@ function openRecap(){
    NOT `addEventListener('click', openStats)`. A listener is handed the click event as its
    first argument, and an event object is truthy, so wiring this straight to the button would
    make every visit look like the end of the game. Both callers pass the flag explicitly. */
-function openStats(fromEnding){
+/* ===== THE RUN GOES ON THE BOARD BY ITSELF (23 Sep 2026) ==========================
+   A finished walk is on the board the moment the stats screen opens -- under the name the
+   player used last time, or a Player### made up on the spot -- and the name box becomes a
+   way to put a name on it. The shared board is told once: when the player presses Save with
+   a name, or when they move on, or after twenty seconds, whichever comes first, so a name
+   typed in that window is the one that goes up. Nothing is ever posted twice. */
+var cloudDone = false, autoT = null;
+function genName(){ return 'Player' + (100 + Math.floor(Math.random() * 900)); }
+function autoSave(){
+  cloudDone = false; clearTimeout(autoT);
   var r = runTotals();
-  var canSave = fromEnding === true && r.done >= LEVELS.length && r.pts > 0;
-  $('saveWrap').classList.toggle('saved', !canSave);
-  try{ $('nameIn').value = localStorage.getItem('sylfoisy.letterName') || ''; }catch(e){}
-  paintBoard();
-  screen('sEnd');
-}
-function saveRun(){
-  var r = runTotals();
-  var name = ($('nameIn').value||'').trim().slice(0,14) || 'Anonymous';
-  try{ localStorage.setItem('sylfoisy.letterName', name); }catch(e){}
+  var saved = ''; try{ saved = localStorage.getItem('sylfoisy.letterName') || ''; }catch(e){}
+  saved = saved.trim().slice(0, 14);
+  var name = saved || genName();
   lastEntry = { n:name, s:r.pts, d:Date.now() };
   var b = board();
   b.push(lastEntry);
   b.sort(function(x,y){ return y.s - x.s || x.d - y.d; });
   saveBoard(b);
+  $('nameIn').value = saved;
+  $('nameIn').placeholder = saved ? 'your name' : 'your name (on the board as ' + name + ')';
+  autoT = setTimeout(flushCloud, 20000);
+}
+function flushCloud(){
+  if(cloudDone || !lastEntry) return;
+  cloudDone = true; clearTimeout(autoT);
   $('saveWrap').classList.add('saved');
   postScore(lastEntry).then(function(){ paintBoard(); });
+}
+document.addEventListener('visibilitychange', function(){ if(document.hidden) flushCloud(); });
+function openStats(fromEnding){
+  var r = runTotals();
+  var canSave = fromEnding === true && r.done >= LEVELS.length && r.pts > 0;
+  $('saveWrap').classList.toggle('saved', !canSave);
+  if(canSave) autoSave();
+  else { try{ $('nameIn').value = localStorage.getItem('sylfoisy.letterName') || ''; }catch(e){} }
+  paintBoard();
+  screen('sEnd');
+}
+function saveRun(){
+  if(!lastEntry) return;
+  var name = ($('nameIn').value||'').trim().slice(0,14);
+  if(name){
+    try{ localStorage.setItem('sylfoisy.letterName', name); }catch(e){}
+    lastEntry.n = name;
+    var b = board();
+    for(var i = 0; i < b.length; i++) if(b[i].d === lastEntry.d){ b[i].n = name; break; }
+    saveBoard(b);
+    paintBoard();
+  }
+  flushCloud();
 }
 
 
