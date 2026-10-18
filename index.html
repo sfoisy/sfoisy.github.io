@@ -151,13 +151,22 @@ dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radi
 /* Desktop: arrows at the screen's edges, the count small under the caption */
 .lb-controls{display:contents}
 .lb-count{display:block;margin-top:.6rem;text-align:center;font-size:.75rem;letter-spacing:.06em;opacity:.55}
-/* Phones: the arrows never sit on the picture. They join the count in one row under the caption. */
+/* Phones: the viewer fills the screen with a fixed layout -- arrows and count across the top,
+   the picture in a box that never changes size or position, the caption under it. Switching
+   photos changes only what is inside the box and the words below. */
 @media(max-width:700px){
-  #lb img{max-height:58vh;max-height:58svh}
-  .lb-controls{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1rem}
+  #lb{width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:none;margin:0;
+      padding:calc(env(safe-area-inset-top) + .75rem) 1rem calc(env(safe-area-inset-bottom) + 1rem);overflow:hidden;background:#0a0a0a}
+  #lb[open]{display:flex;flex-direction:column;align-items:center}
+  .lb-controls{order:1;display:flex;align-items:center;justify-content:center;gap:1.25rem;flex:0 0 auto;align-self:stretch;height:2.75rem;margin:0 0 1rem;padding:0 3.25rem}
   .lb-controls .lb-arrow{position:static;transform:none;width:2.75rem;height:2.75rem;font-size:1.6rem;background:none;border-color:rgba(255,255,255,.4)}
   .lb-count{margin:0;min-width:3.5rem;font-size:.8125rem;opacity:.7}
+  #lb img{order:2;flex:0 0 auto;width:100%;height:56vh;height:56svh;max-height:none;object-fit:contain;margin:0}
+  #lb .lb-cap{order:3;flex:1 1 auto;margin:.9rem 0 0;overflow-y:auto}
   .lb-cap .go{margin-top:.75rem}
+  #lb .lb-x{top:calc(env(safe-area-inset-top) + .875rem);right:1rem}
+}
+@media(max-width:360px){ .lb-controls{gap:.75rem} .lb-count{min-width:2.75rem} }
 }
 
 /* Language button (built by site-i18n.js): at the right end of the top bar, in the page's greys */
