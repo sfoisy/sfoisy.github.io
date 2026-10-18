@@ -118,17 +118,38 @@ a.ov-link:hover .t{color:#fff;text-decoration:underline;text-decoration-thicknes
 @media (hover:none){ .tile .ov{display:none} }
 
 dialog{border:0;padding:0;background:transparent;max-width:min(92vw,60rem);color:#fff}
-dialog::backdrop{background:rgba(12,12,12,.92)}
-dialog img{max-height:78vh;max-height:78svh;width:auto;margin:0 auto;border-radius:4px}
+dialog::backdrop{background:rgba(12,12,12,.96)}
+dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radius:4px}
 .lb-cap{margin:.9rem auto 0;max-width:40rem;text-align:center;line-height:1.45}
 .lb-cap .o{display:block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
 .lb-cap .t{display:block;margin-top:.2rem;font-size:1rem;font-weight:500}
 .lb-cap .w{display:block;margin-top:.15rem;font-size:.8rem;opacity:.7}
 .lb-cap .go{display:inline-block;margin-top:.6rem;padding:.35rem .9rem;border:1px solid rgba(255,255,255,.5);border-radius:999px;color:#fff;font-size:.8rem;text-decoration:none}
 .lb-cap .go:hover{background:#fff;color:#111;text-decoration:none}
-.lb-nav{display:flex;justify-content:center;gap:2rem;margin-top:.5rem}
-.lb-nav button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.875rem;cursor:pointer;padding:.5rem}
-.lb-nav button:hover{opacity:1}
+/* The animation: an expand button in its corner, and a large view */
+.vid-fig{position:relative}
+.vid-lb .lb-cap{font-size:.9rem;opacity:.9}
+.vid-lb .lb-cap a{color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:.18em}
+.vid-expand{position:absolute;top:.5rem;right:.5rem;z-index:1;width:2rem;height:2rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);color:#fff;
+  border:1px solid rgba(255,255,255,.35);font-size:1rem;line-height:1;cursor:pointer;transition:background .2s,transform .2s}
+.vid-expand:hover{background:rgba(0,0,0,.8);transform:scale(1.08)}
+.vid-expand:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.vid-fig video{cursor:zoom-in}
+.vid-lb{max-width:min(94vw,90rem)}
+.vid-lb video{display:block;width:min(94vw,90rem,calc(78vh * 16 / 9));width:min(94vw,90rem,calc(78svh * 16 / 9));aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:4px;margin:0 auto}
+
+/* Arrows on either side of the screen, close in the corner */
+.lb-arrow,.lb-x{position:fixed;z-index:2;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);color:#fff;cursor:pointer;
+  font:300 2rem/1 var(--font);transition:background .2s}
+.lb-arrow{top:50%;transform:translateY(-50%);width:3rem;height:3rem;border-radius:50%;padding-bottom:.2rem}
+.lb-arrow.prev{left:max(1rem, env(safe-area-inset-left))}
+.lb-arrow.next{right:max(1rem, env(safe-area-inset-right))}
+.lb-x{top:max(1rem, env(safe-area-inset-top));right:max(1rem, env(safe-area-inset-right));width:2.5rem;height:2.5rem;border-radius:50%;font-size:1.6rem}
+.lb-arrow:hover,.lb-x:hover{background:rgba(255,255,255,.2)}
+.lb-arrow:focus-visible,.lb-x:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:600px){ .lb-arrow{width:2.4rem;height:2.4rem;font-size:1.6rem} .lb-arrow.prev{left:.4rem} .lb-arrow.next{right:.4rem} }
 
 /* Language button (built by site-i18n.js): at the right end of the top bar, in the page's greys */
 .lang-home{display:flex;align-items:center;margin-left:1.5rem;--lang-ink:var(--muted);--lang-bg:transparent;--lang-line:var(--rule)}
@@ -195,8 +216,9 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   <section id="about">
     <h2>I research the sky</h2>
     <div class="with-fig">
-      <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from NASA's PACE mission and NASA GISS ModelE climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by Dr. Susanne Bauer and Dr. Kostas Tsigaridis.</p>
-      <figure>
+      <p>Currently, I use satellite data from NASA's PACE mission and NASA GISS ModelE climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by Dr. Susanne Bauer and Dr. Kostas Tsigaridis.</p>
+      <figure class="vid-fig">
+        <button type="button" class="vid-expand" aria-label="View the animation larger" title="View larger">&#10530;</button>
         <video class="fig-media" src="new_aerosol.mp4" muted loop playsinline preload="metadata" aria-label="Animation of global aerosol composition"></video>
         <figcaption>Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a>.</figcaption>
       </figure>
@@ -311,7 +333,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
   <section id="socials">
     <h2>Socials</h2>
-    <p><a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">TikTok</a> <span class="when">(2.0M followers)</span></p>
+    <p><a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">TikTok</a> <span class="when">(1.9M followers)</span></p>
   </section>
 
   <section id="contact">
@@ -333,14 +355,18 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
 </div>
 
+<dialog id="vidLb" class="vid-lb" aria-label="Aerosol animation">
+  <video id="vidBig" muted loop playsinline preload="none"></video>
+  <div class="lb-cap" id="vidCap"></div>
+  <button type="button" class="lb-x" data-close aria-label="Close">&times;</button>
+</dialog>
+
 <dialog id="lb" aria-label="Photo">
   <img id="lbImg" src="" alt="">
   <div id="lbCap" class="lb-cap"></div>
-  <div class="lb-nav">
-    <button data-step="-1">Previous</button>
-    <button data-close>Close</button>
-    <button data-step="1">Next</button>
-  </div>
+  <button type="button" class="lb-arrow prev" data-step="-1" aria-label="Previous">&#8249;</button>
+  <button type="button" class="lb-arrow next" data-step="1" aria-label="Next">&#8250;</button>
+  <button type="button" class="lb-x" data-close aria-label="Close">&times;</button>
 </dialog>
 
 <script>
@@ -378,6 +404,28 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   }, {threshold:.25}).observe(v);
 })();
 
+/* The animation, larger: the expand button (or a click on the video) opens it in a big
+   view over the page; it picks up where the small one was. Esc, the X or a click outside closes. */
+(function(){
+  var small = document.querySelector('video.fig-media'), btn = document.querySelector('.vid-expand');
+  var dlg = document.getElementById('vidLb'), big = document.getElementById('vidBig'), cap = document.getElementById('vidCap');
+  if(!small || !btn || !dlg || !dlg.showModal) return;
+  function open(){
+    if(!big.src) big.src = small.currentSrc || small.getAttribute('src');
+    var fc = small.parentNode.querySelector('figcaption'); if(fc) cap.innerHTML = fc.innerHTML;
+    try{ big.currentTime = small.currentTime || 0; }catch(e){}
+    dlg.showModal();
+    var p = big.play(); if(p && p.catch) p.catch(function(){ big.controls = true; });
+  }
+  btn.addEventListener('click', open);
+  small.addEventListener('click', function(e){ if(!small.controls) open(); });
+  dlg.addEventListener('click', function(e){ if(e.target === dlg || e.target.hasAttribute('data-close')) dlg.close(); });
+  dlg.addEventListener('close', function(){
+    try{ small.currentTime = big.currentTime; }catch(e){}
+    big.pause();
+  });
+})();
+
 /* Media viewer: built from the tiles themselves. The picture opens here; the words on a
    picture (shown on hover) go straight to the article. */
 (function(){
@@ -409,6 +457,14 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     if(e.key === 'ArrowRight') show(i + 1);
     if(e.key === 'ArrowLeft') show(i - 1);
   });
+  /* A swipe left or right on a phone does the same as the arrows. */
+  var x0 = null;
+  dlg.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  dlg.addEventListener('touchend', function(e){
+    if(x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if(Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
+  }, {passive:true});
 })();
 
 /* Visit counter: no cookies, page + referring host only */
