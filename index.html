@@ -78,6 +78,10 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .status{display:inline-block;margin-left:.35rem;padding:0 .45rem;font-size:.75rem;line-height:1.6;color:var(--muted);border:1px solid var(--rule);border-radius:3px;vertical-align:1px}
 .news li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:1rem}
 .news time{color:var(--muted)}
+.news li + li{margin-top:.5rem}
+.news.collapsed li:nth-child(n+4){display:none}
+.more-toggle{background:none;border:0;padding:0;font:inherit;color:var(--link);cursor:pointer}
+.more-toggle:hover{text-decoration:underline;text-underline-offset:.18em}
 .plain li{margin-bottom:.4rem}
 .plain .sub{color:var(--muted)}
 
@@ -209,10 +213,12 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
   <section id="news">
     <h2>News</h2>
-    <ul class="news">
+    <!-- ALL the news lives here. Add new entries at the TOP. The first three show; the rest
+         open in place with "See all news" (the button only appears once there are more than three). -->
+    <ul class="news collapsed" id="newsList">
       <li><time datetime="2026-06-03">June 3, 2026</time><span>I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</span></li>
     </ul>
-    <p class="more"><a href="news.html">See all news</a></p>
+    <p class="more"><button type="button" class="more-toggle" id="newsMore" aria-controls="newsList" aria-expanded="false" hidden>See all news</button></p>
   </section>
 
   <section id="blog">
@@ -284,6 +290,19 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 </dialog>
 
 <script>
+/* News: first three entries, the rest open in place */
+(function(){
+  var list = document.getElementById('newsList'), btn = document.getElementById('newsMore');
+  if(!list || !btn) return;
+  if(list.children.length <= 3) return;            // nothing hidden, so no button
+  btn.hidden = false;
+  btn.addEventListener('click', function(){
+    var open = list.classList.toggle('collapsed') === false;
+    btn.setAttribute('aria-expanded', open);
+    btn.textContent = open ? 'Show less' : 'See all news';
+  });
+})();
+
 /* Phone menu */
 (function(){
   var bar = document.querySelector('.bar'), btn = bar.querySelector('.menu-btn');

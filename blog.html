@@ -1527,7 +1527,7 @@ function toggleMenu(){
 
     <!-- Under the three cards: what the walk was. Moved here from the interviews wall (Oct 2026). -->
     <div class="hub-note hub-intro front-intro">
-      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk! Sort the interviews by topic by clicking the buttons below.</p>
+      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk!</p>
     </div>
   </div>
 </div>
@@ -4159,10 +4159,14 @@ function blogBack(e){
    This page no longer has the site bar, so the things that were placed to clear
    its 58px are moved up by that amount. */
 .backw{ top:12px }
-/* The Back pill on the interviews wall as well as inside an interview. */
-body.in-hub .backw{ display:flex }
+/* The Back pill on every screen: the front page, the interviews wall and inside an interview. */
+.backw, body.in-hub .backw{ display:flex }
+@media(max-width:700px){ .backw{ display:none } }
+@media (orientation:landscape) and (max-height:560px){ .backw{ display:none } }
 @media(max-width:700px){ body.in-hub .backw{ display:none } }
 @media (orientation:landscape) and (max-height:560px){ body.in-hub .backw{ display:none } }
+/* No dates under the three cards on the front page. */
+#cardGrid .card-date{ display:none }
 /* The walk paragraph under the three cards on the front page. */
 /* Room for the language button in the top-right corner on a phone, where the titles run wide. */
 @media(max-width:700px){ body{ padding-top:2.6rem } }
