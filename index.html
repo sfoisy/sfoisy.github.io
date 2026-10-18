@@ -130,10 +130,8 @@ dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radi
 .vid-fig{position:relative}
 .vid-lb .lb-cap{font-size:.9rem;opacity:.9}
 .vid-lb .lb-cap a{color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:.18em}
-.vid-expand{position:absolute;top:.5rem;right:.5rem;z-index:1;width:2rem;height:2rem;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);color:#fff;
-  border:1px solid rgba(255,255,255,.35);font-size:1rem;line-height:1;cursor:pointer;transition:background .2s,transform .2s}
-.vid-expand:hover{background:rgba(0,0,0,.8);transform:scale(1.08)}
+.vid-expand{display:inline-block;margin-top:.35rem;padding:0;background:none;border:0;font:inherit;font-size:.8125rem;color:var(--link);cursor:pointer}
+.vid-expand:hover{text-decoration:underline;text-underline-offset:.18em}
 .vid-expand:focus-visible{outline:2px solid var(--link);outline-offset:2px}
 .vid-fig video{cursor:zoom-in}
 .vid-lb{max-width:min(94vw,90rem)}
@@ -218,9 +216,9 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <div class="with-fig">
       <p>Currently, I use satellite data from NASA's PACE mission and NASA GISS ModelE climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by Dr. Susanne Bauer and Dr. Kostas Tsigaridis.</p>
       <figure class="vid-fig">
-        <button type="button" class="vid-expand" aria-label="View the animation larger" title="View larger">&#10530;</button>
         <video class="fig-media" src="new_aerosol.mp4" muted loop playsinline preload="metadata" aria-label="Animation of global aerosol composition"></video>
         <figcaption>Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a>.</figcaption>
+        <button type="button" class="vid-expand">View larger</button>
       </figure>
     </div>
   </section>
@@ -333,7 +331,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
   <section id="socials">
     <h2>Socials</h2>
-    <p><a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">TikTok</a> <span class="when">(1.9M followers)</span></p>
+    <p><a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">TikTok</a> <span class="when">(2.4 billion views)</span></p>
   </section>
 
   <section id="contact">
