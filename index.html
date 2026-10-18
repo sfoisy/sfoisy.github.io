@@ -45,10 +45,10 @@ strong{font-weight:600}
 .page{max-width:52rem;margin:0 auto;padding:0 var(--gutter)}
 
 /* Bar */
-.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:calc(1.25rem + env(safe-area-inset-top)) 0 1.25rem;border-bottom:1px solid var(--rule);font-size:.9375rem;position:relative}
+.bar{display:flex;align-items:center;justify-content:flex-start;gap:1rem;padding:calc(1.25rem + env(safe-area-inset-top)) 0 1.25rem;border-bottom:1px solid var(--rule);font-size:.9375rem;position:relative}
 .bar .home{color:var(--ink);font-weight:600}
 .bar .home:hover{text-decoration:none}
-.links{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0}
+.links{display:flex;gap:1.5rem;list-style:none;margin:0 0 0 auto;padding:0}
 .links a{color:var(--muted)}
 .links a:hover{color:var(--ink);text-decoration:none}
 .menu-btn{display:none;background:none;border:0;color:var(--ink);font:inherit;padding:.4rem 0 .4rem .75rem;cursor:pointer}
@@ -82,9 +82,9 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .plain .sub{color:var(--muted)}
 
 /* Blog: one picture, one title */
-.feature{display:block;max-width:34rem;color:var(--ink)}
+.feature{display:block;max-width:13rem;color:var(--ink)}
 .feature:hover{text-decoration:none}
-.feature img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;border:1px solid var(--rule);transition:opacity .2s}
+.feature img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;border:1px solid var(--rule);transition:opacity .2s}
 .feature:hover img{opacity:.88}
 .feature span{display:block;margin-top:.6rem;font-weight:500}
 .feature:hover span{text-decoration:underline;text-underline-offset:.18em}
@@ -105,11 +105,11 @@ dialog p a{color:#fff;text-decoration:underline}
 .lb-nav button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.875rem;cursor:pointer;padding:.5rem}
 .lb-nav button:hover{opacity:1}
 
-/* Language button (built by site-i18n.js), restyled for the white page */
-.lang-slot{display:inline-flex}
-.profile .lang-btn{color:var(--muted);background:none;border-color:var(--rule);font-family:var(--font);letter-spacing:.04em}
-.profile .lang-btn:hover{color:var(--ink);background:#f5f5f5}
-.profile .lang-pop button{font-family:var(--font)}
+/* Language button (built by site-i18n.js): at the right end of the top bar, in the page's greys */
+.lang-home{display:flex;align-items:center;margin-left:1.5rem;--lang-ink:var(--muted);--lang-bg:transparent;--lang-line:var(--rule)}
+.lang-home .lang-btn{font-family:var(--font);-webkit-backdrop-filter:none;backdrop-filter:none}
+.lang-home .lang-btn:hover{color:var(--ink)}
+.lang-home .lang-pop button{font-family:var(--font)}
 
 footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;padding:1.75rem 0 calc(2rem + env(safe-area-inset-bottom));border-top:1px solid var(--rule);font-size:.8125rem;color:var(--muted)}
 
@@ -126,6 +126,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 }
 @media (max-width:600px){
   .menu-btn{display:block}
+  .lang-home{margin-left:auto}
   .links{display:none;position:absolute;top:100%;left:0;right:0;z-index:5;flex-direction:column;gap:0;padding:0 0 .5rem;background:var(--bg);border-bottom:1px solid var(--rule)}
   .bar.open-menu .links{display:flex}
   .links a{display:block;padding:.75rem 0;color:var(--ink);border-bottom:1px solid var(--rule)}
@@ -143,7 +144,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
 <nav class="bar" aria-label="Main">
   <a class="home" href="#top">Syl Foisy</a>
-  <button class="menu-btn" aria-expanded="false" aria-controls="links">Menu</button>
   <ul class="links" id="links">
     <li><a href="#about">About</a></li>
     <li><a href="#publications">Publications</a></li>
@@ -152,6 +152,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <li><a href="#contact">Contact</a></li>
     <li><a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a></li>
   </ul>
+  <div class="lang-home" data-lang-home></div>
+  <button class="menu-btn" aria-expanded="false" aria-controls="links">Menu</button>
 </nav>
 
 <header class="profile" id="top">
@@ -169,7 +171,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
       <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
       <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" rel="noopener">Columbia DEES profile</a>
       <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" rel="noopener">LinkedIn</a>
-      <div class="lang-slot" data-lang-row></div>
     </div>
   </div>
 </header>
@@ -201,7 +202,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   <section id="publications">
     <h2>Publications &amp; Presentations</h2>
     <ul class="pubs">
-      <li>Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G. <span class="title">Mutual Constraints on Global Aerosol Composition from Novel PACE Data and ModelE.</span> <span class="status">Submitted</span></li>
+      <li>Foisy, S., Bauer, S., Tsigaridis, K., Hasekamp, O., Fu, G. <span class="title">Mutual Constraints on Global Aerosol Composition from Novel PACE Data and ModelE.</span> <span class="status">In review</span></li>
     </ul>
     <p class="more"><a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">View full list on Google Scholar</a></p>
   </section>
@@ -214,25 +215,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <p class="more"><a href="news.html">See all news</a></p>
   </section>
 
-  <section id="outreach">
-    <h2>Science Communication</h2>
-    <div class="with-fig">
-      <div>
-        <p>I believe science only matters <a href="https://talkstem.org/williams-college-x-talkstem-environmental-field-methods-summer-science-program-2024/" target="_blank" rel="noopener">as much as it is understood.</a></p>
-        <p>In 2025, I served as opening host for the <a href="https://www.nytimes.com/2025/05/30/climate/science-livestream-budget-cuts.html" target="_blank" rel="noopener">100-Hour Weather &amp; Climate Livestream</a>, a continuous global outreach event that reached <strong>180,000+ live viewers</strong> and was featured in The New York Times.</p>
-        <p>This past spring, I <a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener">walked</a> 250 miles from NYC to DC, visiting 20 climate and weather scientists from 12 institutions along the way. Learn more <a href="walk.html">here</a>!</p>
-      </div>
-      <figure>
-        <img class="fig-media" src="speech.png" alt="Syl speaking at the Capitol podium" loading="lazy" decoding="async">
-        <figcaption>Speaking at the U.S. Capitol press conference in June 2026!</figcaption>
-      </figure>
-    </div>
-  </section>
-
   <section id="blog">
     <h2>Blog</h2>
     <a class="feature" href="blog.html">
-      <img src="walk_blog.jpg" alt="Syl speaking at a press conference outside the U.S. Capitol" width="1600" height="900" loading="lazy" decoding="async">
+      <img src="nyc-dc-walk.png" alt="Syl speaking at a press conference outside the U.S. Capitol" width="1080" height="1080" loading="lazy" decoding="async">
       <span>Walking 250 miles from NYC to DC</span>
     </a>
   </section>

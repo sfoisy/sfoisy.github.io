@@ -1519,12 +1519,16 @@ function toggleMenu(){
 <div id="indexView">
 
   <section class="blog-head" id="blogHead">
-    <h1>Blog Posts</h1>
-    <div class="lang-title" data-lang-row></div>
+    <h1>NYC to DC walk</h1>
   </section>
 
   <div class="grid-wrap" id="gridWrap">
     <div class="card-grid index-grid" id="cardGrid"></div>
+
+    <!-- Under the three cards: what the walk was. Moved here from the interviews wall (Oct 2026). -->
+    <div class="hub-note hub-intro front-intro">
+      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk! Sort the interviews by topic by clicking the buttons below.</p>
+    </div>
   </div>
 </div>
 
@@ -1554,18 +1558,6 @@ function toggleMenu(){
 
   <div class="grid-wrap">
 
-    <!-- ABOVE THE CARDS, not under them. It is the standing paragraph every post
-         carries (see #aboutTpl), and on this screen it is doing a different job:
-         under fourteen thumbnails it was a footnote nobody scrolled to, and over
-         them it is the caption that says what the fourteen ARE before you start
-         choosing between them.
-
-         The rest of the block stays where it was, beneath the wall -- "for more
-         walk content" and the disclaimer are what you want AFTER looking, not
-         before. So the one block is now two, top and tail. -->
-    <div class="hub-note hub-intro">
-      <p>Hi, I'm Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. The walk was inspired by federal budget cuts threatening the science behind our disaster forecasts, our planting seasons, and our plans for a changing climate. I was blown away when 300 letters arrived from people who shared those concerns, and I was lucky enough to hand-deliver these letters to seven members of Congress at a press conference in DC upon my arrival. I want to thank <a href="https://zentouro.ldeo.columbia.edu/" target="_blank" rel="noopener">Miriam Nielsen</a> and <a href="https://www.virginiaschutte.com/" target="_blank" rel="noopener">Virginia Schutte</a> for helping film the interviews, and for supporting me throughout the walk! Sort the interviews by topic by clicking the buttons below.</p>
-    </div>
 
     <!-- THE TOPICS. One press shows only the interviews on that topic; All (or the same press
          again) shows all fourteen. Each interview's topics are on its article (data-topics). -->
@@ -1751,7 +1743,7 @@ var PERSON_BIO = {
          carries between its bio and its buttons; the one under the tiles is written
          here, because the standing block below is appended by the script and arrives
          without one. -->
-    <p class="game-note">Hi, I’m Syl, an Earth Science PhD candidate! From May 23 to June 3, 2026, I walked 250 miles from NYC to DC as a co-organizer of the Weather and Climate Livestream, interviewing 14 weather and climate experts along the way. Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
+    <p class="game-note">Growing up, I always loved coding games with <a href="https://scratch.mit.edu/users/crazyweasle123/" target="_blank" rel="noopener">Scratch</a>, and so when I had the opportunity to create some challenges for this walk, I was extremely excited to do so! I present &ldquo;Quiz Time!&rdquo; &mdash; a Climate Walk Trivia challenge based directly on the expert interviews (many thanks to them!!), and &ldquo;The Letter Collection Game&rdquo; &mdash; where you can brave the sidewalks to complete the NYC to DC trek, helping spread the word about climate and weather science along the way. Will you make it?! Let&rsquo;s find out... (You got this!!)</p>
 
     <hr class="post-rule">
 
@@ -2308,6 +2300,7 @@ function buildHubCards(){
 function openHub(push){
   openPostHub = false;
   document.body.classList.remove('in-post');
+  document.body.classList.add('in-hub');
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -2364,6 +2357,7 @@ function stopClips(){
 function showIndex(){
   openPostHub = false;
   document.body.classList.remove('in-post');
+  document.body.classList.remove('in-hub');
   reader.classList.remove('open');
   stopClips();
   document.getElementById('readerBody').innerHTML = '';
@@ -2608,6 +2602,7 @@ function openPost(id, push, from){
   hubView.style.display = 'none';
   reader.classList.add('open');
   document.body.classList.add('in-post');
+  document.body.classList.remove('in-hub');
   window.scrollTo(0, 0);
   if(push) pushView('#' + id);
 }
@@ -4164,6 +4159,14 @@ function blogBack(e){
    This page no longer has the site bar, so the things that were placed to clear
    its 58px are moved up by that amount. */
 .backw{ top:12px }
+/* The Back pill on the interviews wall as well as inside an interview. */
+body.in-hub .backw{ display:flex }
+@media(max-width:700px){ body.in-hub .backw{ display:none } }
+@media (orientation:landscape) and (max-height:560px){ body.in-hub .backw{ display:none } }
+/* The walk paragraph under the three cards on the front page. */
+/* Room for the language button in the top-right corner on a phone, where the titles run wide. */
+@media(max-width:700px){ body{ padding-top:2.6rem } }
+.hub-note.hub-intro.front-intro{ width:100%; margin:2.5rem auto 0; padding:1.9rem 0 0; border-top:1px solid var(--pale); border-bottom:0 }
 </style>
 </body>
 </html>

@@ -141,7 +141,6 @@ function toggleMenu(){
 <header class="page-head">
   <h1>Walk Challenges</h1>
   <p>Two games built out of the walk &mdash; and out of the data I logged while walking it.</p>
-  <div class="lang-title" data-lang-row></div>
 </header>
 
 <main>
@@ -245,5 +244,9 @@ nav{ background:var(--nav-bar); border-bottom:1px solid var(--nav-rule) }
 })();
 </script>
 <script src="site-i18n.js?v=20260919d" defer></script>
+<style>
+/* Room for the language button in the top-right corner on a phone (Oct 2026). */
+@media(max-width:700px){ .page-head{ padding-top:4.25rem } }
+</style>
 </body>
 </html>

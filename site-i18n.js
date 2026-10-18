@@ -2,10 +2,11 @@
    Included at the foot of every page (walk.html has its own engine and only takes the
    button from here). Three jobs:
 
-   1. THE BUTTON. A globe pill is appended to the site bar (.nav-links) and a row of language
-      pills to the phone menu (.nav-mobile-menu). Choosing a language stores it as
-      localStorage 'site-lang' -- the same key walk.html has always used -- so one choice
-      follows the reader across every page.
+   1. THE BUTTON (Oct 2026). One small "English ▾" button in the TOP-RIGHT CORNER of every
+      page, the same place everywhere. It sits at the top of the page and scrolls away with
+      it, so it never covers anything. A page can give it a home of its own instead by
+      leaving an element with [data-lang-home] (index.html puts it at the end of its top bar).
+      The old in-page slots ([data-lang-row]) are hidden, not filled.
 
    2. THE ENGINE. Every text node in <body> is translated from a dictionary keyed by the
       English string itself (whitespace collapsed), so nothing in the markup is tagged and a
@@ -21,8 +22,7 @@
       cues are the caption lines for the interview clips (the same clips walk.html carries);
       a page with captioned video exposes window.__ccApply(lang, cues) and this calls it.
 
-   EVERY TRANSLATION IS MACHINE-DRAFTED AND UNCHECKED, which is what the "(in development)"
-   beside each language means. Corrections go in the language file, keyed by the English. */
+   Corrections go in the language file, keyed by the English. */
 (function(){
   var LANGS = { en:'English', es:'Español', fr:'Français', vi:'Tiếng Việt', zh:'中文', mg:'Malagasy' };
   var VERSION = '20260919d';   /* bumped with every release of the language files, so a reader's browser never keeps an old one */
@@ -33,38 +33,24 @@
 
   /* ---------- the button ------------------------------------------------------ */
   var css = ''
-   + '.nav-links{align-items:center}'   /* the pill is taller than the links; without this the links sit high beside it */
-   + '.lang-pick{position:relative;display:inline-flex;align-items:center;align-self:center;flex:0 0 auto}'
-   + '.lang-btn{display:inline-flex;align-items:center;gap:.4rem;font:500 .74rem "DM Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;'
-   + 'color:var(--nav-ink,#fff);background:rgba(255,255,255,.08);border:1px solid currentColor;border-radius:999px;padding:.32rem .72rem;cursor:pointer;opacity:.92;white-space:nowrap;transition:.2s}'
-   + '.lang-btn:hover{opacity:1;background:rgba(255,255,255,.18)}'
-   + '.lang-btn .g{font-size:.95rem;line-height:1}'
-   + '.lang-btn .c{font-size:.6rem;opacity:.8}'
-   + '.lang-pop{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;color:#111;border:1px solid #e9e9e9;border-radius:10px;'
-   + 'box-shadow:0 10px 30px -10px rgba(0,0,0,.35);padding:.35rem;min-width:200px;z-index:300;text-transform:none;letter-spacing:0}'
+   /* The corner. Absolute, not fixed: it belongs to the top of the page and scrolls away. */
+   + '.lang-corner{position:absolute;top:12px;right:14px;z-index:9000}'
+   + 'body.fs .lang-corner,html.walk-fs .lang-corner{display:none}'
+   + '.lang-pick{position:relative;display:inline-flex;align-items:center;flex:0 0 auto}'
+   /* Light on dark by default; a page on a light background sets the three --lang-* values. */
+   + '.lang-btn{display:inline-flex;align-items:center;gap:.35rem;font:500 .78rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:0;text-transform:none;'
+   + 'color:var(--lang-ink,#fff);background:var(--lang-bg,rgba(10,20,38,.35));border:1px solid var(--lang-line,rgba(255,255,255,.35));border-radius:999px;padding:.3rem .7rem;cursor:pointer;white-space:nowrap;'
+   + '-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .2s,border-color .2s}'
+   + '.lang-btn:hover{border-color:currentColor}'
+   + '.lang-btn .c{font-size:.62rem;opacity:.75}'
+   + '.lang-pop{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;color:#111;border:1px solid #e5e5e5;border-radius:10px;'
+   + 'box-shadow:0 10px 30px -10px rgba(0,0,0,.35);padding:.3rem;min-width:150px;z-index:9001;text-transform:none;letter-spacing:0}'
    + '.lang-pop.open{display:block}'
-   + '.lang-pop.up{top:auto;bottom:calc(100% + 8px)}'
-   + '.lang-pop button{display:block;width:100%;text-align:left;font:400 .88rem "DM Sans",sans-serif;background:none;border:0;border-radius:6px;padding:.5rem .7rem;color:#111;cursor:pointer}'
+   + '.lang-pop button{display:block;width:100%;text-align:left;font:400 .88rem system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:none;border:0;border-radius:6px;padding:.5rem .7rem;color:#111;cursor:pointer}'
    + '.lang-pop button:hover{background:#f2f2f2}'
    + '.lang-pop button.active{font-weight:700;background:#f6f6f6}'
-   + '.lang-pop small{font-size:.72em;opacity:.6;white-space:nowrap;margin-left:.3rem}'
-   + '.lang-row{display:flex;flex-wrap:wrap;gap:.4rem;padding:.7rem 1.25rem;border-bottom:1px solid var(--nav-rule,rgba(255,255,255,.3))}'
-   + '.lang-row span{font:500 .72rem "DM Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--nav-ink,#fff);opacity:.7;width:100%}'
-   + '.lang-row button{font:500 .8rem "DM Sans",sans-serif;color:var(--nav-ink,#fff);background:none;border:1px solid currentColor;border-radius:999px;padding:.28rem .7rem;cursor:pointer;opacity:.85}'
-   + '.lang-row button.active{background:var(--nav-ink,#fff);color:var(--nav-sheet,#0a1426);opacity:1}'
-   + '@media(min-width:701px) and (max-width:1100px){.lang-pick{margin-left:.4rem}}'
-   /* the same dropdown in a slot: centred under a game's Play button, under the interviews
-      masthead, and compact under an open interview's date line */
-   + '.lang-title{display:flex;justify-content:center;margin-top:1.2rem;position:relative;z-index:50;min-height:2.2rem}'   /* above a clip's curtain (6), under the site bar (100); the height is reserved so the page does not shift when the button lands */
-   + '.lang-title .lang-btn{color:#fff;font-size:.72rem;padding:.36rem .8rem}'
-   + '.lang-title .lang-pop{right:auto;left:50%;transform:translateX(-50%)}'
-   + '.lang-title.compact{justify-content:flex-start;margin:-.35rem 0 .9rem;min-height:1.7rem}'
-   + '.lang-title.compact .lang-btn{font-size:.64rem;padding:.26rem .62rem;opacity:.85}'
-   + '.lang-title.compact .lang-pop{left:0;transform:none}'
-   + '.lang-title.compact.centred{justify-content:center;margin:-.6rem 0 1.1rem}'
-   + '.lang-title.compact.centred .lang-pop{left:50%;transform:translateX(-50%)}'
-   + '.blog-head .lang-title{margin:.2rem 0 1rem}'
-   + '.page-head .lang-title{margin-top:1.1rem}';
+   /* The old in-page slots (games' title screens, the interviews wall, each interview). */
+   + '.lang-title{display:none!important}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var cur = 'en';
@@ -75,13 +61,12 @@
   function makePick(){
       var pick = document.createElement('div'); pick.className = 'lang-pick';
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'lang-btn'; btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
-      btn.innerHTML = '<span class="g" aria-hidden="true">&#127760;</span><span class="l"></span><span class="c" aria-hidden="true">&#9660;</span>';
+      btn.innerHTML = '<span class="l"></span><span class="c" aria-hidden="true">&#9660;</span>';
       btn.setAttribute('aria-label', 'Language');
       var pop = document.createElement('div'); pop.className = 'lang-pop'; pop.setAttribute('role', 'menu');
       Object.keys(LANGS).forEach(function(l){
         var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.dataset.lang = l;
         b.textContent = LANGS[l];
-        if(l !== 'en'){ var sm = document.createElement('small'); sm.textContent = '(in development)'; b.appendChild(sm); }
         b.addEventListener('click', function(){ setLang(l); close(); });
         pop.appendChild(b);
       });
@@ -89,49 +74,24 @@
       btn.addEventListener('click', function(e){ e.stopPropagation(); var o = pop.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
       document.addEventListener('click', function(e){ if(!pick.contains(e.target)) close(); });
       document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
-      btn.addEventListener('click', function(){
-        /* Below the button unless there is no room below -- a game's title screen puts the
-           button near the foot of the window -- in which case above it, but never so far up
-           that it would rise into the site bar. Positioned within the button's own box, so a
-           title screen that animates with a transform still places it correctly. */
-        if(!pick.closest('.nav-links')){
-          var r = btn.getBoundingClientRect(), need = 290;
-          pop.classList.toggle('up', r.bottom + need > window.innerHeight && r.top - need > 70);
-        }
-      });
       pick.appendChild(btn); pick.appendChild(pop);
       return pick;
   }
   function buildButton(){
-    var links = document.querySelector('nav .nav-links, .site-nav .nav-links');
-    if(links && !links.querySelector('.lang-pick')) links.appendChild(makePick());
-    var menu = document.querySelector('.nav-mobile-menu');
-    if(menu && !menu.querySelector('.lang-row')){
-      var row = document.createElement('div'); row.className = 'lang-row';
-      var t = document.createElement('span'); t.textContent = 'Language'; row.appendChild(t);
-      Object.keys(LANGS).forEach(function(l){
-        var b = document.createElement('button'); b.type = 'button'; b.dataset.lang = l; b.textContent = LANGS[l];
-        b.addEventListener('click', function(){ setLang(l); });
-        row.appendChild(b);
-      });
-      menu.insertBefore(row, menu.firstChild);
+    if(document.querySelector('.lang-pick')) return;
+    var home = document.querySelector('[data-lang-home]');
+    if(home){ home.appendChild(makePick()); }
+    else {
+      var corner = document.createElement('div'); corner.className = 'lang-corner';
+      corner.appendChild(makePick());
+      document.body.appendChild(corner);
     }
-    mountRows();
     paintButton();
   }
-  /* Anywhere a page has left a slot for one -- the games' title screens, the interviews page's
-     masthead, the open interview -- a row of pills. Slots that appear later (an interview is
-     built when it is opened) are filled when the page calls window.siteLangMount(). */
-  function mountRows(){
-    [].forEach.call(document.querySelectorAll('[data-lang-row]'), function(slot){
-      if(slot.querySelector('.lang-pick')) return;
-      slot.appendChild(makePick());
-    });
-    paintButton();
-  }
-  window.siteLangMount = mountRows;
+  /* Kept so pages that still call it (blog.html, when an interview opens) do not throw. */
+  window.siteLangMount = function(){ paintButton(); };
   function paintButton(){
-    [].forEach.call(document.querySelectorAll('.lang-btn'), function(btn){ var l = btn.querySelector('.l'); if(l) l.textContent = label(cur); btn.title = 'Language: ' + label(cur) + (cur !== 'en' ? ' (in development)' : ''); });
+    [].forEach.call(document.querySelectorAll('.lang-btn'), function(btn){ var l = btn.querySelector('.l'); if(l) l.textContent = label(cur); btn.title = 'Language: ' + label(cur); });
     [].forEach.call(document.querySelectorAll('.lang-pop button, .lang-row button'), function(b){ b.classList.toggle('active', b.dataset.lang === cur); });
     document.documentElement.lang = cur;
   }

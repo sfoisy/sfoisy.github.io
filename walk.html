@@ -7360,11 +7360,11 @@ nav{ border-bottom:1px solid var(--nav-rule) }
     </button>
     <span class="lang-menu" id="langMenu" role="menu">
       <button role="menuitem" data-lang="en" onclick="setLang('en')">English</button>
-      <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy <small class="lang-dev">(in development)</small></button>
-      <button role="menuitem" data-lang="es" onclick="setLang('es')">Español <small class="lang-dev">(in development)</small></button>
-      <button role="menuitem" data-lang="vi" onclick="setLang('vi')">Tiếng Việt <small class="lang-dev">(in development)</small></button>
-      <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français <small class="lang-dev">(in development)</small></button>
-      <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文 <small class="lang-dev">(in development)</small></button>
+      <button role="menuitem" data-lang="mg" onclick="setLang('mg')">Malagasy</button>
+      <button role="menuitem" data-lang="es" onclick="setLang('es')">Español</button>
+      <button role="menuitem" data-lang="vi" onclick="setLang('vi')">Tiếng Việt</button>
+      <button role="menuitem" data-lang="fr" onclick="setLang('fr')">Français</button>
+      <button role="menuitem" data-lang="zh" onclick="setLang('zh')">中文</button>
     </span>
   </span>
 </p>
@@ -15051,7 +15051,7 @@ document.addEventListener('play', function (e) {
       lbl.textContent = LABELS[lang];
       /* Every translation on this site is machine-drafted and not yet checked by a speaker,
          and it says so wherever the language is named -- here and on each menu item. */
-      if(lang !== 'en'){ var dv = document.createElement('small'); dv.className = 'lang-dev'; dv.textContent = '(in development)'; lbl.appendChild(document.createTextNode(' ')); lbl.appendChild(dv); }
+      /* no "(in development)" label any more (Oct 2026) */
     }
     document.querySelectorAll('.lang-menu button').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-lang') === lang);
@@ -29179,7 +29179,7 @@ footer .fcredit{ text-shadow:none; color:#000 }
 .cm-act, .cm-act:hover{ color:#000 }
 .cm-act:focus-visible{ outline-color:#f5820b }
 .games-title{ color:#000 }
-.map-hover-hint{ color:#000 }
+.map-hover-hint{ color:#fff }   /* white again (Oct 2026) */
 </style>
 <style>
 /* ===== THE LABEL BAND (19 Sep 2026) ==========================================
@@ -29276,5 +29276,7 @@ body.mode-quick .j-sect:not(.is-open):focus-within{ --wash-rgb:14,26,46 }
    This page no longer has the site bar, so the things that were placed to clear
    its 58px are moved up by that amount. */
 .backw{ top:12px }
+/* One language button for the whole site now, top right (site-i18n.js); the byline's own is hidden. */
+.rt-lang{ display:none !important }
 </style>
 </body></html>

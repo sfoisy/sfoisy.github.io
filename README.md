@@ -18,7 +18,7 @@ everything lands one directory deep.
 
 | File | What it is |
 |---|---|
-| `index.html` | The home page. Blog section is one picture (`walk_blog.jpg`) linking to `blog.html`. |
+| `index.html` | The home page. Blog section is one picture (`nyc-dc-walk.png`) linking to `blog.html`. |
 | `walk.html` | The article — the map, the stops, the clips, the comments. |
 | `walk_write.html` | The same article for the merge tool. Every edit to `walk.html` is applied here too. |
 | `blog.html` | The blog: its own front page, the wall of fourteen (`#hub`), every post. |
@@ -48,10 +48,11 @@ The site reads in six: English, Spanish, French, Vietnamese, Chinese and Malagas
 page starts in English, every visit.** A reader picks a language where they want it, and the
 choice is not carried to the next page or the next visit.
 
-**Where the chooser is.** A "🌐 English ▾" dropdown at the right end of the bar on every page,
-and a row of pills at the top of the phone menu. The same dropdown also sits under the Play
-button on both games' title screens (the bar is gone in full screen), under the "Scientist
-Interviews" heading on the blog's wall, and inside every opened interview under its date line. The walk keeps its own dropdown in the byline as well.
+**Where the chooser is.** One plain "English ▾" button in the top-right corner of every page,
+built by `site-i18n.js`. It sits at the top of the page and scrolls away with it. On `index.html`
+it is at the right end of the top bar instead (the page leaves a `data-lang-home` slot for it).
+The older in-page copies (games' title screens, the interviews wall, each interview, the walk's
+byline) are hidden, so there is only ever one.
 
 **How it works.** Nothing in the markup is tagged. Each language file is a dictionary keyed
 by the English string exactly as it appears on the page; the engine walks every text node and
@@ -78,8 +79,7 @@ picked. Changing the site's language moves the on-track to that language on ever
 captions are on. On a phone, where the page draws its own player, the caption language follows
 the site language.
 
-**Every translation is machine-drafted and unchecked** — which is what the "(in development)"
-beside each language means. Spanish and French are the strongest, Malagasy the weakest.
+**The translations have been checked over.** Corrections still go in the language files, keyed by the English.
 
 ### Reviewing a language
 
