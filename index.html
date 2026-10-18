@@ -64,6 +64,7 @@ strong{font-weight:600}
 
 /* Sections */
 section{padding:2.25rem 0;border-top:1px solid var(--rule)}
+section > :last-child, .with-fig > :first-child > :last-child, .with-fig > p:last-child{margin-bottom:0}
 h2{margin:0 0 1rem;font-size:1.125rem;font-weight:600;letter-spacing:-.005em}
 .with-fig{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:2rem;align-items:start}
 figure{margin:0}
@@ -159,26 +160,57 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
 /* Tablet and phone */
 @media (max-width:720px){
-  .profile{grid-template-columns:9rem minmax(0,1fr);gap:1.25rem 1.5rem;padding-top:2rem;align-items:end}
-  .profile > img{grid-row:1}
+  .profile{grid-template-columns:9rem minmax(0,1fr);grid-template-rows:auto;column-gap:1.5rem;row-gap:1.5rem;padding:2rem 0;align-items:center}
+  .profile > img{grid-row:1;grid-column:1}
+  .profile .head{grid-column:2;grid-row:1;align-self:center;margin:0}
   .profile .bio{grid-column:1 / -1}
-  .profile .head{align-self:end}
-  .role{margin-bottom:0}
+  .profile h1{margin:0}
   .with-fig{grid-template-columns:minmax(0,1fr);gap:1.25rem}
-  .with-fig figure{max-width:20rem}
+  .with-fig figure{max-width:none}
 }
 @media (max-width:600px){
-  .menu-btn{display:block}
+  /* Top bar: name left, language and menu right */
+  .bar{padding:calc(.9rem + env(safe-area-inset-top)) 0 .9rem;gap:.75rem}
+  .menu-btn{display:block;padding:.4rem 0 .4rem .25rem}
   .lang-home{margin-left:auto}
   .links{display:none;position:absolute;top:100%;left:0;right:0;z-index:5;flex-direction:column;gap:0;padding:0 0 .5rem;background:var(--bg);border-bottom:1px solid var(--rule)}
   .bar.open-menu .links{display:flex}
-  .links a{display:block;padding:.75rem 0;color:var(--ink);border-bottom:1px solid var(--rule)}
+  .links a{display:block;padding:.8rem 0;color:var(--ink);border-bottom:1px solid var(--rule)}
   .links li:last-child a{border-bottom:0}
-  .news li{grid-template-columns:minmax(0,1fr);gap:0}
+
+  /* Header: photo and name side by side, the two paragraphs full width below */
+  .profile{grid-template-columns:6.5rem minmax(0,1fr);column-gap:1.1rem;row-gap:1.25rem;padding:1.5rem 0 1.75rem}
+  .profile h1{font-size:1.625rem;line-height:1.15}
+  .profile .bio p{margin-bottom:.85em}
+  .profile .bio p:last-child{margin-bottom:0}
+
+  /* One even rhythm between sections */
+  section{padding:1.75rem 0}
+  h2{margin-bottom:.85rem;font-size:1.0625rem}
+  figcaption{font-size:.8125rem}
+
+  /* News: date on its own small line, the item under it */
+  .news li{grid-template-columns:minmax(0,1fr);gap:.1rem}
+  .news li + li{margin-top:.85rem}
+  .news time{font-size:.8125rem;line-height:1.4}
+  .news li > span{line-height:1.55}
+
+  /* Blog: picture and title in one row */
+  .feature{display:flex;align-items:center;gap:1rem;max-width:none}
+  .feature img{width:6.5rem;flex:0 0 6.5rem}
+  .feature > span{margin-top:0;line-height:1.4}
+
+  /* Media: two across, a little tighter */
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+
+  /* Links at the foot: bigger tap targets */
+  .contact-row{gap:.25rem 1.5rem}
+  .contact-row a{padding:.35rem 0}
+  footer{padding-top:1.25rem}
 }
-@media (max-width:380px){
-  .profile{grid-template-columns:7rem minmax(0,1fr)}
-  .profile h1{font-size:1.5rem}
+@media (max-width:360px){
+  .profile{grid-template-columns:5.5rem minmax(0,1fr)}
+  .profile h1{font-size:1.45rem}
 }
 </style>
 </head>
@@ -372,7 +404,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 (function(){
   var list = document.getElementById('newsList'), btn = document.getElementById('newsMore');
   if(!list || !btn) return;
-  if(list.children.length <= 10) return;           // nothing hidden, so no button
+  if(list.children.length <= 10){ btn.parentNode.hidden = true; return; }   // nothing hidden, so no button
   btn.hidden = false;
   btn.addEventListener('click', function(){
     var open = list.classList.toggle('collapsed') === false;
