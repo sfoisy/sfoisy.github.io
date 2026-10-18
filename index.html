@@ -58,7 +58,7 @@ strong{font-weight:600}
 .profile .head{grid-column:2;margin-bottom:-.25rem}
 .profile .bio{grid-column:2}
 .profile > img{grid-row:1 / span 2;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 35%;border-radius:4px}
-.profile h1{margin:0;font-size:1.875rem;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.profile h1{margin:0 0 1rem;font-size:1.875rem;font-weight:600;letter-spacing:-.015em;line-height:1.2}
 .role{margin:.35rem 0 1.25rem;color:var(--muted)}
 .contact-row{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:1.25rem;font-size:.9375rem}
 
@@ -76,8 +76,8 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .pubs,.news,.plain{list-style:none;margin:0;padding:0}
 .pubs .title{font-weight:500}
 .status{display:inline-block;margin-left:.35rem;padding:0 .45rem;font-size:.75rem;line-height:1.6;color:var(--muted);border:1px solid var(--rule);border-radius:3px;vertical-align:1px}
-.news li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:1rem}
-.news time{color:var(--muted)}
+.news li{display:grid;grid-template-columns:10.5rem minmax(0,1fr);gap:1rem}
+.news time{color:var(--muted);white-space:nowrap}
 .news li + li{margin-top:.5rem}
 .news.collapsed li:nth-child(n+11){display:none}
 .more-toggle{background:none;border:0;padding:0;font:inherit;color:var(--link);cursor:pointer}
@@ -97,24 +97,35 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 /* Media: three across, the coverage shows on hover */
 .when{color:var(--muted);font-weight:400}
 .gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem}
-.tile{all:unset;position:relative;display:block;aspect-ratio:1;overflow:hidden;border-radius:4px;background:#f0f0f0;cursor:zoom-in}
-.tile:focus-visible{outline:2px solid var(--link);outline-offset:2px}
-.tile img{width:100%;height:100%;object-fit:cover}
-.tile .ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.25rem;padding:.8rem;
-  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.15) 100%);color:#fff;
+.tile{position:relative;aspect-ratio:1;overflow:hidden;border-radius:4px;background:#f0f0f0}
+.tile-open{all:unset;display:block;width:100%;height:100%;cursor:zoom-in}
+.tile-open:focus-visible{outline:2px solid var(--link);outline-offset:-2px}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+/* The shade covers the picture but lets clicks through to it; only the words are a link. */
+.tile .ov{position:absolute;inset:0;display:flex;align-items:flex-end;padding:.8rem;
+  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.5) 55%,rgba(0,0,0,.1) 100%);
   opacity:0;transition:opacity .2s;pointer-events:none}
-.tile:hover .ov,.tile:focus-visible .ov{opacity:1}
-.tile .o{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.tile:hover .ov,.tile:focus-within .ov{opacity:1}
+.ov-link{display:flex;flex-direction:column;gap:.25rem;color:#fff;text-decoration:none;pointer-events:auto;cursor:default}
+a.ov-link{cursor:pointer}
+a.ov-link:hover{text-decoration:none}
+a.ov-link .t::after{content:" \2197";opacity:.7}
+a.ov-link:hover .t{color:#fff;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}
 .tile .t{font-size:.85rem;font-weight:500;line-height:1.3}
 @media(max-width:600px){ .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.tile .o{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
 .tile .w{font-size:.75rem;opacity:.75}
 @media (hover:none){ .tile .ov{display:none} }
 
 dialog{border:0;padding:0;background:transparent;max-width:min(92vw,60rem);color:#fff}
 dialog::backdrop{background:rgba(12,12,12,.92)}
 dialog img{max-height:78vh;max-height:78svh;width:auto;margin:0 auto;border-radius:4px}
-dialog p{margin:.85rem 0 0;text-align:center;font-size:.875rem;opacity:.9}
-dialog p a{color:#fff;text-decoration:underline}
+.lb-cap{margin:.9rem auto 0;max-width:40rem;text-align:center;line-height:1.45}
+.lb-cap .o{display:block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.lb-cap .t{display:block;margin-top:.2rem;font-size:1rem;font-weight:500}
+.lb-cap .w{display:block;margin-top:.15rem;font-size:.8rem;opacity:.7}
+.lb-cap .go{display:inline-block;margin-top:.6rem;padding:.35rem .9rem;border:1px solid rgba(255,255,255,.5);border-radius:999px;color:#fff;font-size:.8rem;text-decoration:none}
+.lb-cap .go:hover{background:#fff;color:#111;text-decoration:none}
 .lb-nav{display:flex;justify-content:center;gap:2rem;margin-top:.5rem}
 .lb-nav button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.875rem;cursor:pointer;padding:.5rem}
 .lb-nav button:hover{opacity:1}
@@ -172,7 +183,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   <img src="open.jpg" alt="Syl Foisy" width="1166" height="1548" fetchpriority="high">
   <div class="head">
     <h1>Syl Foisy</h1>
-    <p class="role">PhD Candidate in Atmospheric Science<br>NASA GISS / Columbia University</p>
   </div>
   <div class="bio">
     <p><strong>Hi!</strong> I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" rel="noopener">aerosols</a>, the tiny liquid and solid particles in the atmosphere that have an outsized influence on our climate, our weather, and the air we breathe.</p>
@@ -264,38 +274,38 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
          To add one: copy a <button class="tile"> block. data-outlet, data-title and data-href
          are the newspaper, the headline and the article's link (leave them empty if there is none). -->
     <div class="gallery" id="gallery">
-      <button class="tile" data-src="ssc_talk.jpg" data-outlet="" data-title="Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow" data-where="Manhattan, NY · 2026" data-href="https://events.humanitix.com/science-after-dark-ask-a-scientist-pier-40-wetlab-lycrkmfd">
-        <img src="ssc_talk.jpg" alt="Syl giving a talk at Secret Science Club" loading="lazy" decoding="async">
-        <span class="ov"><span class="t">Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow</span><span class="w">Manhattan, NY · 2026</span></span>
-      </button>
-      <button class="tile" data-src="insidenews.png" data-outlet="Inside Climate News" data-title="A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather" data-where="Washington, DC · 2026" data-href="https://insideclimatenews.org/news/06062026/museum-of-unnatural-disasters-highlights-extreme-weather-risks/">
-        <img src="insidenews.png" alt="Syl with two others in Washington, DC" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">Inside Climate News</span><span class="t">A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather</span><span class="w">Washington, DC · 2026</span></span>
-      </button>
-      <button class="tile" data-src="snow2.png" data-outlet="Columbia Spectator" data-title="Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm" data-where="Manhattan, NY · 2026" data-href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/">
-        <img src="snow2.png" alt="Giant snowman in Manhattan, NY" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">Columbia Spectator</span><span class="t">Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm</span><span class="w">Manhattan, NY · 2026</span></span>
-      </button>
-      <button class="tile" data-src="snow4.png" data-outlet="NewYorkUpstate.com" data-title="See the massive 24-foot snowman stopping traffic in Upstate NY" data-where="Potsdam, NY · 2025" data-href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html">
-        <img src="snow4.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">NewYorkUpstate.com</span><span class="t">See the massive 24-foot snowman stopping traffic in Upstate NY</span><span class="w">Potsdam, NY · 2025</span></span>
-      </button>
-      <button class="tile" data-src="snow5.png" data-outlet="The Williams Record" data-title="Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities" data-where="Williamstown, MA · 2024" data-href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/">
-        <img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">The Williams Record</span><span class="t">Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities</span><span class="w">Williamstown, MA · 2024</span></span>
-      </button>
-      <button class="tile" data-src="snow7.png" data-outlet="NEWS10" data-title="The Upside: Williams College student creates 15 foot snowman" data-where="Williamstown, MA · 2022" data-href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/">
-        <img src="snow7.png" alt="Giant snowman in Williamstown, MA" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">NEWS10</span><span class="t">The Upside: Williams College student creates 15 foot snowman</span><span class="w">Williamstown, MA · 2022</span></span>
-      </button>
-      <button class="tile" data-src="snow3.png" data-outlet="North Country Public Radio" data-title="Got big snow? Build a snowman!" data-where="Potsdam, NY · 2021" data-href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman">
-        <img src="snow3.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">North Country Public Radio</span><span class="t">Got big snow? Build a snowman!</span><span class="w">Potsdam, NY · 2021</span></span>
-      </button>
-      <button class="tile" data-src="origami.png" data-outlet="The Williams Record" data-title="1,000 paper cranes and a welding project: one entry’s First Days activity" data-where="Williamstown, MA · 2020" data-href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/">
-        <img src="origami.png" alt="1,000 paper cranes in Williamstown, MA" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">The Williams Record</span><span class="t">1,000 paper cranes and a welding project: one entry’s First Days activity</span><span class="w">Williamstown, MA · 2020</span></span>
-      </button>
+      <div class="tile" data-src="ssc_talk.jpg" data-outlet="" data-title="Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow" data-where="Manhattan, NY · 2026" data-href="https://events.humanitix.com/science-after-dark-ask-a-scientist-pier-40-wetlab-lycrkmfd">
+        <button type="button" class="tile-open" aria-label="Open photo: Syl giving a talk at Secret Science Club"><img src="ssc_talk.jpg" alt="Syl giving a talk at Secret Science Club" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://events.humanitix.com/science-after-dark-ask-a-scientist-pier-40-wetlab-lycrkmfd" target="_blank" rel="noopener"><span class="t">Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow</span><span class="w">Manhattan, NY · 2026</span></a></div>
+      </div>
+      <div class="tile" data-src="insidenews.png" data-outlet="Inside Climate News" data-title="A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather" data-where="Washington, DC · 2026" data-href="https://insideclimatenews.org/news/06062026/museum-of-unnatural-disasters-highlights-extreme-weather-risks/">
+        <button type="button" class="tile-open" aria-label="Open photo: Syl with two others in Washington, DC"><img src="insidenews.png" alt="Syl with two others in Washington, DC" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://insideclimatenews.org/news/06062026/museum-of-unnatural-disasters-highlights-extreme-weather-risks/" target="_blank" rel="noopener"><span class="o">Inside Climate News</span><span class="t">A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather</span><span class="w">Washington, DC · 2026</span></a></div>
+      </div>
+      <div class="tile" data-src="snow2.png" data-outlet="Columbia Spectator" data-title="Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm" data-where="Manhattan, NY · 2026" data-href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/">
+        <button type="button" class="tile-open" aria-label="Open photo: Giant snowman in Manhattan, NY"><img src="snow2.png" alt="Giant snowman in Manhattan, NY" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" target="_blank" rel="noopener"><span class="o">Columbia Spectator</span><span class="t">Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm</span><span class="w">Manhattan, NY · 2026</span></a></div>
+      </div>
+      <div class="tile" data-src="snow4.png" data-outlet="NewYorkUpstate.com" data-title="See the massive 24-foot snowman stopping traffic in Upstate NY" data-where="Potsdam, NY · 2025" data-href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html">
+        <button type="button" class="tile-open" aria-label="Open photo: Giant snowman in Potsdam, NY"><img src="snow4.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" rel="noopener"><span class="o">NewYorkUpstate.com</span><span class="t">See the massive 24-foot snowman stopping traffic in Upstate NY</span><span class="w">Potsdam, NY · 2025</span></a></div>
+      </div>
+      <div class="tile" data-src="snow5.png" data-outlet="The Williams Record" data-title="Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities" data-where="Williamstown, MA · 2024" data-href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/">
+        <button type="button" class="tile-open" aria-label="Open photo: Commissioned ice throne in Williamstown, MA"><img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/" target="_blank" rel="noopener"><span class="o">The Williams Record</span><span class="t">Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities</span><span class="w">Williamstown, MA · 2024</span></a></div>
+      </div>
+      <div class="tile" data-src="snow7.png" data-outlet="NEWS10" data-title="The Upside: Williams College student creates 15 foot snowman" data-where="Williamstown, MA · 2022" data-href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/">
+        <button type="button" class="tile-open" aria-label="Open photo: Giant snowman in Williamstown, MA"><img src="snow7.png" alt="Giant snowman in Williamstown, MA" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/" target="_blank" rel="noopener"><span class="o">NEWS10</span><span class="t">The Upside: Williams College student creates 15 foot snowman</span><span class="w">Williamstown, MA · 2022</span></a></div>
+      </div>
+      <div class="tile" data-src="snow3.png" data-outlet="North Country Public Radio" data-title="Got big snow? Build a snowman!" data-where="Potsdam, NY · 2021" data-href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman">
+        <button type="button" class="tile-open" aria-label="Open photo: Giant snowman in Potsdam, NY"><img src="snow3.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman" target="_blank" rel="noopener"><span class="o">North Country Public Radio</span><span class="t">Got big snow? Build a snowman!</span><span class="w">Potsdam, NY · 2021</span></a></div>
+      </div>
+      <div class="tile" data-src="origami.png" data-outlet="The Williams Record" data-title="1,000 paper cranes and a welding project: one entry’s First Days activity" data-where="Williamstown, MA · 2020" data-href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/">
+        <button type="button" class="tile-open" aria-label="Open photo: 1,000 paper cranes in Williamstown, MA"><img src="origami.png" alt="1,000 paper cranes in Williamstown, MA" loading="lazy" decoding="async"></button>
+        <div class="ov"><a class="ov-link" href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/" target="_blank" rel="noopener"><span class="o">The Williams Record</span><span class="t">1,000 paper cranes and a welding project: one entry’s First Days activity</span><span class="w">Williamstown, MA · 2020</span></a></div>
+      </div>
     </div>
   </section>
 
@@ -325,7 +335,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
 <dialog id="lb" aria-label="Photo">
   <img id="lbImg" src="" alt="">
-  <p id="lbCap"></p>
+  <div id="lbCap" class="lb-cap"></div>
   <div class="lb-nav">
     <button data-step="-1">Previous</button>
     <button data-close>Close</button>
@@ -368,22 +378,28 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   }, {threshold:.25}).observe(v);
 })();
 
-/* Media viewer: built from the tiles themselves */
+/* Media viewer: built from the tiles themselves. The picture opens here; the words on a
+   picture (shown on hover) go straight to the article. */
 (function(){
   var tiles = [].slice.call(document.querySelectorAll('#gallery .tile'));
   var dlg = document.getElementById('lb'), img = document.getElementById('lbImg'), cap = document.getElementById('lbCap'), i = 0;
   if(!dlg.showModal || !tiles.length) return;
+  function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text) e.textContent = text; return e; }
   function show(n){
     i = (n + tiles.length) % tiles.length;
     var d = tiles[i].dataset;
     img.src = d.src; img.alt = tiles[i].querySelector('img').alt;
-    var head = d.outlet ? d.outlet + ': ' + d.title : d.title;
     cap.innerHTML = '';
-    if(d.href){ var a = document.createElement('a'); a.href = d.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = head; cap.appendChild(a); }
-    else cap.appendChild(document.createTextNode(head));
-    cap.appendChild(document.createTextNode(' · ' + d.where));
+    if(d.outlet) cap.appendChild(el('span', 'o', d.outlet));
+    cap.appendChild(el('span', 't', d.title));
+    cap.appendChild(el('span', 'w', d.where));
+    if(d.href){
+      var a = el('a', 'go', (d.outlet ? 'Read the article' : 'Open the page') + ' \u2197');
+      a.href = d.href; a.target = '_blank'; a.rel = 'noopener';
+      cap.appendChild(a);
+    }
   }
-  tiles.forEach(function(t, k){ t.addEventListener('click', function(){ show(k); dlg.showModal(); }); });
+  tiles.forEach(function(t, k){ t.querySelector('.tile-open').addEventListener('click', function(){ show(k); dlg.showModal(); }); });
   dlg.addEventListener('click', function(e){
     if(e.target === dlg || e.target.hasAttribute('data-close')) dlg.close();
     if(e.target.dataset.step) show(i + +e.target.dataset.step);
