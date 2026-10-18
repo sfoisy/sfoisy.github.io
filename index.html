@@ -93,12 +93,20 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .feature span{display:block;margin-top:.6rem;font-weight:500}
 .feature:hover span{text-decoration:underline;text-underline-offset:.18em}
 
-/* Gallery */
-.gallery{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:.4rem}
-.gallery button{all:unset;cursor:zoom-in;display:block;aspect-ratio:1;overflow:hidden;border-radius:3px;background:#f0f0f0}
-.gallery button:focus-visible{outline:2px solid var(--link);outline-offset:2px}
-.gallery img{width:100%;height:100%;object-fit:cover}
-.gallery button:hover img{opacity:.85}
+/* Media: three across, the coverage shows on hover */
+.when{color:var(--muted);font-weight:400}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.tile{all:unset;position:relative;display:block;aspect-ratio:1;overflow:hidden;border-radius:4px;background:#f0f0f0;cursor:zoom-in}
+.tile:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.tile img{width:100%;height:100%;object-fit:cover}
+.tile .ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.3rem;padding:1rem;
+  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.15) 100%);color:#fff;
+  opacity:0;transition:opacity .2s;pointer-events:none}
+.tile:hover .ov,.tile:focus-visible .ov{opacity:1}
+.tile .o{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.tile .t{font-size:.95rem;font-weight:500;line-height:1.35}
+.tile .w{font-size:.75rem;opacity:.75}
+@media (hover:none){ .tile .ov{display:none} }
 
 dialog{border:0;padding:0;background:transparent;max-width:min(92vw,60rem);color:#fff}
 dialog::backdrop{background:rgba(12,12,12,.92)}
@@ -126,7 +134,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   .role{margin-bottom:0}
   .with-fig{grid-template-columns:minmax(0,1fr);gap:1.25rem}
   .with-fig figure{max-width:20rem}
-  .gallery{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media (max-width:600px){
   .menu-btn{display:block}
@@ -167,7 +174,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   </div>
   <div class="bio">
     <p><strong>Hi!</strong> I'm a PhD candidate at NASA GISS and Columbia University studying <a href="https://earth.gsfc.nasa.gov/climate/data/deep-blue/aerosols" target="_blank" rel="noopener">aerosols</a>, the tiny liquid and solid particles in the atmosphere that have an outsized influence on our climate, our weather, and the air we breathe.</p>
-    <p>Outside of research, I have many interests, ranging from <a href="https://www.gretchenkoehlermusic.com/video-projects" target="_blank" rel="noopener">filmmaking</a> to <a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" rel="noopener">snow sculpture</a>, which occasionally, and delightfully, collide with my science.</p>
+    <p>Outside of research, I have many interests, ranging from filmmaking to snow sculpture, which occasionally, and delightfully, collide with my science.</p>
   </div>
 </header>
 
@@ -176,10 +183,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   <section id="about">
     <h2>I research the sky</h2>
     <div class="with-fig">
-      <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from <a href="https://pace.oceansciences.org/data_table.htm" target="_blank" rel="noopener">NASA's PACE mission</a> and <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a> climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by <a href="https://people.climate.columbia.edu/users/profile/susanne-e-bauer" target="_blank" rel="noopener">Dr. Susanne Bauer</a> and <a href="https://people.climate.columbia.edu/users/profile/kostas-tsigaridis" target="_blank" rel="noopener">Dr. Kostas Tsigaridis</a>.</p>
+      <p>My research interests are all things aerosols and clouds. Currently, I use satellite data from NASA's PACE mission and NASA GISS ModelE climate model simulations to study the evolution of aerosol microphysical properties, and how they influence cloud formation. I'm advised by Dr. Susanne Bauer and Dr. Kostas Tsigaridis.</p>
       <figure>
         <video class="fig-media" src="new_aerosol.mp4" muted loop playsinline preload="metadata" aria-label="Animation of global aerosol composition"></video>
-        <figcaption>Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a>. Each column of atmosphere is colored by its volume-dominant aerosol species.</figcaption>
+        <figcaption>Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a>.</figcaption>
       </figure>
     </div>
   </section>
@@ -189,8 +196,10 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <!-- ALL the news lives here. Add new entries at the TOP. The first three show; the rest
          open in place with "See all news" (the button only appears once there are more than three). -->
     <ul class="news collapsed" id="newsList">
-      <li><time datetime="2026-10-07">October 7, 2026</time><span>My first pre-print was posted on Atmospheric Chemistry and Physics! <a href="https://egusphere.copernicus.org/preprints/2026/egusphere-2026-5135/" target="_blank" rel="noopener">Link here</a>.</span></li>
-      <li><time datetime="2026-06-03">June 3, 2026</time><span>I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</span></li>
+      <li><time datetime="2026-10-14">October 14, 2026</time><span>I gave a talk at AeroCom in Fukuoka, Japan</span></li>
+      <li><time datetime="2026-10-07">October 7, 2026</time><span>My first pre-print was posted on Atmospheric Chemistry and Physics. <a href="https://egusphere.copernicus.org/preprints/2026/egusphere-2026-5135/" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-09-24">September 24, 2026</time><span>I gave an invited talk for Secret Science Club. <a href="https://secretscienceclub.blogspot.com/2026/" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-06-03">June 3, 2026</time><span>I finished walking from NYC to DC. <a href="walk.html">Check it out here</a>. :)</span></li>
     </ul>
     <p class="more"><button type="button" class="more-toggle" id="newsMore" aria-controls="newsList" aria-expanded="false" hidden>See all news</button></p>
   </section>
@@ -222,7 +231,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <h2>Blog</h2>
     <a class="feature" href="blog.html">
       <img src="nyc-dc-walk.png" alt="Syl speaking at a press conference outside the U.S. Capitol" width="1080" height="1080" loading="lazy" decoding="async">
-      <span>Walking 250 miles from NYC to DC</span>
+      <span>Walking 250 miles from NYC to DC <span class="when">(6/26)</span></span>
     </a>
   </section>
 
@@ -242,18 +251,57 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   </section>
   -->
 
-  <section id="beyond">
-    <h2>Photo Gallery</h2>
+  <section id="media">
+    <h2>Media</h2>
+    <!-- Newest first. Each tile is one picture; hovering shows where it was covered.
+         To add one: copy a <button class="tile"> block. data-outlet, data-title and data-href
+         are the newspaper, the headline and the article's link (leave them empty if there is none). -->
     <div class="gallery" id="gallery">
-      <button data-i="0"><img src="origami.png" alt="1,000 paper cranes in Williamstown, MA" loading="lazy" decoding="async"></button>
-      <button data-i="1"><img src="snow1.png" alt="Snow castle in Potsdam, NY" loading="lazy" decoding="async"></button>
-      <button data-i="2"><img src="snow3.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async"></button>
-      <button data-i="3"><img src="snow7.png" alt="Giant snowman in Williamstown, MA" loading="lazy" decoding="async"></button>
-      <button data-i="4"><img src="snow6.png" alt="Snow castle in Williamstown, MA" loading="lazy" decoding="async"></button>
-      <button data-i="5"><img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA" loading="lazy" decoding="async"></button>
-      <button data-i="6"><img src="snow4.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async"></button>
-      <button data-i="7"><img src="snow2.png" alt="Giant snowman in Manhattan, NY" loading="lazy" decoding="async"></button>
+      <button class="tile" data-src="ssc_talk.jpg" data-outlet="Secret Science Club" data-title="Invited talk" data-where="September 24, 2026" data-href="https://secretscienceclub.blogspot.com/2026/">
+        <img src="ssc_talk.jpg" alt="Giving an invited talk for Secret Science Club" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">Secret Science Club</span><span class="t">Invited talk</span><span class="w">September 24, 2026</span></span>
+      </button>
+      <button class="tile" data-src="snow2.png" data-outlet="Columbia Spectator" data-title="Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm" data-where="Manhattan, NY · 2026" data-href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/">
+        <img src="snow2.png" alt="Giant snowman in Manhattan, NY" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">Columbia Spectator</span><span class="t">Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm</span><span class="w">Manhattan, NY · 2026</span></span>
+      </button>
+      <button class="tile" data-src="snow4.png" data-outlet="NewYorkUpstate.com" data-title="See the massive 24-foot snowman stopping traffic in Upstate NY" data-where="Potsdam, NY · 2025" data-href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html">
+        <img src="snow4.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">NewYorkUpstate.com</span><span class="t">See the massive 24-foot snowman stopping traffic in Upstate NY</span><span class="w">Potsdam, NY · 2025</span></span>
+      </button>
+      <button class="tile" data-src="snow5.png" data-outlet="The Williams Record" data-title="Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities" data-where="Williamstown, MA · 2024" data-href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/">
+        <img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">The Williams Record</span><span class="t">Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities</span><span class="w">Williamstown, MA · 2024</span></span>
+      </button>
+      <button class="tile" data-src="snow6.png" data-outlet="" data-title="Snow castle" data-where="Williamstown, MA · 2023" data-href="">
+        <img src="snow6.png" alt="Snow castle in Williamstown, MA" loading="lazy" decoding="async">
+        <span class="ov"><span class="t">Snow castle</span><span class="w">Williamstown, MA · 2023</span></span>
+      </button>
+      <button class="tile" data-src="snow7.png" data-outlet="NEWS10" data-title="The Upside: Williams College student creates 15 foot snowman" data-where="Williamstown, MA · 2022" data-href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/">
+        <img src="snow7.png" alt="Giant snowman in Williamstown, MA" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">NEWS10</span><span class="t">The Upside: Williams College student creates 15 foot snowman</span><span class="w">Williamstown, MA · 2022</span></span>
+      </button>
+      <button class="tile" data-src="snow3.png" data-outlet="North Country Public Radio" data-title="Got big snow? Build a snowman" data-where="Potsdam, NY · 2021" data-href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman">
+        <img src="snow3.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">North Country Public Radio</span><span class="t">Got big snow? Build a snowman</span><span class="w">Potsdam, NY · 2021</span></span>
+      </button>
+      <button class="tile" data-src="snow1.png" data-outlet="" data-title="Snow castle" data-where="Potsdam, NY · 2021" data-href="">
+        <img src="snow1.png" alt="Snow castle in Potsdam, NY" loading="lazy" decoding="async">
+        <span class="ov"><span class="t">Snow castle</span><span class="w">Potsdam, NY · 2021</span></span>
+      </button>
+      <button class="tile" data-src="origami.png" data-outlet="The Williams Record" data-title="1,000 paper cranes and a welding project: one entry’s First Days activity" data-where="Williamstown, MA · 2020" data-href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/">
+        <img src="origami.png" alt="1,000 paper cranes in Williamstown, MA" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">The Williams Record</span><span class="t">1,000 paper cranes and a welding project: one entry’s First Days activity</span><span class="w">Williamstown, MA · 2020</span></span>
+      </button>
     </div>
+    <ul class="news" style="margin-top:1.25rem">
+      <li><time datetime="2026-06-04">June 4, 2026</time><span><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener">University of Maryland article</a></span></li>
+    </ul>
+  </section>
+
+  <section id="socials">
+    <h2>Socials</h2>
+    <p><a href="https://www.tiktok.com/@syl_foisy" target="_blank" rel="noopener">TikTok</a> <span class="when">(2.0M followers)</span></p>
   </section>
 
   <section id="contact">
@@ -261,9 +309,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     <p>Reach out about anything. I usually reply within a day or two. :)</p>
     <div class="contact-row" style="margin-top:0">
       <a href="mailto:sylfoisy@gmail.com">Email</a>
-      <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
       <a href="https://scholar.google.com/citations?user=y4Nk1cAAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
-      <a href="https://eesc.columbia.edu/content/syl-foisy" target="_blank" rel="noopener">Columbia DEES profile</a>
       <a href="https://www.linkedin.com/in/syl-foisy-955b1b311/" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </section>
@@ -322,24 +368,22 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   }, {threshold:.25}).observe(v);
 })();
 
-/* Gallery viewer (captions from the original page) */
+/* Media viewer: built from the tiles themselves */
 (function(){
-  var items = [
-    ['origami.png','<a href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/" target="_blank" rel="noopener">1,000 paper cranes</a> in Williamstown, MA · 2020'],
-    ['snow1.png','Snow castle in Potsdam, NY · 2021'],
-    ['snow3.png','<a href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman" target="_blank" rel="noopener">Giant snowman</a> in Potsdam, NY · 2021'],
-    ['snow7.png','<a href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/" target="_blank" rel="noopener">Giant snowman</a> in Williamstown, MA · 2022'],
-    ['snow6.png','Snow castle in Williamstown, MA · 2023'],
-    ['snow5.png','Commissioned <a href="https://williamsrecord.com/465910/features/syl-foisy-24-defrosts-ice-sculpture-tradition-for-this-years-winter-carnival-festivities/" target="_blank" rel="noopener">ice throne</a> in Williamstown, MA · 2024'],
-    ['snow4.png','<a href="https://www.newyorkupstate.com/outdoors/2025/01/see-the-massive-24-foot-snowman-stopping-traffic-in-upstate-ny.html" target="_blank" rel="noopener">Giant snowman</a> in Potsdam, NY · 2025'],
-    ['snow2.png','<a href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/" target="_blank" rel="noopener">Giant snowman</a> in Manhattan, NY · 2026']
-  ];
+  var tiles = [].slice.call(document.querySelectorAll('#gallery .tile'));
   var dlg = document.getElementById('lb'), img = document.getElementById('lbImg'), cap = document.getElementById('lbCap'), i = 0;
-  if(!dlg.showModal) return;
-  function show(n){ i = (n + items.length) % items.length; img.src = items[i][0]; cap.innerHTML = items[i][1]; img.alt = cap.textContent; }
-  document.querySelectorAll('#gallery button').forEach(function(b){
-    b.addEventListener('click', function(){ show(+b.dataset.i); dlg.showModal(); });
-  });
+  if(!dlg.showModal || !tiles.length) return;
+  function show(n){
+    i = (n + tiles.length) % tiles.length;
+    var d = tiles[i].dataset;
+    img.src = d.src; img.alt = tiles[i].querySelector('img').alt;
+    var head = d.outlet ? d.outlet + ': ' + d.title : d.title;
+    cap.innerHTML = '';
+    if(d.href){ var a = document.createElement('a'); a.href = d.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = head; cap.appendChild(a); }
+    else cap.appendChild(document.createTextNode(head));
+    cap.appendChild(document.createTextNode(' · ' + d.where));
+  }
+  tiles.forEach(function(t, k){ t.addEventListener('click', function(){ show(k); dlg.showModal(); }); });
   dlg.addEventListener('click', function(e){
     if(e.target === dlg || e.target.hasAttribute('data-close')) dlg.close();
     if(e.target.dataset.step) show(i + +e.target.dataset.step);
