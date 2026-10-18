@@ -119,7 +119,7 @@ a.ov-link:hover .t{color:#fff;text-decoration:underline;text-decoration-thicknes
 @media (hover:none){ .tile .ov{display:none} }
 
 dialog{border:0;padding:0;background:transparent;max-width:min(92vw,60rem);color:#fff}
-dialog::backdrop{background:rgba(12,12,12,.96)}
+dialog::backdrop{background:rgba(10,10,10,.985)}
 dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radius:4px}
 .lb-cap{margin:.9rem auto 0;max-width:40rem;text-align:center;line-height:1.45}
 .lb-cap .o{display:block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
@@ -148,7 +148,17 @@ dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radi
 .lb-x{top:max(1rem, env(safe-area-inset-top));right:max(1rem, env(safe-area-inset-right));width:2.5rem;height:2.5rem;border-radius:50%;font-size:1.6rem}
 .lb-arrow:hover,.lb-x:hover{background:rgba(255,255,255,.2)}
 .lb-arrow:focus-visible,.lb-x:focus-visible{outline:2px solid #fff;outline-offset:2px}
-@media(max-width:600px){ .lb-arrow{width:2.4rem;height:2.4rem;font-size:1.6rem} .lb-arrow.prev{left:.4rem} .lb-arrow.next{right:.4rem} }
+/* Desktop: arrows at the screen's edges, the count small under the caption */
+.lb-controls{display:contents}
+.lb-count{display:block;margin-top:.6rem;text-align:center;font-size:.75rem;letter-spacing:.06em;opacity:.55}
+/* Phones: the arrows never sit on the picture. They join the count in one row under the caption. */
+@media(max-width:700px){
+  #lb img{max-height:58vh;max-height:58svh}
+  .lb-controls{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1rem}
+  .lb-controls .lb-arrow{position:static;transform:none;width:2.75rem;height:2.75rem;font-size:1.6rem;background:none;border-color:rgba(255,255,255,.4)}
+  .lb-count{margin:0;min-width:3.5rem;font-size:.8125rem;opacity:.7}
+  .lb-cap .go{margin-top:.75rem}
+}
 
 /* Language button (built by site-i18n.js): at the right end of the top bar, in the page's greys */
 .lang-home{display:flex;align-items:center;margin-left:1.5rem;--lang-ink:var(--muted);--lang-bg:transparent;--lang-line:var(--rule)}
@@ -178,9 +188,12 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   .links a{display:block;padding:.8rem 0;color:var(--ink);border-bottom:1px solid var(--rule)}
   .links li:last-child a{border-bottom:0}
 
-  /* Header: photo and name side by side, the two paragraphs full width below */
-  .profile{grid-template-columns:6.5rem minmax(0,1fr);column-gap:1.1rem;row-gap:1.25rem;padding:1.5rem 0 1.75rem}
-  .profile h1{font-size:1.625rem;line-height:1.15}
+  /* Header: a larger photo, centred, with the name under it; the paragraphs below */
+  .profile{display:flex;flex-direction:column;align-items:center;gap:0;padding:1.75rem 0}
+  .profile > img{width:min(72%,17rem);aspect-ratio:4/5;border-radius:6px}
+  .profile .head{margin:1.1rem 0 1.1rem;text-align:center}
+  .profile h1{font-size:1.75rem;line-height:1.15}
+  .profile .bio{align-self:stretch}
   .profile .bio p{margin-bottom:.85em}
   .profile .bio p:last-child{margin-bottom:0}
 
@@ -209,8 +222,8 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
   footer{padding-top:1.25rem}
 }
 @media (max-width:360px){
-  .profile{grid-template-columns:5.5rem minmax(0,1fr)}
-  .profile h1{font-size:1.45rem}
+  .profile h1{font-size:1.6rem}
+}
 }
 </style>
 </head>
@@ -394,8 +407,11 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 <dialog id="lb" aria-label="Photo">
   <img id="lbImg" src="" alt="">
   <div id="lbCap" class="lb-cap"></div>
-  <button type="button" class="lb-arrow prev" data-step="-1" aria-label="Previous">&#8249;</button>
-  <button type="button" class="lb-arrow next" data-step="1" aria-label="Next">&#8250;</button>
+  <div class="lb-controls">
+    <button type="button" class="lb-arrow prev" data-step="-1" aria-label="Previous">&#8249;</button>
+    <span class="lb-count" id="lbCount" aria-live="polite"></span>
+    <button type="button" class="lb-arrow next" data-step="1" aria-label="Next">&#8250;</button>
+  </div>
   <button type="button" class="lb-x" data-close aria-label="Close">&times;</button>
 </dialog>
 
@@ -471,6 +487,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     if(d.outlet) cap.appendChild(el('span', 'o', d.outlet));
     cap.appendChild(el('span', 't', d.title));
     cap.appendChild(el('span', 'w', d.where));
+    var cn = document.getElementById('lbCount'); if(cn) cn.textContent = (i + 1) + ' / ' + tiles.length;
     if(d.href){
       var a = el('a', 'go', (d.cta || (d.outlet ? 'Read the article' : 'Open the page')) + ' \u2197');
       a.href = d.href; a.target = '_blank'; a.rel = 'noopener';
