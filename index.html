@@ -101,7 +101,7 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .tile{position:relative;aspect-ratio:1;overflow:hidden;border-radius:4px;background:#f0f0f0}
 .tile-open{all:unset;display:block;width:100%;height:100%;cursor:zoom-in}
 .tile-open:focus-visible{outline:2px solid var(--link);outline-offset:-2px}
-.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile img{width:100%;height:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block}
 /* The shade covers the picture but lets clicks through to it; only the words are a link. */
 .tile .ov{position:absolute;inset:0;display:flex;align-items:flex-end;padding:.8rem;
   background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.5) 55%,rgba(0,0,0,.1) 100%);
@@ -121,12 +121,15 @@ a.ov-link:hover .t{color:#fff;text-decoration:underline;text-decoration-thicknes
 dialog{border:0;padding:0;background:transparent;max-width:min(92vw,60rem);color:#fff}
 dialog::backdrop{background:rgba(10,10,10,.985)}
 dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radius:4px}
+/* Every media photo shows in the same square frame, cropped to fill it, at every size. */
+#lb img{width:min(68vh,92vw);width:min(68svh,92vw);height:auto;max-height:none;aspect-ratio:1/1;object-fit:cover;object-position:center}
 .lb-cap{margin:.9rem auto 0;max-width:40rem;text-align:center;line-height:1.45}
 .lb-cap .o{display:block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
 .lb-cap .t{display:block;margin-top:.2rem;font-size:1rem;font-weight:500}
 .lb-cap .w{display:block;margin-top:.15rem;font-size:.8rem;opacity:.7}
-.lb-cap .go{display:inline-block;margin-top:.6rem;padding:.35rem .9rem;border:1px solid rgba(255,255,255,.5);border-radius:999px;color:#fff;font-size:.8rem;text-decoration:none}
-.lb-cap .go:hover{background:#fff;color:#111;text-decoration:none}
+.lb-go{text-align:center}
+.lb-go .go{display:inline-block;margin-top:.6rem;padding:.35rem .9rem;border:1px solid rgba(255,255,255,.5);border-radius:999px;color:#fff;font-size:.8rem;text-decoration:none}
+.lb-go .go:hover{background:#fff;color:#111;text-decoration:none}
 /* The animation: an expand button in its corner, and a large view */
 .vid-fig{position:relative}
 .vid-lb .lb-cap{font-size:.9rem;opacity:.9}
@@ -156,17 +159,24 @@ dialog img{max-height:68vh;max-height:68svh;width:auto;margin:0 auto;border-radi
    photos changes only what is inside the box and the words below. */
 @media(max-width:700px){
   #lb{width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:none;margin:0;
-      padding:calc(env(safe-area-inset-top) + .75rem) 1rem calc(env(safe-area-inset-bottom) + 1rem);overflow:hidden;background:#0a0a0a}
+      padding:calc(env(safe-area-inset-top) + 3.75rem) 1rem calc(env(safe-area-inset-bottom) + 1rem);overflow:hidden;background:#0a0a0a}
   #lb[open]{display:flex;flex-direction:column;align-items:center}
-  .lb-controls{order:1;display:flex;align-items:center;justify-content:center;gap:1.25rem;flex:0 0 auto;align-self:stretch;height:2.75rem;margin:0 0 1rem;padding:0 3.25rem}
+  /* Title, outlet and place first, in a fixed-height block so the photo below never moves */
+  #lb .lb-cap{order:1;flex:0 0 auto;align-self:stretch;height:7.5rem;margin:0 0 .9rem;
+    display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+  #lb .lb-cap .t{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+  /* Then the photo */
+  #lb img{order:2;flex:0 0 auto;width:min(100%,calc(100vh - 22rem));width:min(100%,calc(100svh - 22rem));height:auto;aspect-ratio:1/1;max-height:none;object-fit:cover;margin:0}
+  /* Then the link, then the arrows */
+  #lb .lb-go{order:3;flex:0 0 auto;height:2.25rem;margin-top:.9rem;display:flex;align-items:center;justify-content:center}
+  #lb .lb-go .go{margin:0}
+  .lb-controls{order:4;display:flex;align-items:center;justify-content:center;gap:1.5rem;flex:0 0 auto;height:2.75rem;margin:.75rem 0 0}
   .lb-controls .lb-arrow{position:static;transform:none;width:2.75rem;height:2.75rem;font-size:1.6rem;background:none;border-color:rgba(255,255,255,.4)}
   .lb-count{margin:0;min-width:3.5rem;font-size:.8125rem;opacity:.7}
-  #lb img{order:2;flex:0 0 auto;width:100%;height:56vh;height:56svh;max-height:none;object-fit:contain;margin:0}
-  #lb .lb-cap{order:3;flex:1 1 auto;margin:.9rem 0 0;overflow-y:auto}
-  .lb-cap .go{margin-top:.75rem}
   #lb .lb-x{top:calc(env(safe-area-inset-top) + .875rem);right:1rem}
 }
-@media(max-width:360px){ .lb-controls{gap:.75rem} .lb-count{min-width:2.75rem} }
+}
+@media(max-width:360px){ .lb-controls{gap:1rem} }
 }
 
 /* Language button (built by site-i18n.js): at the right end of the top bar, in the page's greys */
@@ -416,6 +426,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 <dialog id="lb" aria-label="Photo">
   <img id="lbImg" src="" alt="">
   <div id="lbCap" class="lb-cap"></div>
+  <div id="lbGo" class="lb-go"></div>
   <div class="lb-controls">
     <button type="button" class="lb-arrow prev" data-step="-1" aria-label="Previous">&#8249;</button>
     <span class="lb-count" id="lbCount" aria-live="polite"></span>
@@ -497,10 +508,11 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     cap.appendChild(el('span', 't', d.title));
     cap.appendChild(el('span', 'w', d.where));
     var cn = document.getElementById('lbCount'); if(cn) cn.textContent = (i + 1) + ' / ' + tiles.length;
+    var go = document.getElementById('lbGo'); go.innerHTML = '';
     if(d.href){
       var a = el('a', 'go', (d.cta || (d.outlet ? 'Read the article' : 'Open the page')) + ' \u2197');
       a.href = d.href; a.target = '_blank'; a.rel = 'noopener';
-      cap.appendChild(a);
+      go.appendChild(a);
     }
   }
   tiles.forEach(function(t, k){ t.querySelector('.tile-open').addEventListener('click', function(){ show(k); dlg.showModal(); }); });
