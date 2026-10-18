@@ -1491,26 +1491,8 @@ video.cue-native::cue{
 
      .nav-links already sets text-transform:uppercase, so these render as ABOUT, MUSIC, BLOG,
      NEWS, CONTACT, CV whatever case they are written in here. -->
-<nav>
-  <a href="index.html" class="nav-name">Syl Foisy</a>
-  <div class="nav-links">
-    <a href="index.html#about">About</a>
-    <a href="index.html#news">News</a>
-    <a href="index.html#blog">Blog</a>
-    <a href="index.html#contact">Contact</a>
-    <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
-  </div>
-  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="mobileMenu">
-  <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="index.html#news" onclick="toggleMenu()">News</a>
-  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
-  <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
-  <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
-</div>
+<!-- Standalone page: the site bar (name, links, phone menu) was removed in Oct 2026.
+     The homepage is a_index.html. -->
 
 <!-- The way back, top left under the bar: one step in this tab. -->
 <a class="backw" href="index.html" onclick="return blogBack(event)">
@@ -1538,6 +1520,7 @@ function toggleMenu(){
 
   <section class="blog-head" id="blogHead">
     <h1>Blog Posts</h1>
+    <div class="lang-title" data-lang-row></div>
   </section>
 
   <div class="grid-wrap" id="gridWrap">
@@ -4176,5 +4159,11 @@ function blogBack(e){
 </script>
 <script src="site-i18n.js?v=20260919d" defer></script>
 <script src="site-cc.js?v=20260919d" defer></script>
+<style>
+/* ===== STANDALONE (Oct 2026) ==============================================
+   This page no longer has the site bar, so the things that were placed to clear
+   its 58px are moved up by that amount. */
+.backw{ top:12px }
+</style>
 </body>
 </html>

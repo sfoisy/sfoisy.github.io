@@ -989,26 +989,8 @@ body{ padding-top:74px }
      takes is given back in the stylesheet below (body's top padding, and the
      frame's own height sum).
      ====================================================================== -->
-<nav class="site-nav">
-  <a href="index.html" class="nav-name">Syl Foisy</a>
-  <div class="nav-links">
-    <a href="index.html#about">About</a>
-    <a href="index.html#news">News</a>
-    <a href="index.html#blog">Blog</a>
-    <a href="index.html#contact">Contact</a>
-    <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
-  </div>
-  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="mobileMenu">
-  <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="index.html#news" onclick="toggleMenu()">News</a>
-  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
-  <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
-  <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
-</div>
+<!-- Standalone page: the site bar (name, links, phone menu) was removed in Oct 2026.
+     The homepage is a_index.html. -->
 <script>
 function toggleMenu(){
   var m=document.getElementById('mobileMenu');
@@ -2333,5 +2315,13 @@ function goBack(e){
   </button>
 </div>
 <script src="site-i18n.js?v=20260919d" defer></script>
+<style>
+/* ===== STANDALONE (Oct 2026) ==============================================
+   This page no longer has the site bar, so the things that were placed to clear
+   its 58px are moved up by that amount. */
+body{ padding-top:16px }
+.backw{ top:12px }
+@media(max-width:700px){ .backw{ top:36px } }
+</style>
 </body>
 </html>

@@ -4,11 +4,21 @@ No build step, no dependencies. Everything goes in the repo root, next to the im
 already there, and GitHub Pages serves it as it is. **Upload the files, not the folder**, or
 everything lands one directory deep.
 
+## Oct 2026 reorganisation
+
+- The home page (`index.html`) was rebuilt as a simple academic page.
+- Every other page is standalone: the site bar (name, links, phone menu) has been removed from
+  `walk.html`, `walk_write.html`, `blog.html`, `blog_write.html`, `news.html`, `challenges.html`,
+  `letters.html` and `quiz.html`. Each carries a small "STANDALONE" style block at its foot that
+  moves up whatever used to clear the bar. The language button that lived in the bar now sits
+  under the page title on `news.html`, `challenges.html` and the blog's front page, and in the
+  header of `index.html`.
+
 ## Pages
 
 | File | What it is |
 |---|---|
-| `index.html` | The home page. Also the news digest (`#news`) and the blog's three cards (`#blog`). |
+| `index.html` | The home page. Blog section is one picture (`walk_blog.jpg`) linking to `blog.html`. |
 | `walk.html` | The article — the map, the stops, the clips, the comments. |
 | `walk_write.html` | The same article for the merge tool. Every edit to `walk.html` is applied here too. |
 | `blog.html` | The blog: its own front page, the wall of fourteen (`#hub`), every post. |

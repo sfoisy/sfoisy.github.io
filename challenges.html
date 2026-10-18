@@ -127,28 +127,8 @@ footer .fcredit{font-size:.72rem;color:#fff;letter-spacing:.02em}
 <!-- THE SAME SIX ITEMS AS EVERY OTHER PAGE WITH A BAR. About, Music, Blog, News,
      Contact, CV. Four of them are sections of the home page, so from here they carry
      the file name; on index.html itself the same four are bare fragments. -->
-<nav>
-  <a href="index.html" class="nav-name">Syl Foisy</a>
-  <div class="nav-links">
-    <a href="index.html#about">About</a>
-    <a href="index.html#videos">Music</a>
-    <a href="index.html#blog">Blog</a>
-    <a href="news.html">News</a>
-    <a href="index.html#contact">Contact</a>
-    <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener">CV</a>
-  </div>
-  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="mobileMenu">
-  <a href="index.html#about" onclick="toggleMenu()">About</a>
-  <a href="index.html#videos" onclick="toggleMenu()">Music</a>
-  <a href="index.html#blog" onclick="toggleMenu()">Blog</a>
-  <a href="news.html" onclick="toggleMenu()">News</a>
-  <a href="index.html#contact" onclick="toggleMenu()">Contact</a>
-  <a href="https://wesitefoisy1.b-cdn.net/Foisy_CV_long.pdf" target="_blank" rel="noopener" onclick="toggleMenu()">CV</a>
-</div>
+<!-- Standalone page: the site bar (name, links, phone menu) was removed in Oct 2026.
+     The homepage is a_index.html. -->
 <script>
 function toggleMenu(){
   var m=document.getElementById('mobileMenu');
@@ -161,6 +141,7 @@ function toggleMenu(){
 <header class="page-head">
   <h1>Walk Challenges</h1>
   <p>Two games built out of the walk &mdash; and out of the data I logged while walking it.</p>
+  <div class="lang-title" data-lang-row></div>
 </header>
 
 <main>
