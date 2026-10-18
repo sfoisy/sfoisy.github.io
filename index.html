@@ -282,7 +282,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
       <figure class="vid-fig">
         <video class="fig-media" src="new_aerosol.mp4" muted loop playsinline preload="metadata" aria-label="Animation of global aerosol composition"></video>
         <figcaption>Animation I made of aerosol composition across the globe for one week in April 2024, as simulated by <a href="https://www.giss.nasa.gov/tools/modelE/" target="_blank" rel="noopener">NASA GISS ModelE</a>.</figcaption>
-        <button type="button" class="vid-expand">View larger</button>
       </figure>
     </div>
   </section>
@@ -473,9 +472,9 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 /* The animation, larger: the expand button (or a click on the video) opens it in a big
    view over the page; it picks up where the small one was. Esc, the X or a click outside closes. */
 (function(){
-  var small = document.querySelector('video.fig-media'), btn = document.querySelector('.vid-expand');
+  var small = document.querySelector('video.fig-media');
   var dlg = document.getElementById('vidLb'), big = document.getElementById('vidBig'), cap = document.getElementById('vidCap');
-  if(!small || !btn || !dlg || !dlg.showModal) return;
+  if(!small || !dlg || !dlg.showModal) return;
   function open(){
     if(!big.src) big.src = small.currentSrc || small.getAttribute('src');
     var fc = small.parentNode.querySelector('figcaption'); if(fc) cap.innerHTML = fc.innerHTML;
@@ -483,8 +482,12 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
     dlg.showModal();
     var p = big.play(); if(p && p.catch) p.catch(function(){ big.controls = true; });
   }
-  btn.addEventListener('click', open);
-  small.addEventListener('click', function(e){ if(!small.controls) open(); });
+  /* A click anywhere on the video opens it -- except on the play bar, when the browser is
+     showing one (reduced-motion visitors, or a browser that would not autoplay). */
+  small.addEventListener('click', function(e){
+    if(small.controls){ var r = small.getBoundingClientRect(); if(e.clientY > r.bottom - 48) return; e.preventDefault(); }
+    open();
+  });
   dlg.addEventListener('click', function(e){ if(e.target === dlg || e.target.hasAttribute('data-close')) dlg.close(); });
   dlg.addEventListener('close', function(){
     try{ small.currentTime = big.currentTime; }catch(e){}
