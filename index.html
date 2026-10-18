@@ -79,7 +79,7 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .news li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:1rem}
 .news time{color:var(--muted)}
 .news li + li{margin-top:.5rem}
-.news.collapsed li:nth-child(n+4){display:none}
+.news.collapsed li:nth-child(n+11){display:none}
 .more-toggle{background:none;border:0;padding:0;font:inherit;color:var(--link);cursor:pointer}
 .more-toggle:hover{text-decoration:underline;text-underline-offset:.18em}
 .plain li{margin-bottom:.4rem}
@@ -92,19 +92,21 @@ video.fig-media{aspect-ratio:16/9;object-fit:cover;background:#111}
 .feature:hover img{opacity:.88}
 .feature span{display:block;margin-top:.6rem;font-weight:500}
 .feature:hover span{text-decoration:underline;text-underline-offset:.18em}
+.feature span.when{display:inline;margin:0;font-weight:400}
 
 /* Media: three across, the coverage shows on hover */
 .when{color:var(--muted);font-weight:400}
-.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem}
 .tile{all:unset;position:relative;display:block;aspect-ratio:1;overflow:hidden;border-radius:4px;background:#f0f0f0;cursor:zoom-in}
 .tile:focus-visible{outline:2px solid var(--link);outline-offset:2px}
 .tile img{width:100%;height:100%;object-fit:cover}
-.tile .ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.3rem;padding:1rem;
+.tile .ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.25rem;padding:.8rem;
   background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.15) 100%);color:#fff;
   opacity:0;transition:opacity .2s;pointer-events:none}
 .tile:hover .ov,.tile:focus-visible .ov{opacity:1}
 .tile .o{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
-.tile .t{font-size:.95rem;font-weight:500;line-height:1.35}
+.tile .t{font-size:.85rem;font-weight:500;line-height:1.3}
+@media(max-width:600px){ .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} }
 .tile .w{font-size:.75rem;opacity:.75}
 @media (hover:none){ .tile .ov{display:none} }
 
@@ -193,16 +195,18 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 
   <section id="news">
     <h2>News</h2>
-    <!-- ALL the news lives here. Add new entries at the TOP. The first three show; the rest
-         open in place with "See all news" (the button only appears once there are more than three). -->
+    <!-- ALL the news lives here. Add new entries at the TOP. The first ten show; the rest
+         open in place with "See all news" (the button only appears once there are more than ten). -->
     <ul class="news collapsed" id="newsList">
-      <li><time datetime="2026-10-14">October 14, 2026</time><span>I gave a talk at AeroCom in Fukuoka, Japan</span></li>
-      <li><time datetime="2026-10-07">October 7, 2026</time><span>My first pre-print was posted on Atmospheric Chemistry and Physics. <a href="https://egusphere.copernicus.org/preprints/2026/egusphere-2026-5135/" target="_blank" rel="noopener">Link here</a>.</span></li>
-      <li><time datetime="2026-09-24">September 24, 2026</time><span>I gave an invited talk for Secret Science Club. <a href="https://secretscienceclub.blogspot.com/2026/" target="_blank" rel="noopener">Link here</a>.</span></li>
-      <li><time datetime="2026-06-03">June 3, 2026</time><span>I finished walking from NYC to DC. <a href="walk.html">Check it out here</a>. :)</span></li>
-      <li><time datetime="2026-03-30">March 30, 2026</time><span>I gave an invited talk at NASA Goddard in Greenbelt, Maryland</span></li>
-      <li><time datetime="2025-12-17">December 17, 2025</time><span>I gave a talk at the American Geophysical Union in New Orleans, LA</span></li>
-      <li><time datetime="2025-10-15">October 15, 2025</time><span>I gave a talk at AeroCom at L'Université Paris-Saclay, France</span></li>
+      <li><time datetime="2026-10-14">October 14, 2026</time><span>I gave a talk at AeroCom in Fukuoka, Japan!</span></li>
+      <li><time datetime="2026-10-07">October 7, 2026</time><span>My first pre-print was posted on Atmospheric Chemistry and Physics! <a href="https://egusphere.copernicus.org/preprints/2026/egusphere-2026-5135/" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-09-24">September 24, 2026</time><span>I gave an invited talk for Secret Science Club! <a href="https://events.humanitix.com/science-after-dark-ask-a-scientist-pier-40-wetlab-lycrkmfd" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-06-03">June 3, 2026</time><span>I finished walking from NYC to DC! <a href="walk.html">Check it out here</a>. :)</span></li>
+      <li><time datetime="2026-06-01">June 1, 2026</time><span>I was interviewed about my experiences on Scratch! <a href="https://mitchresnick.substack.com/p/guest-gwyn-chilcoat-and-sylvain-foisy" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-05-31">May 31, 2026</time><span>I hosted a Reddit AMA about climate and weather science! <a href="https://www.reddit.com/r/IAmA/comments/1tt2ogr/i_am_a_climate_scientist_walking_250_miles_in/" target="_blank" rel="noopener">Link here</a>.</span></li>
+      <li><time datetime="2026-03-30">March 30, 2026</time><span>I gave an invited talk at NASA Goddard in Greenbelt, Maryland!</span></li>
+      <li><time datetime="2025-12-17">December 17, 2025</time><span>I gave a talk at the American Geophysical Union in New Orleans, LA!</span></li>
+      <li><time datetime="2025-10-15">October 15, 2025</time><span>I gave a talk at AeroCom at L'Université Paris-Saclay, France!</span></li>
     </ul>
     <p class="more"><button type="button" class="more-toggle" id="newsMore" aria-controls="newsList" aria-expanded="false" hidden>See all news</button></p>
   </section>
@@ -260,9 +264,13 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
          To add one: copy a <button class="tile"> block. data-outlet, data-title and data-href
          are the newspaper, the headline and the article's link (leave them empty if there is none). -->
     <div class="gallery" id="gallery">
-      <button class="tile" data-src="ssc_talk.jpg" data-outlet="Secret Science Club" data-title="Invited talk" data-where="September 24, 2026" data-href="https://secretscienceclub.blogspot.com/2026/">
-        <img src="ssc_talk.jpg" alt="Giving an invited talk for Secret Science Club" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">Secret Science Club</span><span class="t">Invited talk</span><span class="w">September 24, 2026</span></span>
+      <button class="tile" data-src="ssc_talk.jpg" data-outlet="" data-title="Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow" data-where="Manhattan, NY · 2026" data-href="https://events.humanitix.com/science-after-dark-ask-a-scientist-pier-40-wetlab-lycrkmfd">
+        <img src="ssc_talk.jpg" alt="Syl giving a talk at Secret Science Club" loading="lazy" decoding="async">
+        <span class="ov"><span class="t">Science After Dark! Secret Science Club with Syl Foisy, Andrea Silverman, and Ricardo Toledo-Crow</span><span class="w">Manhattan, NY · 2026</span></span>
+      </button>
+      <button class="tile" data-src="insidenews.png" data-outlet="Inside Climate News" data-title="A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather" data-where="Washington, DC · 2026" data-href="https://insideclimatenews.org/news/06062026/museum-of-unnatural-disasters-highlights-extreme-weather-risks/">
+        <img src="insidenews.png" alt="Syl with two others in Washington, DC" loading="lazy" decoding="async">
+        <span class="ov"><span class="o">Inside Climate News</span><span class="t">A New DC ‘Museum’ Raises Awareness About the Looming Consequences of Extreme Weather</span><span class="w">Washington, DC · 2026</span></span>
       </button>
       <button class="tile" data-src="snow2.png" data-outlet="Columbia Spectator" data-title="Buster the Snowman: Meet the minds behind the 13-foot tall sculpture that took campus by (snow)storm" data-where="Manhattan, NY · 2026" data-href="https://www.columbiaspectator.com/arts-and-culture/2026/03/12/buster-the-snowman-meet-the-minds-behind-the-13-foot-tall-sculpture-that-took-campus-by-snowstorm/">
         <img src="snow2.png" alt="Giant snowman in Manhattan, NY" loading="lazy" decoding="async">
@@ -276,30 +284,19 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
         <img src="snow5.png" alt="Commissioned ice throne in Williamstown, MA" loading="lazy" decoding="async">
         <span class="ov"><span class="o">The Williams Record</span><span class="t">Syl Foisy ’24 defrosts ice sculpture tradition for this year’s Winter Carnival festivities</span><span class="w">Williamstown, MA · 2024</span></span>
       </button>
-      <button class="tile" data-src="snow6.png" data-outlet="" data-title="Snow castle" data-where="Williamstown, MA · 2023" data-href="">
-        <img src="snow6.png" alt="Snow castle in Williamstown, MA" loading="lazy" decoding="async">
-        <span class="ov"><span class="t">Snow castle</span><span class="w">Williamstown, MA · 2023</span></span>
-      </button>
       <button class="tile" data-src="snow7.png" data-outlet="NEWS10" data-title="The Upside: Williams College student creates 15 foot snowman" data-where="Williamstown, MA · 2022" data-href="https://www.news10.com/news/the-upside-williams-college-student-creates-15-foot-snowman/">
         <img src="snow7.png" alt="Giant snowman in Williamstown, MA" loading="lazy" decoding="async">
         <span class="ov"><span class="o">NEWS10</span><span class="t">The Upside: Williams College student creates 15 foot snowman</span><span class="w">Williamstown, MA · 2022</span></span>
       </button>
-      <button class="tile" data-src="snow3.png" data-outlet="North Country Public Radio" data-title="Got big snow? Build a snowman" data-where="Potsdam, NY · 2021" data-href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman">
+      <button class="tile" data-src="snow3.png" data-outlet="North Country Public Radio" data-title="Got big snow? Build a snowman!" data-where="Potsdam, NY · 2021" data-href="https://www.northcountrypublicradio.org/news/story/43222/20210217/got-big-snow-build-a-snowman">
         <img src="snow3.png" alt="Giant snowman in Potsdam, NY" loading="lazy" decoding="async">
-        <span class="ov"><span class="o">North Country Public Radio</span><span class="t">Got big snow? Build a snowman</span><span class="w">Potsdam, NY · 2021</span></span>
-      </button>
-      <button class="tile" data-src="snow1.png" data-outlet="" data-title="Snow castle" data-where="Potsdam, NY · 2021" data-href="">
-        <img src="snow1.png" alt="Snow castle in Potsdam, NY" loading="lazy" decoding="async">
-        <span class="ov"><span class="t">Snow castle</span><span class="w">Potsdam, NY · 2021</span></span>
+        <span class="ov"><span class="o">North Country Public Radio</span><span class="t">Got big snow? Build a snowman!</span><span class="w">Potsdam, NY · 2021</span></span>
       </button>
       <button class="tile" data-src="origami.png" data-outlet="The Williams Record" data-title="1,000 paper cranes and a welding project: one entry’s First Days activity" data-where="Williamstown, MA · 2020" data-href="https://williamsrecord.com/380692/arts/1000-paper-cranes-and-a-welding-project-one-entrys-first-days-activity/">
         <img src="origami.png" alt="1,000 paper cranes in Williamstown, MA" loading="lazy" decoding="async">
         <span class="ov"><span class="o">The Williams Record</span><span class="t">1,000 paper cranes and a welding project: one entry’s First Days activity</span><span class="w">Williamstown, MA · 2020</span></span>
       </button>
     </div>
-    <ul class="news" style="margin-top:1.25rem">
-      <li><time datetime="2026-06-04">June 4, 2026</time><span><a href="https://cmns.umd.edu/news-events/news/climate-scientist-walks-nyc-dc-and-stops-umd" target="_blank" rel="noopener">University of Maryland article</a></span></li>
-    </ul>
   </section>
 
   <section id="socials">
@@ -341,7 +338,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;paddi
 (function(){
   var list = document.getElementById('newsList'), btn = document.getElementById('newsMore');
   if(!list || !btn) return;
-  if(list.children.length <= 3) return;            // nothing hidden, so no button
+  if(list.children.length <= 10) return;           // nothing hidden, so no button
   btn.hidden = false;
   btn.addEventListener('click', function(){
     var open = list.classList.toggle('collapsed') === false;

@@ -1520,6 +1520,7 @@ function toggleMenu(){
 
   <section class="blog-head" id="blogHead">
     <h1>NYC to DC walk</h1>
+    <div class="walk-route" aria-hidden="true"><i></i></div>
   </section>
 
   <div class="grid-wrap" id="gridWrap">
@@ -4171,6 +4172,50 @@ function blogBack(e){
 /* Room for the language button in the top-right corner on a phone, where the titles run wide. */
 @media(max-width:700px){ body{ padding-top:2.6rem } }
 .hub-note.hub-intro.front-intro{ width:100%; margin:2.5rem auto 0; padding:1.9rem 0 0; border-top:1px solid var(--pale); border-bottom:0 }
+
+/* ===== THE FRONT PAGE: ONE COLUMN, AND A LITTLE MOTION (Oct 2026) ==========
+   The three cards, the route line and the paragraph share one width, so their
+   edges line up. KNOB: --front-w. */
+#indexView{ --front-w:780px }
+#indexView .card-grid.index-grid{ max-width:var(--front-w) }
+#indexView .hub-note.hub-intro.front-intro{ max-width:var(--front-w) }
+#indexView .hub-note.hub-intro.front-intro p{ max-width:none }
+
+/* The route: a dashed line draws itself across, and a dot walks it from NYC to DC. */
+.walk-route{ position:relative; max-width:var(--front-w); height:12px; margin:1.1rem auto 1.4rem }
+.walk-route::before{ content:""; position:absolute; left:0; right:0; top:5px; height:2px;
+  background:repeating-linear-gradient(90deg, rgba(255,255,255,.45) 0 8px, transparent 8px 14px);
+  transform-origin:left center; animation:routeDraw 1.1s cubic-bezier(.6,0,.2,1) .15s both }
+.walk-route i{ position:absolute; top:1px; left:0; width:10px; height:10px; margin-left:-5px; border-radius:50%;
+  background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.15);
+  animation:routeWalk 2.6s cubic-bezier(.45,0,.25,1) .5s both, routePulse 2.4s ease-in-out 3.2s infinite }
+@keyframes routeDraw{ from{ transform:scaleX(0) } to{ transform:scaleX(1) } }
+@keyframes routeWalk{ from{ left:0 } to{ left:100% } }
+@keyframes routePulse{ 0%,100%{ box-shadow:0 0 0 4px rgba(255,255,255,.15) } 50%{ box-shadow:0 0 0 9px rgba(255,255,255,0) } }
+
+/* The title rises in; the three cards pop in one after another. */
+#indexView .blog-head h1{ animation:frontRise .7s cubic-bezier(.2,.8,.2,1) both }
+#cardGrid .card-slot{ animation:cardPop .75s cubic-bezier(.34,1.56,.64,1) both }
+#cardGrid .card-slot:nth-child(1){ animation-delay:.35s }
+#cardGrid .card-slot:nth-child(2){ animation-delay:.5s }
+#cardGrid .card-slot:nth-child(3){ animation-delay:.65s }
+#indexView .front-intro{ animation:frontRise .8s cubic-bezier(.2,.8,.2,1) .9s both }
+@keyframes frontRise{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
+@keyframes cardPop{ from{ opacity:0; transform:translateY(26px) scale(.92) rotate(-2deg) } to{ opacity:1; transform:none } }
+
+/* On hover a card hops and tilts -- left one way, middle up, right the other. */
+@media(hover:hover){
+  #cardGrid .card .card-cover{ transition:transform .45s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease }
+  #cardGrid .card-slot:nth-child(1) .card:hover .card-cover{ transform:translateY(-8px) rotate(-2deg) scale(1.03) }
+  #cardGrid .card-slot:nth-child(2) .card:hover .card-cover{ transform:translateY(-10px) scale(1.04) }
+  #cardGrid .card-slot:nth-child(3) .card:hover .card-cover{ transform:translateY(-8px) rotate(2deg) scale(1.03) }
+  #cardGrid .card:hover .card-cover{ box-shadow:0 22px 40px -18px rgba(0,0,0,.7) }
+}
+@media(prefers-reduced-motion:reduce){
+  .walk-route::before, .walk-route i, #indexView .blog-head h1, #cardGrid .card-slot, #indexView .front-intro{ animation:none }
+  .walk-route i{ left:100% }
+  #cardGrid .card .card-cover{ transition:none }
+}
 </style>
 </body>
 </html>
